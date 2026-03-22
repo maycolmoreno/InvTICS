@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Editar Usuario</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <form th:action="@{/usuarios}" th:object="${nuevousuario}" method="post">
+    <div class="page-shell admin-form-shell">
+      <section class="operations-strip">
+        <div class="operations-copy">
+          <div class="eyebrow">Actualizacion De Usuario</div>
+          <h1 class="operations-title">Editar acceso y datos operativos</h1>
+          <p class="operations-subtitle">Ajusta informacion del colaborador, rol asignado y estado de la cuenta sin perder continuidad administrativa.</p>
+        </div>
+        <div class="operations-badges">
+          <div class="operations-badge"><i class="feather-user-check"></i><span>Cuenta controlada</span></div>
+          <div class="operations-badge"><i class="feather-refresh-cw"></i><span>Actualizacion segura</span></div>
+        </div>
+      </section>
+
+      <div class="helper-callout">
+        <i class="feather-alert-circle"></i>
+        <div>
+          <div class="helper-callout-title">Edicion recomendada</div>
+          <p class="helper-callout-copy">Modifica solo lo necesario. La contrasena es opcional y solo debe completarse si deseas reemplazar la actual.</p>
+        </div>
+      </div>
+
+      <div class="alert alert-danger" role="alert" th:if="${errorGeneral}" th:text="${errorGeneral}"></div>
+
+      <section class="admin-form-grid">
+        <article class="admin-form-card">
+          <h2 class="admin-form-card-title">Perfil del usuario</h2>
+          <p class="admin-form-card-copy">Actualiza identificacion, contacto y estructura organizacional del colaborador.</p>
+
+          <input type="hidden" th:field="*{idUsuario}">
+
+          <div class="form-grid">
+            <div>
+              <label class="field-label">Nombre completo</label>
+              <input type="text" class="form-control" placeholder="Ej. Juan Perez" th:field="*{nombre}" required minlength="3" maxlength="50" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo letras y espacios, maximo 50 caracteres.">
+            </div>
+            <div>
+              <label class="field-label">Correo institucional</label>
+              <input type="email" class="form-control" placeholder="usuario@empresa.com" th:field="*{correo}" required>
+            </div>
+            <div>
+              <label class="field-label">Cedula</label>
+              <input type="text" class="form-control" placeholder="10 digitos" th:field="*{cedula}" required minlength="10" maxlength="10" inputmode="numeric" pattern="\d{10}" title="Ingrese una cedula valida de 10 digitos.">
+            </div>
+            <div>
+              <label class="field-label">Rol</label>
+              <select class="form-select" name="fkRolId" required>
+                <option value="">Seleccione un rol</option>
+                <option th:each="rol : ${roles}" th:if="${rol.estado}" th:value="${rol.idRol}" th:text="${rol.nombre}" th:selected="${nuevousuario.fkRol != null && nuevousuario.fkRol.idRol == rol.idRol}"></option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Departamento</label>
+              <select class="form-select" name="fkDepartamentoId" required>
+                <option value="">Seleccione un departamento</option>
+                <option th:each="departamento : ${departamentos}" th:if="${departamento.estado}" th:value="${departamento.idDepartamento}" th:text="${departamento.nombre}" th:selected="${nuevousuario.fkDepartamento != null && nuevousuario.fkDepartamento.idDepartamento == departamento.idDepartamento}"></option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Nueva contrasena</label>
+              <input type="password" class="form-control" placeholder="Dejar en blanco para no cambiar" th:field="*{contrasena}" minlength="8" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$" title="Debe incluir mayusculas, minusculas y numeros.">
+              <small class="text-muted">Solo completa este campo si quieres actualizar la clave.</small>
+            </div>
+          </div>
+        </article>
+
+        <article class="admin-form-card">
+          <h2 class="admin-form-card-title">Estado y control</h2>
+          <p class="admin-form-card-copy">Gestiona la disponibilidad de la cuenta y revisa rapidamente su alcance administrativo.</p>
+
+          <div class="switch-card mb-4">
+            <div>
+              <div class="fw-semibold">Cuenta activa</div>
+              <div class="switch-card-copy">Si desactivas este usuario, dejara de usarse en la operacion diaria.</div>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input" type="checkbox" id="estadoSwitch" th:field="*{estado}">
+              <label class="form-check-label ms-2" for="estadoSwitch">Activo</label>
+            </div>
+          </div>
+
+          <div class="info-chip-row">
+            <div class="info-chip"><i class="feather-mail"></i><span>Correo editable</span></div>
+            <div class="info-chip"><i class="feather-shield"></i><span>Rol obligatorio</span></div>
+            <div class="info-chip"><i class="feather-slash"></i><span>Desactivacion controlada</span></div>
+          </div>
+        </article>
+      </section>
+
+      <div class="action-footer">
+        <div class="action-footer-copy">Asegura que el cambio de estado o de rol haya sido validado por el responsable del area.</div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/usuarios}" class="btn btn-light px-4 py-3">Volver</a>
+          <button type="submit" class="btn btn-primary px-4 py-3">
+            <i class="feather-save me-2"></i>Guardar cambios
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+</html>

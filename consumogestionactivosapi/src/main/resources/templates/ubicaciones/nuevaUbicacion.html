@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Nueva Ubicacion</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <form th:action="@{/ubicaciones}" th:object="${ubicacion}" method="post">
+    <div class="page-shell admin-form-shell">
+      <section class="operations-strip">
+        <div class="operations-copy">
+          <div class="eyebrow">Alta De Ubicacion</div>
+          <h1 class="operations-title">Registrar nueva sede operativa</h1>
+          <p class="operations-subtitle">Documenta agencia, direccion y coordenadas para mejorar trazabilidad geografica, custodias y rutas de soporte.</p>
+        </div>
+        <div class="operations-badges">
+          <div class="operations-badge"><i class="feather-map-pin"></i><span>Mapa asistido</span></div>
+          <div class="operations-badge"><i class="feather-navigation"></i><span>Coordenadas listas</span></div>
+        </div>
+      </section>
+
+      <div class="helper-callout">
+        <i class="feather-compass"></i>
+        <div>
+          <div class="helper-callout-title">Ubicacion precisa, mejor operacion</div>
+          <p class="helper-callout-copy">Completa provincia, ciudad y direccion con criterio uniforme. Si tienes latitud y longitud, el mapa te ayudara a verificar rapidamente el punto.</p>
+        </div>
+      </div>
+
+      <section class="admin-form-grid">
+        <article class="admin-form-card">
+          <h2 class="admin-form-card-title">Datos generales</h2>
+          <p class="admin-form-card-copy">Informacion base de la sede o agencia que se incorporara al inventario.</p>
+
+          <div class="form-grid">
+            <div>
+              <label class="field-label">Nombre</label>
+              <input type="text" class="form-control" placeholder="Ej. Agencia Norte" th:field="*{nombre}" maxlength="100">
+              <div class="text-danger small mt-1" th:if="${errorNombre}" th:text="${errorNombre}"></div>
+            </div>
+            <div>
+              <label class="field-label">Agencia</label>
+              <input type="text" class="form-control" placeholder="Codigo o alias interno" th:field="*{agencia}" maxlength="100">
+              <div class="text-danger small mt-1" th:if="${errorAgencia}" th:text="${errorAgencia}"></div>
+            </div>
+            <div>
+              <label class="field-label">Provincia</label>
+              <input type="text" class="form-control" placeholder="Provincia" th:field="*{provincia}" maxlength="100">
+            </div>
+            <div>
+              <label class="field-label">Ciudad</label>
+              <input type="text" class="form-control" placeholder="Ciudad" th:field="*{ciudad}" maxlength="100">
+            </div>
+            <div>
+              <label class="field-label">Parroquia</label>
+              <input type="text" class="form-control" placeholder="Parroquia" th:field="*{parroquia}" maxlength="150">
+            </div>
+            <div>
+              <label class="field-label">Direccion</label>
+              <input type="text" class="form-control" placeholder="Direccion de referencia" th:field="*{direccion}" maxlength="255">
+            </div>
+          </div>
+        </article>
+
+        <article class="admin-form-card">
+          <h2 class="admin-form-card-title">Coordenadas y mapa</h2>
+          <p class="admin-form-card-copy">Usa coordenadas numericas o selecciona el punto desde el mapa para dejar una referencia reutilizable.</p>
+
+          <div class="form-grid">
+            <div>
+              <label class="field-label">Latitud</label>
+              <input type="text" class="form-control" placeholder="Ej. -0.1807" th:field="*{latitud}" maxlength="50" id="inputLatitud">
+            </div>
+            <div>
+              <label class="field-label">Longitud</label>
+              <input type="text" class="form-control" placeholder="Ej. -78.4678" th:field="*{longitud}" maxlength="50" id="inputLongitud">
+            </div>
+            <div class="span-2">
+              <label class="field-label">Enlace de coordenada</label>
+              <input type="text" class="form-control" placeholder="URL de Google Maps u otra referencia" th:field="*{linkCoordenada}" maxlength="500">
+            </div>
+          </div>
+
+          <div id="mapContainer" class="map-panel mt-4"></div>
+        </article>
+      </section>
+
+      <div class="action-footer">
+        <div class="action-footer-copy">Verifica el punto en el mapa antes de guardar para evitar errores de desplazamiento tecnico y reportes geograficos inconsistentes.</div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/ubicaciones}" class="btn btn-light px-4 py-3">Cancelar</a>
+          <button type="submit" class="btn btn-primary px-4 py-3">
+            <i class="feather-save me-2"></i>Guardar ubicacion
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var latInput = document.getElementById('inputLatitud');
+      var lngInput = document.getElementById('inputLongitud');
+      var mapDiv = document.getElementById('mapContainer');
+      var map;
+      var marker;
+
+      function initMap(lat, lng) {
+        if (!map) {
+          map = L.map('mapContainer').setView([lat, lng], 15);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+          }).addTo(map);
+          map.on('click', function(e) {
+            latInput.value = e.latlng.lat.toFixed(6);
+            lngInput.value = e.latlng.lng.toFixed(6);
+            updateMarker(e.latlng.lat, e.latlng.lng);
+          });
+        } else {
+          map.setView([lat, lng], 15);
+        }
+        updateMarker(lat, lng);
+        setTimeout(function() { map.invalidateSize(); }, 120);
+      }
+
+      function updateMarker(lat, lng) {
+        if (marker) {
+          map.removeLayer(marker);
+        }
+        marker = L.marker([lat, lng]).addTo(map);
+      }
+
+      function tryShowMap() {
+        var lat = parseFloat(latInput.value);
+        var lng = parseFloat(lngInput.value);
+        if (isNaN(lat) || isNaN(lng)) {
+          lat = -0.1807;
+          lng = -78.4678;
+        }
+        initMap(lat, lng);
+      }
+
+      latInput.addEventListener('change', tryShowMap);
+      lngInput.addEventListener('change', tryShowMap);
+      tryShowMap();
+    });
+  </script>
+</div>
+</body>
+</html>

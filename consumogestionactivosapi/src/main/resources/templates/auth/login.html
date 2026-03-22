@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Cresio</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/images/logo/logoCRESIO.png}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/vendors.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/cresio-auth.css}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card login-card login-card-pro">
+            <div class="auth-showcase">
+                <div class="auth-showcase-badge">
+                    <i class="feather-shield"></i>
+                    <span>Plataforma corporativa</span>
+                </div>
+                <div class="auth-brand auth-brand-left">
+                    <div class="auth-brand-name">CRESIO</div>
+                    <div class="auth-brand-sub">Gestion de Activos</div>
+                </div>
+                <h1 class="auth-hero-title">Operacion, custodias y mantenimiento en un solo entorno.</h1>
+                <p class="auth-hero-copy">
+                    Accede al centro de control para inventario tecnologico, soporte tecnico y seguimiento operativo
+                    con una experiencia clara, moderna y lista para trabajo empresarial.
+                </p>
+                <div class="auth-feature-list">
+                    <div class="auth-feature-item">
+                        <i class="feather-box"></i>
+                        <span>Trazabilidad de activos y custodias</span>
+                    </div>
+                    <div class="auth-feature-item">
+                        <i class="feather-tool"></i>
+                        <span>Gestion formal de mantenimientos</span>
+                    </div>
+                    <div class="auth-feature-item">
+                        <i class="feather-bar-chart-2"></i>
+                        <span>Monitoreo operativo con enfoque ejecutivo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-form-panel">
+                <div class="auth-panel-top">
+                    <div class="auth-mini-label">Acceso seguro</div>
+                    <h2 class="auth-title">Iniciar sesion</h2>
+                    <p class="auth-subtitle">
+                        Usa tus credenciales para entrar al panel operativo de CRESIO.
+                    </p>
+                </div>
+
+                <div th:if="${exito}" class="alert alert-success" role="alert">
+                    <i class="feather-check-circle me-2"></i>
+                    <span th:text="${exito}"></span>
+                </div>
+
+                <div th:if="${error}" class="alert alert-danger" role="alert">
+                    <i class="feather-alert-circle me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+
+                <form th:action="@{/login}" method="post">
+                    <div class="mb-3">
+                        <label for="correo" class="form-label">Correo electronico</label>
+                        <input type="email" class="form-control" id="correo" name="correo"
+                               placeholder="usuario@cresio.com" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="contrasena" class="form-label">Contrasena</label>
+                        <input type="password" class="form-control" id="contrasena" name="contrasena"
+                               placeholder="Ingresa tu contrasena" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-auth">
+                        <i class="feather-log-in me-2"></i>
+                        Entrar al sistema
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <small class="text-muted">
+                        CRESIO · Plataforma de gestion de activos corporativos
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/assets/vendors/js/vendors.min.js}"></script>
+    <script th:src="@{/assets/js/common-init.min.js}"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{plantilla/plantillaui}">
+<head><title>Historial Mantenimientos</title></head>
+<body>
+<div layout:fragment="contenidopaginas">
+		<div class="page-shell">
+			<div class="operations-strip">
+				<div class="operations-hero">
+					<div class="eyebrow text-white-50">Mesa tecnica</div>
+					<h2>Control central de mantenimientos y seguimiento operativo.</h2>
+					<p>
+						Consulta el historial, prioriza ordenes segun criticidad y manten visibilidad sobre tecnicos,
+						custodios y estado de ejecucion desde una sola vista.
+					</p>
+					<div class="operations-badges">
+						<div class="operations-badge"><i class="feather-tool"></i><span th:text="${#lists.size(listamantenimientos)} + ' ordenes'">0 ordenes</span></div>
+						<div class="operations-badge"><i class="feather-clock"></i><span th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])} + ' en proceso'">0 en proceso</span></div>
+						<div class="operations-badge"><i class="feather-check-circle"></i><span th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'CERRADO'])} + ' cerradas'">0 cerradas</span></div>
+					</div>
+				</div>
+				<div class="surface-card insight-panel">
+					<div class="content-card-header mb-0">
+						<div>
+							<h2 class="content-card-title">Indicadores rapidos</h2>
+							<p class="content-card-copy">Lectura ejecutiva del comportamiento actual del soporte.</p>
+						</div>
+					</div>
+					<div class="insight-list">
+						<div class="insight-item">
+							<i class="feather-activity"></i>
+							<div>
+								<div class="signal-title">Preventivos</div>
+								<div class="signal-copy">Ordenes enfocadas en continuidad y prevencion.</div>
+							</div>
+							<div class="insight-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'PREVENTIVO'])}">0</div>
+						</div>
+						<div class="insight-item">
+							<i class="feather-alert-octagon"></i>
+							<div>
+								<div class="signal-title">Correctivos</div>
+								<div class="signal-copy">Casos reactivos con necesidad de intervencion tecnica.</div>
+							</div>
+							<div class="insight-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO'])}">0</div>
+						</div>
+						<div class="insight-item">
+							<i class="feather-users"></i>
+							<div>
+								<div class="signal-title">Tecnicos con carga</div>
+								<div class="signal-copy">Visibilidad de ejecuciones actuales y recientes.</div>
+							</div>
+							<div class="insight-value" th:text="${#lists.size(listamantenimientos.?[tecnicoNombre != null])}">0</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="view-heading">
+				<div>
+					<div class="eyebrow">Operaciones de Mantenimiento</div>
+					<h1 class="view-title">Historial de Mantenimiento</h1>
+					<p class="view-subtitle">Seguimiento consolidado de ordenes de trabajo, tecnicos asignados y estado general de ejecucion.</p>
+				</div>
+			<div class="d-flex gap-3 flex-wrap">
+				<a th:href="@{/mantenimiento/nuevo}" class="btn btn-primary px-4 py-3">Registro manual</a>
+				<a th:href="@{/mantenimiento/programado}" class="btn btn-light px-4 py-3">Programado</a>
+			</div>
+		</div>
+
+		<div class="compact-kpi-grid">
+			<div class="surface-card compact-kpi">
+				<div class="metric-label">Total Ordenes</div>
+				<div class="compact-kpi-value" th:text="${#lists.size(listamantenimientos)}">0</div>
+			</div>
+			<div class="surface-card compact-kpi">
+				<div class="metric-label">Preventivos</div>
+				<div class="compact-kpi-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'PREVENTIVO'])}">0</div>
+			</div>
+			<div class="surface-card compact-kpi">
+				<div class="metric-label">Correctivos</div>
+				<div class="compact-kpi-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO'])}">0</div>
+			</div>
+		</div>
+
+		<div th:if="${exito}" class="flash-banner success" th:text="${exito}"></div>
+
+		<div class="card-surface-strong table-shell">
+			<div class="soft-header">
+				<div class="section-toolbar">
+					<div class="toolbar-pills">
+						<div class="toolbar-pill"><i class="feather-layers"></i><span>Total <strong th:text="${#lists.size(listamantenimientos)}">0</strong></span></div>
+						<div class="toolbar-pill"><i class="feather-loader"></i><span>En proceso <strong th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])}">0</strong></span></div>
+						<div class="toolbar-pill"><i class="feather-check"></i><span>Cerradas <strong th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'CERRADO'])}">0</strong></span></div>
+					</div>
+				</div>
+			</div>
+			<div class="content-card pt-0">
+			<div class="content-card-header">
+				<div>
+					<h2 class="content-card-title">Ordenes de Mantenimiento Recientes</h2>
+					<p class="content-card-copy">Seguimiento de las actualizaciones operativas mas recientes.</p>
+				</div>
+			</div>
+			<div class="table-responsive">
+				<table class="inventory-table">
+					<thead>
+						<tr>
+							<th>Equipo</th>
+							<th>Tecnico</th>
+							<th>Ultima Accion</th>
+							<th>Estado</th>
+							<th class="text-end">Accion</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="m : ${listamantenimientos}">
+							<td>
+								<div class="device-cell">
+									<div class="mini-thumb"><i class="feather-tool"></i></div>
+									<div>
+										<div class="device-name" th:text="${m.equipoDescripcion ?: 'Orden de mantenimiento'}"></div>
+										<div class="device-meta" th:text="${m.equipoCodigoSap ?: '-'}"></div>
+									</div>
+								</div>
+							</td>
+							<td>
+								<div class="muted-stack">
+									<div class="device-name" th:text="${m.tecnicoNombre ?: '-'}"></div>
+									<div class="device-meta" th:text="${m.custodioNombre ?: '-'}"></div>
+								</div>
+							</td>
+							<td>
+								<div class="muted-stack">
+									<div class="device-name" th:text="${m.tipoMantenimiento ?: '-'}"></div>
+									<div class="device-meta" th:text="${m.fechaMantenimiento ?: '-'}"></div>
+								</div>
+							</td>
+							<td>
+								<span class="status-pill"
+									th:with="estadoNormalizado=${m.estadoInterno != null ? #strings.toLowerCase(m.estadoInterno) : ''}"
+									th:classappend="${#strings.contains(estadoNormalizado, 'complet')} ? ' is-completed' : (${#strings.contains(estadoNormalizado, 'proceso')} ? ' is-progress' : ' is-warning')"
+									th:text="${m.estadoInterno ?: 'Pendiente'}"></span>
+							</td>
+							<td class="text-end">
+								<a class="btn btn-outline-primary" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver detalle</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

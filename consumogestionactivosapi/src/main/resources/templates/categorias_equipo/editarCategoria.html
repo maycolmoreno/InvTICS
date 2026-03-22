@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Editar Categoria</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <form th:action="@{/categorias-equipo}" th:object="${nuevacategoria}" method="post">
+    <div class="page-shell admin-form-shell">
+      <section class="operations-strip">
+        <div class="operations-copy">
+          <div class="eyebrow">Edicion De Categoria</div>
+          <h1 class="operations-title">Actualizar clasificacion</h1>
+          <p class="operations-subtitle">Ajusta nombre o estado de la categoria sin perder la coherencia del catalogo tecnico.</p>
+        </div>
+      </section>
+
+      <div class="alert alert-danger" role="alert" th:if="${errorNombre}" th:text="${errorNombre}"></div>
+
+      <article class="admin-form-card">
+        <h2 class="admin-form-card-title">Ficha de la categoria</h2>
+        <p class="admin-form-card-copy">Revisa el impacto del cambio si esta categoria ya participa en equipos o checklist asociados.</p>
+        <input type="hidden" th:field="*{idCategoria}">
+        <div class="form-grid">
+          <div>
+            <label class="field-label">Nombre</label>
+            <input type="text" class="form-control" placeholder="Ej. Impresora" th:field="*{nombre}" required minlength="2" maxlength="50" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+" title="Solo se permiten letras y espacios, maximo 50 caracteres.">
+          </div>
+        </div>
+        <div class="switch-card mt-4">
+          <div>
+            <div class="fw-semibold">Categoria activa</div>
+            <div class="switch-card-copy">Si la desactivas, ya no deberia utilizarse en nuevos registros de equipos.</div>
+          </div>
+          <div class="form-check form-switch m-0">
+            <input class="form-check-input" type="checkbox" id="categoriaEstadoSwitch" th:field="*{estado}">
+            <label class="form-check-label ms-2" for="categoriaEstadoSwitch">Activo</label>
+          </div>
+        </div>
+      </article>
+
+      <div class="action-footer">
+        <div class="action-footer-copy">Confirma que el ajuste no rompa convenciones existentes de inventario y mantenimiento.</div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/categorias-equipo}" class="btn btn-light px-4 py-3">Cancelar</a>
+          <button type="submit" class="btn btn-primary px-4 py-3"><i class="feather-save me-2"></i>Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+</html>

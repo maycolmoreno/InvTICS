@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Nueva Marca</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <form th:action="@{/marcas}" th:object="${nuevamarca}" method="post">
+    <div class="page-shell admin-form-shell">
+      <section class="operations-strip">
+        <div class="operations-copy">
+          <div class="eyebrow">Alta De Marca</div>
+          <h1 class="operations-title">Registrar fabricante</h1>
+          <p class="operations-subtitle">Crea una marca oficial para mantener consistencia en el inventario y evitar duplicados al cargar equipos.</p>
+        </div>
+      </section>
+
+      <div class="alert alert-danger mb-0" th:if="${error}">
+        <span th:text="${error}"></span>
+      </div>
+
+      <article class="admin-form-card">
+        <h2 class="admin-form-card-title">Datos de la marca</h2>
+        <p class="admin-form-card-copy">Usa el nombre comercial exacto que el equipo o fabricante maneja oficialmente.</p>
+        <input type="hidden" th:field="*{idMarca}">
+        <div class="form-grid">
+          <div>
+            <label class="field-label">Nombre</label>
+            <input type="text" class="form-control" placeholder="Ej. Lenovo" th:field="*{nombre}" required minlength="2" maxlength="100" title="Ingrese el nombre de la marca">
+          </div>
+        </div>
+      </article>
+
+      <div class="action-footer">
+        <div class="action-footer-copy">Mantener este catalogo limpio ayuda mucho cuando se importan equipos en volumen.</div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/marcas}" class="btn btn-light px-4 py-3">Cancelar</a>
+          <button type="submit" class="btn btn-primary px-4 py-3"><i class="feather-save me-2"></i>Guardar marca</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Nuevo Ticket</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <div class="page-shell admin-shell">
+    <section class="operations-hero">
+      <div class="operations-hero-copy">
+        <div class="eyebrow">Registro Manual</div>
+        <h1>Crear ticket tecnico</h1>
+        <h2>Registra la referencia de Odoo manualmente o crea un caso interno local para mantener trazabilidad completa antes del mantenimiento.</h2>
+      </div>
+      <div class="operations-hero-actions">
+        <a th:href="@{/tickets}" class="btn btn-light px-4 py-3">
+          <i class="feather-arrow-left me-2"></i>Volver a tickets
+        </a>
+      </div>
+    </section>
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorGeneral}">
+      <strong>Error:</strong> <span th:text="${errorGeneral}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <section class="surface-card page-panel admin-form-card">
+      <div class="helper-callout mb-4">
+        <strong>Flujo recomendado:</strong> si el caso viene de Odoo, selecciona <code>ODOO_HELPDESK</code> y registra el numero manualmente. Si nace dentro de CRESIO, usa <code>MANUAL</code>.
+      </div>
+
+      <form th:action="@{/tickets}" th:object="${ticket}" method="post" class="row g-4">
+        <div class="col-12 col-lg-8">
+          <label class="filter-label">Titulo</label>
+          <input type="text" class="form-control" th:field="*{titulo}" required maxlength="200" placeholder="Ej. Impresora no responde en agencia Loja">
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <label class="filter-label">Origen</label>
+          <select id="tipoOrigen" class="form-select" th:field="*{tipoOrigen}" required>
+            <option th:each="origen : ${origenes}" th:value="${origen}" th:text="${origen}">MANUAL</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <label class="filter-label">Ticket Odoo</label>
+          <input id="odooTicketId" type="text" class="form-control" th:field="*{odooTicketId}" placeholder="Ej. HD-2487">
+          <div id="odooHelp" class="form-text">Obligatorio solo cuando el origen es ODOO_HELPDESK.</div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <label class="filter-label">Prioridad</label>
+          <select class="form-select" th:field="*{prioridad}" required>
+            <option th:each="prioridad : ${prioridades}" th:value="${prioridad}" th:text="${prioridad}">MEDIA</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <label class="filter-label">Estado inicial</label>
+          <select class="form-select" th:field="*{estado}" required>
+            <option th:each="estado : ${estados}" th:value="${estado}" th:text="${estado}">ABIERTO</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="filter-label">Descripcion</label>
+          <textarea class="form-control" th:field="*{descripcion}" rows="5" placeholder="Describe el problema, contexto, impacto y observaciones tecnicas iniciales."></textarea>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <label class="filter-label">Solicitante / Custodio</label>
+          <select class="form-select" th:field="*{idSolicitante}">
+            <option value="">Seleccionar custodio</option>
+            <option th:each="custodio : ${custodios}" th:value="${custodio.idCustodio}" th:text="${custodio.nombre}">Custodio</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <label class="filter-label">Equipo</label>
+          <select class="form-select" th:field="*{idEquipo}">
+            <option value="">Seleccionar equipo</option>
+            <option th:each="equipo : ${equipos}"
+                    th:value="${equipo.idEquipo}"
+                    th:text="${(equipo.tipoEquipo != null ? equipo.tipoEquipo : 'Equipo') + (equipo.modelo != null ? ' ' + equipo.modelo : '') + (equipo.serial != null ? ' (' + equipo.serial + ')' : '')}">Equipo</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <label class="filter-label">Tecnico asignado</label>
+          <select class="form-select" th:field="*{idTecnicoAsignado}">
+            <option value="">Asignar despues</option>
+            <option th:each="usuario : ${usuarios}" th:value="${usuario.idUsuario}" th:text="${usuario.nombre}">Tecnico</option>
+          </select>
+        </div>
+
+        <div class="col-12 d-flex justify-content-end gap-3 pt-3">
+          <a th:href="@{/tickets}" class="btn btn-light px-4">Cancelar</a>
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="feather-save me-2"></i>Guardar ticket
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const tipoOrigen = document.getElementById('tipoOrigen');
+      const odooTicketId = document.getElementById('odooTicketId');
+      const odooHelp = document.getElementById('odooHelp');
+
+      function syncOdooRequirement() {
+        const isOdoo = (tipoOrigen.value || '').toUpperCase() === 'ODOO_HELPDESK';
+        odooTicketId.required = isOdoo;
+        odooHelp.textContent = isOdoo
+          ? 'Este campo es obligatorio porque el ticket proviene de Odoo Helpdesk.'
+          : 'Opcional para tickets manuales creados directamente en CRESIO.';
+      }
+
+      tipoOrigen.addEventListener('change', syncOdooRequirement);
+      syncOdooRequirement();
+    });
+  </script>
+</div>
+</body>
+</html>

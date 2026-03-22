@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Acta de Entrega</title>
+</head>
+<body>
+	<div layout:fragment="contenidopaginas">
+
+		<div class="page-header">
+			<div class="page-header-left d-flex align-items-center">
+				<div class="page-header-title">
+					<h5 class="m-b-10">Acta de Entrega</h5>
+				</div>
+			</div>
+			<div class="page-header-right ms-auto">
+				<!-- Botón para descargar PDF y volver -->
+				<button id="btnDescargarVolver" type="button"
+					class="btn btn-primary ms-2">
+					<i class="feather-download me-2"></i><span>Descargar PDF y
+						Volver</span>
+				</button>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-body">
+
+				<div th:if="${cabecera == null}" class="alert alert-warning">
+					No se encontró información para el acta.</div>
+
+				<div th:if="${cabecera != null}">
+					<p>
+						<strong>Tipo de Acta:</strong> <span th:text="${tipoMovimiento}">ASIGNACION</span>
+					</p>
+					<p>
+						<strong>N° Acta:</strong> <span
+							th:text="${cabecera != null && cabecera.fkCustodio != null ? cabecera.fkCustodio.idCustodio : cabecera.idCustodio}">
+							0 </span>
+					</p>
+
+					<p>
+						<b>Custodio:</b> <span
+							th:text="${cabecera.fkCustodio != null ? cabecera.fkCustodio.nombre : ''}"></span>
+					</p>
+					<p>
+						<b>Fecha inicio:</b> <span th:text="${cabecera.fechaInicio}"></span>
+					</p>
+					<p>
+						<b>Observación:</b> <span th:text="${cabecera.observacion}"></span>
+					</p>
+
+					<hr>
+
+					<h6>Equipos entregados</h6>
+					<div class="table-responsive">
+						<table class="table table-hover align-middle">
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Código</th>
+									<th>Tipo</th>
+									<th>Modelo</th>
+									<th>Serial</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="d : ${detalles}">
+									<td th:text="${d.fkEquipo != null ? d.fkEquipo.idEquipo : ''}"></td>
+									<td th:text="${d.fkEquipo != null ? d.fkEquipo.codigoSap : ''}"></td>
+									<td
+										th:text="${d.fkEquipo != null ? d.fkEquipo.tipoEquipo : ''}"></td>
+									<td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
+									<td th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></td>
+								</tr>
+								<tr th:if="${detalles == null or #lists.isEmpty(detalles)}">
+									<td colspan="5" class="text-center text-muted">Sin
+										detalles</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>
+<script>
+  (function() {
+    const btn = document.getElementById('btnDescargarVolver');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      const urlPdf = /*[[@{/custodias/acta-entrega/pdf}]]*/ '/custodias/acta-entrega/pdf';
+      const urlVolver = /*[[@{/custodias}]]*/ '/custodias';
+
+      try {
+        // 1) Descarga el PDF vía fetch como Blob
+        const resp = await fetch(urlPdf, { method: 'GET', credentials: 'same-origin' });
+        if (!resp.ok) throw new Error('No se pudo generar el PDF.');
+
+        const blob = await resp.blob();
+
+        // 2) Dispara la descarga en el navegador
+        const enlace = document.createElement('a');
+        const blobUrl = window.URL.createObjectURL(blob);
+        enlace.href = blobUrl;
+        enlace.download = 'Acta_' + (/*[[${tipoMovimiento}]]*/ 'Asignacion') + '.pdf';
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+        window.URL.revokeObjectURL(blobUrl);
+
+        // 3) Cuando termina, redirige al listado
+        window.location.href = urlVolver;
+
+      } catch (e) {
+        console.error(e);
+        alert('Ocurrió un error al descargar el PDF. Inténtalo nuevamente.');
+        btn.disabled = false;
+      }
+    });
+  })();
+</script>
+

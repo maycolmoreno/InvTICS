@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Usuarios</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <div class="page-shell admin-shell">
+    <section class="operations-hero">
+      <div class="operations-hero-copy">
+        <div class="eyebrow">Gobierno De Accesos</div>
+        <h1>Usuarios y autorizaciones operativas</h1>
+        <h2>Administra identidades internas, areas responsables y acceso a los modulos criticos del sistema.</h2>
+        <div class="info-chip-row mt-3">
+          <div class="info-chip"><i class="feather-users"></i><span>Total <strong th:text="${#lists.size(listarusuarios)}">0</strong></span></div>
+          <div class="info-chip"><i class="feather-check-circle"></i><span>Activos <strong th:text="${#lists.size(listarusuarios.?[estado])}">0</strong></span></div>
+          <div class="info-chip"><i class="feather-shield"></i><span>Roles asignados <strong th:text="${#aggregates.sum(listarusuarios.![fkRol != null ? 1 : 0])}">0</strong></span></div>
+        </div>
+      </div>
+      <div class="operations-hero-actions">
+        <a th:href="@{/usuarios/nuevo-usuario}" class="btn btn-primary px-4 py-3">
+          <i class="feather-plus-circle me-2"></i>Nuevo usuario
+        </a>
+      </div>
+    </section>
+
+    <section class="admin-summary-grid">
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Cobertura</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listarusuarios)}">0</div>
+        <div class="admin-summary-copy">Base completa de cuentas operativas registradas en CRESIO.</div>
+      </article>
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Usuarios activos</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listarusuarios.?[estado])}">0</div>
+        <div class="admin-summary-copy">Accesos actualmente habilitados para operar y consultar informacion.</div>
+      </article>
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Usuarios inactivos</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listarusuarios.?[!estado])}">0</div>
+        <div class="admin-summary-copy">Cuentas pausadas que ya no intervienen en el flujo normal.</div>
+      </article>
+    </section>
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorEliminar}">
+      <strong>Error:</strong> <span th:text="${errorEliminar}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <section class="surface-card page-panel">
+      <div class="management-toolbar mb-4">
+        <div class="management-toolbar-copy">
+          Mantiene esta matriz limpia para asegurar trazabilidad, segregacion de funciones y control sobre quien puede intervenir en custodias, mantenimientos y catalogos maestros.
+        </div>
+        <div class="toolbar-pills">
+          <div class="toolbar-pill"><i class="feather-user-check"></i><span>Activos <strong th:text="${#lists.size(listarusuarios.?[estado])}">0</strong></span></div>
+          <div class="toolbar-pill"><i class="feather-user-x"></i><span>Inactivos <strong th:text="${#lists.size(listarusuarios.?[!estado])}">0</strong></span></div>
+        </div>
+      </div>
+
+      <div class="table-shell">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle" id="usuariosTable">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Identificacion</th>
+              <th>Rol</th>
+              <th>Departamento</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="usuario : ${listarusuarios}">
+              <td><strong th:text="${usuario.idUsuario}">1</strong></td>
+              <td>
+                <div class="fw-semibold" th:text="${usuario.nombre}">Nombre usuario</div>
+                <div class="text-muted small" th:text="${usuario.correo}">correo@empresa.com</div>
+              </td>
+              <td th:text="${usuario.cedula}">0000000000</td>
+              <td th:text="${usuario.fkRol != null ? usuario.fkRol.nombre : 'Sin rol'}">Administrador</td>
+              <td th:text="${usuario.fkDepartamento != null ? usuario.fkDepartamento.nombre : 'Sin departamento'}">Sistemas</td>
+              <td>
+                <span th:class="${usuario.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}"
+                      th:text="${usuario.estado ? 'Activo' : 'Inactivo'}">Activo</span>
+              </td>
+              <td>
+                <div class="hstack gap-2 justify-content-end">
+                  <a th:href="@{/usuarios/editar-usuario/{id}(id=${usuario.idUsuario})}" class="btn btn-light btn-sm">
+                    <i class="feather-edit-2 me-1"></i>Editar
+                  </a>
+                  <form th:if="${usuario.estado}" th:action="@{/usuarios/eliminar/{id}(id=${usuario.idUsuario})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                            onclick="return confirm('¿Seguro que deseas desactivar este usuario?');">
+                      <i class="feather-user-minus me-1"></i>Desactivar
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(listarusuarios)}">
+              <td colspan="7">
+                <div class="table-empty-state">
+                  <i class="feather-users"></i>
+                  <div class="fw-semibold">No hay usuarios registrados</div>
+                  <div>Crea la primera cuenta operativa para comenzar a controlar accesos.</div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

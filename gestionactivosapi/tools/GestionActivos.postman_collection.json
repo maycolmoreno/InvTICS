@@ -1,0 +1,125 @@
+{
+  "info": {
+    "name": "GestionActivos - Roles/Usuarios/Categorias",
+    "_postman_id": "7b6d8a6a-0000-4000-8000-000000000001",
+    "description": "Colección mínima para probar endpoints de Roles, Usuarios y Categorías de equipo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Roles - Crear",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"nombre\": \"ADMIN\", \"estado\": true }"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/roles",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api","roles"]
+        }
+      }
+    },
+    {
+      "name": "Roles - Actualizar",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{ \"idRol\": 1, \"nombre\": \"ADMIN_UPDATED\", \"estado\": true }" },
+        "url": { "raw": "http://localhost:8080/api/roles/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","roles","1"] }
+      }
+    },
+    {
+      "name": "Roles - Borrado lógico",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": { "raw": "http://localhost:8080/api/roles/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","roles","1"] }
+      }
+    },
+    {
+      "name": "Roles - Obtener",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "http://localhost:8080/api/roles/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","roles","1"] }
+      }
+    },
+
+    {
+      "name": "Usuarios - Crear",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{ \"nombre\": \"Juan\", \"correo\": \"juan@example.com\", \"contrasena\": \"secret\", \"estado\": true, \"fkRol\": { \"idRol\": 1 } }" },
+        "url": { "raw": "http://localhost:8080/api/usuarios", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","usuarios"] }
+      }
+    },
+    {
+      "name": "Usuarios - Obtener",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "http://localhost:8080/api/usuarios/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","usuarios","1"] }
+      }
+    },
+    {
+      "name": "Usuarios - Actualizar",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{ \"idUsuario\": 1, \"nombre\": \"Juanito\", \"correo\": \"juanito@example.com\", \"estado\": true, \"fkRol\": { \"idRol\": 1 } }" },
+        "url": { "raw": "http://localhost:8080/api/usuarios/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","usuarios","1"] }
+      }
+    },
+    {
+      "name": "Usuarios - Borrado lógico",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": { "raw": "http://localhost:8080/api/usuarios/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","usuarios","1"] }
+      }
+    },
+
+    {
+      "name": "Categorias - Crear",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{ \"nombre\": \"Laptops\", \"estado\": true }" },
+        "url": { "raw": "http://localhost:8080/api/categorias-equipo", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","categorias-equipo"] }
+      }
+    },
+    {
+      "name": "Categorias - Actualizar",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{ \"idCategoria\": 1, \"nombre\": \"Laptops Pro\", \"estado\": true }" },
+        "url": { "raw": "http://localhost:8080/api/categorias-equipo/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","categorias-equipo","1"] }
+      }
+    },
+    {
+      "name": "Categorias - Borrado lógico",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "http://localhost:8080/api/categorias-equipo/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","categorias-equipo","1"] }
+      }
+    }
+    ,
+    {
+      "name": "Categorias - Obtener",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "http://localhost:8080/api/categorias-equipo/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["api","categorias-equipo","1"] }
+      }
+    }
+  ]
+}

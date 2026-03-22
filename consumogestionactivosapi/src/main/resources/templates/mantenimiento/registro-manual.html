@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<title>Registro Manual</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+    <div class="page-shell">
+        <div class="view-heading">
+            <div>
+                <div class="eyebrow">Flujo de Mantenimiento</div>
+                <h1 class="view-title">Orden de Trabajo Manual</h1>
+                <p class="view-subtitle">Crea una orden completa con checklist, firmas, diagnostico y evidencias para uno o varios equipos.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/mantenimiento}" class="btn btn-outline-secondary px-4 py-3">Atras</a>
+                <a th:href="@{/mantenimiento}" class="btn btn-light px-4 py-3">Ver historial</a>
+            </div>
+        </div>
+
+        <div th:if="${error}" class="flash-banner" style="background:#ffe5e2;color:#9d231a;" th:text="${error}"></div>
+
+        <form th:action="@{/mantenimiento/guardar}" method="post" enctype="multipart/form-data" id="formMantenimiento" class="form-shell">
+            <div class="surface-card page-panel">
+                <div class="content-card-header">
+                    <div>
+                        <h2 class="content-card-title">Datos del equipo y custodio</h2>
+                        <p class="content-card-copy">Selecciona el custodio responsable y veras solamente los equipos que tiene asignados.</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="span-12">
+                        <div class="manual-summary-card">
+                            <div class="manual-summary-block">
+                                <div class="metric-label">Custodio activo</div>
+                                <div id="resumenCustodioNombre" class="manual-summary-title">Selecciona un custodio</div>
+                                <div id="resumenCustodioMeta" class="manual-summary-copy">Aqui veras sus datos y sus equipos asignados.</div>
+                            </div>
+                            <div class="manual-summary-block">
+                                <div class="metric-label">Equipos seleccionados</div>
+                                <div id="selectedEquipmentChips" class="selection-chip-list">
+                                    <span class="selection-chip is-placeholder">Sin equipos seleccionados</span>
+                                </div>
+                            </div>
+                            <div class="manual-summary-block is-compact">
+                                <div class="metric-label">Estado del formulario</div>
+                                <div id="formReadyBadge" class="status-pill is-pending">Pendiente</div>
+                                <div id="formReadyCopy" class="manual-summary-copy">Completa checklist, firmas y seleccion.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="span-6 field-group">
+                        <label class="field-label">Custodio</label>
+                        <select id="custodioId" name="custodioId" class="form-select relation-select" required>
+                            <option value="">Selecciona un custodio</option>
+                            <option th:each="custodio : ${listacustodios}"
+                                    th:value="${custodio.idCustodio}"
+                                    th:text="${custodio.nombre}"
+                                    th:attr="data-label=${(custodio.nombre ?: '') + ' ' + (custodio.cedula ?: '')},
+                                             data-correo=${custodio.correo},
+                                             data-cedula=${custodio.cedula},
+                                             data-telefono=${custodio.telefono},
+                                             data-departamento=${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : ''},
+                                             data-cargo=${custodio.fkCargo != null ? custodio.fkCargo.nombre : ''},
+                                             data-ubicacion=${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : ''}">
+                            </option>
+                        </select>
+                        <div class="field-help">Escribe dentro del selector para buscar por nombre o cedula.</div>
+                    </div>
+                    <div class="span-6 field-group">
+                        <label class="field-label">Equipo asignado</label>
+                        <select id="equipoIds" name="equipoIds" class="form-select relation-select" multiple required size="6">
+                            <option th:each="equipo : ${listaequipos}"
+                                    th:value="${equipo.idEquipo}"
+                                    th:selected="${#lists.contains(equiposPreseleccionados, equipo.idEquipo)}"
+                                    th:text="${(equipo.codigoSap ?: 'Cod. Interno') + ' - ' + (equipo.tipoEquipo ?: 'Equipo') + ' - ' + (equipo.modelo ?: '')}"
+                                    th:attr="data-label=${(equipo.codigoSap ?: '') + ' ' + (equipo.tipoEquipo ?: '') + ' ' + (equipo.modelo ?: '') + ' ' + (equipo.serial ?: '')},
+                                             data-custodios=${custodiosPorEquipo[equipo.idEquipo] ?: ''}">
+                            </option>
+                        </select>
+                        <div id="equiposHint" class="field-help">Selecciona un custodio para ver sus equipos asignados. Puedes escribir dentro del selector para buscar coincidencias.</div>
+                    </div>
+                    <div class="span-3 field-group">
+                        <label class="field-label">Correo</label>
+                        <div id="correoCustodio" class="readonly-panel"></div>
+                    </div>
+                    <div class="span-3 field-group">
+                        <label class="field-label">Cedula</label>
+                        <div id="cedulaCustodio" class="readonly-panel"></div>
+                    </div>
+                    <div class="span-3 field-group">
+                        <label class="field-label">Telefono</label>
+                        <div id="telefonoCustodio" class="readonly-panel"></div>
+                    </div>
+                    <div class="span-3 field-group">
+                        <label class="field-label">Ubicacion</label>
+                        <div id="ubicacionCustodio" class="readonly-panel"></div>
+                    </div>
+                    <div class="span-3 field-group">
+                        <label class="field-label">Departamento</label>
+                        <div id="departamentoCustodio" class="readonly-panel"></div>
+                    </div>
+                    <div class="span-3 field-group">
+                        <label class="field-label">Cargo</label>
+                        <div id="cargoCustodio" class="readonly-panel"></div>
+                    </div>
+                    <div class="span-2 field-group">
+                        <label class="field-label">Tipo mantenimiento</label>
+                        <select name="tipoMantenimiento" class="form-select" required>
+                            <option value="PREVENTIVO">Preventivo</option>
+                            <option value="CORRECTIVO">Correctivo</option>
+                        </select>
+                    </div>
+                    <div class="span-2 field-group">
+                        <label class="field-label">Fecha mantenimiento</label>
+                        <input name="fechaMantenimiento" type="date" class="form-control" th:value="${hoy}" required>
+                    </div>
+                    <div class="span-2 field-group">
+                        <label class="field-label">Proxima fecha</label>
+                        <input name="proximaFecha" type="date" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="surface-card page-panel">
+                <div class="content-card-header">
+                    <div>
+                        <h2 class="content-card-title">Checklist de actividades</h2>
+                        <p class="content-card-copy">Debes completar el checklist operativo antes de enviar el informe.</p>
+                    </div>
+                    <strong id="checkProgress" th:text="${'0 / ' + totalActividades}">0 / 10</strong>
+                </div>
+                <div class="progress-inline">
+                    <div class="progress">
+                        <div id="checkBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="span-4" th:each="entry : ${actividadesAgrupadas}">
+                        <div class="check-category">
+                            <div class="check-category-header">
+                                <h6 th:text="${entry.key}"></h6>
+                                <span class="category-note-state" th:attr="data-category=${entry.key}">Sin observaciones</span>
+                            </div>
+                            <div class="form-check mb-2" th:each="actividad : ${entry.value}">
+                                <input class="form-check-input checklist-item" type="checkbox" name="actividadIds" th:value="${actividad.idActividad}" th:id="${'act-' + actividad.idActividad}">
+                                <label class="form-check-label" th:for="${'act-' + actividad.idActividad}" th:text="${actividad.nombreActividad}"></label>
+                            </div>
+                            <textarea class="form-control mt-2 checklist-note-input" rows="3" th:name="${'observacionCategoria[' + entry.key + ']'}" th:placeholder="${'Observaciones de ' + entry.key}"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="surface-card page-panel">
+                <div class="content-card-header">
+                    <div>
+                        <h2 class="content-card-title">Diagnostico</h2>
+                        <p class="content-card-copy">Resume el estado general y deja trazabilidad tecnica del servicio.</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="span-3 field-group">
+                        <label class="field-label">Estado general</label>
+                        <select name="estadoGeneral" class="form-select" required>
+                            <option value="BUENO">Bueno</option>
+                            <option value="REGULAR">Regular</option>
+                            <option value="MALO">Malo</option>
+                        </select>
+                    </div>
+                    <div class="span-9 field-group">
+                        <label class="field-label">Detalle</label>
+                        <textarea name="detalle" class="form-control" rows="5" required></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="surface-card page-panel">
+                <div class="content-card-header">
+                    <div>
+                        <h2 class="content-card-title">Evidencias</h2>
+                        <p class="content-card-copy">Carga maximo 5 imagenes y visualiza la evidencia antes de guardar.</p>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <input type="file" id="imagenes" name="imagenes" class="form-control" accept="image/*" multiple>
+                    <div class="field-help">Maximo 5 imagenes y 5MB por archivo.</div>
+                </div>
+                <div id="previewImagenes" class="preview-grid mt-3"></div>
+            </div>
+
+            <div class="surface-card page-panel">
+                <div class="content-card-header">
+                    <div>
+                        <h2 class="content-card-title">Firmas</h2>
+                        <p class="content-card-copy">Confirma las firmas digitalizadas del tecnico y del custodio.</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="span-6 field-group">
+                        <label class="field-label">Firma tecnico</label>
+                        <canvas id="canvasTecnico" width="400" height="150" class="signature-pad"></canvas>
+                        <div class="d-flex gap-2 mt-2">
+                            <button type="button" class="btn btn-light btn-sm" data-clear="canvasTecnico">Limpiar</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-save="canvasTecnico" data-target="firmaTecnico">Confirmar</button>
+                        </div>
+                        <input type="hidden" id="firmaTecnico" name="firmaTecnico" required>
+                    </div>
+                    <div class="span-6 field-group">
+                        <label class="field-label">Firma custodio</label>
+                        <canvas id="canvasCustodio" width="400" height="150" class="signature-pad"></canvas>
+                        <div class="d-flex gap-2 mt-2">
+                            <button type="button" class="btn btn-light btn-sm" data-clear="canvasCustodio">Limpiar</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-save="canvasCustodio" data-target="firmaCustodio">Confirmar</button>
+                        </div>
+                        <input type="hidden" id="firmaCustodio" name="firmaCustodio" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button id="submitMantenimiento" class="btn btn-primary btn-lg px-5 py-3" type="submit" disabled>Guardar y enviar informe</button>
+            </div>
+        </form>
+
+        <script>
+            (function() {
+                const form = document.getElementById('formMantenimiento');
+                const checklist = Array.from(document.querySelectorAll('.checklist-item'));
+                const totalChecklist = checklist.length;
+                const checkBar = document.getElementById('checkBar');
+                const checkProgress = document.getElementById('checkProgress');
+                const equipoSelect = document.getElementById('equipoIds');
+                const custodioSelect = document.getElementById('custodioId');
+                const equiposHint = document.getElementById('equiposHint');
+                const preview = document.getElementById('previewImagenes');
+                const imagenesInput = document.getElementById('imagenes');
+                const submitButton = document.getElementById('submitMantenimiento');
+                const firmaTecnicoInput = document.getElementById('firmaTecnico');
+                const firmaCustodioInput = document.getElementById('firmaCustodio');
+                const selectedEquipmentChips = document.getElementById('selectedEquipmentChips');
+                const resumenCustodioNombre = document.getElementById('resumenCustodioNombre');
+                const resumenCustodioMeta = document.getElementById('resumenCustodioMeta');
+                const formReadyBadge = document.getElementById('formReadyBadge');
+                const formReadyCopy = document.getElementById('formReadyCopy');
+                const checklistNoteInputs = Array.from(document.querySelectorAll('.checklist-note-input'));
+
+                function refreshEquipoOptions() {
+                    const custodioId = custodioSelect.value;
+                    let visibles = 0;
+
+                    Array.from(equipoSelect.options).forEach(opt => {
+                        const custodios = (opt.getAttribute('data-custodios') || '')
+                            .split(',')
+                            .map(value => value.trim())
+                            .filter(Boolean);
+                        const visible = !custodioId ? false : custodios.includes(custodioId);
+                        opt.hidden = !visible;
+                        if (!visible) {
+                            opt.selected = false;
+                        } else {
+                            visibles += 1;
+                        }
+                    });
+
+                    if (window.jQuery && window.jQuery.fn.select2) {
+                        window.jQuery(equipoSelect).trigger('change.select2');
+                    }
+
+                    if (!custodioId) {
+                        equiposHint.textContent = 'Selecciona un custodio para ver sus equipos asignados. Puedes escribir dentro del selector para buscar coincidencias.';
+                    } else if (visibles === 0) {
+                        equiposHint.textContent = 'El custodio seleccionado no tiene equipos activos asignados.';
+                    } else {
+                        equiposHint.textContent = 'Se muestran ' + visibles + ' equipo(s) asignado(s) al custodio. Puedes seleccionar uno o varios.';
+                    }
+
+                    updateSubmitState();
+                    updateSelectedEquipmentChips();
+                }
+
+                function updateProgress() {
+                    const done = checklist.filter(c => c.checked).length;
+                    const pct = totalChecklist === 0 ? 0 : Math.round((done / totalChecklist) * 100);
+                    checkProgress.textContent = done + ' / ' + totalChecklist;
+                    checkBar.style.width = pct + '%';
+                    updateSubmitState();
+                }
+
+                function selectedEquiposCount() {
+                    return Array.from(equipoSelect.options).filter(opt => opt.selected && !opt.hidden).length;
+                }
+
+                function updateSelectedEquipmentChips() {
+                    const selected = Array.from(equipoSelect.options).filter(opt => opt.selected && !opt.hidden);
+                    if (selected.length === 0) {
+                        selectedEquipmentChips.innerHTML = '<span class="selection-chip is-placeholder">Sin equipos seleccionados</span>';
+                        return;
+                    }
+                    selectedEquipmentChips.innerHTML = selected.map(opt =>
+                        '<span class="selection-chip">' + opt.textContent.trim() + '</span>'
+                    ).join('');
+                }
+
+                function updateCustodioSummary() {
+                    const opt = custodioSelect.selectedOptions[0];
+                    if (!opt || !custodioSelect.value) {
+                        resumenCustodioNombre.textContent = 'Selecciona un custodio';
+                        resumenCustodioMeta.textContent = 'Aqui veras sus datos y sus equipos asignados.';
+                        return;
+                    }
+                    resumenCustodioNombre.textContent = opt.textContent.trim();
+                    const ubicacion = opt.getAttribute('data-ubicacion') || 'Sin ubicacion';
+                    const cargo = opt.getAttribute('data-cargo') || 'Sin cargo';
+                    resumenCustodioMeta.textContent = cargo + ' · ' + ubicacion;
+                }
+
+                function updateChecklistNotesState() {
+                    checklistNoteInputs.forEach(input => {
+                        const badge = input.closest('.check-category')?.querySelector('.category-note-state');
+                        if (!badge) {
+                            return;
+                        }
+                        const hasValue = !!input.value.trim();
+                        badge.textContent = hasValue ? 'Con observaciones' : 'Sin observaciones';
+                        badge.classList.toggle('has-content', hasValue);
+                    });
+                }
+
+                function updateSubmitState() {
+                    const checklistCompleto = checklist.filter(c => c.checked).length === totalChecklist;
+                    const firmasCompletas = !!firmaTecnicoInput.value && !!firmaCustodioInput.value;
+                    const seleccionCompleta = !!custodioSelect.value && selectedEquiposCount() > 0;
+                    const ready = checklistCompleto && firmasCompletas && seleccionCompleta;
+                    submitButton.disabled = !ready;
+                    formReadyBadge.className = 'status-pill ' + (ready ? 'is-completed' : 'is-pending');
+                    formReadyBadge.textContent = ready ? 'Listo para guardar' : 'Pendiente';
+                    formReadyCopy.textContent = ready
+                        ? 'El formulario ya cumple las validaciones principales.'
+                        : 'Completa checklist, firmas y seleccion.';
+                }
+
+                async function convertImageFile(file, index) {
+                    if (!(file instanceof File) || !file.type.startsWith('image/')) {
+                        return file;
+                    }
+
+                    const bitmap = await createImageBitmap(file);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = bitmap.width;
+                    canvas.height = bitmap.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(bitmap, 0, 0);
+                    bitmap.close();
+
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+                    if (!blob) {
+                        return file;
+                    }
+
+                    const baseName = (file.name || ('evidencia-' + (index + 1)))
+                        .replace(/\.[^.]+$/, '')
+                        .replace(/[^\w\-]+/g, '_');
+                    return new File([blob], baseName + '.jpg', { type: 'image/jpeg' });
+                }
+
+                function renderImagePreview(files) {
+                    preview.innerHTML = '';
+                    Array.from(files || []).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            const tile = document.createElement('div');
+                            tile.className = 'preview-tile';
+                            tile.innerHTML = '<img src="' + e.target.result + '" alt="preview">';
+                            preview.appendChild(tile);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                function bindCanvas(id) {
+                    const canvas = document.getElementById(id);
+                    const ctx = canvas.getContext('2d');
+                    let drawing = false;
+
+                    function position(event) {
+                        const rect = canvas.getBoundingClientRect();
+                        const source = event.touches ? event.touches[0] : event;
+                        return {
+                            x: (source.clientX - rect.left) * (canvas.width / rect.width),
+                            y: (source.clientY - rect.top) * (canvas.height / rect.height)
+                        };
+                    }
+
+                    function start(event) {
+                        drawing = true;
+                        const point = position(event);
+                        ctx.beginPath();
+                        ctx.moveTo(point.x, point.y);
+                        event.preventDefault();
+                    }
+
+                    function move(event) {
+                        if (!drawing) return;
+                        const point = position(event);
+                        ctx.lineTo(point.x, point.y);
+                        ctx.strokeStyle = '#173774';
+                        ctx.lineWidth = 2;
+                        ctx.lineCap = 'round';
+                        ctx.stroke();
+                        event.preventDefault();
+                    }
+
+                    function end() {
+                        drawing = false;
+                    }
+
+                    canvas.addEventListener('mousedown', start);
+                    canvas.addEventListener('mousemove', move);
+                    canvas.addEventListener('mouseup', end);
+                    canvas.addEventListener('mouseleave', end);
+                    canvas.addEventListener('touchstart', start, { passive: false });
+                    canvas.addEventListener('touchmove', move, { passive: false });
+                    canvas.addEventListener('touchend', end);
+                }
+
+                checklist.forEach(c => c.addEventListener('change', updateProgress));
+                updateProgress();
+                bindCanvas('canvasTecnico');
+                bindCanvas('canvasCustodio');
+
+                if (window.jQuery && window.jQuery.fn.select2) {
+                    window.jQuery(custodioSelect).select2({
+                        width: '100%',
+                        placeholder: 'Selecciona un custodio',
+                        allowClear: true
+                    });
+
+                    window.jQuery(equipoSelect).select2({
+                        width: '100%',
+                        placeholder: 'Selecciona equipos del custodio',
+                        closeOnSelect: false
+                    });
+
+                    window.jQuery(custodioSelect).on('change', function() {
+                        custodioSelect.dispatchEvent(new Event('change'));
+                    });
+                    window.jQuery(equipoSelect).on('change', function() {
+                        updateSubmitState();
+                        updateSelectedEquipmentChips();
+                    });
+                }
+
+                custodioSelect.addEventListener('change', function() {
+                    const opt = this.selectedOptions[0];
+                    document.getElementById('correoCustodio').textContent = opt?.getAttribute('data-correo') || '';
+                    document.getElementById('cedulaCustodio').textContent = opt?.getAttribute('data-cedula') || '';
+                    document.getElementById('telefonoCustodio').textContent = opt?.getAttribute('data-telefono') || '';
+                    document.getElementById('departamentoCustodio').textContent = opt?.getAttribute('data-departamento') || '';
+                    document.getElementById('cargoCustodio').textContent = opt?.getAttribute('data-cargo') || '';
+                    document.getElementById('ubicacionCustodio').textContent = opt?.getAttribute('data-ubicacion') || '';
+                    updateCustodioSummary();
+                    refreshEquipoOptions();
+                });
+
+                document.querySelectorAll('[data-clear]').forEach(btn => btn.addEventListener('click', function() {
+                    const canvas = document.getElementById(this.dataset.clear);
+                    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    const target = this.dataset.clear === 'canvasTecnico' ? firmaTecnicoInput : firmaCustodioInput;
+                    target.value = '';
+                    updateSubmitState();
+                }));
+                document.querySelectorAll('[data-save]').forEach(btn => btn.addEventListener('click', function() {
+                    const canvas = document.getElementById(this.dataset.save);
+                    document.getElementById(this.dataset.target).value = canvas.toDataURL('image/png');
+                    updateSubmitState();
+                }));
+                checklistNoteInputs.forEach(input => input.addEventListener('input', updateChecklistNotesState));
+
+                imagenesInput.addEventListener('change', async function() {
+                    const originales = Array.from(this.files || []).slice(0, 5);
+                    const convertidas = [];
+                    for (let i = 0; i < originales.length; i += 1) {
+                        convertidas.push(await convertImageFile(originales[i], i));
+                    }
+                    const dataTransfer = new DataTransfer();
+                    convertidas.forEach(file => dataTransfer.items.add(file));
+                    imagenesInput.files = dataTransfer.files;
+                    renderImagePreview(imagenesInput.files);
+                });
+
+                form.addEventListener('submit', function(e) {
+                    if (checklist.filter(c => c.checked).length < totalChecklist) {
+                        e.preventDefault();
+                        alert('Debes completar todo el checklist');
+                        return;
+                    }
+                    if (!firmaTecnicoInput.value || !firmaCustodioInput.value) {
+                        e.preventDefault();
+                        alert('Debes confirmar ambas firmas antes de guardar.');
+                        return;
+                    }
+                    if (!custodioSelect.value || selectedEquiposCount() === 0) {
+                        e.preventDefault();
+                        alert('Debes seleccionar un custodio y al menos un equipo asignado.');
+                    }
+                });
+
+                if (!custodioSelect.value) {
+                    const equipoPreseleccionado = Array.from(equipoSelect.options).find(opt => opt.selected);
+                    const custodios = (equipoPreseleccionado?.getAttribute('data-custodios') || '')
+                        .split(',')
+                        .map(value => value.trim())
+                        .filter(Boolean);
+                    if (custodios.length > 0) {
+                        custodioSelect.value = custodios[0];
+                    }
+                }
+
+                refreshEquipoOptions();
+                if (custodioSelect.value) {
+                    custodioSelect.dispatchEvent(new Event('change'));
+                }
+                updateCustodioSummary();
+                updateSelectedEquipmentChips();
+                updateChecklistNotesState();
+                updateSubmitState();
+            })();
+        </script>
+    </div>
+</div>
+</body>
+</html>

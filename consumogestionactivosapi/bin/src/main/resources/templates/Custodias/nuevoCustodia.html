@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<meta charset="utf-8">
+<title>Nueva Custodia</title>
+</head>
+
+<body>
+	<div layout:fragment="contenidopaginas">
+
+		<form th:action="@{/custodias}" th:object="${custodia}" method="post">
+
+			<div class="page-header">
+				<div class="page-header-left d-flex align-items-center">
+					<div class="page-header-title">
+						<h5 class="m-b-10">Custodias</h5>
+					</div>
+					<ul class="breadcrumb">
+						<li class="breadcrumb-item"><a th:href="@{/custodias}">Home</a></li>
+						<li class="breadcrumb-item">Crear</li>
+					</ul>
+				</div>
+
+				<div class="page-header-right ms-auto">
+					<div class="page-header-right-items">
+						<div
+							class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
+							<button type="submit" class="btn btn-primary">
+								<i class="feather-save me-2"></i> <span>Guardar</span>
+							</button>
+
+							<a th:href="@{/custodias}" class="btn btn-light"> <i
+								class="feather-arrow-left me-2"></i> <span>Volver</span>
+							</a>
+						</div>
+					</div>
+
+					<div class="d-md-none d-flex align-items-center">
+						<a href="javascript:void(0)" class="page-header-right-open-toggle">
+							<i class="feather-align-right fs-20"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="main-content">
+				<div class="card stretch stretch-full">
+					<div class="card-body">
+
+						<input type="hidden" th:field="*{idCustodiaEquipo}">
+						<!-- Estado por defecto true (ya lo seteas en el controlador) -->
+						<!-- Si lo quieres editable, usa switch como departamentos -->
+						<input type="hidden" th:field="*{estado}">
+
+						<div class="row">
+
+							<!-- Equipo -->
+							<div class="col-md-6 mb-4">
+								<label class="form-label">Equipo <span
+									class="text-danger">*</span></label> <select class="form-control"
+									th:field="*{fkEquipo.idEquipo}">
+									<option value="0">Seleccione un equipo</option>
+									<option th:each="e : ${listaequipos}" th:value="${e.idEquipo}"
+										th:text="${e.codigoSap + ' - ' + e.tipoEquipo + ' - ' + e.modelo}">
+									</option>
+								</select>
+
+								<div class="text-danger small" th:if="${errorSeleccionEquipo}">
+									<span th:text="${errorSeleccionEquipo}"></span>
+								</div>
+							</div>
+
+							<!-- Custodio -->
+							<div class="col-md-6 mb-4">
+								<label class="form-label">Custodio <span
+									class="text-danger">*</span></label> <select class="form-control"
+									th:field="*{fkCustodio.idCustodio}">
+									<option value="0">Seleccione un custodio</option>
+									<option th:each="c : ${listacustodios}"
+										th:value="${c.idCustodio}"
+										th:text="${c.nombre + ' - ' + c.cedula}"></option>
+								</select>
+
+								<div class="text-danger small" th:if="${errorSeleccionCustodio}">
+									<span th:text="${errorSeleccionCustodio}"></span>
+								</div>
+							</div>
+
+							<!-- Fecha Inicio -->
+							<div class="col-md-4 mb-4">
+								<label class="form-label">Fecha Inicio <span
+									class="text-danger">*</span></label> <input type="date"
+									class="form-control" th:field="*{fechaInicio}">
+								<div class="text-danger small" th:if="${errorFechaInicio}">
+									<span th:text="${errorFechaInicio}"></span>
+								</div>
+							</div>
+
+							<!-- Fecha Fin -->
+							<div class="col-md-4 mb-4">
+								<label class="form-label">Fecha Fin</label> <input type="date"
+									class="form-control" th:field="*{fechaFin}">
+							</div>
+
+							<!-- Observación -->
+							<div class="col-md-4 mb-4">
+								<label class="form-label">Observación <span
+									class="text-danger">*</span></label> <input type="text" maxlength="255"
+									class="form-control" th:field="*{observacion}"
+									placeholder="Ej: Asignación inicial">
+								<div class="text-danger small" th:if="${errorObservacion}">
+									<span th:text="${errorObservacion}"></span>
+								</div>
+							</div>
+
+						</div>
+
+						<!-- Si quieres mostrar estado editable en crear -->
+						<div class="row mb-2">
+							<div class="form-check form-switch form-switch-sm ps-5">
+								<input class="form-check-input c-pointer" type="checkbox"
+									id="estadoSwitch" th:field="*{estado}"> <label
+									class="form-check-label fw-500 text-dark c-pointer"
+									for="estadoSwitch">Activo</label>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</body>
+
+</html>

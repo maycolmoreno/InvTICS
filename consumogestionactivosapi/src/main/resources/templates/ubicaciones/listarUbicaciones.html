@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<title>Ubicaciones</title>
+<style>
+	.locations-table-shell {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	.locations-toolbar {
+		display: grid;
+		grid-template-columns: minmax(220px, 340px) 1fr auto;
+		gap: 1rem;
+		align-items: end;
+	}
+
+	.locations-summary {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.location-stat-card {
+		border-radius: 22px;
+		padding: 1.2rem 1.3rem;
+		background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+		border: 1px solid rgba(22, 54, 120, 0.08);
+		box-shadow: 0 16px 38px rgba(16, 42, 92, 0.08);
+	}
+
+	.location-stat-label {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.14em;
+		color: #6d7b9a;
+		margin-bottom: 0.4rem;
+	}
+
+	.location-stat-value {
+		font-size: 1.8rem;
+		font-weight: 800;
+		color: #102a5c;
+		line-height: 1;
+	}
+
+	.location-stat-hint {
+		margin-top: 0.45rem;
+		color: #6d7b9a;
+		font-size: 0.92rem;
+	}
+
+	.locations-table .table {
+		margin-bottom: 0;
+	}
+
+	.locations-table th {
+		font-size: 0.78rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: #6d7b9a;
+		border-bottom-width: 1px;
+	}
+
+	.locations-table td {
+		vertical-align: middle;
+	}
+
+	.location-name-cell {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+	}
+
+	.location-name-cell strong {
+		color: #102a5c;
+		font-size: 1rem;
+	}
+
+	.location-name-cell span {
+		color: #6d7b9a;
+		font-size: 0.9rem;
+	}
+
+	.status-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		border-radius: 999px;
+		padding: 0.35rem 0.8rem;
+		font-size: 0.84rem;
+		font-weight: 700;
+	}
+
+	.status-pill.is-online {
+		background: rgba(23, 178, 106, 0.12);
+		color: #0d8a50;
+	}
+
+	.status-pill.is-offline {
+		background: rgba(228, 90, 79, 0.12);
+		color: #bb3f35;
+	}
+
+	.coordinates-cell {
+		font-family: Consolas, Monaco, monospace;
+		font-size: 0.9rem;
+		color: #334155;
+	}
+
+	.coordinates-cell.is-missing {
+		color: #b45309;
+		font-style: italic;
+	}
+
+	.actions-inline {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.55rem;
+	}
+
+	.btn-soft-light {
+		border-radius: 999px;
+		padding-inline: 0.9rem;
+	}
+
+	@media (max-width: 992px) {
+		.locations-toolbar {
+			grid-template-columns: 1fr;
+		}
+
+		.locations-summary {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
+</head>
+
+<body>
+	<div layout:fragment="contenidopaginas">
+		<div class="page-shell">
+			<div class="view-heading">
+				<div>
+					<div class="eyebrow">Operaciones Geograficas</div>
+					<h1 class="view-title">Gestion de Ubicaciones</h1>
+					<p class="view-subtitle">Consulta ubicaciones en una tabla rapida, con filtros y acciones directas sin cargar mapas ni paneles pesados.</p>
+				</div>
+				<div class="d-flex gap-3 flex-wrap">
+					<a th:href="@{/ubicaciones/nueva-ubicacion}" class="btn btn-primary px-4 py-3">
+						<i class="feather-plus-circle me-2"></i>Agregar ubicacion
+					</a>
+				</div>
+			</div>
+
+			<div class="locations-table-shell">
+				<div class="locations-summary">
+					<div class="location-stat-card">
+						<div class="location-stat-label">Total ubicaciones</div>
+						<div class="location-stat-value" th:text="${#lists.size(listaubicacion)}">0</div>
+						<div class="location-stat-hint">Sedes registradas en el sistema.</div>
+					</div>
+					<div class="location-stat-card">
+						<div class="location-stat-label">Ubicaciones activas</div>
+						<div class="location-stat-value" th:text="${#aggregates.sum(listaubicacion.![estado ? 1 : 0])}">0</div>
+						<div class="location-stat-hint">Con estado operativo habilitado.</div>
+					</div>
+					<div class="location-stat-card">
+						<div class="location-stat-label">Con coordenadas</div>
+						<div class="location-stat-value" th:text="${#aggregates.sum(listaubicacion.![latitud != null and !#strings.isEmpty(latitud) and longitud != null and !#strings.isEmpty(longitud) ? 1 : 0])}">0</div>
+						<div class="location-stat-hint">Listas para abrir directamente en Maps.</div>
+					</div>
+				</div>
+
+				<div class="surface-card page-panel">
+					<div class="locations-toolbar">
+						<div>
+							<label class="filter-label">Filtrar por provincia</label>
+							<select id="provinceFilter" class="form-select">
+								<option value="">Todas las provincias</option>
+								<option th:each="ubicaciones : ${listaubicacion}" th:value="${ubicaciones.provincia}" th:text="${ubicaciones.provincia}"></option>
+							</select>
+						</div>
+						<div>
+							<label class="filter-label">Buscar por nombre o agencia</label>
+							<input id="searchInput" type="text" class="form-control" placeholder="Ej. matriz, loja, mia...">
+						</div>
+						<div class="d-flex justify-content-end">
+							<button id="clearFilters" type="button" class="btn btn-light px-4 py-3">Limpiar filtros</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="surface-card table-shell locations-table">
+					<div class="table-responsive">
+						<table class="table align-middle">
+							<thead>
+								<tr>
+									<th>Ubicacion</th>
+									<th>Provincia</th>
+									<th>Ciudad</th>
+									<th>Direccion</th>
+									<th>Coordenadas</th>
+									<th>Estado</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody id="locationsTableBody">
+								<tr th:each="ubicaciones : ${listaubicacion}"
+									th:attr="data-provincia=${ubicaciones.provincia != null ? ubicaciones.provincia : ''},
+										data-busqueda=${((ubicaciones.nombre != null ? ubicaciones.nombre : '') + ' ' + (ubicaciones.agencia != null ? ubicaciones.agencia : '') + ' ' + (ubicaciones.ciudad != null ? ubicaciones.ciudad : '') + ' ' + (ubicaciones.provincia != null ? ubicaciones.provincia : '')).toLowerCase()}">
+									<td>
+										<div class="location-name-cell">
+											<strong th:text="${ubicaciones.nombre}">Ubicacion</strong>
+											<span th:text="${ubicaciones.agencia != null and !#strings.isEmpty(ubicaciones.agencia) ? 'Agencia: ' + ubicaciones.agencia : 'Sin agencia'}">Agencia</span>
+										</div>
+									</td>
+									<td th:text="${ubicaciones.provincia != null and !#strings.isEmpty(ubicaciones.provincia) ? ubicaciones.provincia : 'Sin provincia'}">Provincia</td>
+									<td th:text="${ubicaciones.ciudad != null and !#strings.isEmpty(ubicaciones.ciudad) ? ubicaciones.ciudad : 'Sin ciudad'}">Ciudad</td>
+									<td th:text="${ubicaciones.direccion != null and !#strings.isEmpty(ubicaciones.direccion) ? ubicaciones.direccion : 'Sin direccion registrada'}">Direccion</td>
+									<td class="coordinates-cell"
+										th:classappend="${ubicaciones.latitud == null or #strings.isEmpty(ubicaciones.latitud) or ubicaciones.longitud == null or #strings.isEmpty(ubicaciones.longitud)} ? ' is-missing' : ''"
+										th:text="${ubicaciones.latitud != null and !#strings.isEmpty(ubicaciones.latitud) and ubicaciones.longitud != null and !#strings.isEmpty(ubicaciones.longitud) ? ubicaciones.latitud + ', ' + ubicaciones.longitud : 'Sin coordenadas'}">Coordenadas</td>
+									<td>
+										<span class="status-pill"
+											th:classappend="${ubicaciones.estado} ? ' is-online' : ' is-offline'">
+											<i class="feather-circle"></i>
+											<span th:text="${ubicaciones.estado} ? 'En linea' : 'Fuera de linea'">Estado</span>
+										</span>
+									</td>
+									<td>
+										<div class="actions-inline">
+											<a class="btn btn-light btn-sm btn-soft-light"
+												th:href="@{/ubicaciones/editar-ubicacion/{id}(id=${ubicaciones.idUbicacion})}">
+												<i class="feather-edit-2 me-1"></i>Editar
+											</a>
+											<a class="btn btn-outline-primary btn-sm btn-soft-light"
+												th:if="${ubicaciones.linkCoordenada != null and !#strings.isEmpty(ubicaciones.linkCoordenada)}"
+												th:href="${ubicaciones.linkCoordenada}"
+												target="_blank" rel="noopener noreferrer">
+												<i class="feather-navigation me-1"></i>Abrir
+											</a>
+											<a class="btn btn-outline-primary btn-sm btn-soft-light location-generated-link"
+												th:if="${(ubicaciones.linkCoordenada == null or #strings.isEmpty(ubicaciones.linkCoordenada)) and ubicaciones.latitud != null and !#strings.isEmpty(ubicaciones.latitud) and ubicaciones.longitud != null and !#strings.isEmpty(ubicaciones.longitud)}"
+												href="#"
+												th:attr="data-lat=${ubicaciones.latitud},data-lng=${ubicaciones.longitud}"
+												target="_blank" rel="noopener noreferrer">
+												<i class="feather-navigation me-1"></i>Abrir
+											</a>
+											<button type="button"
+												class="btn btn-outline-danger btn-sm btn-soft-light"
+												data-bs-toggle="modal"
+												data-bs-target="#modalEliminarUbicacion"
+												th:attr="data-id=${ubicaciones.idUbicacion}">
+												<i class="feather-trash-2 me-1"></i>Desactivar
+											</button>
+										</div>
+									</td>
+								</tr>
+								<tr id="emptyRow" style="display:none;">
+									<td colspan="7" class="text-center py-5 text-muted">No hay ubicaciones que coincidan con los filtros aplicados.</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modalEliminarUbicacion" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Confirmar</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">Esta accion desactivara la ubicacion seleccionada.</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-light" data-bs-dismiss="modal">No</button>
+						<form th:action="@{/ubicaciones/eliminar-logico}" method="post">
+							<input type="hidden" name="idUbicacion" id="idUbicacionEliminar">
+							<button type="submit" class="btn btn-outline-danger">Si, desactivar</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const modalEliminar = document.getElementById('modalEliminarUbicacion');
+			modalEliminar.addEventListener('show.bs.modal', function(event) {
+				const button = event.relatedTarget;
+				document.getElementById('idUbicacionEliminar').value = button.getAttribute('data-id');
+			});
+
+			document.addEventListener("DOMContentLoaded", function() {
+				const filter = document.getElementById('provinceFilter');
+				const searchInput = document.getElementById('searchInput');
+				const clearFilters = document.getElementById('clearFilters');
+				const rows = Array.from(document.querySelectorAll('#locationsTableBody tr[data-provincia]'));
+				const emptyRow = document.getElementById('emptyRow');
+
+				document.querySelectorAll('.location-generated-link').forEach(function(link) {
+					const lat = String(link.dataset.lat || '').replace(',', '.').trim();
+					const lng = String(link.dataset.lng || '').replace(',', '.').trim();
+					if (lat && lng) {
+						link.href = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+					}
+				});
+
+				function applyFilters() {
+					const province = (filter.value || '').trim().toLowerCase();
+					const search = (searchInput.value || '').trim().toLowerCase();
+					let visibleCount = 0;
+
+					rows.forEach(function(row) {
+						const rowProvince = (row.dataset.provincia || '').trim().toLowerCase();
+						const searchable = (row.dataset.busqueda || '').trim();
+						const matchesProvince = !province || rowProvince === province;
+						const matchesSearch = !search || searchable.includes(search);
+						const visible = matchesProvince && matchesSearch;
+						row.style.display = visible ? '' : 'none';
+						if (visible) {
+							visibleCount += 1;
+						}
+					});
+
+					emptyRow.style.display = visibleCount === 0 ? '' : 'none';
+				}
+
+				filter.addEventListener('change', applyFilters);
+				searchInput.addEventListener('input', applyFilters);
+				clearFilters.addEventListener('click', function() {
+					filter.value = '';
+					searchInput.value = '';
+					applyFilters();
+				});
+
+				applyFilters();
+			});
+		</script>
+	</div>
+</body>
+</html>

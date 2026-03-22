@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+    <title>Cerrar Custodia</title>
+</head>
+
+<body>
+<div layout:fragment="contenidopaginas">
+
+    <div class="page-header">
+        <div class="page-header-left d-flex align-items-center">
+            <div class="page-header-title">
+                <h5 class="m-b-10">Cerrar Custodia</h5>
+            </div>
+        </div>
+
+        <div class="page-header-right ms-auto d-flex gap-2">
+            <button type="submit"
+                    form="formCerrarCustodia"
+                    class="btn btn-danger">
+                CERRAR CUSTODIA / GENERAR ACTA DE SALIDA
+            </button>
+
+            <a th:href="@{/custodias}" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <div class="mb-3">
+                <p class="mb-1">
+                    <b>Custodio:</b>
+                    <span th:text="${cabecera != null && cabecera.fkCustodio != null ? cabecera.fkCustodio.nombre : ''}"></span>
+                </p>
+
+                <p class="mb-0">
+                    <b>ID Custodio:</b>
+                    <span th:text="${cabecera != null ? cabecera.idCustodio : ''}"></span>
+                </p>
+            </div>
+
+            <form id="formCerrarCustodia"
+                  th:action="@{/custodias/cerrar-custodia}"
+                  th:object="${form}"
+                  method="post">
+
+                <!-- ✅ ENVIAR idCustodio (clave real) -->
+                <input type="hidden" th:field="*{idCustodio}"/>
+
+                <div class="row g-3 mb-3">
+
+                    <!-- ✅ FECHA INICIO (solo lectura, pero se envía hidden) -->
+                    <div class="col-md-4">
+                        <label class="form-label"><b>Fecha Inicio</b></label>
+
+                        <!-- visible -->
+                        <input type="text"
+                               class="form-control"
+                               th:value="${form.fechaInicio != null ? #temporals.format(form.fechaInicio, 'yyyy-MM-dd') : ''}"
+                               readonly/>
+
+                        <!-- hidden (se envía al POST) -->
+                        <input type="hidden" th:field="*{fechaInicio}"/>
+                    </div>
+
+                    <!-- ✅ FECHA FIN editable -->
+                    <div class="col-md-4">
+                        <label class="form-label"><b>Fecha Fin</b></label>
+                        <input type="date"
+                               class="form-control"
+                               th:field="*{fechaFin}"/>
+                    </div>
+
+                    <!-- ✅ OBSERVACIÓN editable -->
+                    <div class="col-md-4">
+                        <label class="form-label"><b>Observación</b></label>
+                        <input type="text"
+                               class="form-control"
+                               th:field="*{observacion}"
+                               placeholder="Ingrese observación"/>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                        <tr>
+                            <th style="width:80px">Devolver</th>
+                            <th style="width:90px">PK</th>
+                            <th style="width:90px">ID Equipo</th>
+                            <th>Código</th>
+                            <th>Tipo</th>
+                            <th>Modelo</th>
+                            <th>Serial</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="d : ${detalles}">
+
+                            <!-- ✅ CHECK: ENVÍA idCustodiaEquipo (PK) -->
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       th:field="*{detallesEntregados}"
+                                       th:value="${d.idCustodiaEquipo}">
+                            </td>
+
+                            <!-- ✅ PK -->
+                            <td th:text="${d.idCustodiaEquipo}"></td>
+
+                            <!-- ✅ EQUIPO -->
+                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.idEquipo : ''}"></td>
+                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.codigoSap : ''}"></td>
+                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.tipoEquipo : ''}"></td>
+                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
+                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+	

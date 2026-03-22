@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<meta charset="utf-8">
+<title>Nuevo Custodio</title>
+</head>
+
+<body>
+	<div layout:fragment="contenidopaginas">
+
+		<form th:action="@{/custodios}" th:object="${custodio}" method="post">
+
+			<div class="page-header">
+				<div class="page-header-left d-flex align-items-center">
+					<div class="page-header-title">
+						<h5 class="m-b-10">Custodios</h5>
+					</div>
+					<ul class="breadcrumb">
+						<li class="breadcrumb-item"><a th:href="@{/custodios}">Home</a></li>
+						<li class="breadcrumb-item">Crear</li>
+					</ul>
+				</div>
+
+				<div class="page-header-right ms-auto">
+					<div class="page-header-right-items">
+						<div
+							class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
+
+							<button type="submit" class="btn btn-primary">
+								<i class="feather-save me-2"></i> <span>Guardar</span>
+							</button>
+
+							<a th:href="@{/custodios}" class="btn btn-light"> <i
+								class="feather-arrow-left me-2"></i> <span>Volver</span>
+							</a>
+
+						</div>
+					</div>
+
+					<div class="d-md-none d-flex align-items-center">
+						<a href="javascript:void(0)" class="page-header-right-open-toggle">
+							<i class="feather-align-right fs-20"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="main-content">
+				<div class="card stretch stretch-full">
+					<div class="card-body">
+
+						<input type="hidden" th:field="*{idCustodio}">
+
+						<div class="row">
+
+							<div class="col-md-6 mb-4">
+								<label class="form-label">Nombre <span
+									class="text-danger">*</span></label> <input type="text"
+									class="form-control" placeholder="Nombre completo"
+									th:field="*{nombre}" maxlength="50">
+								<div class="text-danger small" th:if="${errorNombre}">
+									<span th:text="${errorNombre}"></span>
+								</div>
+							</div>
+
+							<div class="col-md-6 mb-4">
+								<label class="form-label">Cédula <span
+									class="text-danger">*</span></label> <input type="text"
+									class="form-control" placeholder="Ej: 0999999999"
+									th:field="*{cedula}" maxlength="10">
+								<div class="text-danger small" th:if="${errorCedula}">
+									<span th:text="${errorCedula}"></span>
+								</div>
+							</div>
+
+							<div class="col-md-6 mb-4">
+								<label class="form-label">Correo</label> <input type="email"
+									class="form-control" placeholder="correo@dominio.com"
+									th:field="*{correo}">
+								<div class="text-danger small" th:if="${errorCorreo}">
+									<span th:text="${errorCorreo}"></span>
+								</div>
+							</div>
+
+							<div class="col-md-6 mb-4">
+								<label class="form-label">Teléfono</label> <input type="text"
+									class="form-control" placeholder="Ej: 09xxxxxxxx"
+									th:field="*{telefono}" maxlength="10">
+								<div class="text-danger small" th:if="${errorTelefono}">
+									<span th:text="${errorTelefono}"></span>
+								</div>
+							</div>
+
+
+							<div class="col-md-6 mb-4">
+								<label class="form-label">Fecha Ingreso <span
+									class="text-danger">*</span></label> <input type="date"
+									class="form-control" name="fechaIngreso"
+									th:value="${#temporals.format(custodio.fechaIngreso, 'yyyy-MM-dd')}">
+								<div class="text-danger small" th:if="${errorFechaInicio}">
+									<span th:text="${errorFechaInicio}"></span>
+								</div>
+							</div>
+
+
+							<div class="col-md-6 mb-4">
+								<label class="form-label">Departamentos </label> <select
+									id="cbdepartamento" class="form-control"
+									data-select2-selector="status"
+									th:field="*{fkDepartamento.idDepartamento}">
+									<option data-bg="bg-dark" value="0">Seleccione un
+										departamento</option>
+									<option data-bg="bg-teal" th:each="dep : ${listadepartamento}"
+										th:value="${dep.idDepartamento}" th:text="${dep.nombre}"></option>
+								</select>
+
+								<div class="text-danger small"
+									th:if="${errorSeleccionDepartamento}">
+									<span th:text="${errorSeleccionDepartamento}"></span>
+								</div>
+							</div>
+
+							<div class="col-md-6 mb-4">
+								<label class="form-label">Cargos </label> <select id="cbcargo"
+									class="form-control" data-select2-selector="status"
+									th:field="*{fkCargo.idCargo}">
+									<option data-bg="bg-dark" value="0">Seleccione un
+										cargo</option>
+									<option data-bg="bg-teal" th:each="car : ${listacargo}"
+										th:value="${car.idCargo}" th:text="${car.nombre}"></option>
+								</select>
+
+								<div class="text-danger small" th:if="${errorSeleccionCargo}">
+									<span th:text="${errorSeleccionCargo}"></span>
+								</div>
+							</div>
+
+						</div>
+
+
+
+						<div class="row mb-2">
+							<div class="form-check form-switch form-switch-sm ps-5">
+								<input class="form-check-input c-pointer" type="checkbox"
+									id="estadoSwitch" th:field="*{estado}"> <label
+									class="form-check-label fw-500 text-dark c-pointer"
+									for="estadoSwitch">Activo</label>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</form>
+
+	</div>
+</body>
+
+</html>

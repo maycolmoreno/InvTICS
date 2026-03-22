@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Nuevo Departamento</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <form th:action="@{/departamentos}" th:object="${departamento}" method="post">
+    <div class="page-shell admin-form-shell">
+      <section class="operations-strip">
+        <div class="operations-copy">
+          <div class="eyebrow">Alta De Departamento</div>
+          <h1 class="operations-title">Crear nueva area funcional</h1>
+          <p class="operations-subtitle">Registra un departamento y opcionalmente asocialo a una ubicacion para fortalecer el orden administrativo.</p>
+        </div>
+      </section>
+
+      <article class="admin-form-card">
+        <h2 class="admin-form-card-title">Datos del departamento</h2>
+        <p class="admin-form-card-copy">Usa nombres claros y evita repetir departamentos con variaciones menores de escritura.</p>
+        <input type="hidden" th:field="*{idDepartamento}">
+        <div class="form-grid">
+          <div>
+            <label class="field-label">Nombre</label>
+            <input type="text" class="form-control" placeholder="Ej. Tecnologia" th:field="*{nombre}" maxlength="100">
+            <div class="text-danger small mt-1" th:if="${errorNombre}" th:text="${errorNombre}"></div>
+          </div>
+          <div>
+            <label class="field-label">Ubicacion</label>
+            <select id="cbubicaciones" class="form-select" th:field="*{fkUbicacion.idUbicacion}">
+              <option value="0">Seleccione una ubicacion</option>
+              <option th:each="ubi : ${listaubicacion}" th:value="${ubi.idUbicacion}" th:text="${ubi.nombre}"></option>
+            </select>
+            <div class="text-danger small mt-1" th:if="${errorSeleccionUbicacion}" th:text="${errorSeleccionUbicacion}"></div>
+          </div>
+        </div>
+      </article>
+
+      <div class="action-footer">
+        <div class="action-footer-copy">Piensa este catalogo como la base de reportes, roles y estructura interna del inventario.</div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/departamentos}" class="btn btn-light px-4 py-3">Cancelar</a>
+          <button type="submit" class="btn btn-primary px-4 py-3"><i class="feather-save me-2"></i>Guardar departamento</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+</html>

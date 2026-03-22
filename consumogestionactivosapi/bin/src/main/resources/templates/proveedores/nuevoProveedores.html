@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<meta charset="utf-8">
+<title>Proveedor</title>
+</head>
+
+<body>
+	<div layout:fragment="contenidopaginas">
+
+
+		<form th:action="@{/proveedores}" th:object="${nuevoproveedor}"
+			method="post">
+
+<div th:if="${error}" class="alert alert-danger mb-3">
+        <span th:text="${error}"></span>
+    </div>
+
+			<div class="page-header">
+				<div class="page-header-left d-flex align-items-center">
+					<div class="page-header-title">
+						<h5 class="m-b-10">CREAR PROVEEDORES</h5>
+					</div>
+				</div>
+			</div>
+
+
+			<div class="main-content">
+				<div class="card">
+					<div class="card-body">
+
+
+						<input type="hidden" th:field="*{idProveedor}" />
+
+						<!-- RUC -->
+						<div class="mb-4">
+							<label class="form-label"> RUC <span class="text-danger">*</span>
+							</label> <input type="text" class="form-control"
+								placeholder="Ingrese RUC (13 dígitos)" th:field="*{ruc}"
+								required minlength="13" maxlength="13" pattern="[0-9]{13}"
+								inputmode="numeric"
+								title="El RUC debe tener exactamente 13 números">
+						</div>
+
+						<!-- NOMBRE -->
+						<div class="mb-4">
+							<label class="form-label"> NOMBRE <span
+								class="text-danger">*</span>
+							</label> <input type="text" class="form-control"
+								placeholder="Nombre del proveedor" th:field="*{nombre}" required
+								maxlength="100">
+						</div>
+
+						<!-- DIRECCIÓN -->
+						<div class="mb-4">
+							<label class="form-label"> DIRECCIÓN <span
+								class="text-danger">*</span>
+							</label> <input type="text" class="form-control" placeholder="Dirección"
+								th:field="*{direccion}" required maxlength="200">
+						</div>
+
+						<!-- TELÉFONO -->
+						<div class="mb-4">
+							<label class="form-label"> TELÉFONO <span
+								class="text-danger">*</span>
+							</label> <input type="text" class="form-control" placeholder="Teléfono"
+								th:field="*{telefono}" required maxlength="20">
+						</div>
+
+						<!-- CORREO -->
+						<div class="mb-4">
+							<label class="form-label"> CORREO <span
+								class="text-danger">*</span>
+							</label> <input type="email" class="form-control"
+								placeholder="correo@empresa.com" th:field="*{correo}" required>
+						</div>
+
+						<!-- ESTADO -->
+						<div class="mb-4">
+							<div class="form-check form-switch form-switch-sm ps-5">
+								<input class="form-check-input c-pointer" type="checkbox"
+									id="estadoSwitch" th:field="*{estado}"> <label
+									class="form-check-label fw-500 text-dark c-pointer"
+									for="estadoSwitch"> ACTIVO </label>
+							</div>
+						</div>
+
+						<!-- BOTONES:  Guardar y  Cancelar -->
+						<div class="d-flex justify-content-end mt-4">
+							<div class="d-flex align-items-center gap-2">
+
+								<button type="submit" class="btn btn-primary">
+									<i class="feather-save me-2"></i> Guardar
+								</button>
+
+								<a th:href="@{/proveedores}" class="btn btn-danger">
+									Cancelar </a>
+
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</form>
+
+	</div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Departamentos</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <div class="page-shell admin-shell">
+    <section class="operations-hero">
+      <div class="operations-hero-copy">
+        <div class="eyebrow">Organizacion Interna</div>
+        <h1>Catalogo de departamentos</h1>
+        <h2>Relaciona areas funcionales con sus ubicaciones para sostener mejor usuarios, cargos y custodias.</h2>
+      </div>
+      <div class="operations-hero-actions">
+        <a th:href="@{/departamentos/nuevo-departamento}" class="btn btn-primary px-4 py-3">
+          <i class="feather-plus-circle me-2"></i>Nuevo departamento
+        </a>
+      </div>
+    </section>
+
+    <section class="admin-summary-grid">
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Total departamentos</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listadepartamento)}">0</div>
+        <div class="admin-summary-copy">Areas registradas para clasificar responsabilidades y recursos.</div>
+      </article>
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Activos</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listadepartamento.?[estado])}">0</div>
+        <div class="admin-summary-copy">Departamentos disponibles para nuevas vinculaciones operativas.</div>
+      </article>
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Con ubicacion</div>
+        <div class="admin-summary-value" th:text="${#aggregates.sum(listadepartamento.![fkUbicacion != null ? 1 : 0])}">0</div>
+        <div class="admin-summary-copy">Areas que ya cuentan con referencia geografica asociada.</div>
+      </article>
+    </section>
+
+    <section class="surface-card page-panel">
+      <div class="management-toolbar mb-4">
+        <div class="management-toolbar-copy">
+          Un catalogo limpio de departamentos facilita analitica, control de responsables y segmentacion administrativa.
+        </div>
+        <div class="toolbar-pills">
+          <div class="toolbar-pill"><i class="feather-home"></i><span>Ubicaciones asociadas</span></div>
+          <div class="toolbar-pill"><i class="feather-check-circle"></i><span>Activos <strong th:text="${#lists.size(listadepartamento.?[estado])}">0</strong></span></div>
+        </div>
+      </div>
+
+      <div class="table-shell">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Departamento</th>
+              <th>Ubicacion</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="departamento : ${listadepartamento}">
+              <td><strong th:text="${departamento.idDepartamento}">1</strong></td>
+              <td th:text="${departamento.nombre}">Sistemas</td>
+              <td th:text="${departamento.fkUbicacion?.nombre ?: 'Sin ubicacion'}">Matriz</td>
+              <td><span th:class="${departamento.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}" th:text="${departamento.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
+              <td>
+                <div class="hstack gap-2 justify-content-end">
+                  <a th:href="@{/departamentos/editar-departamento/{id}(id=${departamento.idDepartamento})}" class="btn btn-light btn-sm">
+                    <i class="feather-edit-2 me-1"></i>Editar
+                  </a>
+                  <a th:if="${departamento.estado}" href="javascript:void(0)" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminarDepartamento" th:attr="data-id=${departamento.idDepartamento}">
+                    <i class="feather-slash me-1"></i>Desactivar
+                  </a>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(listadepartamento)}">
+              <td colspan="5">
+                <div class="table-empty-state">
+                  <i class="feather-grid"></i>
+                  <div class="fw-semibold">No hay departamentos registrados</div>
+                  <div>Agrega el primer departamento para estructurar mejor la organizacion.</div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="modal fade" id="modalEliminarDepartamento" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar desactivacion</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">Esta accion desactivara el departamento seleccionado y dejara de aparecer en nuevos registros.</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+            <form th:action="@{/departamentos/eliminar-departamento}" method="post">
+              <input type="hidden" name="idDepartamento" id="idDepartamentoEliminar">
+              <button type="submit" class="btn btn-outline-danger">Si, desactivar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const modalEliminarDepartamento = document.getElementById('modalEliminarDepartamento');
+      modalEliminarDepartamento.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        document.getElementById('idDepartamentoEliminar').value = id;
+      });
+      document.addEventListener('DOMContentLoaded', function() {
+        if (modalEliminarDepartamento && modalEliminarDepartamento.parentElement !== document.body) {
+          document.body.appendChild(modalEliminarDepartamento);
+        }
+      });
+    </script>
+  </div>
+</div>
+</body>
+</html>

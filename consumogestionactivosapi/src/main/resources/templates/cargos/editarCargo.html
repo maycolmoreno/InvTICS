@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Editar Cargo</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <form th:action="@{/cargos}" th:object="${cargo}" method="post">
+    <div class="page-shell admin-form-shell">
+      <section class="operations-strip">
+        <div class="operations-copy">
+          <div class="eyebrow">Edicion De Cargo</div>
+          <h1 class="operations-title">Actualizar cargo existente</h1>
+          <p class="operations-subtitle">Ajusta la definicion del cargo y su disponibilidad sin perder consistencia en la estructura del negocio.</p>
+        </div>
+      </section>
+
+      <article class="admin-form-card">
+        <h2 class="admin-form-card-title">Datos del cargo</h2>
+        <p class="admin-form-card-copy">Mantiene un nombre claro y un departamento coherente con la realidad organizacional.</p>
+        <input type="hidden" th:field="*{idCargo}">
+        <div class="form-grid">
+          <div>
+            <label class="field-label">Nombre</label>
+            <input type="text" class="form-control" placeholder="Ej. Analista de soporte" th:field="*{nombre}" maxlength="50">
+            <div class="text-danger small mt-1" th:if="${errorNombre}" th:text="${errorNombre}"></div>
+          </div>
+          <div>
+            <label class="field-label">Departamento</label>
+            <select id="cbdepartamentos" class="form-select" th:field="*{fkDepartamento.idDepartamento}">
+              <option th:each="dep : ${listadepartamento}" th:value="${dep.idDepartamento}" th:text="${dep.nombre}"></option>
+            </select>
+            <div class="text-danger small mt-1" th:if="${errorSeleccionDepartamento}" th:text="${errorSeleccionDepartamento}"></div>
+          </div>
+        </div>
+        <div class="switch-card mt-4">
+          <div>
+            <div class="fw-semibold">Cargo activo</div>
+            <div class="switch-card-copy">Desactivalo si ya no debe aparecer en nuevos registros o vinculaciones.</div>
+          </div>
+          <div class="form-check form-switch m-0">
+            <input class="form-check-input" type="checkbox" id="cargoEstadoSwitch" th:field="*{estado}">
+            <label class="form-check-label ms-2" for="cargoEstadoSwitch">Activo</label>
+          </div>
+        </div>
+      </article>
+
+      <div class="action-footer">
+        <div class="action-footer-copy">Revisa el impacto del cambio si este cargo ya esta asociado a custodios o usuarios existentes.</div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/cargos}" class="btn btn-light px-4 py-3">Volver</a>
+          <button type="submit" class="btn btn-primary px-4 py-3"><i class="feather-save me-2"></i>Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+</html>

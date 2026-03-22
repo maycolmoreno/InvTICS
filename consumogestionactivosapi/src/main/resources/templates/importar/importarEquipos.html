@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultra.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+    <title>Importar Equipos</title>
+</head>
+
+<body>
+<div layout:fragment="contenidopaginas">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-left d-flex align-items-center">
+            <div class="page-header-title">
+                <h5 class="m-b-10">Importar Equipos desde Excel</h5>
+            </div>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/equipos}">Equipos</a></li>
+                <li class="breadcrumb-item">Importar</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <!-- Mensajes flash -->
+        <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${exito}">
+            <i class="feather-check-circle me-2"></i>
+            <span th:text="${exito}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${error}">
+            <i class="feather-alert-circle me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="alert alert-info alert-dismissible fade show" role="alert" th:if="${info}">
+            <i class="feather-info me-2"></i>
+            <span th:text="${info}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Formulario de carga -->
+        <div class="row mb-4">
+            <div class="col-lg-6">
+                <div class="card stretch stretch-full">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="feather-upload me-2"></i>Subir Archivo Excel</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/importar/preview}" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Archivo Excel (.xlsx) <span class="text-danger">*</span></label>
+                                <input type="file" name="archivo" accept=".xlsx" class="form-control" required />
+                                <div class="form-text text-muted">
+                                    Columnas esperadas: SUCURSAL, CANT, Descripción, Cod.Identificación, Marca, Modelo, Serie, Estado, Estación, Etiqueta, Observación
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Categoría de Equipo <span class="text-danger">*</span></label>
+                                <select name="categoriaId" class="form-select" required>
+                                    <option value="">-- Seleccione categoría --</option>
+                                    <option th:each="cat : ${categorias}"
+                                            th:value="${cat.idCategoria}"
+                                            th:text="${cat.nombre}"
+                                            th:selected="${categoriaId != null and categoriaId == cat.idCategoria}">
+                                    </option>
+                                </select>
+                                <div class="form-text text-muted">
+                                    Se asignará esta categoría a todos los equipos importados.
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="feather-eye me-2"></i>Previsualizar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instrucciones -->
+            <div class="col-lg-6">
+                <div class="card stretch stretch-full">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="feather-info me-2"></i>Instrucciones</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><i class="feather-check text-success me-2"></i>El archivo debe ser formato <strong>.xlsx</strong>.</li>
+                            <li class="mb-2"><i class="feather-check text-success me-2"></i>La primera fila debe ser la cabecera (SUCURSAL, CANT, Descripción, ...).</li>
+                            <li class="mb-2"><i class="feather-check text-success me-2"></i>La columna <strong>CANT</strong> indica cuántas unidades iguales registrar por fila.</li>
+                            <li class="mb-2"><i class="feather-check text-success me-2"></i>Si CANT &gt; 1 y hay número de serie, se añade un sufijo <code>-01</code>, <code>-02</code>... para cada unidad.</li>
+                            <li class="mb-2"><i class="feather-check text-success me-2"></i>Las marcas nuevas se crearán automáticamente.</li>
+                            <li class="mb-2"><i class="feather-info text-info me-2"></i>La sucursal se guardará en el campo Observación de cada equipo.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista previa (solo si hay filas en el modelo) -->
+        <div th:if="${filas}" class="row">
+            <div class="col-12">
+
+                <!-- Resumen -->
+                <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+                    <i class="feather-alert-triangle me-3 fs-4"></i>
+                    <div>
+                        <strong>Vista previa lista.</strong>
+                        Se encontraron <strong th:text="${#lists.size(filas)}"></strong> fila(s) en el Excel,
+                        que generarán <strong th:text="${totalEquipos}"></strong> equipo(s) en total.
+                        Revise los datos antes de confirmar.
+                    </div>
+                </div>
+
+                <div class="card stretch stretch-full">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="card-title mb-0">Vista Previa de Equipos</h5>
+                        <div class="hstack gap-2">
+                            <!-- Confirmar -->
+                            <form th:action="@{/importar/confirmar}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-success"
+                                        onclick="return confirm('¿Confirmar la importación de ' + document.getElementById('totalEquiposCount').innerText + ' equipo(s)?');">
+                                    <i class="feather-check me-2"></i>Confirmar importacion
+                                </button>
+                            </form>
+                            <!-- Cancelar -->
+                            <form th:action="@{/importar/cancelar}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-outline-secondary">
+                                    <i class="feather-x me-2"></i>Cancelar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm" id="tablaPreview">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Sucursal</th>
+                                        <th>Cant</th>
+                                        <th>Descripción</th>
+                                        <th>Cód. Identificación</th>
+                                        <th>Marca</th>
+                                        <th>Modelo</th>
+                                        <th>Serie</th>
+                                        <th>Estado</th>
+                                        <th>Estación</th>
+                                        <th>Etiqueta</th>
+                                        <th>Observación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="fila, i : ${filas}">
+                                        <td class="text-muted" th:text="${i.count}"></td>
+                                        <td>
+                                            <span class="badge bg-soft-primary text-primary"
+                                                  th:text="${fila.sucursal}"></span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-soft-info text-info fw-bold"
+                                                  th:text="${fila.cant}"></span>
+                                        </td>
+                                        <td th:text="${fila.descripcion}"></td>
+                                        <td>
+                                            <code th:text="${fila.codIdentificacion}"></code>
+                                        </td>
+                                        <td>
+                                            <span th:text="${fila.marca}"
+                                                  th:class="${fila.marcaId == 0 ? 'text-warning fw-bold' : ''}"></span>
+                                            <small th:if="${fila.marcaId == 0}" class="text-warning d-block">
+                                                <i class="feather-plus-circle"></i> nueva
+                                            </small>
+                                        </td>
+                                        <td th:text="${fila.modelo}"></td>
+                                        <td>
+                                            <code th:text="${fila.serie}"></code>
+                                        </td>
+                                        <td>
+                                            <span class="badge"
+                                                  th:classappend="${fila.estadoEquipo != null and #strings.equalsIgnoreCase(fila.estadoEquipo, 'BUENO') ? 'bg-soft-success text-success' : 'bg-soft-warning text-warning'}"
+                                                  th:text="${fila.estadoEquipo}"></span>
+                                        </td>
+                                        <td th:text="${fila.estacion}"></td>
+                                        <td>
+                                            <span th:if="${fila.etiqueta}" class="badge bg-soft-success text-success">Sí</span>
+                                            <span th:unless="${fila.etiqueta}" class="badge bg-soft-secondary text-secondary">No</span>
+                                        </td>
+                                        <td class="text-muted small" th:text="${fila.observacion}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted small">
+                        <i class="feather-info me-1"></i>
+                        Las marcas marcadas como "<span class="text-warning fw-bold">nueva</span>" se crearán automáticamente al confirmar.
+                        Total de equipos a registrar: <strong id="totalEquiposCount" th:text="${totalEquipos}"></strong>.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Cresio</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/images/logo-AMC-Oficial.png}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/vendors.min.css}">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(73,0,141,0.95) 0%, rgba(73,0,141,0.6) 50%, rgba(232,65,45,0.85) 100%);
+            position: relative;
+        }
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 48px 40px;
+            max-width: 420px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+        .login-brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .login-brand-name {
+            font-size: 36px;
+            font-weight: 800;
+            color: #E8412D;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+        .login-brand-sub {
+            font-size: 12px;
+            color: #888;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .login-title {
+            text-align: center;
+            color: #2F3640;
+            margin-bottom: 28px;
+            font-weight: 600;
+            font-size: 20px;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            font-size: 15px;
+            font-weight: 700;
+            background: #E8412D;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            margin-top: 20px;
+            transition: all 0.25s ease;
+            letter-spacing: 0.5px;
+        }
+        .btn-login:hover {
+            background: #c62828;
+            color: white;
+            box-shadow: 0 6px 20px rgba(232, 65, 45, 0.35);
+            transform: translateY(-1px);
+        }
+        .form-control {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #dde1e7;
+            font-size: 14px;
+        }
+        .form-control:focus {
+            border-color: #E8412D;
+            box-shadow: 0 0 0 3px rgba(232, 65, 45, 0.12);
+        }
+        .form-label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #2F3640;
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #eef0f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-brand">
+                <div class="login-brand-name">CRESIO</div>
+                <div class="login-brand-sub">Gestión de Activos</div>
+            </div>
+            <h2 class="login-title">Iniciar Sesión</h2>
+            
+            <div th:if="${exito}" class="alert alert-success" role="alert">
+                <i class="feather-check-circle me-2"></i>
+                <span th:text="${exito}"></span>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+                <i class="feather-alert-circle me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+            
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3">
+                    <label for="correo" class="form-label">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="correo" name="correo" 
+                           placeholder="usuario@empresa.com" required autofocus>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="contrasena" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="contrasena" name="contrasena" 
+                           placeholder="Ingrese su contraseña" required>
+                </div>
+                
+                <button type="submit" class="btn btn-login">
+                    <i class="feather-log-in me-2"></i>
+                    Iniciar Sesión
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <small class="text-muted">
+                    Cresio — Sistema de Gestión de Activos
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <script th:src="@{/assets/vendors/js/vendors.min.js}"></script>
+    <script th:src="@{/assets/js/common-init.min.js}"></script>
+</body>
+</html>

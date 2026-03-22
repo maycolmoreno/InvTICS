@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Nueva Categoria</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <form th:action="@{/categorias-equipo}" th:object="${nuevacategoria}" method="post">
+    <div class="page-shell admin-form-shell">
+      <section class="operations-strip">
+        <div class="operations-copy">
+          <div class="eyebrow">Alta De Categoria</div>
+          <h1 class="operations-title">Crear clasificacion de equipo</h1>
+          <p class="operations-subtitle">Define un tipo de activo reutilizable para ordenar mejor inventario, mantenimiento y procesos futuros.</p>
+        </div>
+      </section>
+
+      <div class="alert alert-danger" role="alert" th:if="${errorNombre}" th:text="${errorNombre}"></div>
+
+      <article class="admin-form-card">
+        <h2 class="admin-form-card-title">Datos de la categoria</h2>
+        <p class="admin-form-card-copy">Usa nombres cortos, claros y tecnicamente utiles para el equipo que va a operar el sistema.</p>
+        <input type="hidden" th:field="*{idCategoria}">
+        <div class="form-grid">
+          <div>
+            <label class="field-label">Nombre</label>
+            <input type="text" class="form-control" placeholder="Ej. Impresora" th:field="*{nombre}" required minlength="2" maxlength="50" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+" title="Solo se permiten letras y espacios, maximo 50 caracteres.">
+          </div>
+        </div>
+      </article>
+
+      <div class="action-footer">
+        <div class="action-footer-copy">Una buena categoria ayuda a filtrar checklist, reportes y mantenimiento con mucha mas precision.</div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/categorias-equipo}" class="btn btn-light px-4 py-3">Cancelar</a>
+          <button type="submit" class="btn btn-primary px-4 py-3"><i class="feather-save me-2"></i>Guardar categoria</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+</html>

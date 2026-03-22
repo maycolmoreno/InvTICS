@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+<head>
+<title>Inicio - Cresio</title>
+</head>
+<body>
+	<section layout:fragment="contenidopaginas">
+		<div class="page-shell">
+			<div class="executive-banner">
+				<div class="executive-banner-grid">
+					<div>
+						<div class="eyebrow text-white-50">Centro de Operaciones CRESIO</div>
+						<h1 class="view-title text-white mb-3">Gestion integral de inventario, custodias y soporte tecnico</h1>
+						<p class="view-subtitle text-white-50 mb-0" style="max-width: 760px;">
+							Consola ejecutiva para visualizar continuidad operativa, activos criticos y seguimiento de mantenimientos.
+							La sesion activa de <strong class="text-white" th:text="${sesionUsuario.nombreUsuario}">Usuario</strong>
+							puede actuar sobre los modulos prioritarios desde este panel.
+						</p>
+					</div>
+					<div class="executive-kpis">
+						<div class="executive-kpi">
+							<div class="executive-kpi-label">Equipos</div>
+							<div class="executive-kpi-value" th:text="${totalEquipos}">0</div>
+							<div class="executive-kpi-copy">Base total administrada</div>
+						</div>
+						<div class="executive-kpi">
+							<div class="executive-kpi-label">Mantenimientos</div>
+							<div class="executive-kpi-value" th:text="${mantenimientosActivos}">0</div>
+							<div class="executive-kpi-copy">Ordenes activas</div>
+						</div>
+						<div class="executive-kpi">
+							<div class="executive-kpi-label">Ubicaciones</div>
+							<div class="executive-kpi-value" th:text="${totalUbicaciones}">0</div>
+							<div class="executive-kpi-copy">Cobertura operativa</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="view-heading">
+				<div>
+					<div class="eyebrow">Panel General</div>
+					<h1 class="view-title">Resumen Operativo de Activos</h1>
+					<p class="view-subtitle">
+						Panel central para equipos, mantenimientos y ubicaciones. La sesion actual pertenece a
+						<strong th:text="${sesionUsuario.nombreUsuario}">Usuario</strong> y mantiene visibilidad directa sobre el flujo operativo.
+					</p>
+				</div>
+				<div class="d-flex gap-3 flex-wrap">
+					<a th:href="@{/equipos/nuevo-equipo}" class="btn btn-primary px-4 py-3">
+						<i class="feather-plus me-2"></i>Agregar equipo
+					</a>
+				</div>
+			</div>
+
+			<div class="content-grid">
+				<div class="surface-card content-card">
+					<div class="content-card-header">
+						<div>
+							<h2 class="content-card-title">Acciones Prioritarias</h2>
+							<p class="content-card-copy">Atajos de trabajo para acelerar la operacion diaria del equipo tecnico.</p>
+						</div>
+					</div>
+					<div class="quick-actions-grid">
+						<a th:href="@{/equipos/nuevo-equipo}" class="quick-action-pro">
+							<div class="quick-action-icon"><i class="feather-plus-square"></i></div>
+							<div class="quick-action-title">Registrar activo</div>
+							<div class="quick-action-copy">Incorpora nuevos equipos al inventario con informacion de marca, categoria y ubicacion.</div>
+						</a>
+						<a th:href="@{/mantenimiento/nuevo}" class="quick-action-pro">
+							<div class="quick-action-icon"><i class="feather-tool"></i></div>
+							<div class="quick-action-title">Crear mantenimiento</div>
+							<div class="quick-action-copy">Abre una orden operativa y mantiene la trazabilidad del soporte tecnico.</div>
+						</a>
+						<a th:href="@{/custodias}" class="quick-action-pro">
+							<div class="quick-action-icon"><i class="feather-clipboard"></i></div>
+							<div class="quick-action-title">Gestionar custodias</div>
+							<div class="quick-action-copy">Controla entregas, traslados y cierres con soporte documental y reportes.</div>
+						</a>
+						<a th:href="@{/importar}" class="quick-action-pro">
+							<div class="quick-action-icon"><i class="feather-upload-cloud"></i></div>
+							<div class="quick-action-title">Importar informacion</div>
+							<div class="quick-action-copy">Carga catastro historico o lotes nuevos sin perder consistencia en el sistema.</div>
+						</a>
+					</div>
+				</div>
+
+				<div class="surface-card content-card">
+					<div class="content-card-header">
+						<div>
+							<h2 class="content-card-title">Senales de Operacion</h2>
+							<p class="content-card-copy">Lectura rapida del estado actual del inventario y soporte.</p>
+						</div>
+					</div>
+					<div class="signal-list">
+						<div class="signal-item">
+							<div class="signal-icon"><i class="feather-alert-triangle"></i></div>
+							<div>
+								<div class="signal-title">Mantenimientos vencidos</div>
+								<div class="signal-copy">Ordenes que requieren accion prioritaria del equipo tecnico.</div>
+							</div>
+							<div class="signal-tag" th:text="${mantenimientosVencidos} + ' casos'">0 casos</div>
+						</div>
+						<div class="signal-item">
+							<div class="signal-icon"><i class="feather-check-circle"></i></div>
+							<div>
+								<div class="signal-title">Equipos operativos</div>
+								<div class="signal-copy">Activos disponibles y bajo control dentro del inventario.</div>
+							</div>
+							<div class="signal-tag" th:text="${equiposActivos} + ' activos'">0 activos</div>
+						</div>
+						<div class="signal-item">
+							<div class="signal-icon"><i class="feather-bell"></i></div>
+							<div>
+								<div class="signal-title">Proximas acciones</div>
+								<div class="signal-copy">Ventana de ejecucion para mantenimientos preventivos programados.</div>
+							</div>
+							<div class="signal-tag" th:text="${#lists.size(mantenimientosProximos)} + ' tareas'">0 tareas</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="hero-grid">
+				<div class="surface-card metric-card is-primary">
+					<div class="metric-label">Total de Equipos</div>
+					<div class="metric-value" th:text="${totalEquipos}">68</div>
+					<div class="metric-meta"><i class="feather-activity"></i><span th:text="${equiposActivos + ' activos en inventario'}">0 activos en inventario</span></div>
+					<div class="metric-icon"><i class="feather-box"></i></div>
+				</div>
+				<div class="surface-card metric-card is-warning">
+					<div class="metric-label">Mantenimientos Activos</div>
+					<div class="metric-value" th:text="${mantenimientosActivos}">2</div>
+					<div class="metric-meta"><i class="feather-clock"></i><span th:text="${mantenimientosActivos > 0 ? 'Ordenes abiertas ahora' : 'Sin ordenes activas'}">Ordenes abiertas ahora</span></div>
+					<div class="metric-icon"><i class="feather-tool"></i></div>
+				</div>
+				<div class="surface-card metric-card is-danger">
+					<div class="metric-label">Mantenimientos Vencidos</div>
+					<div class="metric-value" th:text="${mantenimientosVencidos}">1</div>
+					<div class="metric-meta"><i class="feather-alert-triangle"></i><span th:text="${mantenimientosVencidos > 0 ? 'Requieren seguimiento inmediato' : 'Sin alertas vencidas'}">Requieren seguimiento inmediato</span></div>
+					<div class="metric-icon"><i class="feather-alert-triangle"></i></div>
+				</div>
+				<div class="surface-card metric-card is-neutral">
+					<div class="metric-label">Ubicaciones</div>
+					<div class="metric-value" th:text="${totalUbicaciones}">668</div>
+					<div class="metric-meta"><i class="feather-map-pin"></i><span th:text="${totalUbicaciones + ' ubicaciones registradas'}">Nodos administrados en red</span></div>
+					<div class="metric-icon"><i class="feather-map"></i></div>
+				</div>
+			</div>
+
+			<div class="content-grid">
+				<div class="surface-card content-card">
+					<div class="content-card-header">
+						<div>
+							<h2 class="content-card-title">Ordenes de Mantenimiento Recientes</h2>
+							<p class="content-card-copy">Seguimiento de las actualizaciones operativas mas recientes.</p>
+						</div>
+						<a th:href="@{/mantenimiento}" class="link-action">Ver Todo</a>
+					</div>
+					<div class="table-responsive">
+						<table class="inventory-table">
+							<thead>
+								<tr>
+									<th>Equipo</th>
+									<th>Numero de Serie</th>
+									<th>Ultima Accion</th>
+									<th>Estado</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="orden : ${mantenimientosRecientes}">
+									<td>
+										<div class="device-cell">
+											<div class="mini-thumb"><i class="feather-tool"></i></div>
+											<div>
+												<div class="device-name" th:text="${orden.equipoDescripcion ?: 'Orden de mantenimiento'}">Impresora termica Epson TM-T20</div>
+												<div class="device-meta" th:text="${orden.custodioNombre ?: 'Custodio sin asignar'}">Point of sale peripheral</div>
+											</div>
+										</div>
+									</td>
+									<td class="serial-strong" th:text="${orden.equipoCodigoSap ?: '-'}">X7AU034478</td>
+									<td th:text="${orden.tipoMantenimiento ?: 'Mantenimiento general'}">Calibration &amp; Cleaning</td>
+									<td>
+										<span class="status-pill"
+											th:with="estadoNormalizado=${orden.estadoInterno != null ? #strings.toLowerCase(orden.estadoInterno) : ''}"
+											th:classappend="${#strings.contains(estadoNormalizado, 'complet')} ? ' is-completed' : (${#strings.contains(estadoNormalizado, 'proceso')} ? ' is-progress' : (${#strings.contains(estadoNormalizado, 'pend')} ? ' is-pending' : ' is-warning'))"
+											th:text="${orden.estadoInterno ?: 'Pendiente'}">Completado</span>
+									</td>
+								</tr>
+								<tr th:if="${#lists.isEmpty(mantenimientosRecientes)}">
+									<td colspan="4" class="text-center text-muted py-5">No hay ordenes recientes para mostrar.</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="surface-card content-card">
+					<div class="content-card-header">
+						<div>
+							<h2 class="content-card-title">Salud del Inventario</h2>
+							<p class="content-card-copy">Distribucion de estados dentro del inventario.</p>
+						</div>
+					</div>
+					<div class="dashboard-donut">
+						<div class="dashboard-donut-center">
+							<div>
+								<div class="dashboard-donut-number" th:text="${totalEquipos}">68</div>
+								<div class="dashboard-donut-label">Total Activos</div>
+							</div>
+						</div>
+					</div>
+					<div class="legend-list">
+						<div class="legend-item">
+							<span class="legend-name"><span class="legend-dot good"></span> Bueno / Operativo</span>
+							<strong th:text="${equiposActivos}">54</strong>
+						</div>
+						<div class="legend-item">
+							<span class="legend-name"><span class="legend-dot new"></span> Nuevo / Stock</span>
+							<strong th:text="${equiposNuevos}">12</strong>
+						</div>
+						<div class="legend-item">
+							<span class="legend-name"><span class="legend-dot maintenance"></span> Mantenimiento</span>
+							<strong th:text="${equiposConNovedad}">2</strong>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="surface-card content-card">
+					<div class="content-card-header">
+						<div>
+							<h2 class="content-card-title">Proximos Mantenimientos</h2>
+							<p class="content-card-copy">Tareas preventivas programadas para los proximos 7 dias.</p>
+						</div>
+					</div>
+				<div class="timeline-grid">
+					<div class="timeline-card" th:each="proximo, iter : ${mantenimientosProximos}" th:classappend="${iter.index == 0} ? ' is-featured'">
+						<div class="timeline-time" th:text="${proximo.proximaFecha != null ? proximo.proximaFecha : proximo.fechaMantenimiento}">Tomorrow, 09:00 AM</div>
+						<div class="timeline-title" th:text="${proximo.equipoDescripcion ?: 'Tarea de mantenimiento'}">Switch Cisco Catalyst</div>
+						<div class="timeline-serial">Serial: <span th:text="${proximo.equipoCodigoSap ?: '-'}">X7AU032356</span></div>
+						<div class="timeline-location"><i class="feather-map-pin me-2"></i><span th:text="${proximo.custodioNombre ?: 'Custodio por definir'}">Server Room B-12</span></div>
+					</div>
+					<a th:href="@{/mantenimiento/programado}" class="timeline-card is-placeholder">
+						<div>
+							<div class="mb-3"><i class="feather-plus-circle" style="font-size: 34px;"></i></div>
+							<div class="fw-bold text-uppercase" style="letter-spacing:.12em;">Programar tarea</div>
+						</div>
+					</a>
+					<div class="timeline-card is-placeholder" th:if="${#lists.isEmpty(mantenimientosProximos)}">
+						<div>
+							<div class="mb-3"><i class="feather-calendar" style="font-size: 34px;"></i></div>
+							<div class="fw-bold">No hay mantenimientos proximos</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+</html>

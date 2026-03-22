@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Nuevo Cargo</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <form th:action="@{/cargos}" th:object="${cargo}" method="post">
+    <div class="page-shell admin-form-shell">
+      <section class="operations-strip">
+        <div class="operations-copy">
+          <div class="eyebrow">Alta De Cargo</div>
+          <h1 class="operations-title">Crear cargo organizacional</h1>
+          <p class="operations-subtitle">Define una posicion formal y relacionala con su departamento para mantener orden funcional en toda la operacion.</p>
+        </div>
+      </section>
+
+      <div class="helper-callout">
+        <i class="feather-briefcase"></i>
+        <div>
+          <div class="helper-callout-title">Conviene usar nombres claros</div>
+          <p class="helper-callout-copy">Mantener cargos estandarizados evita duplicidades como variantes del mismo puesto escritas de forma distinta.</p>
+        </div>
+      </div>
+
+      <article class="admin-form-card">
+        <h2 class="admin-form-card-title">Definicion del cargo</h2>
+        <p class="admin-form-card-copy">Asocia el cargo a un departamento para facilitar reportes y vinculaciones posteriores.</p>
+        <div class="form-grid">
+          <div>
+            <label class="field-label">Nombre</label>
+            <input type="text" class="form-control" placeholder="Ej. Analista de soporte" th:field="*{nombre}" maxlength="100">
+            <div class="text-danger small mt-1" th:if="${errorNombre}" th:text="${errorNombre}"></div>
+          </div>
+          <div>
+            <label class="field-label">Departamento</label>
+            <select id="cbdepartamentos" class="form-select" th:field="*{fkDepartamento.idDepartamento}">
+              <option value="0">Seleccione un departamento</option>
+              <option th:each="dep : ${listadepartamento}" th:value="${dep.idDepartamento}" th:text="${dep.nombre}"></option>
+            </select>
+            <div class="text-danger small mt-1" th:if="${errorSeleccionDepartamento}" th:text="${errorSeleccionDepartamento}"></div>
+          </div>
+        </div>
+      </article>
+
+      <div class="action-footer">
+        <div class="action-footer-copy">Crea cargos solo cuando representen una funcion real y reutilizable dentro del sistema.</div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/cargos}" class="btn btn-light px-4 py-3">Cancelar</a>
+          <button type="submit" class="btn btn-primary px-4 py-3"><i class="feather-save me-2"></i>Guardar cargo</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+</body>
+</html>

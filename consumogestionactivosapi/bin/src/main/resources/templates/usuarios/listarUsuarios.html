@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultra.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+
+<title>Usuarios</title>
+
+</head>
+
+<body>
+	<div layout:fragment="contenidopaginas">
+		<div class="page-header">
+			<div class="page-header-left d-flex align-items-center">
+				<div class="page-header-title">
+					<h5 class="m-b-10">Usuarios</h5>
+				</div>
+				<ul class="breadcrumb">
+					<li class="breadcrumb-item"><a th:href="@{/usuarios}">Home</a></li>
+					<li class="breadcrumb-item">Usuarios</li>
+				</ul>
+			</div>
+			<div class="page-header-right ms-auto">
+				<div class="page-header-right-items">
+					<div
+						class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
+
+						<a th:href="@{/usuarios/nuevo-usuario}" class="btn btn-primary">
+							<i class="feather-plus me-2"></i> <span>Nuevo Usuario</span>
+						</a>
+					</div>
+				</div>
+				<div class="d-md-none d-flex align-items-center">
+					<a href="javascript:void(0)" class="page-header-right-open-toggle">
+						<i class="feather-align-right fs-20"></i>
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="main-content">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorEliminar}">
+						<strong>Error:</strong> <span th:text="${errorEliminar}"></span>
+						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+					
+					<div class="card stretch stretch-full">
+						<div class="card-body p-0">
+							<div class="table-responsive">
+								<table class="table table-hover" id="proposalList">
+									<thead>
+										<tr>
+											<th>Id</th>
+											<th>Nombre</th>
+											<th>Email</th>
+											<th>Rol</th>
+											<th>Departamento</th>
+											<th>Estado</th>
+											<th class="text-end">Acciones</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr class="single-item" th:each="usuario : ${listarusuarios}">
+											<td><a href="javascript:void(0);" class="fw-bold"
+												th:text="${usuario.idUsuario}"></a></td>
+											<td th:text="${usuario.nombre}"></td>
+											<td th:text="${usuario.correo}"></td>
+											<td
+												th:text="${usuario.fkRol != null ? usuario.fkRol.nombre : '-'}"></td>
+											<td
+												th:text="${usuario.fkDepartamento != null ? usuario.fkDepartamento.nombre : '-'}"></td>
+											<td>
+											<div th:class="${usuario.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}"
+													th:text="${usuario.estado ? 'Activo' : 'Inactivo'}">
+												</div>
+											</td>
+											<td>
+												<div class="hstack gap-2 justify-content-end">
+													<a
+														th:href="@{/usuarios/editar-usuario/{id}(id=${usuario.idUsuario})}"
+														class="avatar-text avatar-md"> <i
+														class="feather feather-edit"></i>
+													</a>
+													<form th:action="@{/usuarios/eliminar/{id}(id=${usuario.idUsuario})}" 
+													  method="post" 
+													  style="display: inline;">
+													<button th:if="${usuario.estado}" 
+														type="submit" 
+														class="avatar-text avatar-md border-0 bg-transparent"
+														onclick="return confirm('¿Está seguro de desactivar este usuario?');">
+														<i class="feather feather-trash-2 text-danger"></i>
+													</button>
+												</form>												
+											</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+
+</html>

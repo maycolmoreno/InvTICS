@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Acta de Salida</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+    <div class="page-shell">
+        <div class="operations-strip">
+            <div class="operations-hero">
+                <div class="eyebrow text-white-50">Cierre documental</div>
+                <h2>Acta de salida generada para custodias cerradas.</h2>
+                <p>Revisa el responsable, confirma el detalle de los equipos devueltos y descarga el documento final para respaldo.</p>
+                <div class="operations-badges">
+                    <div class="operations-badge"><i class="feather-user"></i><span th:text="${nombreCustodioReal}">Custodio</span></div>
+                    <div class="operations-badge"><i class="feather-calendar"></i><span th:text="${fechaSalidaReal}">2026-03-21</span></div>
+                    <div class="operations-badge"><i class="feather-package"></i><span th:text="${#lists.size(detalles)} + ' equipos'">0 equipos</span></div>
+                </div>
+            </div>
+            <div class="surface-card insight-panel">
+                <div class="content-card-header mb-0">
+                    <div>
+                        <h2 class="content-card-title">Resumen del acta</h2>
+                        <p class="content-card-copy">Datos clave del cierre para validacion operativa.</p>
+                    </div>
+                </div>
+                <div class="insight-list">
+                    <div class="insight-item">
+                        <i class="feather-hash"></i>
+                        <div>
+                            <div class="signal-title">ID custodio</div>
+                            <div class="signal-copy">Identificador del responsable asociado al cierre.</div>
+                        </div>
+                        <div class="insight-value" th:text="${idCustodioReal != null ? idCustodioReal : 0}">0</div>
+                    </div>
+                    <div class="insight-item">
+                        <i class="feather-file-text"></i>
+                        <div>
+                            <div class="signal-title">Observacion</div>
+                            <div class="signal-copy" th:text="${observacionReal}">Salida de activos</div>
+                        </div>
+                        <div class="signal-tag">Final</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-heading">
+            <div>
+                <div class="eyebrow">Acta de salida</div>
+                <h1 class="view-title">Documento de devolucion de activos</h1>
+                <p class="view-subtitle">Consulta el cierre registrado y mantén el respaldo documental disponible para auditoría y seguimiento.</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a th:href="@{/custodias}" class="btn btn-light px-4 py-3">Volver</a>
+                <a th:href="@{/custodias/acta-salida/pdf}" class="btn btn-primary px-4 py-3">
+                    <i class="feather-download me-2"></i>Descargar PDF
+                </a>
+            </div>
+        </div>
+
+        <section class="admin-summary-grid">
+            <article class="admin-summary-card">
+                <div class="admin-summary-label">Custodio</div>
+                <div class="admin-summary-value summary-text" th:text="${nombreCustodioReal}">Custodio</div>
+                <div class="admin-summary-copy">Responsable asociado al acta de salida.</div>
+            </article>
+            <article class="admin-summary-card">
+                <div class="admin-summary-label">Fecha salida</div>
+                <div class="admin-summary-value summary-text" th:text="${fechaSalidaReal}">2026-03-21</div>
+                <div class="admin-summary-copy">Fecha efectiva del cierre de custodia.</div>
+            </article>
+            <article class="admin-summary-card">
+                <div class="admin-summary-label">Equipos devueltos</div>
+                <div class="admin-summary-value" th:text="${#lists.size(detalles)}">0</div>
+                <div class="admin-summary-copy">Activos incluidos en el documento final.</div>
+            </article>
+        </section>
+
+        <div class="surface-card page-panel">
+            <div class="content-card-header">
+                <div>
+                    <h2 class="content-card-title">Observacion de cierre</h2>
+                    <p class="content-card-copy">Motivo u observación registrada al momento de la devolución.</p>
+                </div>
+            </div>
+            <div class="notes-area" th:text="${observacionReal}">Salida de activos</div>
+        </div>
+
+        <div class="card-surface-strong table-shell">
+            <div class="soft-header">
+                <div class="section-toolbar">
+                    <div class="toolbar-pills">
+                        <div class="toolbar-pill"><i class="feather-monitor"></i><span>Activos <strong th:text="${#lists.size(detalles)}">0</strong></span></div>
+                        <div class="toolbar-pill"><i class="feather-user"></i><span>Custodio <strong th:text="${idCustodioReal != null ? idCustodioReal : 0}">0</strong></span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card pt-0">
+                <div class="table-responsive">
+                    <table class="table inventory-table mb-0">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Codigo</th>
+                            <th>Tipo</th>
+                            <th>Modelo</th>
+                            <th>Serial</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${detalles == null or #lists.isEmpty(detalles)}">
+                            <td colspan="5">
+                                <div class="table-empty-state">
+                                    <i class="feather-inbox"></i>
+                                    <div>No hay equipos asociados a esta acta.</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:each="d : ${detalles}">
+                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.idEquipo : ''}"></td>
+                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.codigoSap : ''}"></td>
+                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.tipoEquipo : ''}"></td>
+                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
+                            <td><code class="serial-code" th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></code></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

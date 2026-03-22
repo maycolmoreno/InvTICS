@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Cargos</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <div class="page-shell admin-shell">
+    <section class="operations-hero">
+      <div class="operations-hero-copy">
+        <div class="eyebrow">Estructura Organizacional</div>
+        <h1>Catalogo de cargos</h1>
+        <h2>Ordena responsabilidades operativas y su relacion con cada departamento para mejorar custodias, usuarios y trazabilidad.</h2>
+      </div>
+      <div class="operations-hero-actions">
+        <a th:href="@{/cargos/nuevo-cargo}" class="btn btn-primary px-4 py-3">
+          <i class="feather-plus-circle me-2"></i>Nuevo cargo
+        </a>
+      </div>
+    </section>
+
+    <section class="admin-summary-grid">
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Total cargos</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listacargo)}">0</div>
+        <div class="admin-summary-copy">Posiciones registradas para estructurar custodios y usuarios internos.</div>
+      </article>
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Activos</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listacargo.?[estado])}">0</div>
+        <div class="admin-summary-copy">Cargos disponibles para ser utilizados en nuevos registros.</div>
+      </article>
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Inactivos</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listacargo.?[!estado])}">0</div>
+        <div class="admin-summary-copy">Posiciones retiradas que ya no deberian vincularse en la operacion diaria.</div>
+      </article>
+    </section>
+
+    <section class="surface-card page-panel">
+      <div class="management-toolbar mb-4">
+        <div class="management-toolbar-copy">
+          Mantener este catalogo claro facilita consistencia entre custodios, departamentos y estructura de atencion tecnica.
+        </div>
+        <div class="toolbar-pills">
+          <div class="toolbar-pill"><i class="feather-briefcase"></i><span>Activos <strong th:text="${#lists.size(listacargo.?[estado])}">0</strong></span></div>
+          <div class="toolbar-pill"><i class="feather-layers"></i><span>Departamentos vinculados</span></div>
+        </div>
+      </div>
+
+      <div class="table-shell">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cargo</th>
+              <th>Departamento</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cargos : ${listacargo}">
+              <td><strong th:text="${cargos.idCargo}">1</strong></td>
+              <td th:text="${cargos.nombre}">Analista</td>
+              <td th:text="${cargos.fkDepartamento?.nombre ?: 'Sin departamento'}">Sistemas</td>
+              <td><span th:class="${cargos.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}" th:text="${cargos.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
+              <td>
+                <div class="hstack gap-2 justify-content-end">
+                  <a th:href="@{/cargos/editar-cargo/{id}(id=${cargos.idCargo})}" class="btn btn-light btn-sm">
+                    <i class="feather-edit-2 me-1"></i>Editar
+                  </a>
+                  <a th:if="${cargos.estado}" href="javascript:void(0)" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminarCargo" th:attr="data-id=${cargos.idCargo}">
+                    <i class="feather-slash me-1"></i>Desactivar
+                  </a>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(listacargo)}">
+              <td colspan="5">
+                <div class="table-empty-state">
+                  <i class="feather-briefcase"></i>
+                  <div class="fw-semibold">No hay cargos registrados</div>
+                  <div>Crea el primer cargo para estructurar mejor custodios y perfiles internos.</div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="modal fade" id="modalEliminarCargo" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar desactivacion</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">Esta accion desactivara el cargo seleccionado y dejara de estar disponible para nuevos registros.</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+            <form th:action="@{/cargos/eliminar-cargo}" method="post">
+              <input type="hidden" name="idCargo" id="idCargoEliminar">
+              <button type="submit" class="btn btn-outline-danger">Si, desactivar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const modalEliminarCargo = document.getElementById('modalEliminarCargo');
+      modalEliminarCargo.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        document.getElementById('idCargoEliminar').value = id;
+      });
+      document.addEventListener('DOMContentLoaded', function() {
+        if (modalEliminarCargo && modalEliminarCargo.parentElement !== document.body) {
+          document.body.appendChild(modalEliminarCargo);
+        }
+      });
+    </script>
+  </div>
+</div>
+</body>
+</html>

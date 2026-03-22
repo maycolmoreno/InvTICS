@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{plantilla/plantillaui}">
+<head><title>Mantenimiento Programado</title></head>
+<body>
+<div layout:fragment="contenidopaginas">
+	<div class="page-shell">
+		<div class="operations-strip">
+			<div class="operations-hero">
+				<div class="eyebrow text-white-50">Planificacion preventiva</div>
+				<h2>Programa ciclos de mantenimiento con visibilidad operativa.</h2>
+				<p>
+					Organiza frecuencias, responsables y proximas fechas para que el soporte no dependa de seguimiento manual.
+				</p>
+				<div class="operations-badges">
+					<div class="operations-badge"><i class="feather-calendar"></i><span th:text="${#lists.size(listaprogramados)} + ' programados'">0 programados</span></div>
+					<div class="operations-badge"><i class="feather-alert-circle"></i><span th:text="${#lists.size(vencidosProximos)} + ' proximos o vencidos'">0 proximos o vencidos</span></div>
+					<div class="operations-badge"><i class="feather-users"></i><span>Asignacion por tecnico</span></div>
+				</div>
+			</div>
+			<div class="surface-card insight-panel">
+				<div class="content-card-header mb-0">
+					<div>
+						<h2 class="content-card-title">Lectura inmediata</h2>
+						<p class="content-card-copy">Resumen ejecutivo del cronograma actual.</p>
+					</div>
+				</div>
+				<div class="insight-list">
+					<div class="insight-item">
+						<i class="feather-clock"></i>
+						<div>
+							<div class="signal-title">Vencidos hoy</div>
+							<div class="signal-copy">Programaciones que ya requieren atencion del equipo tecnico.</div>
+						</div>
+						<div class="insight-value" th:text="${#lists.size(vencidosProximos)}">0</div>
+					</div>
+					<div class="insight-item">
+						<i class="feather-repeat"></i>
+						<div>
+							<div class="signal-title">Frecuencias activas</div>
+							<div class="signal-copy">Cobertura preventiva distribuida por activos y responsables.</div>
+						</div>
+						<div class="insight-value" th:text="${#lists.size(listaprogramados)}">0</div>
+					</div>
+					<div class="insight-item">
+						<i class="feather-briefcase"></i>
+						<div>
+							<div class="signal-title">Carga operativa</div>
+							<div class="signal-copy">Volumen visible de seguimiento preventivo en curso.</div>
+						</div>
+						<div class="insight-value" th:text="${#lists.size(listaprogramados.?[tecnicoNombre != null])}">0</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="view-heading">
+			<div>
+				<div class="eyebrow">Operaciones programadas</div>
+				<h1 class="view-title">Mantenimiento Programado</h1>
+				<p class="view-subtitle">Programa frecuencias preventivas, vigila vencimientos y deja visible el tecnico responsable de cada equipo.</p>
+			</div>
+			<a th:href="@{/mantenimiento}" class="btn btn-outline-secondary px-4 py-3">Atras</a>
+		</div>
+
+		<div class="compact-kpi-grid">
+			<div class="surface-card compact-kpi">
+				<div class="metric-label">Total Programados</div>
+				<div class="compact-kpi-value" th:text="${#lists.size(listaprogramados)}">0</div>
+			</div>
+			<div class="surface-card compact-kpi">
+				<div class="metric-label">Vencidos Hoy</div>
+				<div class="compact-kpi-value" th:text="${#lists.size(vencidosProximos)}">0</div>
+			</div>
+			<div class="surface-card compact-kpi">
+				<div class="metric-label">Proximos 7 Dias</div>
+				<div class="compact-kpi-value" th:text="${#lists.size(vencidosProximos)}">0</div>
+			</div>
+		</div>
+
+		<div class="helper-callout">
+			<i class="feather-calendar"></i>
+			<div>
+				<p class="helper-callout-title">Programacion preventiva</p>
+				<p class="helper-callout-copy">
+					Usa esta vista para sostener continuidad operativa. Cada configuracion debe reflejar el tecnico responsable y la frecuencia real del equipo.
+				</p>
+			</div>
+		</div>
+
+		<div class="card-surface-strong">
+			<div class="soft-header">
+				<div class="section-toolbar">
+					<div class="toolbar-pills">
+						<div class="toolbar-pill"><i class="feather-calendar"></i><span>Preventivos <strong th:text="${#lists.size(listaprogramados)}">0</strong></span></div>
+						<div class="toolbar-pill"><i class="feather-bell"></i><span>Alertas <strong th:text="${#lists.size(vencidosProximos)}">0</strong></span></div>
+					</div>
+				</div>
+			</div>
+			<div class="surface-card page-panel border-0 shadow-none">
+			<div class="content-card-header">
+				<div>
+					<h2 class="content-card-title">Programar mantenimiento</h2>
+					<p class="content-card-copy">Crea o ajusta una frecuencia operativa por equipo.</p>
+				</div>
+			</div>
+			<form th:action="@{/mantenimiento/programado/guardar}" method="post" class="row g-3">
+				<div class="col-lg-4">
+					<label class="filter-label">Equipo</label>
+					<select name="equipoId" class="form-select" required>
+						<option value="">Selecciona</option>
+						<option th:each="e : ${listaequipos}" th:value="${e.idEquipo}" th:text="${(e.codigoSap ?: 'Cod. Interno') + ' - ' + (e.modelo ?: e.tipoEquipo)}"></option>
+					</select>
+				</div>
+				<div class="col-lg-4">
+					<label class="filter-label">Tecnico</label>
+					<select name="tecnicoId" class="form-select" required>
+						<option value="">Selecciona</option>
+						<option th:each="u : ${listausuarios}" th:value="${u.idUsuario}" th:text="${u.nombre}"></option>
+					</select>
+				</div>
+				<div class="col-lg-4">
+					<label class="filter-label">Frecuencia</label>
+					<select name="frecuenciaDias" class="form-select">
+						<option value="30">30 dias</option>
+						<option value="60">60 dias</option>
+						<option value="90">90 dias</option>
+					</select>
+				</div>
+				<div class="col-12">
+					<label class="filter-label">Observaciones</label>
+					<textarea name="observaciones" class="form-control" rows="3"></textarea>
+				</div>
+				<div class="col-12 text-end">
+					<button type="submit" class="btn btn-primary px-4 py-3">Guardar programacion</button>
+				</div>
+			</form>
+			</div>
+		</div>
+
+		<div class="card-surface-strong table-shell">
+			<div class="soft-header">
+				<div class="section-toolbar">
+					<div class="toolbar-pills">
+						<div class="toolbar-pill"><i class="feather-layers"></i><span>Total <strong th:text="${#lists.size(listaprogramados)}">0</strong></span></div>
+						<div class="toolbar-pill"><i class="feather-alert-triangle"></i><span>Proximos <strong th:text="${#lists.size(vencidosProximos)}">0</strong></span></div>
+					</div>
+				</div>
+			</div>
+			<div class="content-card pt-0">
+			<div class="content-card-header">
+				<div>
+					<h2 class="content-card-title">Cronograma de mantenimiento proximo</h2>
+					<p class="content-card-copy">Vista operativa por frecuencia, ultimo mantenimiento y proxima ejecucion.</p>
+				</div>
+			</div>
+			<div class="table-responsive">
+				<table class="inventory-table">
+					<thead>
+						<tr>
+							<th>Equipo</th>
+							<th>Tecnico</th>
+							<th>Frecuencia</th>
+							<th>Ultimo mant.</th>
+							<th>Proximo mant.</th>
+							<th>Estado</th>
+							<th class="text-end">Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="p : ${listaprogramados}">
+							<td>
+								<div class="device-cell">
+									<div class="mini-thumb"><i class="feather-cpu"></i></div>
+									<div>
+										<div class="device-name" th:text="${p.equipoCodigoSap ?: 'Cod. Interno'}"></div>
+										<div class="device-meta" th:text="${p.equipoDescripcion ?: '-'}"></div>
+									</div>
+								</div>
+							</td>
+							<td th:text="${p.tecnicoNombre ?: '-'}"></td>
+							<td th:text="${p.frecuenciaDias + ' dias'}"></td>
+							<td th:text="${p.fechaUltimoMantenimiento ?: '-'}"></td>
+							<td th:text="${p.fechaProximoMantenimiento ?: '-'}"></td>
+							<td>
+								<span class="status-pill"
+									th:classappend="${p.fechaProximoMantenimiento != null and p.fechaProximoMantenimiento.isBefore(T(java.time.LocalDate).now().plusDays(1)) ? ' is-danger' : (p.fechaProximoMantenimiento != null and p.fechaProximoMantenimiento.isBefore(T(java.time.LocalDate).now().plusDays(8)) ? ' is-warning' : ' is-good')}"
+									th:text="${p.fechaProximoMantenimiento != null and p.fechaProximoMantenimiento.isBefore(T(java.time.LocalDate).now().plusDays(1)) ? 'Vencido' : (p.fechaProximoMantenimiento != null and p.fechaProximoMantenimiento.isBefore(T(java.time.LocalDate).now().plusDays(8)) ? 'Proximo' : 'Activo')}"></span>
+							</td>
+							<td class="text-end">
+								<form th:action="@{/mantenimiento/programado/desactivar}" method="post">
+									<input type="hidden" name="idProgramado" th:value="${p.idProgramado}">
+									<button class="btn btn-outline-danger" type="submit">Desactivar</button>
+								</form>
+							</td>
+						</tr>
+						<tr th:if="${#lists.isEmpty(listaprogramados)}">
+							<td colspan="7">
+								<div class="status-empty">
+									<i class="feather-inbox"></i>
+									<div>No hay programaciones registradas todavia.</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

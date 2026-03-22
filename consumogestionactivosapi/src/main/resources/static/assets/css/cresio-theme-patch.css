@@ -1,0 +1,305 @@
+/* ============================================================
+   CRESIO PATCH — Compatibilidad con NEXEL theme.min.css
+   Agregar al FINAL de cresio-theme-glass.css
+   ============================================================ */
+
+/* ====================== BODY OVERRIDE ====================== */
+/* El tema base pone background #f3f4f6. Lo forzamos oscuro */
+body {
+  background: linear-gradient(135deg, #1a0533 0%, #2d0060 30%, #0d0020 60%, #1a0030 100%) !important;
+  background-attachment: fixed !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ====================== PAGE HEADER (breadcrumb bar) ====================== */
+.page-header {
+  background: rgba(20, 0, 45, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2) !important;
+}
+
+.page-header h5 {
+  color: #fff !important;
+  border-right-color: rgba(255,255,255,0.15) !important;
+}
+
+.page-header .breadcrumb { color: rgba(255,255,255,0.5) !important; }
+.page-header .breadcrumb a { color: rgba(255,255,255,0.75) !important; }
+.page-header .breadcrumb a:hover { color: #E8412D !important; }
+.page-header .breadcrumb .breadcrumb-item:last-child { opacity: 0.6; }
+
+/* ====================== CARD OVERRIDES (theme base usa #fff) ====================== */
+/* El tema base: card { background: #fff; border: 1px solid transparent } */
+.card,
+.card.bg-white {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Card title color */
+.card .card-header .card-title,
+.card .card-header h4,
+.card .card-header h5,
+.card .card-header h6 {
+  color: #fff !important;
+}
+
+/* Card header border */
+.card .card-header {
+  border-bottom-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Card footer */
+.card .card-footer {
+  color: rgba(255,255,255,0.6) !important;
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+
+/* ====================== HEADINGS ====================== */
+.h1, .h2, .h3, .h4, .h5, .h6,
+h1, h2, h3, h4, h5, h6 {
+  color: #fff !important;
+}
+
+/* ====================== TEXT COLORS ====================== */
+/* El tema base usa #283c50 para texto oscuro */
+.text-dark { color: rgba(255,255,255,0.9) !important; }
+.text-muted { color: rgba(255,255,255,0.45) !important; }
+body, p, span, li, td { color: rgba(255,255,255,0.8); }
+
+/* ====================== MAIN CONTENT AREA ====================== */
+/* El tema base: .nxl-container { background implicit from body } */
+.nxl-container { background: transparent !important; }
+.nxl-content  { background: transparent !important; }
+.main-content  { background: transparent !important; }
+
+/* Footer del theme base */
+.nxl-container .footer {
+  background: rgba(255,255,255,0.04) !important;
+  border-top-color: rgba(255,255,255,0.08) !important;
+  color: rgba(255,255,255,0.4) !important;
+}
+
+/* ====================== INPUT GROUP TEXT ====================== */
+/* El tema base: background-color: #ecedf4 */
+.input-group-text {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  color: rgba(255,255,255,0.7) !important;
+}
+
+/* ====================== TABLE RESPONSIVE WRAPPER ====================== */
+.table-responsive {
+  background: transparent !important;
+}
+
+/* El tema base sobreescribe estos con !important también */
+.table-responsive .table { color: rgba(255,255,255,0.85) !important; }
+.table-responsive .table:not(caption)>* { border-color: rgba(255,255,255,0.06) !important; }
+.table-responsive .table thead th {
+  color: rgba(255,255,255,0.4) !important;
+  background: rgba(255,255,255,0.05) !important;
+  border-bottom-color: rgba(255,255,255,0.1) !important;
+}
+.table-responsive .table tfoot th { color: rgba(255,255,255,0.4) !important; }
+.table-responsive .table tr td {
+  color: rgba(255,255,255,0.8) !important;
+  border-bottom-color: rgba(255,255,255,0.05) !important;
+}
+.table-responsive .table.table-hover>tbody>tr:hover>*,
+.table-responsive .table.table-striped>tbody>tr:nth-of-type(odd)>* {
+  --bs-table-accent-bg: rgba(255,255,255,0.04) !important;
+  color: rgba(255,255,255,0.9) !important;
+}
+
+/* DataTables info text */
+.table-responsive div.dataTables_wrapper div.dataTables_filter input,
+.table-responsive div.dataTables_wrapper div.dataTables_filter select,
+.table-responsive div.dataTables_wrapper div.dataTables_length input,
+.table-responsive div.dataTables_wrapper div.dataTables_length select {
+  color: #fff !important;
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+/* ====================== DROPDOWN (tema base #fff) ====================== */
+.dropdown-menu {
+  background-color: rgba(20,0,45,0.95) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+.dropdown .dropdown-menu .dropdown-item {
+  color: rgba(255,255,255,0.75) !important;
+}
+
+.dropdown .dropdown-menu .dropdown-item.active,
+.dropdown .dropdown-menu .dropdown-item:active,
+.dropdown .dropdown-menu .dropdown-item:focus,
+.dropdown .dropdown-menu .dropdown-item:hover {
+  background-color: rgba(232,65,45,0.15) !important;
+  color: #fff !important;
+}
+
+/* ====================== NAV TABS ====================== */
+.nav-tabs-wrapper {
+  background: rgba(255,255,255,0.04) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.nav-tabs-wrapper .nav-tabs-custom-style .nav-item .nav-link {
+  color: rgba(255,255,255,0.6) !important;
+}
+
+.nav-tabs-wrapper .nav-tabs-custom-style .nav-item .nav-link.active,
+.nav-tabs-wrapper .nav-tabs-custom-style .nav-item .nav-link.hover {
+  color: #E8412D !important;
+  border-bottom-color: #E8412D !important;
+  background-color: rgba(232,65,45,0.08) !important;
+}
+
+/* ====================== ACCORDION ====================== */
+.accordion .accordion-item {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.accordion .accordion-item .accordion-header .accordion-button {
+  color: #fff !important;
+  background: transparent !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+.accordion .accordion-item .accordion-header .accordion-button:after {
+  filter: invert(1) !important;
+}
+
+.accordion .accordion-item .accordion-header .accordion-button:not(.collapsed) {
+  background: rgba(255,255,255,0.06) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.accordion .accordion-item .accordion-body {
+  color: rgba(255,255,255,0.75) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* ====================== SELECT2 (tema base usa fondo blanco) ====================== */
+.select2-container .select2-selection {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  color: #fff !important;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+  color: #fff !important;
+}
+
+.select2-container .select2-dropdown {
+  background: rgba(20,0,45,0.96) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+.select2-container .select2-dropdown .select2-results__options .select2-results__option {
+  color: rgba(255,255,255,0.8) !important;
+}
+
+.select2-container .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--highlighted,
+.select2-container .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--selected {
+  background-color: rgba(232,65,45,0.25) !important;
+  color: #fff !important;
+}
+
+.select2-container .select2-dropdown .select2-search .select2-search__field {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  color: #fff !important;
+}
+
+/* ====================== LIST GROUP ====================== */
+.list-group-item {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: rgba(255,255,255,0.8) !important;
+}
+
+/* ====================== PROGRESS BAR ====================== */
+.progress {
+  background: rgba(255,255,255,0.1) !important;
+}
+
+/* ====================== HR ====================== */
+hr { border-color: rgba(255,255,255,0.1) !important; }
+
+/* ====================== OFFCANVAS ====================== */
+.offcanvas {
+  background: rgba(15,0,35,0.96) !important;
+  backdrop-filter: blur(24px) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+
+.offcanvas-header {
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.offcanvas-title { color: #fff !important; }
+
+/* ====================== DATATABLE ROWS ====================== */
+table.dataTable tbody>tr.selected>* {
+  color: #fff !important;
+  background: rgba(232,65,45,0.1) !important;
+}
+
+table.dataTable.table-hover>tbody>tr:hover>* {
+  background-color: rgba(255,255,255,0.05) !important;
+}
+
+/* ====================== FORM LABEL (tema base usa #283c50) ====================== */
+.col-form-label,
+.form-label { color: rgba(255,255,255,0.7) !important; }
+
+/* ====================== INPUT PLACEHOLDER ====================== */
+.form-control::placeholder,
+.form-select::placeholder,
+input::placeholder { color: rgba(255,255,255,0.3) !important; }
+
+/* ====================== BLUR ON MODAL OPEN ====================== */
+/* El tema base pone filter:blur(3px) en modal-open.
+   Esto está OK para glassmorphism, pero ajustamos la intensidad */
+body.modal-open .nxl-container,
+body.modal-open .nxl-header,
+body.modal-open .nxl-navigation,
+body.modal-open .page-header {
+  filter: blur(2px) !important;
+}
+
+/* ====================== SWAL2 (tema base usa fondo blanco) ====================== */
+.swal2-modal,
+.swal2-container .swal2-popup {
+  background: rgba(20,0,45,0.95) !important;
+  backdrop-filter: blur(30px) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+}
+
+.swal2-modal .swal2-title,
+.swal2-container .swal2-title { color: #fff !important; }
+.swal2-modal .swal2-content,
+.swal2-container .swal2-content { color: rgba(255,255,255,0.65) !important; }
+
+.swal2-container .swal2-popup.swal2-toast {
+  background: rgba(20,0,45,0.96) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+.swal2-container .swal2-popup.swal2-toast .swal2-title {
+  color: rgba(255,255,255,0.9) !important;
+}
+
+/* ====================== SCROLLBAR GLOBAL ====================== */
+::-webkit-scrollbar-track { background-color: rgba(255,255,255,0.03) !important; }
+::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.12) !important; }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(255,255,255,0.22) !important; }

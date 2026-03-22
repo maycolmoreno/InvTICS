@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Tickets</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <div class="page-shell admin-shell">
+    <section class="operations-hero">
+      <div class="operations-hero-copy">
+        <div class="eyebrow">Soporte Interno</div>
+        <h1>Tickets tecnicos operativos</h1>
+        <h2>Registra solicitudes manuales y referencias de Odoo Helpdesk, asigna tecnicos y convierte el ticket en mantenimiento cuando el trabajo ya inicia.</h2>
+        <div class="info-chip-row mt-3">
+          <div class="info-chip"><i class="feather-life-buoy"></i><span>Total <strong th:text="${#lists.size(tickets)}">0</strong></span></div>
+          <div class="info-chip"><i class="feather-alert-circle"></i><span>Abiertos <strong th:text="${#lists.size(tickets.?[estado == 'ABIERTO' or estado == 'EN_REVISION'])}">0</strong></span></div>
+          <div class="info-chip"><i class="feather-check-circle"></i><span>Cerrados <strong th:text="${#lists.size(tickets.?[estado == 'CERRADO'])}">0</strong></span></div>
+        </div>
+      </div>
+      <div class="operations-hero-actions">
+        <a th:href="@{/tickets/nuevo}" class="btn btn-primary px-4 py-3">
+          <i class="feather-plus-circle me-2"></i>Nuevo ticket
+        </a>
+      </div>
+    </section>
+
+    <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${exito}">
+      <strong>Correcto:</strong> <span th:text="${exito}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorGeneral}">
+      <strong>Error:</strong> <span th:text="${errorGeneral}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <section class="surface-card page-panel">
+      <form class="management-toolbar mb-4" method="get" th:action="@{/tickets}">
+        <div class="management-toolbar-copy">
+          Filtra por estado, equipo o numero Odoo para ubicar rapido el caso tecnico y continuar su gestion sin salir del backoffice.
+        </div>
+        <div class="row g-3 align-items-end mt-1">
+          <div class="col-lg-3 col-md-6">
+            <label class="filter-label">Estado</label>
+            <select name="estado" class="form-select">
+              <option value="">Todos</option>
+              <option value="ABIERTO" th:selected="${filtroEstado == 'ABIERTO'}">Abierto</option>
+              <option value="EN_REVISION" th:selected="${filtroEstado == 'EN_REVISION'}">En revision</option>
+              <option value="ASIGNADO" th:selected="${filtroEstado == 'ASIGNADO'}">Asignado</option>
+              <option value="CERRADO" th:selected="${filtroEstado == 'CERRADO'}">Cerrado</option>
+              <option value="CANCELADO" th:selected="${filtroEstado == 'CANCELADO'}">Cancelado</option>
+            </select>
+          </div>
+          <div class="col-lg-4 col-md-6">
+            <label class="filter-label">Equipo</label>
+            <select name="idEquipo" class="form-select">
+              <option value="">Todos</option>
+              <option th:each="equipo : ${equipos}"
+                      th:value="${equipo.idEquipo}"
+                      th:selected="${filtroEquipo != null and filtroEquipo == equipo.idEquipo}"
+                      th:text="${(equipo.tipoEquipo != null ? equipo.tipoEquipo : 'Equipo') + (equipo.modelo != null ? ' ' + equipo.modelo : '') + (equipo.serial != null ? ' (' + equipo.serial + ')' : '')}">Equipo</option>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <label class="filter-label">Ticket Odoo</label>
+            <input type="text" name="odooTicketId" class="form-control" th:value="${filtroOdoo}" placeholder="Ej. HD-2487">
+          </div>
+          <div class="col-lg-2 col-md-6 d-grid">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="table-shell">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Ticket</th>
+              <th>Origen</th>
+              <th>Solicitante</th>
+              <th>Equipo</th>
+              <th>Tecnico</th>
+              <th>Estado</th>
+              <th>Mantenimiento</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="ticket : ${tickets}">
+              <td><strong th:text="${ticket.idTicket}">1</strong></td>
+              <td>
+                <div class="fw-semibold" th:text="${ticket.titulo}">Titulo</div>
+                <div class="text-muted small" th:text="${ticket.odooTicketId != null and !#strings.isEmpty(ticket.odooTicketId) ? 'Odoo: ' + ticket.odooTicketId : 'Sin referencia Odoo'}">Odoo</div>
+              </td>
+              <td>
+                <span th:class="${ticket.tipoOrigen == 'ODOO_HELPDESK' ? 'badge bg-soft-warning text-warning' : 'badge bg-soft-primary text-primary'}"
+                      th:text="${ticket.tipoOrigen == 'ODOO_HELPDESK' ? 'Odoo Helpdesk' : 'Manual'}">Manual</span>
+              </td>
+              <td th:text="${custodiosMap[ticket.idSolicitante] != null ? custodiosMap[ticket.idSolicitante] : 'Sin custodio'}">Custodio</td>
+              <td th:text="${equiposMap[ticket.idEquipo] != null ? equiposMap[ticket.idEquipo] : 'Sin equipo'}">Equipo</td>
+              <td>
+                <span th:text="${usuariosMap[ticket.idTecnicoAsignado] != null ? usuariosMap[ticket.idTecnicoAsignado] : 'No asignado'}">Tecnico</span>
+              </td>
+              <td>
+                <span class="badge"
+                      th:classappend="${ticket.estado == 'CERRADO' ? ' bg-soft-success text-success' : (ticket.estado == 'CANCELADO' ? ' bg-soft-danger text-danger' : ' bg-soft-info text-info')}"
+                      th:text="${ticket.estado}">Estado</span>
+              </td>
+              <td th:text="${ticket.fkMantenimiento != null ? '#' + ticket.fkMantenimiento : 'Pendiente'}">Pendiente</td>
+              <td>
+                <div class="hstack gap-2 justify-content-end flex-wrap">
+                  <form th:if="${ticket.estado != 'CERRADO' and ticket.estado != 'CANCELADO'}"
+                        th:action="@{/tickets/{idTicket}/asignar(idTicket=${ticket.idTicket})}"
+                        method="post"
+                        class="d-flex gap-2">
+                    <select name="idTecnico" class="form-select form-select-sm" style="min-width: 180px;">
+                      <option value="">Asignar tecnico</option>
+                      <option th:each="usuario : ${usuarios}"
+                              th:value="${usuario.idUsuario}"
+                              th:selected="${ticket.idTecnicoAsignado != null and ticket.idTecnicoAsignado == usuario.idUsuario}"
+                              th:text="${usuario.nombre}">Tecnico</option>
+                    </select>
+                    <button type="submit" class="btn btn-light btn-sm">
+                      <i class="feather-user-plus me-1"></i>Asignar
+                    </button>
+                  </form>
+                  <form th:if="${ticket.estado != 'CERRADO' and ticket.estado != 'CANCELADO'}"
+                        th:action="@{/tickets/{idTicket}/cerrar(idTicket=${ticket.idTicket})}"
+                        method="post">
+                    <button type="submit" class="btn btn-outline-primary btn-sm"
+                            onclick="return confirm('Se cerrara el ticket y se creara un mantenimiento vinculado. ¿Deseas continuar?');">
+                      <i class="feather-check-square me-1"></i>Cerrar
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(tickets)}">
+              <td colspan="9">
+                <div class="table-empty-state">
+                  <i class="feather-life-buoy"></i>
+                  <div class="fw-semibold">No hay tickets registrados</div>
+                  <div>Crea el primer ticket manual o referenciado desde Odoo para iniciar el flujo tecnico.</div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

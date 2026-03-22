@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<title>Equipos</title>
+</head>
+
+<body>
+	<div layout:fragment="contenidopaginas">
+
+		
+		<div class="page-header">
+			<div class="page-header-left d-flex align-items-center">
+				<div class="page-header-title">
+					<h5 class="m-b-10">Equipos</h5>
+				</div>
+				<ul class="breadcrumb">
+					<li class="breadcrumb-item"><a th:href="@{/equipos}">Home</a></li>
+					<li class="breadcrumb-item">Equipos</li>
+				</ul>
+			</div>
+
+			<div class="page-header-right ms-auto">
+				<div class="page-header-right-items">
+					<div
+						class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
+						<a th:href="@{/equipos/nuevo-equipo}" class="btn btn-primary">
+							<i class="feather-plus me-2"></i> <span>Nuevo Equipo</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- TABLE -->
+		<div class="main-content">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="card stretch stretch-full">
+						<div class="card-body p-0">
+							<div class="table-responsive">
+								<table class="table table-hover" id="proposalList">
+									<thead>
+										<tr>
+											<th>ID</th>
+											<th>CÓDIGO SAP</th>
+											<th>TIPO</th>
+											<th>MODELO</th>
+											<th>SERIAL</th>
+											<th>PROCESADOR</th>
+											<th>RAM (GB)</th>
+											<th>ALMACENAMIENTO (GB)</th>
+											<th>SISTEMA OPERATIVO</th>
+
+											<th>LIC. WINDOWS</th>
+											<th>ETIQ. ACTIVO FIJO</th>
+											<th>TIPO LIC. OFFICE</th>
+											<th>VERSIÓN OFFICE</th>
+											<th>UNIÓN DOMINIO</th>
+
+											<th>IP</th>
+											<th>MAC</th>
+											<th>FECHA COMPRA</th>
+											<th>PRECIO COMPRA</th>
+
+											<th>ESTADO EQUIPO</th>
+											<th>OBSERVACIÓN</th>
+
+											<th>MARCA</th>
+											<th>PROVEEDOR</th>
+											<th>CATEGORÍA</th>
+
+											<th>ESTADO</th>
+											<th class="text-end">ACCIONES</th>
+										</tr>
+									</thead>
+
+									<tbody>
+										<tr th:each="equipo : ${listarequipos}" class="single-item">
+											<td th:text="${equipo.idEquipo}"></td>
+
+											<td th:text="${equipo.codigoSap} ?: '-'"></td>
+											<td th:text="${equipo.tipoEquipo} ?: '-'"></td>
+											<td th:text="${equipo.modelo} ?: '-'"></td>
+											<td th:text="${equipo.serial} ?: '-'"></td>
+											<td th:text="${equipo.procesador} ?: '-'"></td>
+											<td th:text="${equipo.memoriaRamGb} ?: '-'"></td>
+											<td th:text="${equipo.capacidadAlmacenamientoGb} ?: '-'"></td>
+											<td th:text="${equipo.sistemaOperativo} ?: '-'"></td>
+
+											<td
+												th:text="${equipo.licenciaWindowsActivada != null && equipo.licenciaWindowsActivada} ? 'Sí' : 'No'"></td>
+											<td
+												th:text="${equipo.etiquetaActivoFijo != null && equipo.etiquetaActivoFijo} ? 'Sí' : 'No'"></td>
+											<td th:text="${equipo.tipoLicenciaOffice} ?: '-'"></td>
+											<td th:text="${equipo.versionOffice} ?: '-'"></td>
+											<td
+												th:text="${equipo.unionDominio != null && equipo.unionDominio} ? 'Sí' : 'No'"></td>
+
+											<td th:text="${equipo.ip} ?: '-'"></td>
+											<td th:text="${equipo.mac} ?: '-'"></td>
+											<td th:text="${equipo.fechaCompra} ?: '-'"></td>
+											<td th:text="${equipo.precioCompra} ?: '-'"></td>
+
+											<td th:text="${equipo.estadoEquipo} ?: '-'"></td>
+											<td th:text="${equipo.observacionEquipo} ?: '-'"></td>
+
+											<!-- ✅ NOMBRES (no IDs) -->
+
+											<td
+												th:text="${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'}"></td>
+											<td
+												th:text="${equipo.fkProveedor != null ? equipo.fkProveedor.nombre : '-'}"></td>
+											<td
+												th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : '-'}"></td>
+
+											<td>
+												<div th:if="${equipo.estado}"
+													class="badge bg-soft-success text-success">Activo</div>
+												<div th:unless="${equipo.estado}"
+													class="badge bg-soft-danger text-danger">Inactivo</div>
+											</td>
+
+											<td>
+												<div class="hstack gap-2 justify-content-end">
+
+													
+													<a
+														th:href="@{/equipos/editar-equipo/{id}(id=${equipo.idEquipo})}"
+														class="avatar-text avatar-md" title="Editar"> <i
+														class="feather feather-edit"></i>
+													</a>
+
+											
+													<a href="javascript:void(0)" class="avatar-text avatar-md"
+														title="Activar / Desactivar" data-bs-toggle="modal"
+														data-bs-target="#modalToggleEquipo"
+														th:attr="data-id=${equipo.idEquipo},data-estado=${equipo.estado}">
+														<i
+														th:class="${equipo.estado} ? 'feather feather-trash-2 text-danger' : 'feather feather-check-circle text-success'"></i>
+													</a>
+
+												</div>
+											</td>
+
+										</tr>
+									</tbody>
+
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	
+		<div class="modal fade" id="modalToggleEquipo" tabindex="-1"
+			aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<h5 class="modal-title">Confirmar</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+
+					<div class="modal-body" id="textoModalToggle">¿Está seguro?</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-light"
+							data-bs-dismiss="modal">No</button>
+
+						
+						<form id="formEstadoEquipo" method="post">
+							<input type="hidden" name="idEquipo" id="idEquipoToggle">
+							<button type="submit" class="btn" id="btnToggle">Sí</button>
+						</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<!-- ✅ SCRIPTS -->
+		<script>
+			const modalToggle = document.getElementById('modalToggleEquipo');
+
+			modalToggle
+					.addEventListener(
+							'show.bs.modal',
+							function(event) {
+								const button = event.relatedTarget;
+
+								const id = button.getAttribute('data-id');
+								const estado = button
+										.getAttribute('data-estado') === 'true';
+
+								document.getElementById('idEquipoToggle').value = id;
+
+								const form = document
+										.getElementById('formEstadoEquipo');
+								const texto = document
+										.getElementById('textoModalToggle');
+								const btn = document
+										.getElementById('btnToggle');
+
+								if (estado) {
+									
+									form.action = '/equipos/eliminar-equipo';
+									texto.innerText = "¿Está seguro de DESACTIVAR este equipo?";
+									btn.innerText = "Sí, desactivar";
+									btn.className = "btn btn-danger";
+								} else {
+								
+									form.action = '/equipos/activar-equipo';
+									texto.innerText = "¿Está seguro de ACTIVAR este equipo?";
+									btn.innerText = "Sí, activar";
+									btn.className = "btn btn-success";
+								}
+							});
+
+		
+			document.addEventListener("DOMContentLoaded", function() {
+				const modal = document.getElementById("modalToggleEquipo");
+				if (modal && modal.parentElement !== document.body) {
+					document.body.appendChild(modal);
+				}
+			});
+		</script>
+
+	</div>
+</body>
+</html>

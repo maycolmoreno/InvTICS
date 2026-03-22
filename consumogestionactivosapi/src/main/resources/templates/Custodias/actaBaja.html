@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <meta charset="utf-8">
+    <title>Acta de Baja</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+
+    <div class="page-header">
+        <div class="page-header-left d-flex align-items-center">
+            <div class="page-header-title">
+                <h5 class="m-b-10">Acta de Baja</h5>
+            </div>
+        </div>
+        <div class="page-header-right ms-auto">
+            <a th:href="@{/custodias/acta-baja/pdf}" class="btn btn-primary">DESCARGAR PDF</a>
+            <a th:href="@{/custodias}" class="btn btn-secondary">VOLVER</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <p><b>Fecha de baja:</b> <span th:text="${fechaBaja}"></span></p>
+            <p><b>Motivo / Observacion:</b> <span th:text="${observacionBaja}"></span></p>
+
+            <hr>
+            <h6 class="mb-3"><b>Equipos dados de baja</b></h6>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Codigo</th>
+                        <th>Tipo</th>
+                        <th>Modelo</th>
+                        <th>Serial</th>
+                        <th>Estado</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${equiposBaja}">
+                        <td th:text="${e.idEquipo}"></td>
+                        <td th:text="${e.codigoSap}"></td>
+                        <td th:text="${e.tipoEquipo}"></td>
+                        <td th:text="${e.modelo}"></td>
+                        <td th:text="${e.serial}"></td>
+                        <td>
+                            <span class="badge bg-soft-danger text-danger">BAJA</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${equiposBaja == null or #lists.isEmpty(equiposBaja)}">
+                        <td colspan="6" class="text-center text-muted">Sin equipos</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

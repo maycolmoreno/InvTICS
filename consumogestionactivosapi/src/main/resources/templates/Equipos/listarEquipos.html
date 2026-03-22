@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<title>Equipos</title>
+</head>
+
+<body>
+	<div layout:fragment="contenidopaginas">
+		<div class="page-shell">
+			<div class="view-heading">
+				<div>
+					<div class="eyebrow">Resumen Operativo</div>
+					<h1 class="view-title">Inventario de Equipos</h1>
+					<p class="view-subtitle">Control centralizado del inventario de activos, con foco en estado operativo, ubicacion y acciones rapidas.</p>
+				</div>
+				<div class="d-flex gap-3 flex-wrap align-items-stretch">
+					<a th:href="@{/equipos/reporte-equipo}" class="btn btn-light px-4 py-3">
+						<i class="feather-download me-2"></i>Exportar
+					</a>
+					<a th:href="@{/equipos/nuevo-equipo}" class="btn btn-primary px-4 py-3">
+						<i class="feather-plus me-2"></i>Agregar equipo
+					</a>
+				</div>
+			</div>
+
+			<div class="inventory-overview-grid">
+				<div class="surface-card page-panel">
+					<div class="toolbar-grid">
+						<div class="filter-card">
+							<label class="filter-label">Categorias</label>
+							<select class="form-select">
+								<option>Todas las categorias</option>
+								<option>Impresoras</option>
+								<option>Computadores</option>
+								<option>Networking</option>
+							</select>
+						</div>
+						<div class="filter-card">
+							<label class="filter-label">Estado</label>
+							<select class="form-select">
+								<option>Todos los estados</option>
+								<option>Bueno</option>
+								<option>Nuevo</option>
+								<option>Con novedad</option>
+							</select>
+						</div>
+						<div class="filter-card">
+							<label class="filter-label">Ubicaciones</label>
+							<select class="form-select">
+								<option>Todas las ubicaciones</option>
+								<option>Agencia FF024</option>
+								<option>GP026 - 67</option>
+								<option>HQ - Central Lab</option>
+							</select>
+						</div>
+						<div class="d-flex align-items-center justify-content-end gap-2">
+							<a href="javascript:void(0)" class="header-icon-btn"><i class="feather-sliders"></i></a>
+							<a href="javascript:void(0)" class="header-icon-btn"><i class="feather-download"></i></a>
+						</div>
+					</div>
+				</div>
+				<div class="surface-card summary-stat-card">
+					<div class="metric-label">Total de Activos</div>
+					<div class="summary-stat-value" th:text="${#lists.size(listarequipos)}">0</div>
+					<div class="summary-stat-copy">Visibilidad central para equipos, seriales y estado operativo.</div>
+				</div>
+			</div>
+
+			<div class="surface-card content-card">
+				<div class="table-responsive">
+					<table class="inventory-table table" id="proposalList">
+						<thead>
+								<tr>
+									<th>Equipo</th>
+									<th>Serie</th>
+									<th>Marca / Modelo</th>
+									<th>Estado</th>
+									<th>Ubicacion / Agencia</th>
+									<th class="text-end">Acciones</th>
+								</tr>
+						</thead>
+						<tbody>
+							<tr th:each="equipo : ${listarequipos}">
+								<td>
+									<div class="device-cell">
+										<div class="device-thumb inventory-icon-shell">
+											<i th:with="categoriaNormalizada=${equipo.fkCategoria != null and equipo.fkCategoria.nombre != null ? #strings.toLowerCase(equipo.fkCategoria.nombre) : ''}"
+											   th:class="${#strings.contains(categoriaNormalizada, 'impres')} ? 'feather-printer' : (${#strings.contains(categoriaNormalizada, 'scanner')} ? 'feather-file-text' : (${#strings.contains(categoriaNormalizada, 'red')} ? 'feather-cpu' : 'feather-monitor'))"></i>
+										</div>
+										<div>
+											<div class="device-name" th:text="${equipo.tipoEquipo != null and !#strings.isEmpty(equipo.tipoEquipo) ? equipo.tipoEquipo : 'Equipo'}"></div>
+											<div class="device-meta" th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Activo tecnologico'}"></div>
+										</div>
+									</div>
+								</td>
+								<td class="serial-strong" th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : '-'}"></td>
+								<td>
+									<div class="muted-stack">
+										<div class="device-name" th:text="${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'}"></div>
+										<div class="device-meta" th:text="${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : '-'}"></div>
+									</div>
+								</td>
+								<td>
+									<span class="status-pill"
+										th:with="estadoNormalizado=${equipo.estadoEquipo != null ? #strings.toLowerCase(equipo.estadoEquipo) : ''}"
+										th:classappend="${#strings.contains(estadoNormalizado, 'bueno')} ? ' is-good' : (${#strings.contains(estadoNormalizado, 'nuevo')} ? ' is-new' : (${equipo.estado} ? ' is-warning' : ' is-danger'))"
+										th:text="${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : (equipo.estado ? 'Pendiente de revision' : 'Inactivo')}"></span>
+								</td>
+								<td>
+									<div class="muted-stack">
+										<div class="device-name" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Cod. Interno'}"></div>
+										<div class="device-meta" th:text="${equipo.ip != null and !#strings.isEmpty(equipo.ip) ? equipo.ip : (equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : 'Sin referencia de red')}"></div>
+									</div>
+								</td>
+								<td>
+									<div class="d-flex justify-content-end gap-2">
+										<a th:href="@{/equipos/editar-equipo/{id}(id=${equipo.idEquipo})}" class="avatar-text avatar-md" title="Editar">
+											<i class="feather feather-edit"></i>
+										</a>
+										<a href="javascript:void(0)" class="avatar-text avatar-md"
+											title="Activar / Desactivar" data-bs-toggle="modal"
+											data-bs-target="#modalToggleEquipo"
+											th:attr="data-id=${equipo.idEquipo},data-estado=${equipo.estado}">
+											<i th:class="${equipo.estado} ? 'feather feather-trash-2 text-danger' : 'feather feather-check-circle text-success'"></i>
+										</a>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="compact-kpi-grid">
+				<div class="surface-card compact-kpi">
+					<div class="metric-label">Total equipos</div>
+					<div class="compact-kpi-value" th:text="${#lists.size(listarequipos)}">0</div>
+				</div>
+				<div class="surface-card compact-kpi">
+					<div class="metric-label">Activos</div>
+					<div class="compact-kpi-value" th:text="${#lists.size(listarequipos.?[estado == true])}">0</div>
+				</div>
+				<div class="surface-card compact-kpi">
+					<div class="metric-label">Con novedad</div>
+					<div class="compact-kpi-value" th:text="${#lists.size(listarequipos.?[estadoEquipo != null and (#strings.toLowerCase(estadoEquipo).contains('mantenimiento') or #strings.toLowerCase(estadoEquipo).contains('falla') or #strings.toLowerCase(estadoEquipo).contains('repar'))])}">0</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modalToggleEquipo" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Confirmar</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body" id="textoModalToggle">Esta seguro?</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-light" data-bs-dismiss="modal">No</button>
+						<form id="formEstadoEquipo" method="post">
+							<input type="hidden" name="idEquipo" id="idEquipoToggle">
+							<button type="submit" class="btn" id="btnToggle">Si</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const modalToggle = document.getElementById('modalToggleEquipo');
+			modalToggle.addEventListener('show.bs.modal', function(event) {
+				const button = event.relatedTarget;
+				const id = button.getAttribute('data-id');
+				const estado = button.getAttribute('data-estado') === 'true';
+				document.getElementById('idEquipoToggle').value = id;
+
+				const form = document.getElementById('formEstadoEquipo');
+				const texto = document.getElementById('textoModalToggle');
+				const btn = document.getElementById('btnToggle');
+
+				if (estado) {
+					form.action = '/equipos/eliminar-equipo';
+					texto.innerText = "Esta seguro de desactivar este equipo?";
+					btn.innerText = "Si, desactivar";
+					btn.className = "btn btn-outline-danger";
+				} else {
+					form.action = '/equipos/activar-equipo';
+					texto.innerText = "Esta seguro de activar este equipo?";
+					btn.innerText = "Si, activar";
+					btn.className = "btn btn-primary";
+				}
+			});
+		</script>
+	</div>
+</body>
+</html>

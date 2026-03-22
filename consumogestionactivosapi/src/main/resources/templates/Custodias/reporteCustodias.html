@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<title>Custodias</title>
+</head>
+
+<body>
+	<div layout:fragment="contenidopaginas">
+
+		<div class="page-header">
+			<div class="page-header-left d-flex align-items-center">
+				<div class="page-header-title">
+					<h5 class="m-b-10">Reporte Custodias</h5>
+				</div>
+				<ul class="breadcrumb">
+					<li class="breadcrumb-item"><a th:href="@{/custodias/reporte}">Inicio</a>
+					</li>
+					<li class="breadcrumb-item">Custodias</li>
+				</ul>
+			</div>
+
+			<div class="page-header-right ms-auto">
+				<div class="page-header-right-items">
+					<div
+						class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
+
+						<a class="btn btn-success d-flex align-items-center gap-2"
+							th:href="@{/custodias/reporte/excel(custodioId=${custodioSeleccionado}, equipoId=${equipoSeleccionado})}">
+							<i class="bi bi-filetype-xlsx"></i> <span>Descargar Excel</span>
+						</a>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- TABLE -->
+		<div class="main-content">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="card stretch stretch-full">
+
+						<!-- FILTROS -->
+						<form th:action="@{/custodias/reporte}" method="get"
+							class="d-inline-flex gap-2 align-items-center ms-4 mt-4 mb-3 px-3 py-2 rounded bg-light">
+
+							<label class="form-label m-0 fw-semibold">Custodio:</label> <select
+								class="form-control" name="custodioId"
+								onchange="this.form.submit()">
+								<option value=""
+									th:selected="${custodioSeleccionado == null || custodioSeleccionado == 0}">
+									Todos</option>
+								<option th:each="c : ${listaCustodios}"
+									th:value="${c.idCustodio}" th:text="${c.nombre}"
+									th:selected="${custodioSeleccionado != null && custodioSeleccionado == c.idCustodio}">
+								</option>
+							</select> <label class="form-label m-0 fw-semibold ms-2">Equipo:</label> <select
+								class="form-control" name="equipoId"
+								onchange="this.form.submit()">
+								<option value=""
+									th:selected="${equipoSeleccionado == null || equipoSeleccionado == 0}">
+									Todos</option>
+								<option th:each="e : ${listaEquipos}" th:value="${e.idEquipo}"
+									th:text="${e.codigoSap + ' - ' + e.tipoEquipo + ' - ' + e.modelo}"
+									th:selected="${equipoSeleccionado != null && equipoSeleccionado == e.idEquipo}">
+								</option>
+							</select>
+
+						</form>
+
+						<div class="card-body p-0">
+							<div class="table-responsive">
+
+								<table class="table table-hover" id="proposalList">
+									<thead>
+										<tr>
+
+											<th>CUSTODIO</th>
+											<th>CÉDULA</th>
+
+											<th>FECHA INICIO</th>
+											<th>FECHA FIN</th>
+
+											<th>Cod. Interno</th>
+											<th>TIPO</th>
+											<th>MODELO</th>
+											<th>SERIAL</th>
+
+											<th>OBSERVACIÓN</th>
+										</tr>
+									</thead>
+
+									<tbody>
+										<tr th:each="c : ${listaCustodias}" class="single-item">
+
+											<!-- Custodio -->
+											<td
+												th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : '-'}"></td>
+											<td
+												th:text="${c.fkCustodio != null ? c.fkCustodio.cedula : '-'}"></td>
+
+											<td th:text="${c.fechaInicio} ?: '-'"></td>
+											<td th:text="${c.fechaFin} ?: '-'"></td>
+
+
+
+
+											<!-- Equipo -->
+
+											<td
+												th:text="${c.fkEquipo != null ? c.fkEquipo.codigoSap : '-'}"></td>
+											<td
+												th:text="${c.fkEquipo != null ? c.fkEquipo.tipoEquipo : '-'}"></td>
+											<td th:text="${c.fkEquipo != null ? c.fkEquipo.modelo : '-'}"></td>
+											<td th:text="${c.fkEquipo != null ? c.fkEquipo.serial : '-'}"></td>
+
+											<td th:text="${c.observacion} ?: '-'"></td>
+
+										</tr>
+
+										<tr
+											th:if="${listaCustodias == null || #lists.isEmpty(listaCustodias)}">
+											<td colspan="13" class="text-center py-4 text-muted">No
+												hay registros para los filtros seleccionados.</td>
+										</tr>
+
+									</tbody>
+								</table>
+
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>

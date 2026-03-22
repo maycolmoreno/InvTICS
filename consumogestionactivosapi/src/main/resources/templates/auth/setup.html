@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Configuracion Inicial - Cresio</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/images/logo/logoCRESIO.png}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/vendors.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/cresio-auth.css}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card login-card login-card-pro">
+            <div class="auth-showcase">
+                <div class="auth-showcase-badge">
+                    <i class="feather-settings"></i>
+                    <span>Inicializacion segura</span>
+                </div>
+                <div class="auth-brand auth-brand-left">
+                    <div class="auth-brand-name">CRESIO</div>
+                    <div class="auth-brand-sub">Gestion de Activos</div>
+                </div>
+                <h1 class="auth-hero-title">Configura el primer acceso administrador del sistema.</h1>
+                <p class="auth-hero-copy">
+                    No se encontraron usuarios registrados. Este paso crea la cuenta inicial que administrara catalogos,
+                    permisos y la operacion base de la plataforma.
+                </p>
+                <div class="auth-feature-list">
+                    <div class="auth-feature-item">
+                        <i class="feather-shield"></i>
+                        <span>Alta del primer usuario con perfil administrador</span>
+                    </div>
+                    <div class="auth-feature-item">
+                        <i class="feather-lock"></i>
+                        <span>Configuracion inicial con acceso controlado</span>
+                    </div>
+                    <div class="auth-feature-item">
+                        <i class="feather-check-square"></i>
+                        <span>Punto de partida para la operacion completa de CRESIO</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-form-panel">
+                <div class="auth-panel-top">
+                    <div class="auth-mini-label">Configuracion inicial</div>
+                    <h2 class="auth-title">Crear administrador</h2>
+                    <p class="auth-subtitle">
+                        Registra la cuenta principal para habilitar el uso del sistema.
+                    </p>
+                </div>
+
+                <div th:if="${error}" class="alert alert-danger" role="alert">
+                    <i class="feather-alert-circle me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+
+                <form th:action="@{/setup}" method="post">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre completo</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre"
+                               th:value="${nombre}" placeholder="Ej: Administrador General"
+                               required minlength="3" maxlength="100">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="correo" class="form-label">Correo electronico</label>
+                        <input type="email" class="form-control" id="correo" name="correo"
+                               th:value="${correo}" placeholder="admin@cresio.com"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="contrasena" class="form-label">Contrasena</label>
+                        <input type="password" class="form-control" id="contrasena" name="contrasena"
+                               placeholder="Minimo 8 caracteres"
+                               required minlength="8">
+                        <div class="form-text">Usa una contrasena segura de al menos 8 caracteres.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmar" class="form-label">Confirmar contrasena</label>
+                        <input type="password" class="form-control" id="confirmar" name="confirmar"
+                               placeholder="Repite la contrasena"
+                               required minlength="8">
+                    </div>
+
+                    <button type="submit" class="btn btn-auth" id="btnSetup">
+                        Crear administrador
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <small class="text-muted">
+                        CRESIO · Configuracion inicial del sistema
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/assets/vendors/js/vendors.min.js}"></script>
+    <script th:src="@{/assets/js/common-init.min.js}"></script>
+    <script>
+        document.querySelector("form").addEventListener("submit", function (e) {
+            var pass = document.getElementById("contrasena").value;
+            var confirmar = document.getElementById("confirmar").value;
+            if (pass !== confirmar) {
+                e.preventDefault();
+                alert("Las contrasenas no coinciden.");
+            }
+        });
+    </script>
+</body>
+</html>

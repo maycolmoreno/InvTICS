@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Categorias De Equipo</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+  <div class="page-shell admin-shell">
+    <section class="operations-hero">
+      <div class="operations-hero-copy">
+        <div class="eyebrow">Clasificacion Tecnica</div>
+        <h1>Categorias de equipo</h1>
+        <h2>Organiza tipos de activos para mejorar checklist, mantenimiento, reportes y busquedas operativas.</h2>
+      </div>
+      <div class="operations-hero-actions">
+        <a th:href="@{/categorias-equipo/nueva-categoria}" class="btn btn-primary px-4 py-3">
+          <i class="feather-plus-circle me-2"></i>Nueva categoria
+        </a>
+      </div>
+    </section>
+
+    <section class="admin-summary-grid">
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Total categorias</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listarcategorias)}">0</div>
+        <div class="admin-summary-copy">Tipos de activos disponibles para clasificar el inventario.</div>
+      </article>
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Activas</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listarcategorias.?[estado])}">0</div>
+        <div class="admin-summary-copy">Categorias habilitadas para nuevos equipos y procesos de mantenimiento.</div>
+      </article>
+      <article class="admin-summary-card">
+        <div class="admin-summary-label">Inactivas</div>
+        <div class="admin-summary-value" th:text="${#lists.size(listarcategorias.?[!estado])}">0</div>
+        <div class="admin-summary-copy">Categorias retiradas que se conservan por trazabilidad historica.</div>
+      </article>
+    </section>
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorEliminar}">
+      <strong>Error:</strong> <span th:text="${errorEliminar}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <section class="surface-card page-panel">
+      <div class="management-toolbar mb-4">
+        <div class="management-toolbar-copy">
+          Un buen catalogo de categorias mejora desde la carga inicial de activos hasta los checklist que se ejecutan en mantenimiento.
+        </div>
+      </div>
+
+      <div class="table-shell">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Categoria</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="categoria : ${listarcategorias}">
+              <td><strong th:text="${categoria.idCategoria}">1</strong></td>
+              <td>
+                <div class="fw-semibold" th:text="${categoria.nombre}">Laptop</div>
+                <div class="text-muted small">Clasificacion base para equipos y procesos asociados.</div>
+              </td>
+              <td><span th:class="${categoria.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}" th:text="${categoria.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
+              <td>
+                <div class="hstack gap-2 justify-content-end">
+                  <a th:href="@{/categorias-equipo/editar-categoria/{id}(id=${categoria.idCategoria})}" class="btn btn-light btn-sm">
+                    <i class="feather-edit-2 me-1"></i>Editar
+                  </a>
+                  <form th:action="@{/categorias-equipo/eliminar/{id}(id=${categoria.idCategoria})}" method="post" style="display:inline;">
+                    <button th:if="${categoria.estado}" type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Estas seguro de desactivar esta categoria?');">
+                      <i class="feather-slash me-1"></i>Desactivar
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(listarcategorias)}">
+              <td colspan="4">
+                <div class="table-empty-state">
+                  <i class="feather-layers"></i>
+                  <div class="fw-semibold">No hay categorias registradas</div>
+                  <div>Crea la primera categoria para clasificar adecuadamente los activos.</div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

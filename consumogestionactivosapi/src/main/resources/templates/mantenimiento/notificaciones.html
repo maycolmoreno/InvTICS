@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{plantilla/plantillaui}">
+<head><title>Notificaciones</title></head>
+<body>
+<div layout:fragment="contenidopaginas" class="container-fluid py-4">
+    <h3 class="mb-3">Notificaciones</h3>
+    <div class="card"><div class="card-body">
+        <div th:if="${#lists.isEmpty(notificaciones)}" class="text-muted">No tienes notificaciones pendientes.</div>
+        <div class="border rounded p-3 mb-3" th:each="n : ${notificaciones}">
+            <div class="d-flex justify-content-between gap-3">
+                <div>
+                    <div class="fw-bold" th:text="${n.mensaje}"></div>
+                    <div class="text-muted" th:text="${n.creadoEn}"></div>
+                    <a th:if="${n.url}" th:href="@{${n.url}}" class="btn btn-sm btn-link px-0">Ir a la accion</a>
+                </div>
+                <form th:if="${!(n.leida)}" th:action="@{'/notificaciones/' + ${n.idNotificacion} + '/leer'}" method="post">
+                    <button type="submit" class="btn btn-outline-primary btn-sm">Marcar leida</button>
+                </form>
+            </div>
+        </div>
+    </div></div>
+</div>
+</body>
+</html>

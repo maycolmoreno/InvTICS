@@ -1,0 +1,20 @@
+ALTER TABLE equipos
+    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+
+ALTER TABLE custodios
+    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+
+ALTER TABLE usuarios
+    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+
+ALTER TABLE mantenimientos
+    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+
+ALTER TABLE ubicaciones
+    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+
+ALTER TABLE departamentos
+    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+
+ALTER TABLE custodias
+    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;

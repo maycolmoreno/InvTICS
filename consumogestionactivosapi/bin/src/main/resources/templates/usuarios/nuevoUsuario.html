@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<meta charset="utf-8">
+<title>Usuarios</title>
+</head>
+
+<body>
+    <div layout:fragment="contenidopaginas">
+    
+        <form th:action="@{/usuarios}" th:object="${nuevousuario}" method="post">
+        
+        <div class="page-header">
+            <div class="page-header-left d-flex align-items-center">
+                <div class="page-header-title">
+                    <h5 class="m-b-10">CREAR USUARIO</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card stretch stretch-full">
+                <div class="card-body">
+                
+                    <input type="hidden" th:field="*{idUsuario}" />
+                    
+                    <div class="alert alert-danger" role="alert" th:if="${errorGeneral}" th:text="${errorGeneral}"></div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">NOMBRE <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" 
+                               placeholder="Ingrese el nombre completo"
+                               th:field="*{nombre}"
+                               required
+                               minlength="3"
+                               maxlength="50"
+                               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                               title="Solo se permiten letras y espacios, máximo 50 caracteres">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">CORREO <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" 
+                               placeholder="Ingrese el correo electrónico"
+                               th:field="*{correo}"
+                               required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">CONTRASEÑA <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" 
+                               placeholder="Ingrese la contraseña"
+                               th:field="*{contrasena}"
+                               required
+                               minlength="8"
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$"
+                               title="La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números.">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">ROL <span class="text-danger">*</span></label>
+                        <select class="form-control" name="fkRolId" required>
+                            <option value="">Seleccione un rol</option>
+                            <option th:each="rol : ${roles}" 
+                                    th:if="${rol.estado}"
+                                    th:value="${rol.idRol}" 
+                                    th:text="${rol.nombre}"></option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">DEPARTAMENTO <span class="text-danger">*</span></label>
+                        <select class="form-control" name="fkDepartamentoId" required>
+                            <option value="">Seleccione un departamento</option>
+                            <option th:each="departamento : ${departamentos}" 
+                                    th:if="${departamento.estado}"
+                                    th:value="${departamento.idDepartamento}" 
+                                    th:text="${departamento.nombre}"></option>
+                        </select>
+                    </div>
+                    
+                    <input type="hidden" name="estado" value="true" />
+                    
+                    <div class="d-flex justify-content-end mt-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="feather-save me-2"></i>
+                                Guardar
+                            </button>
+                            <a th:href="@{/usuarios}" class="btn btn-danger">
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        </form>
+    </div>
+
+</body>
+
+</html>

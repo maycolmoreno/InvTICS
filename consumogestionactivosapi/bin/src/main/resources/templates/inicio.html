@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+<head>
+<title>Inicio - Cresio</title>
+</head>
+<body>
+	<section layout:fragment="contenidopaginas">
+		<div class="container-fluid">
+
+			<!-- Welcome Header -->
+			<div class="row mb-4">
+				<div class="col-12">
+					<div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+						<div>
+							<h3 class="mb-1 fw-bold" style="color: var(--cresio-dark);">
+								<span th:text="'Bienvenido, ' + ${sesionUsuario.nombreUsuario}">Bienvenido</span>
+							</h3>
+							<p class="text-muted mb-0">
+								Panel de control — <span class="badge bg-primary" th:text="${sesionUsuario.rol}" style="font-size:11px;">ROL</span>
+							</p>
+						</div>
+						<div class="d-flex gap-2">
+							<span class="badge bg-light text-dark border px-3 py-2" style="font-size:12px;">
+								<i class="feather-calendar me-1"></i>
+								<script>document.write(new Date().toLocaleDateString('es-EC', {weekday:'long', year:'numeric', month:'long', day:'numeric'}));</script>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Stat Cards Row -->
+			<div class="row g-3 mb-4">
+				<div class="col-xl-3 col-md-6"
+					th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<div class="cresio-stat-card bg-gradient-primary">
+						<div class="d-flex justify-content-between align-items-start">
+							<div>
+								<div class="stat-label">Equipos</div>
+								<div class="stat-value">
+									<i class="feather-monitor" style="font-size:22px;"></i>
+								</div>
+								<div class="stat-label">Gestión de inventario</div>
+							</div>
+							<div class="stat-icon">
+								<i class="feather-monitor"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-md-6"
+					th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<div class="cresio-stat-card bg-gradient-secondary">
+						<div class="d-flex justify-content-between align-items-start">
+							<div>
+								<div class="stat-label">Custodias</div>
+								<div class="stat-value">
+									<i class="feather-clipboard" style="font-size:22px;"></i>
+								</div>
+								<div class="stat-label">Asignaciones activas</div>
+							</div>
+							<div class="stat-icon">
+								<i class="feather-clipboard"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-md-6"
+					th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<div class="cresio-stat-card bg-gradient-success">
+						<div class="d-flex justify-content-between align-items-start">
+							<div>
+								<div class="stat-label">Custodios</div>
+								<div class="stat-value">
+									<i class="feather-users" style="font-size:22px;"></i>
+								</div>
+								<div class="stat-label">Personal registrado</div>
+							</div>
+							<div class="stat-icon">
+								<i class="feather-users"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-md-6">
+					<div class="cresio-stat-card bg-gradient-info">
+						<div class="d-flex justify-content-between align-items-start">
+							<div>
+								<div class="stat-label">Movimientos</div>
+								<div class="stat-value">
+									<i class="feather-repeat" style="font-size:22px;"></i>
+								</div>
+								<div class="stat-label">Historial de cambios</div>
+							</div>
+							<div class="stat-icon">
+								<i class="feather-repeat"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Quick Actions + Info -->
+			<div class="row g-3">
+				<!-- Quick Actions -->
+				<div class="col-xl-8">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="mb-0 fw-bold" style="color: var(--cresio-dark); font-size:16px;">
+								<i class="feather-zap me-2" style="color: var(--cresio-primary);"></i>Acciones Rápidas
+							</h5>
+						</div>
+						<div class="card-body">
+							<div class="row g-3">
+								<!-- Admin actions -->
+								<div class="col-md-6"
+									th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+									<a th:href="@{/equipos/nuevo-equipo}" class="cresio-quick-action">
+										<div class="qa-icon bg-primary-soft">
+											<i class="feather-plus-circle"></i>
+										</div>
+										<div class="qa-text">Registrar Equipo</div>
+									</a>
+								</div>
+								<div class="col-md-6"
+									th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+									<a th:href="@{/custodias/nueva-custodia}" class="cresio-quick-action">
+										<div class="qa-icon bg-secondary-soft">
+											<i class="feather-file-plus"></i>
+										</div>
+										<div class="qa-text">Nueva Custodia</div>
+									</a>
+								</div>
+								<div class="col-md-6"
+									th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+									<a th:href="@{/custodios/nuevo-custodio}" class="cresio-quick-action">
+										<div class="qa-icon bg-success-soft">
+											<i class="feather-user-plus"></i>
+										</div>
+										<div class="qa-text">Nuevo Custodio</div>
+									</a>
+								</div>
+								<div class="col-md-6"
+									th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+									<a th:href="@{/importar}" class="cresio-quick-action">
+										<div class="qa-icon bg-info-soft">
+											<i class="feather-upload"></i>
+										</div>
+										<div class="qa-text">Importar Excel</div>
+									</a>
+								</div>
+								<div class="col-md-6">
+									<a th:href="@{/movimientos}" class="cresio-quick-action">
+										<div class="qa-icon bg-primary-soft">
+											<i class="feather-repeat"></i>
+										</div>
+										<div class="qa-text">Ver Movimientos</div>
+									</a>
+								</div>
+								<div class="col-md-6">
+									<a th:href="@{/equipos/reporte-equipo}" class="cresio-quick-action">
+										<div class="qa-icon bg-secondary-soft">
+											<i class="feather-bar-chart-2"></i>
+										</div>
+										<div class="qa-text">Reporte Equipos</div>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- System Info Sidebar -->
+				<div class="col-xl-4">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="mb-0 fw-bold" style="color: var(--cresio-dark); font-size:16px;">
+								<i class="feather-info me-2" style="color: var(--cresio-secondary-solid, #49008D);"></i>Información
+							</h5>
+						</div>
+						<div class="card-body">
+							<div class="d-flex flex-column gap-3">
+								<div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: var(--cresio-light);">
+									<i class="feather-user" style="font-size:20px; color: var(--cresio-primary);"></i>
+									<div>
+										<div class="fw-semibold" style="font-size:13px;">Usuario</div>
+										<div class="text-muted" style="font-size:12px;" th:text="${sesionUsuario.nombreUsuario}">Nombre</div>
+									</div>
+								</div>
+								<div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: var(--cresio-light);">
+									<i class="feather-mail" style="font-size:20px; color: var(--cresio-primary);"></i>
+									<div>
+										<div class="fw-semibold" style="font-size:13px;">Correo</div>
+										<div class="text-muted" style="font-size:12px;" th:text="${sesionUsuario.correo}">correo@email.com</div>
+									</div>
+								</div>
+								<div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: var(--cresio-light);">
+									<i class="feather-shield" style="font-size:20px; color: var(--cresio-secondary-solid, #49008D);"></i>
+									<div>
+										<div class="fw-semibold" style="font-size:13px;">Rol</div>
+										<div>
+											<span class="badge bg-primary" th:text="${sesionUsuario.rol}" style="font-size:11px;">ROL</span>
+										</div>
+									</div>
+								</div>
+								<div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: var(--cresio-light);">
+									<i class="feather-grid" style="font-size:20px; color: #27ae60;"></i>
+									<div>
+										<div class="fw-semibold" style="font-size:13px;">Departamento</div>
+										<div class="text-muted" style="font-size:12px;" th:text="${sesionUsuario.departamento}">Departamento</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Modules available -->
+					<div class="card stretch stretch-full mt-3" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
+						<div class="card-header">
+							<h5 class="mb-0 fw-bold" style="color: var(--cresio-dark); font-size:16px;">
+								<i class="feather-settings me-2" style="color: #f39c12;"></i>Administración
+							</h5>
+						</div>
+						<div class="card-body py-2">
+							<ul class="list-unstyled mb-0">
+								<li class="py-2 border-bottom">
+									<a th:href="@{/usuarios}" class="text-decoration-none d-flex align-items-center gap-2" style="color: var(--cresio-dark);">
+										<i class="feather-users" style="font-size:15px; color: var(--cresio-primary);"></i>
+										<span style="font-size:13px;">Gestionar Usuarios</span>
+									</a>
+								</li>
+								<li class="py-2 border-bottom">
+									<a th:href="@{/roles}" class="text-decoration-none d-flex align-items-center gap-2" style="color: var(--cresio-dark);">
+										<i class="feather-shield" style="font-size:15px; color: var(--cresio-primary);"></i>
+										<span style="font-size:13px;">Gestionar Roles</span>
+									</a>
+								</li>
+								<li class="py-2 border-bottom">
+									<a th:href="@{/departamentos}" class="text-decoration-none d-flex align-items-center gap-2" style="color: var(--cresio-dark);">
+										<i class="feather-grid" style="font-size:15px; color: var(--cresio-primary);"></i>
+										<span style="font-size:13px;">Gestionar Departamentos</span>
+									</a>
+								</li>
+								<li class="py-2">
+									<a th:href="@{/ubicaciones}" class="text-decoration-none d-flex align-items-center gap-2" style="color: var(--cresio-dark);">
+										<i class="feather-map-pin" style="font-size:15px; color: var(--cresio-primary);"></i>
+										<span style="font-size:13px;">Gestionar Ubicaciones</span>
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</section>
+</body>
+</html>

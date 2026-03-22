@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+    <title>Custodias</title>
+</head>
+
+<body>
+<div layout:fragment="contenidopaginas">
+    <div class="page-shell">
+        <div class="operations-strip">
+            <div class="operations-hero">
+                <div class="eyebrow text-white-50">Control documental</div>
+                <h2>Custodias, actas y trazabilidad del responsable del activo.</h2>
+                <p>
+                    Administra asignaciones, traslados y cierres con respaldo formal, lectura rapida del estado y acceso inmediato a los documentos emitidos.
+                </p>
+                <div class="operations-badges">
+                    <div class="operations-badge"><i class="feather-file-text"></i><span th:text="${#lists.size(actas)} + ' actas'">0 actas</span></div>
+                    <div class="operations-badge"><i class="feather-user-check"></i><span th:text="${#lists.size(actas.?[activa == true])} + ' activas'">0 activas</span></div>
+                    <div class="operations-badge"><i class="feather-archive"></i><span th:text="${#lists.size(actas.?[activa == false])} + ' cerradas'">0 cerradas</span></div>
+                </div>
+            </div>
+            <div class="surface-card insight-panel">
+                <div class="content-card-header mb-0">
+                    <div>
+                        <h2 class="content-card-title">Lectura ejecutiva</h2>
+                        <p class="content-card-copy">Visibilidad inmediata del estado documental del inventario asignado.</p>
+                    </div>
+                </div>
+                <div class="insight-list">
+                    <div class="insight-item">
+                        <i class="feather-check-circle"></i>
+                        <div>
+                            <div class="signal-title">Custodias activas</div>
+                            <div class="signal-copy">Actas vigentes con responsable y activos asociados.</div>
+                        </div>
+                        <div class="insight-value" th:text="${#lists.size(actas.?[activa == true])}">0</div>
+                    </div>
+                    <div class="insight-item">
+                        <i class="feather-repeat"></i>
+                        <div>
+                            <div class="signal-title">Traslados y cambios</div>
+                            <div class="signal-copy">Movimientos documentados dentro del ciclo de vida del activo.</div>
+                        </div>
+                        <div class="insight-value" th:text="${#lists.size(actas.?[tipoMovimiento == 'TRASLADO'])}">0</div>
+                    </div>
+                    <div class="insight-item">
+                        <i class="feather-user"></i>
+                        <div>
+                            <div class="signal-title">Custodios identificados</div>
+                            <div class="signal-copy">Responsables visibles para auditoria y seguimiento.</div>
+                        </div>
+                        <div class="insight-value" th:text="${#lists.size(actas.?[custodio != null])}">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-heading">
+            <div>
+                <div class="eyebrow">Gestion de Custodias</div>
+                <h1 class="view-title">Actas y responsables de activos</h1>
+                <p class="view-subtitle">Consola central para consultar actas, revisar equipos asignados y mantener respaldo documental del inventario.</p>
+            </div>
+            <div class="d-flex gap-3 flex-wrap">
+                <a th:href="@{/custodias/nueva-custodia}" class="btn btn-primary px-4 py-3">
+                    <i class="feather-plus me-2"></i>Nueva Custodia
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${exito}" class="flash-banner success" th:text="${exito}"></div>
+        <div th:if="${error}" class="flash-banner danger" th:text="${error}"></div>
+
+        <div class="surface-card page-panel">
+            <div class="filter-bar mb-0">
+                <div class="flex-grow-1" style="min-width:200px; max-width:340px;">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 pe-2" style="border-color:#e4e4e7;">
+                            <i class="feather feather-search" style="font-size:14px; color:#a1a1aa;"></i>
+                        </span>
+                        <input type="text" id="searchInput" class="form-control border-start-0 ps-1"
+                               placeholder="Buscar por nombre o ID..." autocomplete="off">
+                    </div>
+                </div>
+                <div style="min-width:170px;">
+                    <select id="statusFilter" class="form-select">
+                        <option value="">Todos los estados</option>
+                        <option value="activa">Activa</option>
+                        <option value="cerrada">Cerrada</option>
+                    </select>
+                </div>
+                <div style="min-width:170px;">
+                    <select id="tipoFilter" class="form-select">
+                        <option value="">Todos los tipos</option>
+                        <option value="ACTA_INICIAL">Acta Inicial</option>
+                        <option value="ASIGNACION">Asignacion</option>
+                        <option value="TRASLADO">Traslado</option>
+                        <option value="BAJA">Baja</option>
+                    </select>
+                </div>
+                <div class="ms-auto row-counter">
+                    Mostrando <strong id="rowCount">0</strong> actas
+                </div>
+            </div>
+        </div>
+
+        <div class="card-surface-strong table-shell">
+            <div class="soft-header">
+                <div class="section-toolbar">
+                    <div class="toolbar-pills">
+                        <div class="toolbar-pill"><i class="feather-file"></i><span>Total <strong th:text="${#lists.size(actas)}">0</strong></span></div>
+                        <div class="toolbar-pill"><i class="feather-check-circle"></i><span>Activas <strong th:text="${#lists.size(actas.?[activa == true])}">0</strong></span></div>
+                        <div class="toolbar-pill"><i class="feather-lock"></i><span>Cerradas <strong th:text="${#lists.size(actas.?[activa == false])}">0</strong></span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card pt-0">
+                <div class="table-responsive" style="overflow:visible;">
+                    <table class="table mb-0" id="custodiasTable">
+                        <thead>
+                            <tr>
+                                <th style="width:50px;"></th>
+                                <th style="width:80px;">N. Acta</th>
+                                <th>Custodio</th>
+                                <th style="width:130px;">Tipo Acta</th>
+                                <th style="width:110px;">Equipos</th>
+                                <th style="width:130px;">Fecha Inicio</th>
+                                <th style="width:125px;">Fecha Fin</th>
+                                <th style="width:105px;">Estado</th>
+                                <th class="text-end" style="width:140px;">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr th:if="${actas == null || #lists.isEmpty(actas)}">
+                                <td colspan="9">
+                                    <div class="empty-state">
+                                        <i class="feather feather-inbox"></i>
+                                        <p>No hay actas registradas</p>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <th:block th:each="acta : ${actas}">
+                                <tr class="main-row"
+                                    th:attr="data-custodio-id=${acta.idCustodio},
+                                             data-nombre=${acta.custodio != null ? acta.custodio.nombre : ''},
+                                             data-status=${acta.activa ? 'activa' : 'cerrada'},
+                                             data-tipo=${acta.tipoMovimiento}">
+                                    <td>
+                                        <button type="button" class="btn-tgl"
+                                                th:attr="data-collapse-target='detalle-' + ${acta.key}"
+                                                title="Ver equipos asignados">
+                                            <i class="feather feather-chevron-right"></i>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold" style="font-size:13.5px; color:#18181b;"
+                                              th:text="'#' + ${acta.numeroActa}"></span>
+                                    </td>
+                                    <td>
+                                        <div class="cust-cell" th:if="${acta.custodio != null}">
+                                            <div class="cust-avatar"
+                                                 th:classappend="'av-' + ${acta.idCustodio % 6}"
+                                                 th:text="${#strings.toUpperCase(acta.custodio.nombre.length() >= 2 ? acta.custodio.nombre.substring(0,2) : acta.custodio.nombre)}"></div>
+                                            <div>
+                                                <div class="cust-name" th:text="${acta.custodio.nombre}"></div>
+                                                <div class="cust-cedula" th:text="'CI: ' + ${acta.custodio.cedula}"></div>
+                                            </div>
+                                        </div>
+                                        <span th:unless="${acta.custodio != null}" class="text-muted fst-italic" style="font-size:13px;">Sin custodio</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge-tipo" th:classappend="${acta.tipoMovimiento}" th:text="${acta.etiquetaTipo}"></span>
+                                    </td>
+                                    <td>
+                                        <span class="dev-badge">
+                                            <i class="feather feather-cpu" style="font-size:11px;"></i>
+                                            <span th:text="${acta.cantidadEquipos}"></span>
+                                        </span>
+                                    </td>
+                                    <td style="font-size:13.5px;">
+                                        <span th:if="${acta.fechaInicio != null}" th:text="${acta.fechaInicio}"></span>
+                                        <span th:unless="${acta.fechaInicio != null}" class="text-muted">-</span>
+                                    </td>
+                                    <td style="font-size:13.5px;">
+                                        <span th:if="${acta.fechaFin != null}" th:text="${acta.fechaFin}"></span>
+                                        <span th:unless="${acta.fechaFin != null}" class="text-muted" style="font-size:12.5px;">Vigente</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${acta.activa}" class="badge-activa">
+                                            <i class="feather feather-check-circle" style="font-size:11px;"></i>
+                                            Activa
+                                        </span>
+                                        <span th:unless="${acta.activa}" class="badge-cerrada">
+                                            <i class="feather feather-lock" style="font-size:11px;"></i>
+                                            Cerrada
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1 justify-content-end">
+                                            <a th:href="@{/custodias/acta-entrega/ver/{id}(id=${acta.idCustodio}, tipo=${acta.tipoMovimiento}, fecha=${acta.fechaInicio})}"
+                                               class="act-btn" title="Ver Acta de Entrega">
+                                                <i class="feather feather-eye"></i>
+                                            </a>
+                                            <a th:href="@{/custodias/acta-entrega/pdf/acta/{id}(id=${acta.idCustodio}, tipo=${acta.tipoMovimiento}, fecha=${acta.fechaInicio})}"
+                                               class="act-btn" title="Descargar PDF">
+                                                <i class="feather feather-download"></i>
+                                            </a>
+                                            <a th:if="${acta.activa}"
+                                               th:href="@{/custodias/cerrar/{id}(id=${acta.idCustodio}, tipo=${acta.tipoMovimiento}, fecha=${acta.fechaInicio})}"
+                                               class="act-btn" title="Cerrar custodia">
+                                                <i class="feather feather-log-out"></i>
+                                            </a>
+                                            <form th:action="@{/custodias/reenviar-correo/acta/{id}(id=${acta.idCustodio})}" method="post" style="display:inline;">
+                                                <input type="hidden" name="tipo" th:value="${acta.tipoMovimiento}"/>
+                                                <input type="hidden" name="fecha" th:value="${acta.fechaInicio}"/>
+                                                <button type="submit" class="act-btn" title="Reenviar correo al custodio"
+                                                        style="border:none; background:none; cursor:pointer; padding:0;">
+                                                    <i class="feather feather-mail"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="detail-row">
+                                    <td colspan="9" class="p-0">
+                                        <div class="collapse" th:id="'detalle-' + ${acta.key}">
+                                            <div class="sub-wrapper">
+                                                <div class="sub-label">
+                                                    <i class="feather feather-layers text-primary"></i>
+                                                    Equipos asignados
+                                                </div>
+
+                                                <table class="table sub-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:90px;">ID Equipo</th>
+                                                            <th>Descripcion / Tipo</th>
+                                                            <th style="width:160px;">Modelo</th>
+                                                            <th style="width:180px;">N. Serie</th>
+                                                            <th style="width:110px;">Estado</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr th:each="x : ${actaDetalles[acta.key]}">
+                                                            <td>
+                                                                <span class="fw-semibold" style="color:#111827;"
+                                                                      th:text="${x.fkEquipo != null ? x.fkEquipo.idEquipo : '-'}"></span>
+                                                            </td>
+                                                            <td th:if="${x.fkEquipo != null}">
+                                                                <div class="fw-semibold" style="font-size:13px; color:#18181b;"
+                                                                     th:text="${x.fkEquipo.codigoSap}"></div>
+                                                                <div style="font-size:12px; color:#6b7280;"
+                                                                     th:text="${x.fkEquipo.tipoEquipo}"></div>
+                                                            </td>
+                                                            <td th:unless="${x.fkEquipo != null}" class="text-muted">-</td>
+                                                            <td style="font-size:13px;" th:text="${x.fkEquipo != null ? x.fkEquipo.modelo : '-'}"></td>
+                                                            <td>
+                                                                <code class="serial-code" th:text="${x.fkEquipo != null ? x.fkEquipo.serial : '-'}"></code>
+                                                            </td>
+                                                            <td>
+                                                                <span th:if="${x.fkEquipo != null && x.fkEquipo.estadoEquipo != null}"
+                                                                      class="badge-eq"
+                                                                      th:text="${x.fkEquipo.estadoEquipo}"></span>
+                                                                <span th:unless="${x.fkEquipo != null && x.fkEquipo.estadoEquipo != null}"
+                                                                      class="text-muted" style="font-size:12px;">-</span>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination-bar" id="paginationBar">
+            <div class="page-size-wrap">
+                <span>Filas por pagina:</span>
+                <select id="pageSizeSelect">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+            <div class="pagination-info" id="paginationInfo"></div>
+            <nav class="pagination-nav" id="paginationNav"></nav>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".btn-tgl").forEach(btn => {
+            const targetId = btn.getAttribute("data-collapse-target");
+            const panel = document.getElementById(targetId);
+            if (!panel) return;
+            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(panel, { toggle: false });
+            btn.addEventListener("click", e => {
+                e.preventDefault();
+                bsCollapse.toggle();
+            });
+            panel.addEventListener("shown.bs.collapse", () => btn.classList.add("is-open"));
+            panel.addEventListener("hidden.bs.collapse", () => btn.classList.remove("is-open"));
+        });
+
+        const searchInput = document.getElementById("searchInput");
+        const statusFilter = document.getElementById("statusFilter");
+        const tipoFilter = document.getElementById("tipoFilter");
+        const rowCountEl = document.getElementById("rowCount");
+        const pageSizeSelect = document.getElementById("pageSizeSelect");
+        const paginationInfo = document.getElementById("paginationInfo");
+        const paginationNav = document.getElementById("paginationNav");
+
+        let filteredRows = [];
+        let currentPage = 1;
+        let pageSize = parseInt(pageSizeSelect.value, 10);
+
+        function getRowPairs() {
+            const pairs = [];
+            document.querySelectorAll("tr.main-row").forEach(row => {
+                const detail = row.nextElementSibling;
+                pairs.push({
+                    main: row,
+                    detail: (detail && detail.classList.contains("detail-row")) ? detail : null
+                });
+            });
+            return pairs;
+        }
+
+        const allPairs = getRowPairs();
+
+        function applyFilters() {
+            const term = searchInput.value.trim().toLowerCase();
+            const status = statusFilter.value;
+            const tipo = tipoFilter.value;
+
+            filteredRows = allPairs.filter(pair => {
+                const row = pair.main;
+                const nombre = (row.dataset.nombre || "").toLowerCase();
+                const rowId = (row.dataset.custodioId || "");
+                const rowStat = row.dataset.status || "";
+                const rowTipo = row.dataset.tipo || "";
+                return (!term || nombre.includes(term) || rowId.includes(term))
+                    && (!status || rowStat === status)
+                    && (!tipo || rowTipo === tipo);
+            });
+
+            currentPage = 1;
+            renderPage();
+        }
+
+        function renderPage() {
+            const total = filteredRows.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageSet = new Set(filteredRows.slice(start, end));
+
+            allPairs.forEach(pair => {
+                const show = pageSet.has(pair);
+                pair.main.style.display = show ? "" : "none";
+                if (pair.detail) pair.detail.style.display = show ? "" : "none";
+            });
+
+            rowCountEl.textContent = total;
+            paginationInfo.innerHTML = total === 0
+                ? "Sin resultados"
+                : "<strong>" + (start + 1) + "</strong> - <strong>" + end + "</strong> de <strong>" + total + "</strong>";
+
+            renderPaginationNav(totalPages);
+        }
+
+        function renderPaginationNav(totalPages) {
+            let html = "";
+            html += '<button class="pg-btn" data-page="prev"' + (currentPage <= 1 ? ' disabled' : '') + '><i class="feather feather-chevron-left" style="font-size:14px;"></i></button>';
+
+            const pages = buildPageNumbers(currentPage, totalPages);
+            pages.forEach(p => {
+                if (p === '...') {
+                    html += '<span class="pg-ellipsis">&hellip;</span>';
+                } else {
+                    html += '<button class="pg-btn' + (p === currentPage ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>';
+                }
+            });
+
+            html += '<button class="pg-btn" data-page="next"' + (currentPage >= totalPages ? ' disabled' : '') + '><i class="feather feather-chevron-right" style="font-size:14px;"></i></button>';
+            paginationNav.innerHTML = html;
+        }
+
+        function buildPageNumbers(current, total) {
+            if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+            const pages = [1];
+            if (current > 3) pages.push('...');
+            for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+                pages.push(i);
+            }
+            if (current < total - 2) pages.push('...');
+            pages.push(total);
+            return pages;
+        }
+
+        paginationNav.addEventListener("click", e => {
+            const btn = e.target.closest(".pg-btn");
+            if (!btn || btn.disabled) return;
+            const val = btn.dataset.page;
+            const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+            if (val === "prev") currentPage = Math.max(1, currentPage - 1);
+            else if (val === "next") currentPage = Math.min(totalPages, currentPage + 1);
+            else currentPage = parseInt(val, 10);
+            renderPage();
+        });
+
+        pageSizeSelect.addEventListener("change", () => {
+            pageSize = parseInt(pageSizeSelect.value, 10);
+            currentPage = 1;
+            renderPage();
+        });
+
+        applyFilters();
+        searchInput.addEventListener("input", applyFilters);
+        statusFilter.addEventListener("change", applyFilters);
+        tipoFilter.addEventListener("change", applyFilters);
+    });
+    </script>
+</div>
+</body>
+</html>
