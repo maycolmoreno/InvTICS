@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppConfig {
-  static const _defaultServerIp = '192.168.1.100';
+  static const _defaultServerIp = '192.168.1.23';
   static const _defaultServerPort = 8082;
   static String _serverIp = _defaultServerIp;
   static int _serverPort = _defaultServerPort;
@@ -10,7 +10,7 @@ class AppConfig {
   static String get serverIp => _serverIp;
   static int get serverPort => _serverPort;
   static bool get isConfigured => _configured;
-  static String get baseUrl => 'http://$_serverIp:$_serverPort/api/v1';
+  static String get baseUrl => 'http://$_serverIp:$_serverPort/api';
 
   static Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();

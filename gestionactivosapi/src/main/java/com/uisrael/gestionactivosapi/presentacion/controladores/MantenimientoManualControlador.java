@@ -17,6 +17,7 @@ import com.uisrael.gestionactivosapi.presentacion.dto.request.ImagenMantenimient
 import com.uisrael.gestionactivosapi.presentacion.dto.request.MantenimientoManualRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.MantenimientoManualResponseDTO;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -43,7 +44,8 @@ public class MantenimientoManualControlador {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public MantenimientoManualResponseDTO crear(@RequestBody MantenimientoManualRequestDTO request, Principal principal) {
+    public MantenimientoManualResponseDTO crear(@Valid @RequestBody MantenimientoManualRequestDTO request,
+            Principal principal) {
         return mantenimientoService.crear(request, principal.getName());
     }
 

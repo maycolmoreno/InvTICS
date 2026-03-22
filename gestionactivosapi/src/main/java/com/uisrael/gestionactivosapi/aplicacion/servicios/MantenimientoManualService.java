@@ -186,12 +186,8 @@ public class MantenimientoManualService {
             return actividad.getIdActividad();
         }
 
-        int indice = actividad.getIdActividad() - 1;
-        if (indice >= 0 && indice < checklistActivo.size()) {
-            return checklistActivo.get(indice).getIdActividad();
-        }
-
-        return null;
+        throw new IllegalArgumentException(
+                "La actividad " + actividad.getIdActividad() + " no pertenece al checklist activo del mantenimiento");
     }
 
     private void guardarFirmas(Integer idMantenimiento, MantenimientoManualRequestDTO request) {

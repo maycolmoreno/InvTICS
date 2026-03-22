@@ -40,6 +40,13 @@ public class SecurityConfig {
 				.requestMatchers("/api/custodias/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 				.requestMatchers("/api/custodios/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 				.requestMatchers("/api/tickets/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
+				.requestMatchers("/api/mantenimiento/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
+				.requestMatchers("/api/mantenimientos/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
+				.requestMatchers("/api/orden/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
+				.requestMatchers("/api/notificaciones/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
+				.requestMatchers("/api/visita/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "AUDITOR")
+				.requestMatchers("/api/historial/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "AUDITOR")
+				.requestMatchers("/api/actividades-checklist/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "AUDITOR")
 
 				.requestMatchers(HttpMethod.GET, "/api/departamentos/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 				.requestMatchers(HttpMethod.GET, "/api/ubicaciones/**").hasAnyRole("ADMINISTRADOR", "TECNICO")

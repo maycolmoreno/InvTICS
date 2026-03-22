@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiError> handleRuntime(RuntimeException ex, WebRequest request) {
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request, Map.of());
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor", request, Map.of());
     }
 
     @ExceptionHandler(Exception.class)
