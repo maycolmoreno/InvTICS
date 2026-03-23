@@ -13,6 +13,32 @@ class LoginRequest {
       };
 }
 
+enum UserRole {
+  admin,
+  tecnico,
+  consulta,
+  unknown,
+}
+
+enum UserCapability {
+  viewMantenimientos,
+  createMantenimiento,
+  closeMantenimiento,
+  viewVisitas,
+  viewEquipos,
+  viewNotificaciones,
+  manageUbicaciones,
+  manageServerConfig,
+}
+
+class RoleCapabilities {
+  const RoleCapabilities(this.values);
+
+  final Set<UserCapability> values;
+
+  bool has(UserCapability capability) => values.contains(capability);
+}
+
 class AuthSession {
   final String token;
   final String username;
@@ -36,5 +62,72 @@ class AuthSession {
           '',
       role: json['role']?.toString() ?? json['rol']?.toString() ?? '',
     );
+  }
+
+  String get normalizedRole => role.trim().toUpperCase();
+
+  UserRole get userRole {
+    final value = normalizedRole;
+    if (value.contains('ADMIN')) {
+      return UserRole.admin;
+    }
+    if (value.contains('TECNICO') || value.contains('SOPORTE')) {
+      return UserRole.tecnico;
+    }
+    if (value.contains('CONSULTA') ||
+        value.contains('AUDITOR') ||
+        value.contains('INVITADO') ||
+        value.contains('CUSTODIO')) {
+      return UserRole.consulta;
+    }
+    return UserRole.unknown;
+  }
+
+  String get roleLabel {
+    switch (userRole) {
+      case UserRole.admin:
+        return 'Administrador';
+      case UserRole.tecnico:
+        return 'Tecnico';
+      case UserRole.consulta:
+        return 'Consulta';
+      case UserRole.unknown:
+        return normalizedRole.isEmpty ? 'Sin rol' : normalizedRole;
+    }
+  }
+
+  bool get isSupported => userRole != UserRole.unknown;
+
+  RoleCapabilities get capabilities {
+    switch (userRole) {
+      case UserRole.admin:
+        return const RoleCapabilities({
+          UserCapability.viewMantenimientos,
+          UserCapability.createMantenimiento,
+          UserCapability.closeMantenimiento,
+          UserCapability.viewVisitas,
+          UserCapability.viewEquipos,
+          UserCapability.viewNotificaciones,
+          UserCapability.manageUbicaciones,
+          UserCapability.manageServerConfig,
+        });
+      case UserRole.tecnico:
+        return const RoleCapabilities({
+          UserCapability.viewMantenimientos,
+          UserCapability.createMantenimiento,
+          UserCapability.closeMantenimiento,
+          UserCapability.viewVisitas,
+          UserCapability.viewEquipos,
+          UserCapability.viewNotificaciones,
+        });
+      case UserRole.consulta:
+        return const RoleCapabilities({
+          UserCapability.viewMantenimientos,
+          UserCapability.viewEquipos,
+          UserCapability.viewNotificaciones,
+        });
+      case UserRole.unknown:
+        return const RoleCapabilities({});
+    }
   }
 }

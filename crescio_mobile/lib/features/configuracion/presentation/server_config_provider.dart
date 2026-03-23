@@ -18,7 +18,7 @@ class ServerConfigProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final url = Uri.parse('http://$ip:$port/api/v1/auth/ping');
+      final url = Uri.parse('http://$ip:$port/api/setup/necesario');
       final response = await http.get(url).timeout(const Duration(seconds: 10));
       _success = response.statusCode == 200;
       _message = _success

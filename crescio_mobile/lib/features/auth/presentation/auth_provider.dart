@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 
 import '../../../core/errors/exceptions.dart';
@@ -23,6 +21,12 @@ class AuthProvider extends ChangeNotifier {
 
   AuthSession? _session;
   AuthSession? get session => _session;
+  bool get isAuthenticated => _session != null;
+  String get roleLabel => _session?.roleLabel ?? 'Sin rol';
+
+  bool hasCapability(UserCapability capability) {
+    return _session?.capabilities.has(capability) ?? false;
+  }
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -35,20 +39,16 @@ class AuthProvider extends ChangeNotifier {
     }
 
     final stored = await _repository.readStoredSession();
-    if (stored == null || _isExpired(stored.token)) {
-      if (stored != null) {
-        await _repository.logout();
-        _errorMessage = 'Sesion expirada';
-      }
+    if (stored == null) {
       _status = AuthStatus.unauthenticated;
       notifyListeners();
       return;
     }
 
-    if (stored.role.toUpperCase() != 'TECNICO') {
+    if (!stored.isSupported) {
       await _repository.logout();
       _status = AuthStatus.unauthenticated;
-      _errorMessage = 'Esta aplicacion es solo para tecnicos de soporte';
+      _errorMessage = 'El rol actual no esta soportado por la aplicacion movil';
       notifyListeners();
       return;
     }
@@ -67,10 +67,10 @@ class AuthProvider extends ChangeNotifier {
       final session = await _repository.login(
         LoginRequest(username: username.trim(), password: password),
       );
-      if (session.role.toUpperCase() != 'TECNICO') {
+      if (!session.isSupported) {
         await _repository.logout();
         _status = AuthStatus.unauthenticated;
-        _errorMessage = 'Esta aplicacion es solo para tecnicos de soporte';
+        _errorMessage = 'El rol actual no esta soportado por la aplicacion movil';
         notifyListeners();
         return false;
       }
@@ -103,25 +103,5 @@ class AuthProvider extends ChangeNotifier {
     _status = AuthStatus.unauthenticated;
     _errorMessage = null;
     notifyListeners();
-  }
-
-  bool _isExpired(String token) {
-    final parts = token.split('.');
-    if (parts.length != 3) {
-      return true;
-    }
-    try {
-      final normalized = base64.normalize(parts[1]);
-      final payload =
-          jsonDecode(utf8.decode(base64Url.decode(normalized))) as Map<String, dynamic>;
-      final exp = payload['exp'];
-      if (exp is! num) {
-        return true;
-      }
-      final expiry = DateTime.fromMillisecondsSinceEpoch(exp.toInt() * 1000);
-      return DateTime.now().isAfter(expiry);
-    } catch (_) {
-      return true;
-    }
   }
 }

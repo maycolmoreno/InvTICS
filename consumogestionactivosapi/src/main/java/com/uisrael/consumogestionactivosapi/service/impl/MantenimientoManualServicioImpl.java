@@ -5,6 +5,9 @@ import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -51,6 +54,34 @@ public class MantenimientoManualServicioImpl implements IMantenimientoManualServ
     }
 
     @Override
+    public List<ImagenMantenimientoRequestDTO> subirImagenes(Integer idMantenimiento, List<MultipartFile> imagenes) {
+        if (imagenes == null || imagenes.isEmpty()) {
+            return List.of();
+        }
+        try {
+            MultipartBodyBuilder builder = new MultipartBodyBuilder();
+            for (MultipartFile imagen : imagenes) {
+                if (imagen == null || imagen.isEmpty()) {
+                    continue;
+                }
+                builder.part("files", imagen.getResource())
+                        .filename(imagen.getOriginalFilename() != null ? imagen.getOriginalFilename() : "evidencia")
+                        .contentType(MediaType.parseMediaType(
+                                imagen.getContentType() != null ? imagen.getContentType() : MediaType.APPLICATION_OCTET_STREAM_VALUE));
+            }
+            return clienteWeb.post()
+                    .uri("/mantenimiento/{id}/imagenes/upload", idMantenimiento)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .bodyValue(builder.build())
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<List<ImagenMantenimientoRequestDTO>>() {})
+                    .block();
+        } catch (WebClientResponseException ex) {
+            throw WebClientHelper.manejarError(ex);
+        }
+    }
+
+    @Override
     public List<MantenimientoManualResponseDTO> listarTodos() {
         return clienteWeb.get()
                 .uri("/mantenimiento")
@@ -84,5 +115,31 @@ public class MantenimientoManualServicioImpl implements IMantenimientoManualServ
                 .retrieve()
                 .bodyToMono(MantenimientoManualResponseDTO.class)
                 .block();
+    }
+
+    @Override
+    public byte[] descargarPdf(Integer id) {
+        try {
+            return clienteWeb.get()
+                    .uri("/mantenimiento/{id}/pdf", id)
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .block();
+        } catch (WebClientResponseException ex) {
+            throw WebClientHelper.manejarError(ex);
+        }
+    }
+
+    @Override
+    public void reenviarCorreo(Integer id) {
+        try {
+            clienteWeb.post()
+                    .uri("/mantenimiento/{id}/reenviar-correo", id)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
+        } catch (WebClientResponseException ex) {
+            throw WebClientHelper.manejarError(ex);
+        }
     }
 }

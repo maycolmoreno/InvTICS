@@ -2,12 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/config/app_config.dart';
+import '../../../core/network/api_client.dart';
 import '../../../core/storage/local_database.dart';
+import '../../auth/data/auth_models.dart';
 import '../../auth/presentation/auth_provider.dart';
+import '../../sync/sync_service.dart';
+import '../../ubicaciones/presentation/ubicaciones_screen.dart';
 import 'server_config_screen.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _syncing = false;
+  late Future<int> _pendingFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _pendingFuture = LocalDatabase.instance.contarPendientes();
+  }
+
+  Future<void> _reloadPending() async {
+    final future = LocalDatabase.instance.contarPendientes();
+    setState(() => _pendingFuture = future);
+    await future;
+  }
+
+  Future<void> _syncNow() async {
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _syncing = true);
+    try {
+      final synced = await SyncService(context.read<ApiClient>()).syncPendingOperations();
+      if (!mounted) return;
+      await _reloadPending();
+      messenger.showSnackBar(
+        SnackBar(content: Text('Sincronizacion completada. Operaciones enviadas: $synced')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        const SnackBar(content: Text('No fue posible completar la sincronizacion.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _syncing = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +61,7 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Ajustes')),
       body: FutureBuilder<int>(
-        future: LocalDatabase.instance.contarPendientes(),
+        future: _pendingFuture,
         builder: (context, snapshot) {
           final pending = snapshot.data ?? 0;
           return ListView(
@@ -26,13 +72,21 @@ class SettingsScreen extends StatelessWidget {
               Card(
                 child: ListTile(
                   title: Text('${AppConfig.serverIp}:${AppConfig.serverPort}'),
-                  subtitle: const Text('Servidor actual configurado'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ServerConfigScreen()),
-                    );
-                  },
+                  subtitle: Text(
+                    auth.hasCapability(UserCapability.manageServerConfig)
+                        ? 'Servidor actual configurado'
+                        : 'Visible en modo solo lectura',
+                  ),
+                  trailing: auth.hasCapability(UserCapability.manageServerConfig)
+                      ? const Icon(Icons.chevron_right)
+                      : null,
+                  onTap: auth.hasCapability(UserCapability.manageServerConfig)
+                      ? () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const ServerConfigScreen()),
+                          );
+                        }
+                      : null,
                 ),
               ),
               const SizedBox(height: 16),
@@ -40,7 +94,7 @@ class SettingsScreen extends StatelessWidget {
               Card(
                 child: ListTile(
                   title: Text(auth.session?.displayName ?? 'Sin sesion'),
-                  subtitle: Text(auth.session?.role ?? ''),
+                  subtitle: Text(auth.roleLabel),
                 ),
               ),
               const SizedBox(height: 16),
@@ -48,9 +102,40 @@ class SettingsScreen extends StatelessWidget {
               Card(
                 child: ListTile(
                   title: Text('$pending registro(s) pendientes'),
-                  subtitle: const Text('Ultima sincronizacion: pendiente de implementar'),
+                  subtitle: Text(
+                    pending == 0
+                        ? 'No hay operaciones offline pendientes'
+                        : 'Hay operaciones pendientes de sincronizacion',
+                  ),
+                  trailing: _syncing
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : TextButton(
+                          onPressed: pending == 0 ? null : _syncNow,
+                          child: const Text('Sincronizar'),
+                        ),
                 ),
               ),
+              const SizedBox(height: 16),
+              if (auth.hasCapability(UserCapability.manageUbicaciones)) ...[
+                const SizedBox(height: 16),
+                const Text('Catalogos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Card(
+                  child: ListTile(
+                    title: const Text('Ubicaciones'),
+                    subtitle: const Text('Gestionar ubicaciones activas e inactivas'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const UbicacionesScreen()),
+                      );
+                    },
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => context.read<AuthProvider>().logout(),

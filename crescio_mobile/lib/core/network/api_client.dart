@@ -28,10 +28,10 @@ class ApiClient {
 
   Future<dynamic> get(String path) => _send('GET', path);
 
-  Future<dynamic> post(String path, Map<String, dynamic> body) =>
+  Future<dynamic> post(String path, dynamic body) =>
       _send('POST', path, body: body);
 
-  Future<dynamic> put(String path, Map<String, dynamic> body) =>
+  Future<dynamic> put(String path, dynamic body) =>
       _send('PUT', path, body: body);
 
   Future<dynamic> postMultipart(
@@ -62,7 +62,7 @@ class ApiClient {
   Future<dynamic> _send(
     String method,
     String path, {
-    Map<String, dynamic>? body,
+    dynamic body,
   }) async {
     await _ensureConnectivity();
     final uri = Uri.parse('${AppConfig.baseUrl}$path');
@@ -104,7 +104,7 @@ class ApiClient {
     return {
       'Accept': 'application/json',
       if (includeJson) 'Content-Type': 'application/json',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Basic $token',
     };
   }
 

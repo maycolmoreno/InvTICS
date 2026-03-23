@@ -28,10 +28,12 @@ class ApiClient {
 
   Future<dynamic> get(String path) => _send('GET', path);
 
-  Future<dynamic> post(String path, Map<String, dynamic> body) =>
+  Future<List<int>> getBytes(String path) => _sendBytes('GET', path);
+
+  Future<dynamic> post(String path, dynamic body) =>
       _send('POST', path, body: body);
 
-  Future<dynamic> put(String path, Map<String, dynamic> body) =>
+  Future<dynamic> put(String path, dynamic body) =>
       _send('PUT', path, body: body);
 
   Future<dynamic> postMultipart(
@@ -62,7 +64,7 @@ class ApiClient {
   Future<dynamic> _send(
     String method,
     String path, {
-    Map<String, dynamic>? body,
+    dynamic body,
   }) async {
     await _ensureConnectivity();
     final uri = Uri.parse('${AppConfig.baseUrl}$path');
@@ -85,6 +87,45 @@ class ApiClient {
           response = await _client.get(uri, headers: headers).timeout(_timeout);
       }
       return _parseResponse(response);
+    } on SocketException {
+      throw const OfflineException();
+    } on TimeoutException {
+      throw const OfflineException('Tiempo de espera agotado.');
+    }
+  }
+
+  Future<List<int>> _sendBytes(String method, String path) async {
+    await _ensureConnectivity();
+    final uri = Uri.parse('${AppConfig.baseUrl}$path');
+    final headers = await _headers();
+
+    try {
+      late http.Response response;
+      switch (method) {
+        case 'GET':
+        default:
+          response = await _client.get(uri, headers: headers).timeout(_timeout);
+      }
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return response.bodyBytes;
+      }
+
+      if (response.statusCode == 401) {
+        _secureStorage.clearSession();
+        unawaited(_onUnauthorized());
+        throw const AuthException('Sesion expirada. Inicia sesion nuevamente.');
+      }
+      if (response.statusCode == 403) {
+        throw const AuthException('Sin permisos.');
+      }
+      if (response.statusCode == 404) {
+        throw const NotFoundException();
+      }
+      if (response.statusCode >= 500) {
+        throw const ServerException();
+      }
+      throw ServerException(_friendlyMessage(response.body));
     } on SocketException {
       throw const OfflineException();
     } on TimeoutException {

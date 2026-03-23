@@ -1,7 +1,5 @@
 package com.uisrael.consumogestionactivosapi.controlador;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -36,7 +34,6 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoMan
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoProgramadoResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.IActividadChecklistServicio;
-import com.uisrael.consumogestionactivosapi.service.CorreoServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
@@ -44,8 +41,6 @@ import com.uisrael.consumogestionactivosapi.service.IMantenimientoManualServicio
 import com.uisrael.consumogestionactivosapi.service.IMantenimientoProgramadoServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
-import com.uisrael.consumogestionactivosapi.service.MantenimientoArchivoService;
-import com.uisrael.consumogestionactivosapi.service.PdfMantenimientoService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -62,9 +57,6 @@ public class MantenimientoControlador {
     private final ICustodiosServicio custodiosServicio;
     private final IUsuariosServicio usuariosServicio;
     private final IUbicacionesServicio ubicacionesServicio;
-    private final MantenimientoArchivoService archivoService;
-    private final PdfMantenimientoService pdfService;
-    private final CorreoServicio correoServicio;
 
     @GetMapping
     public String listar(Model model) {
@@ -158,9 +150,9 @@ public class MantenimientoControlador {
 
             MantenimientoManualResponseDTO creado = mantenimientoManualServicio.crear(request);
             creado.setTipoMantenimiento(tipoMantenimiento);
-            List<ImagenMantenimientoRequestDTO> metadata = archivoService.guardarImagenes(creado.getIdMantenimiento(), imagenes);
+            List<ImagenMantenimientoRequestDTO> metadata = mantenimientoManualServicio
+                    .subirImagenes(creado.getIdMantenimiento(), imagenes);
             if (!metadata.isEmpty()) {
-                mantenimientoManualServicio.guardarImagenes(creado.getIdMantenimiento(), metadata);
                 creado.setImagenes(metadata.stream().map(img -> {
                     var dto = new com.uisrael.consumogestionactivosapi.modelo.dto.response.ImagenMantenimientoResponseDTO();
                     dto.setNombreArchivo(img.getNombreArchivo());
@@ -169,23 +161,6 @@ public class MantenimientoControlador {
                     return dto;
                 }).toList());
             }
-
-            completarDatosCustodio(creado, custodioId);
-            CustodiosResponseDTO custodio = custodiosServicio.obtenerPorId(custodioId);
-            EquiposResponseDTO equipo = equiposServicio.obtenerPorId(idEquipo);
-            UsuariosResponseDTO tecnico = creado.getTecnicoId() == null ? null
-                    : usuariosServicio.obtenerUsuario(creado.getTecnicoId());
-            List<Path> rutasImagenes = metadata.stream().map(m -> Paths.get(m.getRutaArchivo())).toList();
-            byte[] pdfBytes = pdfService.generarInforme(creado, equipo, custodio, tecnico, rutasImagenes);
-            archivoService.guardarPdf(creado.getIdMantenimiento(), pdfBytes);
-            correoServicio.enviarInformeMantenimientoConPdf(
-                    correoDestino(creado, custodioId),
-                    creado.getCustodioNombre(),
-                    String.valueOf(creado.getIdMantenimiento()),
-                    pdfBytes,
-                    creado.getFechaMantenimiento(),
-                    creado.getTipoMantenimiento(),
-                    creado.getDetalle());
         }
 
         redirectAttributes.addFlashAttribute("exito", "Orden de mantenimiento guardada y reporte enviado");
@@ -200,7 +175,7 @@ public class MantenimientoControlador {
 
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> verPdf(@PathVariable Integer id) {
-        byte[] pdfBytes = archivoService.leerPdf(id);
+        byte[] pdfBytes = mantenimientoManualServicio.descargarPdf(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"mantenimiento_" + id + ".pdf\"")
                 .contentType(MediaType.APPLICATION_PDF)
@@ -210,40 +185,8 @@ public class MantenimientoControlador {
     @PostMapping("/{id}/reenviar-correo")
     public String reenviarCorreo(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         try {
-            MantenimientoManualResponseDTO mantenimiento = mantenimientoManualServicio.obtenerDetalle(id);
-            if (mantenimiento == null) {
-                redirectAttributes.addFlashAttribute("error", "No se encontro el mantenimiento solicitado.");
-                return "redirect:/mantenimiento";
-            }
-
-            completarDatosCustodio(mantenimiento, mantenimiento.getCustodioId());
-            CustodiosResponseDTO custodio = mantenimiento.getCustodioId() == null ? null
-                    : custodiosServicio.obtenerPorId(mantenimiento.getCustodioId());
-            EquiposResponseDTO equipo = mantenimiento.getEquipoId() == null ? null
-                    : equiposServicio.obtenerPorId(mantenimiento.getEquipoId());
-            UsuariosResponseDTO tecnico = mantenimiento.getTecnicoId() == null ? null
-                    : usuariosServicio.obtenerUsuario(mantenimiento.getTecnicoId());
-            String destinatario = correoDestino(mantenimiento, mantenimiento.getCustodioId());
-            if (destinatario == null || destinatario.isBlank()) {
-                redirectAttributes.addFlashAttribute("error", "El custodio no tiene correo registrado.");
-                return "redirect:/mantenimiento/" + id;
-            }
-
-            List<Path> rutasImagenes = mantenimiento.getImagenes() == null ? List.of()
-                    : mantenimiento.getImagenes().stream()
-                            .map(img -> Paths.get(img.getRutaArchivo()))
-                            .toList();
-            byte[] pdfBytes = pdfService.generarInforme(mantenimiento, equipo, custodio, tecnico, rutasImagenes);
-            archivoService.guardarPdf(id, pdfBytes);
-            correoServicio.enviarInformeMantenimientoConPdf(
-                    destinatario,
-                    mantenimiento.getCustodioNombre(),
-                    String.valueOf(mantenimiento.getIdMantenimiento()),
-                    pdfBytes,
-                    mantenimiento.getFechaMantenimiento(),
-                    mantenimiento.getTipoMantenimiento(),
-                    mantenimiento.getDetalle());
-            redirectAttributes.addFlashAttribute("exito", "Correo reenviado a " + destinatario);
+            mantenimientoManualServicio.reenviarCorreo(id);
+            redirectAttributes.addFlashAttribute("exito", "Correo reenviado correctamente.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "No se pudo reenviar el correo: " + e.getMessage());
         }
@@ -314,31 +257,6 @@ public class MantenimientoControlador {
             dto.setRealizada(actividadIds.contains(act.getIdActividad()));
             return dto;
         }).toList();
-    }
-
-    private void completarDatosCustodio(MantenimientoManualResponseDTO mantenimiento, Integer custodioId) {
-        if (custodioId == null) {
-            return;
-        }
-        if (mantenimiento.getCustodioNombre() != null && !mantenimiento.getCustodioNombre().isBlank()
-                && mantenimiento.getCustodioCorreo() != null && !mantenimiento.getCustodioCorreo().isBlank()) {
-            return;
-        }
-        CustodiosResponseDTO custodio = custodiosServicio.obtenerPorId(custodioId);
-        if (custodio == null) {
-            return;
-        }
-        if (mantenimiento.getCustodioNombre() == null || mantenimiento.getCustodioNombre().isBlank()) {
-            mantenimiento.setCustodioNombre(custodio.getNombre());
-        }
-        if (mantenimiento.getCustodioCorreo() == null || mantenimiento.getCustodioCorreo().isBlank()) {
-            mantenimiento.setCustodioCorreo(custodio.getCorreo());
-        }
-    }
-
-    private String correoDestino(MantenimientoManualResponseDTO mantenimiento, Integer custodioId) {
-        completarDatosCustodio(mantenimiento, custodioId);
-        return mantenimiento.getCustodioCorreo();
     }
 
     private String construirDetalleConObservaciones(String detalleBase, Map<String, String> requestParams) {

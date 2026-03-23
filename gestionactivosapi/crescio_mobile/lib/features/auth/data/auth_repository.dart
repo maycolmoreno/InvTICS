@@ -4,18 +4,14 @@ import 'package:http/http.dart' as http;
 
 import '../../../core/config/app_config.dart';
 import '../../../core/errors/exceptions.dart';
-import '../../../core/network/api_client.dart';
 import '../../../core/storage/secure_storage_service.dart';
 import 'auth_models.dart';
 
 class AuthRepository {
   AuthRepository({
-    required ApiClient apiClient,
     required SecureStorageService secureStorage,
-  })  : _apiClient = apiClient,
-        _secureStorage = secureStorage;
+  }) : _secureStorage = secureStorage;
 
-  final ApiClient _apiClient;
   final SecureStorageService _secureStorage;
 
   Future<AuthSession> login(LoginRequest request) async {

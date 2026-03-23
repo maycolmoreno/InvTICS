@@ -87,7 +87,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
                 child: ListView.separated(
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: tickets.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final ticket = tickets[index];
                     return Card(

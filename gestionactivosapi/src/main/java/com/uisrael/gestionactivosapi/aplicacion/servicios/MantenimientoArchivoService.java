@@ -1,30 +1,47 @@
-package com.uisrael.consumogestionactivosapi.service;
+package com.uisrael.gestionactivosapi.aplicacion.servicios;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.uisrael.consumogestionactivosapi.modelo.dto.request.ImagenMantenimientoRequestDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.ImagenMantenimientoRequestDTO;
 
 @Service
 public class MantenimientoArchivoService {
 
+    private final Path basePath;
     private static final long MAX_IMAGE_BYTES = 5L * 1024 * 1024;
-    private static final Path BASE_UPLOADS = Paths.get("uploads");
+
+    public MantenimientoArchivoService(
+            @Value("${mantenimiento.storage.base-path:./data/mantenimientos}") String basePath) {
+        this.basePath = Path.of(basePath);
+    }
+
+    public Path guardarPdf(Integer idMantenimiento, byte[] pdfBytes) {
+        try {
+            Path carpeta = basePath.resolve("pdfs");
+            Files.createDirectories(carpeta);
+            Path pdf = carpeta.resolve("mantenimiento_" + idMantenimiento + ".pdf");
+            Files.write(pdf, pdfBytes);
+            return pdf;
+        } catch (IOException e) {
+            throw new RuntimeException("No se pudo guardar el PDF del mantenimiento", e);
+        }
+    }
 
     public List<ImagenMantenimientoRequestDTO> guardarImagenes(Integer idMantenimiento, List<MultipartFile> imagenes) {
         if (imagenes == null || imagenes.isEmpty()) {
             return List.of();
         }
         try {
-            Path carpeta = BASE_UPLOADS.resolve("mantenimientos").resolve(String.valueOf(idMantenimiento));
+            Path carpeta = basePath.resolve("imagenes").resolve(String.valueOf(idMantenimiento));
             Files.createDirectories(carpeta);
             List<ImagenMantenimientoRequestDTO> metadata = new ArrayList<>();
             for (MultipartFile imagen : imagenes) {
@@ -37,6 +54,7 @@ public class MantenimientoArchivoService {
                 String original = imagen.getOriginalFilename() != null ? imagen.getOriginalFilename() : "evidencia";
                 Path destino = carpeta.resolve(original);
                 Files.copy(imagen.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
+
                 ImagenMantenimientoRequestDTO dto = new ImagenMantenimientoRequestDTO();
                 dto.setNombreArchivo(original);
                 dto.setRutaArchivo(destino.toString().replace('\\', '/'));
@@ -49,22 +67,6 @@ public class MantenimientoArchivoService {
         }
     }
 
-    public Path guardarPdf(Integer idMantenimiento, byte[] pdfBytes) {
-        try {
-            Path carpeta = BASE_UPLOADS.resolve("pdfs");
-            Files.createDirectories(carpeta);
-            Path pdf = carpeta.resolve("mantenimiento_" + idMantenimiento + ".pdf");
-            Files.write(pdf, pdfBytes);
-            return pdf;
-        } catch (IOException e) {
-            throw new RuntimeException("No se pudo guardar el PDF del mantenimiento", e);
-        }
-    }
-
-    public Path obtenerRutaPdf(Integer idMantenimiento) {
-        return BASE_UPLOADS.resolve("pdfs").resolve("mantenimiento_" + idMantenimiento + ".pdf");
-    }
-
     public byte[] leerPdf(Integer idMantenimiento) {
         try {
             Path pdf = obtenerRutaPdf(idMantenimiento);
@@ -75,5 +77,13 @@ public class MantenimientoArchivoService {
         } catch (IOException e) {
             throw new RuntimeException("No se pudo leer el PDF del mantenimiento", e);
         }
+    }
+
+    public boolean existePdf(Integer idMantenimiento) {
+        return Files.exists(obtenerRutaPdf(idMantenimiento));
+    }
+
+    private Path obtenerRutaPdf(Integer idMantenimiento) {
+        return basePath.resolve("pdfs").resolve("mantenimiento_" + idMantenimiento + ".pdf");
     }
 }

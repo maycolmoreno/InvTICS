@@ -2,17 +2,11 @@ package com.uisrael.consumogestionactivosapi.controlador;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -41,24 +35,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CategoriaEquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.EquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.MarcasRequestDTO;
-import com.uisrael.consumogestionactivosapi.modelo.dto.request.MantenimientoEquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
-import com.uisrael.consumogestionactivosapi.service.CorreoServicio;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
-import com.uisrael.consumogestionactivosapi.service.IMantenimientosServicio;
-import com.uisrael.consumogestionactivosapi.modelo.dto.request.MantenimientoApiRequestDTO;
-import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
-import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
-import com.uisrael.consumogestionactivosapi.service.CustodiasPdfService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -67,16 +52,10 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/equipos")
 public class EquiposControlador {
 
-	private static final long MAX_MANTENIMIENTO_IMAGE_BYTES = 5L * 1024 * 1024; // 5MB
-	private static final Logger log = LoggerFactory.getLogger(EquiposControlador.class);
-
 	private final IEquiposServicio servicioEquipos;
 	private final IMarcasServicio servicioMarcas;
 	private final ICategoriaEquiposServicio servicioCategoriaEquipos;
 	private final ICustodiosServicio servicioCustodios;
-	private final CorreoServicio correoServicio;
-	private final IMantenimientosServicio servicioMantenimientos;
-	private final CustodiasPdfService custodiasPdfService;
 
 	@GetMapping
 	public String listarEquipos(Model model) {
@@ -88,20 +67,8 @@ public class EquiposControlador {
 	}
 
 	@GetMapping("/mantenimiento")
-	public String verMantenimiento(Model model) {
-		MantenimientoEquiposRequestDTO mantenimiento = new MantenimientoEquiposRequestDTO();
-		mantenimiento.setFechaMantenimiento(LocalDate.now());
-		mantenimiento.setTipoMantenimiento("PREVENTIVO");
-
-		model.addAttribute("mantenimiento", mantenimiento);
-		model.addAttribute("listarequipos", servicioEquipos.listarEquipos().stream()
-				.sorted(Comparator.comparing(EquiposResponseDTO::getIdEquipo))
-				.toList());
-		model.addAttribute("listacustodios", servicioCustodios.listarCustodios().stream()
-				.filter(CustodiosResponseDTO::isEstado)
-				.sorted(Comparator.comparing(CustodiosResponseDTO::getIdCustodio))
-				.toList());
-		return "Equipos/mantenimientoEquipo";
+	public String verMantenimiento() {
+		return "redirect:/mantenimiento/nuevo";
 	}
 
 	@GetMapping("/nuevo-equipo")
@@ -291,130 +258,6 @@ public class EquiposControlador {
 	public String activarEquipo(@RequestParam Integer idEquipo) {
 		servicioEquipos.actualizarEstado(idEquipo, true);
 		return "redirect:/equipos";
-	}
-
-	@PostMapping("/mantenimiento/enviar-informe")
-	public String enviarInformeMantenimiento(@ModelAttribute MantenimientoEquiposRequestDTO mantenimiento,
-			@RequestParam(value = "imagenes", required = false) MultipartFile[] imagenes,
-			RedirectAttributes redirectAttributes) {
-
-		if (mantenimiento == null || mantenimiento.getEquipoId() == null || mantenimiento.getEquipoId() <= 0) {
-			redirectAttributes.addFlashAttribute("error", "Debe seleccionar un equipo.");
-			return "redirect:/equipos/mantenimiento";
-		}
-		if (mantenimiento.getCustodioId() == null || mantenimiento.getCustodioId() <= 0) {
-			redirectAttributes.addFlashAttribute("error", "Debe seleccionar un custodio.");
-			return "redirect:/equipos/mantenimiento";
-		}
-		if (mantenimiento.getCorreoCliente() == null || mantenimiento.getCorreoCliente().isBlank()) {
-			redirectAttributes.addFlashAttribute("error", "Debe ingresar el correo del cliente.");
-			return "redirect:/equipos/mantenimiento";
-		}
-		if (mantenimiento.getFechaMantenimiento() == null) {
-			redirectAttributes.addFlashAttribute("error", "Debe ingresar la fecha de mantenimiento.");
-			return "redirect:/equipos/mantenimiento";
-		}
-		if (mantenimiento.getDetalleMantenimiento() == null || mantenimiento.getDetalleMantenimiento().isBlank()) {
-			redirectAttributes.addFlashAttribute("error", "Debe ingresar el detalle del mantenimiento.");
-			return "redirect:/equipos/mantenimiento";
-		}
-		if (imagenes != null) {
-			for (MultipartFile img : imagenes) {
-				if (img == null || img.isEmpty()) continue;
-				if (img.getSize() > MAX_MANTENIMIENTO_IMAGE_BYTES) {
-					redirectAttributes.addFlashAttribute("error",
-							"Una de las imagenes supera el limite de 5MB.");
-					return "redirect:/equipos/mantenimiento";
-				}
-			}
-		}
-
-		EquiposResponseDTO equipo;
-		try {
-			equipo = servicioEquipos.obtenerPorId(mantenimiento.getEquipoId());
-		} catch (Exception e) {
-			redirectAttributes.addFlashAttribute("error", "No se encontro el equipo seleccionado.");
-			return "redirect:/equipos/mantenimiento";
-		}
-
-		Long idCliente = mantenimiento.getCustodioId() != null ? mantenimiento.getCustodioId().longValue() : null;
-
-		LocalDate fecha = mantenimiento.getFechaMantenimiento();
-		LocalDateTime fechaProgramada = LocalDateTime.of(fecha, LocalTime.now().withSecond(0).withNano(0));
-		String estado = fecha.isBefore(LocalDate.now()) ? "COMPLETADO" : "PROGRAMADO";
-
-		String serieSnapshot = (equipo.getSerie() != null && !equipo.getSerie().isBlank())
-				? equipo.getSerie()
-				: (equipo.getSerial() != null ? equipo.getSerial() : "");
-
-		String descripcion = "Tipo: " + (mantenimiento.getTipoMantenimiento() != null
-				? mantenimiento.getTipoMantenimiento()
-				: "N/A")
-				+ "\nDetalle: " + mantenimiento.getDetalleMantenimiento();
-
-		MantenimientoApiRequestDTO apiDto = new MantenimientoApiRequestDTO();
-		apiDto.setEquipoId((long) mantenimiento.getEquipoId());
-		apiDto.setSerieSnapshot(serieSnapshot);
-		apiDto.setIdCliente(idCliente);
-		apiDto.setEmpresaId(equipo.getEmpresaId());
-		apiDto.setFechaProgramada(fechaProgramada);
-		apiDto.setFrecuenciaDias(0);
-		apiDto.setDescripcion(descripcion);
-		apiDto.setTipoMantenimiento(mantenimiento.getTipoMantenimiento());
-		apiDto.setEstado(estado);
-
-		try {
-			servicioMantenimientos.crearMantenimiento(apiDto);
-		} catch (Exception e) {
-			redirectAttributes.addFlashAttribute("error", "No se pudo registrar el mantenimiento.");
-			return "redirect:/equipos/mantenimiento";
-		}
-
-		// Enviar al cliente el PDF con el formato de acta de asignacion
-		boolean enviado = false;
-		try {
-			CustodiosResponseDTO custodio = servicioCustodios.obtenerPorId(mantenimiento.getCustodioId());
-			CustodiasResponseDTO custodia = new CustodiasResponseDTO();
-			custodia.setFkCustodio(custodio);
-			custodia.setFkEquipo(equipo);
-			custodia.setFechaInicio(mantenimiento.getFechaMantenimiento() != null
-					? mantenimiento.getFechaMantenimiento()
-					: LocalDate.now());
-
-			List<CustodiasResponseDTO> lista = List.of(custodia);
-			byte[] pdfBytes = custodiasPdfService.generarMantenimientoPdfBytes(
-					lista,
-					mantenimiento.getFechaMantenimiento(),
-					mantenimiento.getDetalleMantenimiento(),
-					imagenes != null ? Arrays.asList(imagenes) : List.of());
-
-			String nombreCustodio = (custodio != null && custodio.getNombre() != null && !custodio.getNombre().isBlank())
-					? custodio.getNombre()
-					: "Custodio";
-			String numActa = String.format("%09d", mantenimiento.getCustodioId());
-
-			correoServicio.enviarInformeMantenimientoConPdf(
-					mantenimiento.getCorreoCliente(),
-					nombreCustodio,
-					numActa,
-					pdfBytes,
-					mantenimiento.getFechaMantenimiento(),
-					mantenimiento.getTipoMantenimiento(),
-					mantenimiento.getDetalleMantenimiento());
-			enviado = true;
-		} catch (Exception e) {
-			log.warn("No se pudo generar/enviar el PDF de acta para mantenimiento: {}", e.getMessage(), e);
-		}
-
-		if (enviado) {
-			redirectAttributes.addFlashAttribute("exito",
-					"Mantenimiento registrado e informe enviado a " + mantenimiento.getCorreoCliente());
-		} else {
-			redirectAttributes.addFlashAttribute("error",
-					"Mantenimiento registrado, pero no se pudo enviar el informe.");
-		}
-
-		return "redirect:/equipos/mantenimiento";
 	}
 
 	private void cargarCombos(Model model, int idMarcaSel, int idCatSel) {

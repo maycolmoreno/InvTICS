@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/network/api_client.dart';
 import '../../../shared/widgets/cresio_scaffold.dart';
 import '../../../shared/widgets/status_banner.dart';
+import '../../auth/data/auth_models.dart';
 import '../../auth/presentation/auth_provider.dart';
 import '../../configuracion/presentation/settings_screen.dart';
 import '../../equipos/presentation/equipos_screen.dart';
 import '../../mantenimientos/presentation/mantenimientos_screen.dart';
 import '../../notificaciones/presentation/notificaciones_screen.dart';
-import '../../tickets/presentation/tickets_screen.dart';
+import '../../ubicaciones/presentation/ubicaciones_screen.dart';
+import '../../visitas/presentation/visitas_screen.dart';
 import 'dashboard_provider.dart';
 
 class DashboardShell extends StatefulWidget {
@@ -24,79 +27,135 @@ class _DashboardShellState extends State<DashboardShell> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => DashboardProvider(),
+      create: (context) => DashboardProvider(context.read<ApiClient>()),
       child: Consumer<DashboardProvider>(
         builder: (context, dashboard, _) {
-          final pages = [
-            _HomeTab(
-              pendingOffline: dashboard.pendingOffline,
-              offline: dashboard.offline,
+          final auth = context.watch<AuthProvider>();
+          final tabs = <_ShellTab>[
+            _ShellTab(
+              title: 'CRESIO Mobile',
+              destination: const NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                label: 'Inicio',
+              ),
+              page: _HomeTab(
+                pendingNotifications: dashboard.pendingNotifications,
+                openMantenimientos: dashboard.openMantenimientos,
+                activeEquipos: dashboard.activeEquipos,
+                recentMantenimientos: dashboard.recentMantenimientos,
+                pendingOffline: dashboard.pendingOffline,
+                offline: dashboard.offline,
+              ),
             ),
-            const MantenimientosScreen(),
-            const TicketsScreen(),
-            const EquiposScreen(),
-            const _MoreTab(),
           ];
+          if (auth.hasCapability(UserCapability.viewMantenimientos)) {
+            tabs.add(
+              const _ShellTab(
+                title: 'Mantenimientos',
+                destination: NavigationDestination(
+                  icon: Icon(Icons.build_outlined),
+                  label: 'Mantenimientos',
+                ),
+                page: MantenimientosScreen(),
+              ),
+            );
+          }
+          if (auth.hasCapability(UserCapability.viewVisitas)) {
+            tabs.add(
+              _ShellTab(
+                title: 'Visita tecnica',
+                destination: NavigationDestination(
+                  icon: Badge(
+                    isLabelVisible: dashboard.pendingNotifications > 0,
+                    label: Text('${dashboard.pendingNotifications}'),
+                    child: const Icon(Icons.assignment_outlined),
+                  ),
+                  label: 'Visitas',
+                ),
+                page: const VisitasScreen(),
+              ),
+            );
+          }
+          if (auth.hasCapability(UserCapability.viewEquipos)) {
+            tabs.add(
+              const _ShellTab(
+                title: 'Equipos',
+                destination: NavigationDestination(
+                  icon: Icon(Icons.computer_outlined),
+                  label: 'Equipos',
+                ),
+                page: EquiposScreen(),
+              ),
+            );
+          }
+          tabs.add(
+            const _ShellTab(
+              title: 'Mas opciones',
+              destination: NavigationDestination(
+                icon: Icon(Icons.more_horiz),
+                label: 'Mas',
+              ),
+              page: _MoreTab(),
+            ),
+          );
+          final currentIndex = _index >= tabs.length ? tabs.length - 1 : _index;
 
           return CresioScaffold(
-            title: _titleForIndex(_index),
+            title: tabs[currentIndex].title,
             bottomNavigationBar: NavigationBar(
-              selectedIndex: _index,
+              selectedIndex: currentIndex,
               onDestinationSelected: (value) => setState(() => _index = value),
-              destinations: [
-                const NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Inicio'),
-                const NavigationDestination(icon: Icon(Icons.build_outlined), label: 'Mantenimientos'),
-                NavigationDestination(
-                  icon: Badge(
-                    isLabelVisible: dashboard.pendingOffline > 0,
-                    label: Text('${dashboard.pendingOffline}'),
-                    child: const Icon(Icons.confirmation_num_outlined),
-                  ),
-                  label: 'Tickets',
-                ),
-                const NavigationDestination(icon: Icon(Icons.computer_outlined), label: 'Equipos'),
-                const NavigationDestination(icon: Icon(Icons.more_horiz), label: 'Mas'),
-              ],
+              destinations: tabs.map((tab) => tab.destination).toList(),
             ),
-            floatingActionButton: _index == 0
+            floatingActionButton: currentIndex == 0 &&
+                    auth.hasCapability(UserCapability.createMantenimiento)
                 ? FloatingActionButton.extended(
-                    onPressed: () => setState(() => _index = 1),
+                    onPressed: () => setState(
+                      () => _index = tabs.indexWhere(
+                        (tab) => tab.title == 'Mantenimientos',
+                      ),
+                    ),
                     icon: const Icon(Icons.add),
                     label: const Text('+Mantenimiento'),
                   )
                 : null,
             child: RefreshIndicator(
               onRefresh: dashboard.refresh,
-              child: pages[_index],
+              child: tabs[currentIndex].page,
             ),
           );
         },
       ),
     );
   }
+}
 
-  String _titleForIndex(int index) {
-    switch (index) {
-      case 1:
-        return 'Mantenimientos';
-      case 2:
-        return 'Tickets';
-      case 3:
-        return 'Equipos';
-      case 4:
-        return 'Mas opciones';
-      default:
-        return 'CRESIO Mobile';
-    }
-  }
+class _ShellTab {
+  const _ShellTab({
+    required this.title,
+    required this.destination,
+    required this.page,
+  });
+
+  final String title;
+  final NavigationDestination destination;
+  final Widget page;
 }
 
 class _HomeTab extends StatelessWidget {
   const _HomeTab({
+    required this.pendingNotifications,
+    required this.openMantenimientos,
+    required this.activeEquipos,
+    required this.recentMantenimientos,
     required this.pendingOffline,
     required this.offline,
   });
 
+  final int pendingNotifications;
+  final int openMantenimientos;
+  final int activeEquipos;
+  final List<Map<String, dynamic>> recentMantenimientos;
   final int pendingOffline;
   final bool offline;
 
@@ -117,26 +176,42 @@ class _HomeTab extends StatelessWidget {
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: const [
-            _SummaryCard(title: 'Visitas hoy', value: '0'),
-            _SummaryCard(title: 'Tickets asignados', value: '0'),
-            _SummaryCard(title: 'Pend. firma', value: '0'),
+          children: [
+            _SummaryCard(title: 'Mantenimientos abiertos', value: '$openMantenimientos'),
+            _SummaryCard(title: 'Equipos activos', value: '$activeEquipos'),
+            _SummaryCard(title: 'Notificaciones', value: '$pendingNotifications'),
           ],
         ),
         const SizedBox(height: 12),
         _SummaryCard(title: 'Pendientes offline', value: '$pendingOffline', fullWidth: true),
         const SizedBox(height: 20),
         const Text(
-          'Visitas programadas para hoy',
+          'Actividad reciente',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
-        const Card(
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('No hay visitas cargadas todavia.'),
+        if (recentMantenimientos.isEmpty)
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('No hay actividad reciente disponible.'),
+            ),
+          )
+        else
+          ...recentMantenimientos.map(
+            (item) => Card(
+              child: ListTile(
+                leading: const Icon(Icons.build_circle_outlined),
+                title: Text(_text(item['equipoCodigoSap'], fallback: 'Sin codigo')),
+                subtitle: Text(
+                  '${_text(item['equipoDescripcion'])}\n'
+                  'Estado: ${_text(item['estadoInterno'])}',
+                ),
+                isThreeLine: true,
+                trailing: Text(_text(item['fechaMantenimiento'], fallback: '-')),
+              ),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -184,18 +259,40 @@ class _MoreTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        ListTile(
-          leading: const Icon(Icons.notifications_outlined),
-          title: const Text('Notificaciones'),
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const NotificacionesScreen()),
-            );
-          },
-        ),
+        if (auth.hasCapability(UserCapability.viewVisitas))
+          ListTile(
+            leading: const Icon(Icons.assignment_outlined),
+            title: const Text('Visita tecnica'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const VisitasScreen()),
+              );
+            },
+          ),
+        if (auth.hasCapability(UserCapability.viewNotificaciones))
+          ListTile(
+            leading: const Icon(Icons.notifications_outlined),
+            title: const Text('Notificaciones'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const NotificacionesScreen()),
+              );
+            },
+          ),
+        if (auth.hasCapability(UserCapability.manageUbicaciones))
+          ListTile(
+            leading: const Icon(Icons.location_city_outlined),
+            title: const Text('Ubicaciones'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const UbicacionesScreen()),
+              );
+            },
+          ),
         ListTile(
           leading: const Icon(Icons.settings_outlined),
           title: const Text('Ajustes'),
@@ -213,4 +310,9 @@ class _MoreTab extends StatelessWidget {
       ],
     );
   }
+}
+
+String _text(dynamic value, {String fallback = '-'}) {
+  final text = value?.toString().trim() ?? '';
+  return text.isEmpty ? fallback : text;
 }

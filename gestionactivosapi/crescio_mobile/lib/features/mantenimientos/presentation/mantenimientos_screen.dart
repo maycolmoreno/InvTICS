@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../auth/data/auth_models.dart';
+import '../../auth/presentation/auth_provider.dart';
+import '../data/mantenimientos_repository.dart';
+import 'mantenimiento_detail_screen.dart';
+import 'mantenimiento_form_screen.dart';
 
 class MantenimientosScreen extends StatefulWidget {
   const MantenimientosScreen({super.key});
@@ -21,11 +26,7 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _loadMantenimientos() async {
-    final apiClient = context.read<ApiClient>();
-    final data = await apiClient.get('/mantenimiento');
-    final items = (data as List)
-        .map((item) => Map<String, dynamic>.from(item as Map))
-        .toList();
+    final items = await MantenimientosRepository(context.read<ApiClient>()).listar();
     if (_estado == 'todos') {
       return items;
     }
@@ -42,22 +43,44 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final canCreate = auth.hasCapability(UserCapability.createMantenimiento);
     return Column(
       children: [
-        DropdownButtonFormField<String>(
-          initialValue: _estado,
-          items: const [
-            DropdownMenuItem(value: 'todos', child: Text('Todos')),
-            DropdownMenuItem(value: 'EN_PROCESO', child: Text('En proceso')),
-            DropdownMenuItem(value: 'CERRADO', child: Text('Cerrado')),
-            DropdownMenuItem(value: 'PENDIENTE', child: Text('Pendiente')),
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                initialValue: _estado,
+                items: const [
+                  DropdownMenuItem(value: 'todos', child: Text('Todos')),
+                  DropdownMenuItem(value: 'EN_PROCESO', child: Text('En proceso')),
+                  DropdownMenuItem(value: 'CERRADO', child: Text('Cerrado')),
+                  DropdownMenuItem(value: 'PENDIENTE', child: Text('Pendiente')),
+                ],
+                onChanged: (value) {
+                  if (value == null) return;
+                  _estado = value;
+                  _reload();
+                },
+                decoration: const InputDecoration(labelText: 'Estado'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            if (canCreate)
+              FilledButton.icon(
+                onPressed: () async {
+                  final created = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(builder: (_) => const MantenimientoFormScreen()),
+                  );
+                  if (created == true) {
+                    await _reload();
+                  }
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Nuevo'),
+              ),
           ],
-          onChanged: (value) {
-            if (value == null) return;
-            _estado = value;
-            _reload();
-          },
-          decoration: const InputDecoration(labelText: 'Estado'),
         ),
         const SizedBox(height: 16),
         Expanded(
@@ -92,11 +115,25 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
                 child: ListView.separated(
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: items.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final item = items[index];
                     return Card(
                       child: ListTile(
+                        onTap: () {
+                          final mantenimientoId =
+                              _asInt(item['idMantenimiento']) ?? _asInt(item['id']);
+                          if (mantenimientoId == null) {
+                            return;
+                          }
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => MantenimientoDetailScreen(
+                                mantenimientoId: mantenimientoId,
+                              ),
+                            ),
+                          );
+                        },
                         leading: const Icon(Icons.build_outlined),
                         title: Text(_text(item['equipoCodigoSap'], fallback: 'Sin codigo')),
                         subtitle: Text(
@@ -149,4 +186,14 @@ class _ErrorState extends StatelessWidget {
 String _text(dynamic value, {String fallback = '-'}) {
   final text = value?.toString().trim() ?? '';
   return text.isEmpty ? fallback : text;
+}
+
+int? _asInt(dynamic value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is num) {
+    return value.toInt();
+  }
+  return int.tryParse(value?.toString() ?? '');
 }

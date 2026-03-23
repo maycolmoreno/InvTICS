@@ -30,7 +30,6 @@ Future<void> main() async {
   );
   authProvider = AuthProvider(
     repository: AuthRepository(
-      apiClient: apiClient,
       secureStorage: secureStorage,
     ),
   );

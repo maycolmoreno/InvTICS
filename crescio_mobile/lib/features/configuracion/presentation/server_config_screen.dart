@@ -55,7 +55,7 @@ class _ServerConfigScreenState extends State<ServerConfigScreen> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 labelText: 'IP del servidor',
-                hintText: '192.168.1.100',
+                hintText: '192.168.1.23',
               ),
             ),
             const SizedBox(height: 16),

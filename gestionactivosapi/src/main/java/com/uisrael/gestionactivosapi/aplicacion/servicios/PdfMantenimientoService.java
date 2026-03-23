@@ -1,4 +1,4 @@
-package com.uisrael.consumogestionactivosapi.service;
+package com.uisrael.gestionactivosapi.aplicacion.servicios;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.Normalizer;
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 
@@ -27,10 +29,10 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfWriter;
-import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
-import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
-import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoManualResponseDTO;
-import com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponseDTO;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiosJpa;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.EquiposJpa;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.UsuariosJpa;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.MantenimientoManualResponseDTO;
 
 @Service
 public class PdfMantenimientoService {
@@ -45,8 +47,8 @@ public class PdfMantenimientoService {
     private static final float FOTO_ANCHO = 8f * 28.3465f;
     private static final float FOTO_ALTO = 6f * 28.3465f;
 
-    public byte[] generarInforme(MantenimientoManualResponseDTO mantenimiento, EquiposResponseDTO equipo,
-            CustodiosResponseDTO custodio, UsuariosResponseDTO tecnico, List<Path> imagenes) {
+    public byte[] generarInforme(MantenimientoManualResponseDTO mantenimiento, EquiposJpa equipo,
+            CustodiosJpa custodio, UsuariosJpa tecnico, List<Path> imagenes) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Document doc = new Document(PageSize.A4, 45, 45, 80, 60);
             PdfWriter writer = PdfWriter.getInstance(doc, out);
@@ -76,13 +78,11 @@ public class PdfMantenimientoService {
         codigo.setAlignment(Element.ALIGN_CENTER);
         codigo.setSpacingAfter(8f);
         doc.add(codigo);
-
         doc.add(separador());
     }
 
     private void escribirTipoMantenimiento(Document doc, MantenimientoManualResponseDTO mantenimiento) throws Exception {
-        Paragraph label = new Paragraph(" Tipo de mantenimiento", SUBTITLE);
-        doc.add(label);
+        doc.add(new Paragraph(" Tipo de mantenimiento", SUBTITLE));
 
         Paragraph nota = new Paragraph("(Marcar con una X la opcion requerida)", ITALIC);
         nota.setSpacingAfter(4f);
@@ -99,14 +99,12 @@ public class PdfMantenimientoService {
         tipo.addCell(tipoCell((correctivo ? "[X]" : "[ ]") + "      Correctivo", false));
         tipo.setSpacingAfter(8f);
         doc.add(tipo);
-
         doc.add(separador());
     }
 
-    private void escribirDetalleActivo(Document doc, MantenimientoManualResponseDTO mantenimiento, EquiposResponseDTO equipo)
+    private void escribirDetalleActivo(Document doc, MantenimientoManualResponseDTO mantenimiento, EquiposJpa equipo)
             throws Exception {
-        Paragraph detalleHeader = new Paragraph(" Detalle del activo", SUBTITLE);
-        doc.add(detalleHeader);
+        doc.add(new Paragraph(" Detalle del activo", SUBTITLE));
 
         Paragraph detalleSub = new Paragraph("A continuacion, se listan los bienes intervenidos.", ITALIC);
         detalleSub.setSpacingAfter(5f);
@@ -131,7 +129,7 @@ public class PdfMantenimientoService {
         table.addCell(tableCell("1206.001"));
         table.addCell(tableCell("ACTIVO FIJO"));
         table.addCell(tableCell(descripcionEquipo(mantenimiento, equipo)));
-        table.addCell(tableCell(marcaEquipo(equipo)));
+        table.addCell(tableCell(valor(equipo != null && equipo.getFkMarcas() != null ? equipo.getFkMarcas().getNombre() : null)));
         table.addCell(tableCell(valor(equipo != null ? equipo.getSerial() : null)));
         table.addCell(tableCell(valor(equipo != null ? equipo.getModelo() : null)));
         table.addCell(tableCell(valor(equipo != null ? equipo.getEstadoEquipo() : mantenimiento.getEstadoGeneral())));
@@ -154,20 +152,12 @@ public class PdfMantenimientoService {
 
         resumen.addCell(tipoCell("Estado general", true));
         resumen.addCell(tipoCell(valor(mantenimiento.getEstadoGeneral()), false));
-
         resumen.addCell(tipoCell("Detalle tecnico", true));
         resumen.addCell(tipoCell(valor(mantenimiento.getDetalle()), false));
-
         resumen.addCell(tipoCell("Fecha mantenimiento", true));
-        resumen.addCell(tipoCell(
-                mantenimiento.getFechaMantenimiento() != null ? mantenimiento.getFechaMantenimiento().toString() : "-",
-                false));
-
+        resumen.addCell(tipoCell(mantenimiento.getFechaMantenimiento() != null ? mantenimiento.getFechaMantenimiento().toString() : "-", false));
         resumen.addCell(tipoCell("Proxima fecha", true));
-        resumen.addCell(tipoCell(
-                mantenimiento.getProximaFecha() != null ? mantenimiento.getProximaFecha().toString() : "No definida",
-                false));
-
+        resumen.addCell(tipoCell(mantenimiento.getProximaFecha() != null ? mantenimiento.getProximaFecha().toString() : "No definida", false));
         resumen.addCell(tipoCell("Evidencias adjuntas", true));
         resumen.addCell(tipoCell(String.valueOf(contarEvidenciasValidas(imagenes)), false));
 
@@ -221,9 +211,8 @@ public class PdfMantenimientoService {
         }
     }
 
-    private void escribirFirmas(Document doc, MantenimientoManualResponseDTO mantenimiento, CustodiosResponseDTO custodio,
-            UsuariosResponseDTO tecnico)
-            throws Exception {
+    private void escribirFirmas(Document doc, MantenimientoManualResponseDTO mantenimiento, CustodiosJpa custodio,
+            UsuariosJpa tecnico) throws Exception {
         Paragraph cierre = new Paragraph("Para constancia de lo antes mencionado firman la presente:", NORMAL);
         cierre.setSpacingBefore(8f);
         cierre.setSpacingAfter(8f);
@@ -239,23 +228,23 @@ public class PdfMantenimientoService {
                 valor(tecnico != null ? tecnico.getCedula() : null),
                 "Asistente de Soporte Tecnico",
                 valor(tecnico != null && tecnico.getFkDepartamento() != null ? tecnico.getFkDepartamento().getNombre() : null),
-                mantenimiento.getFirmaTecnico()
-        ));
+                mantenimiento.getFirmaTecnico()));
         firmas.addCell(firmaInfo(
                 "Custodio Asignado",
                 valor(mantenimiento.getCustodioNombre()),
                 valor(custodio != null ? custodio.getCedula() : null),
                 valor(custodio != null && custodio.getFkCargo() != null ? custodio.getFkCargo().getNombre() : null),
-                valor(custodio != null && custodio.getFkDepartamento() != null ? custodio.getFkDepartamento().getNombre() : null),
-                mantenimiento.getFirmaCustodio()
-        ));
+                valor(custodio != null && custodio.getFkCargo() != null && custodio.getFkCargo().getFkDepartamento() != null
+                        ? custodio.getFkCargo().getFkDepartamento().getNombre()
+                        : null),
+                mantenimiento.getFirmaCustodio()));
 
         firmas.setSpacingAfter(6f);
         doc.add(firmas);
     }
 
-    private PdfPCell firmaInfo(String titulo, String nombre, String cedula, String cargo, String departamento, String firmaBase64)
-            throws Exception {
+    private PdfPCell firmaInfo(String titulo, String nombre, String cedula, String cargo, String departamento,
+            String firmaBase64) throws Exception {
         Paragraph p = new Paragraph();
         p.add(new Phrase(titulo + ":\n", SUBTITLE));
         p.add(new Phrase("Nombre: " + nombre + "\n", NORMAL));
@@ -299,10 +288,11 @@ public class PdfMantenimientoService {
     }
 
     private Image firmaDesdeBase64(String base64) throws Exception {
-        if (base64 == null || !base64.contains(",")) {
+        String limpia = limpiarBase64(base64);
+        if (limpia.isBlank()) {
             return null;
         }
-        byte[] data = java.util.Base64.getDecoder().decode(base64.substring(base64.indexOf(',') + 1));
+        byte[] data = Base64.getDecoder().decode(limpia);
         return Image.getInstance(data);
     }
 
@@ -333,9 +323,7 @@ public class PdfMantenimientoService {
     }
 
     private Paragraph separador() {
-        Paragraph p = new Paragraph(
-                "",
-                new Font(Font.TIMES_ROMAN, 8));
+        Paragraph p = new Paragraph("", new Font(Font.TIMES_ROMAN, 8));
         p.setSpacingAfter(6f);
         return p;
     }
@@ -362,10 +350,10 @@ public class PdfMantenimientoService {
     private String codigoInforme(MantenimientoManualResponseDTO mantenimiento) {
         String consecutivo = mantenimiento.getIdMantenimiento() == null ? "000"
                 : String.format("%03d", mantenimiento.getIdMantenimiento());
-        return "SIS-RPT-" + consecutivo + "-" + LocalDate.now().getYear() ;
+        return "SIS-RPT-" + consecutivo + "-" + LocalDate.now().getYear();
     }
 
-    private String descripcionEquipo(MantenimientoManualResponseDTO mantenimiento, EquiposResponseDTO equipo) {
+    private String descripcionEquipo(MantenimientoManualResponseDTO mantenimiento, EquiposJpa equipo) {
         if (equipo != null) {
             String tipo = valor(equipo.getTipoEquipo());
             String modelo = valor(equipo.getModelo());
@@ -382,13 +370,6 @@ public class PdfMantenimientoService {
         return valor(mantenimiento.getEquipoDescripcion());
     }
 
-    private String marcaEquipo(EquiposResponseDTO equipo) {
-        if (equipo == null || equipo.getFkMarca() == null) {
-            return "N/A";
-        }
-        return valor(equipo.getFkMarca().getNombre());
-    }
-
     private String valor(String valor) {
         return valor == null || valor.isBlank() ? "-" : valor;
     }
@@ -397,12 +378,11 @@ public class PdfMantenimientoService {
         if (tipoMantenimiento == null || tipoMantenimiento.isBlank()) {
             return "";
         }
-        String normalizado = java.text.Normalizer.normalize(tipoMantenimiento.trim(), java.text.Normalizer.Form.NFD)
+        String normalizado = Normalizer.normalize(tipoMantenimiento.trim(), Normalizer.Form.NFD)
                 .replaceAll("\\p{M}+", "")
                 .replace('-', '_')
                 .replace(' ', '_')
                 .toUpperCase(Locale.ROOT);
-
         if (normalizado.contains("CORRECT")) {
             return "CORRECTIVO";
         }
@@ -431,8 +411,15 @@ public class PdfMantenimientoService {
             byte[] imageBytes = in.readAllBytes();
             writer.setPageEvent(new BackgroundImageEvent(imageBytes));
         } catch (Exception ignored) {
-            // Si no existe la imagen, el PDF sigue generandose sin fondo.
         }
+    }
+
+    private String limpiarBase64(String base64) {
+        if (base64 == null || base64.isBlank()) {
+            return "";
+        }
+        int comma = base64.indexOf(',');
+        return comma >= 0 ? base64.substring(comma + 1).trim() : base64.trim();
     }
 
     private static class BackgroundImageEvent extends PdfPageEventHelper {

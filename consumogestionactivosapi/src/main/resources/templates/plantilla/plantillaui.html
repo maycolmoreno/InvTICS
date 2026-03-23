@@ -151,7 +151,7 @@
 			<div class="sidebar-footer">
 				<a th:href="@{/mantenimiento/nuevo}" class="sidebar-cta" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
 					<i class="feather-plus"></i>
-					<span>Programar mantenimiento</span>
+					<span>Nuevo mantenimiento</span>
 				</a>
 				<div class="sidebar-utility-links">
 					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}" th:href="@{/roles}" class="sidebar-utility-link">
