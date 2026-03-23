@@ -13,7 +13,6 @@
       <div class="operations-hero-copy">
         <div class="eyebrow">Registro Manual</div>
         <h1>Crear ticket tecnico</h1>
-        <h2>Registra la referencia de Odoo manualmente o crea un caso interno local para mantener trazabilidad completa antes del mantenimiento.</h2>
       </div>
       <div class="operations-hero-actions">
         <a th:href="@{/tickets}" class="btn btn-light px-4 py-3">
@@ -28,10 +27,6 @@
     </div>
 
     <section class="surface-card page-panel admin-form-card">
-      <div class="helper-callout mb-4">
-        <strong>Flujo recomendado:</strong> si el caso viene de Odoo, selecciona <code>ODOO_HELPDESK</code> y registra el numero manualmente. Si nace dentro de CRESIO, usa <code>MANUAL</code>.
-      </div>
-
       <form th:action="@{/tickets}" th:object="${ticket}" method="post" class="row g-4">
         <div class="col-12 col-lg-8">
           <label class="filter-label">Titulo</label>
@@ -67,7 +62,7 @@
 
         <div class="col-12">
           <label class="filter-label">Descripcion</label>
-          <textarea class="form-control" th:field="*{descripcion}" rows="5" placeholder="Describe el problema, contexto, impacto y observaciones tecnicas iniciales."></textarea>
+          <textarea class="form-control" th:field="*{descripcion}" rows="5" placeholder="Describe el problema"></textarea>
         </div>
 
         <div class="col-12 col-lg-4">

@@ -22,6 +22,7 @@ public class MantenimientoManualResponseDTO {
     private String tipoMantenimiento;
     private LocalDate fechaMantenimiento;
     private String detalle;
+    private String descripcionTrabajoRealizado;
     private String estadoGeneral;
     private LocalDate proximaFecha;
     private String firmaTecnico;

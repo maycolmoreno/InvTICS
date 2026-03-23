@@ -13,7 +13,6 @@
       <div class="operations-hero-copy">
         <div class="eyebrow">Catalogo Tecnico</div>
         <h1>Marcas de activos</h1>
-        <h2>Centraliza fabricantes y nomenclaturas para mantener consistencia en equipos, reportes y filtros de inventario.</h2>
       </div>
       <div class="operations-hero-actions">
         <a th:href="@{/marcas/nuevaMarcas}" class="btn btn-primary px-4 py-3">
@@ -26,25 +25,19 @@
       <article class="admin-summary-card">
         <div class="admin-summary-label">Total marcas</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarmarcas)}">0</div>
-        <div class="admin-summary-copy">Fabricantes registrados para clasificar los equipos del inventario.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Activas</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarmarcas.?[estado])}">0</div>
-        <div class="admin-summary-copy">Marcas disponibles para nuevos equipos y registros manuales.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Inactivas</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarmarcas.?[!estado])}">0</div>
-        <div class="admin-summary-copy">Nombres retirados que permanecen solo por trazabilidad historica.</div>
       </article>
     </section>
 
     <section class="surface-card page-panel">
       <div class="management-toolbar mb-4">
-        <div class="management-toolbar-copy">
-          Unificar las marcas evita registros duplicados y mejora la calidad de analitica, importaciones y filtros de busqueda.
-        </div>
       </div>
 
       <div class="table-shell">
@@ -63,7 +56,6 @@
               <td><strong th:text="${marca.idMarca}">1</strong></td>
               <td>
                 <div class="fw-semibold" th:text="${marca.nombre}">Dell</div>
-                <div class="text-muted small">Referencia base para clasificacion de equipos.</div>
               </td>
               <td><span th:class="${marca.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}" th:text="${marca.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
               <td>
@@ -84,7 +76,6 @@
                 <div class="table-empty-state">
                   <i class="feather-tag"></i>
                   <div class="fw-semibold">No hay marcas registradas</div>
-                  <div>Agrega la primera marca para mejorar la calidad del catalogo de equipos.</div>
                 </div>
               </td>
             </tr>

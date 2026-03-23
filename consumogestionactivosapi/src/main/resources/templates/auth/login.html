@@ -18,42 +18,15 @@
     <div class="auth-container">
         <div class="auth-card login-card login-card-pro">
             <div class="auth-showcase">
-                <div class="auth-showcase-badge">
-                    <i class="feather-shield"></i>
-                    <span>Plataforma corporativa</span>
-                </div>
                 <div class="auth-brand auth-brand-left">
                     <div class="auth-brand-name">CRESIO</div>
-                    <div class="auth-brand-sub">Gestion de Activos</div>
                 </div>
-                <h1 class="auth-hero-title">Operacion, custodias y mantenimiento en un solo entorno.</h1>
-                <p class="auth-hero-copy">
-                    Accede al centro de control para inventario tecnologico, soporte tecnico y seguimiento operativo
-                    con una experiencia clara, moderna y lista para trabajo empresarial.
-                </p>
-                <div class="auth-feature-list">
-                    <div class="auth-feature-item">
-                        <i class="feather-box"></i>
-                        <span>Trazabilidad de activos y custodias</span>
-                    </div>
-                    <div class="auth-feature-item">
-                        <i class="feather-tool"></i>
-                        <span>Gestion formal de mantenimientos</span>
-                    </div>
-                    <div class="auth-feature-item">
-                        <i class="feather-bar-chart-2"></i>
-                        <span>Monitoreo operativo con enfoque ejecutivo</span>
-                    </div>
-                </div>
+                <h1 class="auth-hero-title">CRESIO</h1>
             </div>
 
             <div class="auth-form-panel">
                 <div class="auth-panel-top">
-                    <div class="auth-mini-label">Acceso seguro</div>
                     <h2 class="auth-title">Iniciar sesion</h2>
-                    <p class="auth-subtitle">
-                        Usa tus credenciales para entrar al panel operativo de CRESIO.
-                    </p>
                 </div>
 
                 <div th:if="${exito}" class="alert alert-success" role="alert">
@@ -68,15 +41,15 @@
 
                 <form th:action="@{/login}" method="post">
                     <div class="mb-3">
-                        <label for="correo" class="form-label">Correo electronico</label>
+                        <label for="correo" class="form-label">Correo</label>
                         <input type="email" class="form-control" id="correo" name="correo"
                                placeholder="usuario@cresio.com" required autofocus>
                     </div>
 
                     <div class="mb-3">
-                        <label for="contrasena" class="form-label">Contrasena</label>
+                        <label for="contrasena" class="form-label">Clave</label>
                         <input type="password" class="form-control" id="contrasena" name="contrasena"
-                               placeholder="Ingresa tu contrasena" required>
+                               placeholder="Tu clave" required>
                     </div>
 
                     <button type="submit" class="btn btn-auth">

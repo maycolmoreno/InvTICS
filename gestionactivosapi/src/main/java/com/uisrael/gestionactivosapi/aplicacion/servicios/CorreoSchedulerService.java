@@ -22,10 +22,10 @@ public class CorreoSchedulerService {
         }
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setTo(programado.getFkTecnicoAsignado().getCorreo());
-        msg.setSubject("Mantenimiento pendiente: " + (programado.getFkEquipo() != null ? programado.getFkEquipo().getCodigoSap() : ""));
-        msg.setText("Tienes un mantenimiento pendiente para el equipo "
+        msg.setSubject("Mantenimiento pendiente");
+        msg.setText("Equipo: "
                 + (programado.getFkEquipo() != null ? programado.getFkEquipo().getCodigoSap() : programado.getEquipoId())
-                + ".\nAccion: /mantenimiento/nuevo?equipoId=" + programado.getEquipoId());
+                + "\nAbrir: /mantenimiento/nuevo?equipoId=" + programado.getEquipoId());
         mailSender.send(msg);
     }
 }

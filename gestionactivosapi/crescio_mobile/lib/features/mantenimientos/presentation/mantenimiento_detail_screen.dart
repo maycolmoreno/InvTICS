@@ -21,7 +21,8 @@ class MantenimientoDetailScreen extends StatefulWidget {
   final int mantenimientoId;
 
   @override
-  State<MantenimientoDetailScreen> createState() => _MantenimientoDetailScreenState();
+  State<MantenimientoDetailScreen> createState() =>
+      _MantenimientoDetailScreenState();
 }
 
 class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
@@ -61,7 +62,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
     setState(() => _closing = true);
     try {
       final queuedOffline =
-          await MantenimientosRepository(context.read<ApiClient>()).cerrarConFallback(
+          await MantenimientosRepository(context.read<ApiClient>())
+              .cerrarConFallback(
         mantenimientoId: widget.mantenimientoId,
         observaciones: observaciones,
       );
@@ -92,7 +94,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No fue posible cerrar el mantenimiento.')),
+        const SnackBar(
+            content: Text('No fue posible cerrar el mantenimiento.')),
       );
     } finally {
       if (mounted) {
@@ -126,22 +129,29 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
   Future<void> _descargarPdf() async {
     setState(() => _downloadingPdf = true);
     try {
-      final bytes = await MantenimientosRepository(context.read<ApiClient>()).descargarPdf(
+      final bytes = await MantenimientosRepository(context.read<ApiClient>())
+          .descargarPdf(
         mantenimientoId: widget.mantenimientoId,
       );
-      final directory = await getTemporaryDirectory();
-      final file = File('${directory.path}/mantenimiento_${widget.mantenimientoId}.pdf');
+      final directory = await getApplicationDocumentsDirectory();
+      final pdfDirectory = Directory('${directory.path}/pdf');
+      if (!await pdfDirectory.exists()) {
+        await pdfDirectory.create(recursive: true);
+      }
+      final file = File(
+          '${pdfDirectory.path}/mantenimiento_${widget.mantenimientoId}.pdf');
       await file.writeAsBytes(bytes, flush: true);
+      if (!mounted) return;
       final result = await OpenFilex.open(file.path, type: 'application/pdf');
       if (!mounted) return;
+      final message = switch (result.type) {
+        ResultType.done => 'PDF descargado y abierto correctamente.',
+        ResultType.noAppToOpen =>
+          'PDF guardado en ${file.path}. Instala un visor PDF para abrirlo.',
+        _ => 'PDF guardado en ${file.path}.',
+      };
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            result.type == ResultType.done
-                ? 'PDF descargado y abierto correctamente.'
-                : 'PDF descargado en ${file.path}',
-          ),
-        ),
+        SnackBar(content: Text(message)),
       );
     } catch (_) {
       if (!mounted) return;
@@ -158,10 +168,10 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final canClose = context.watch<AuthProvider>().hasCapability(
-      UserCapability.closeMantenimiento,
-    );
+          UserCapability.closeMantenimiento,
+        );
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalle del mantenimiento')),
+      appBar: AppBar(title: const Text('Detalle')),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _future,
         builder: (context, snapshot) {
@@ -177,7 +187,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
 
           final item = snapshot.data ?? const {};
           _lastLoadedItem = Map<String, dynamic>.from(item);
-          final cerrado = _text(item['estadoInterno']).toUpperCase() == 'CERRADO';
+          final cerrado =
+              _text(item['estadoInterno']).toUpperCase() == 'CERRADO';
 
           return RefreshIndicator(
             onRefresh: _reload,
@@ -192,7 +203,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _text(item['equipoCodigoSap'], fallback: 'Sin codigo'),
+                          _text(item['equipoCodigoSap'],
+                              fallback: 'Sin codigo'),
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 12),
@@ -202,8 +214,16 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                         _line('Fecha', item['fechaMantenimiento']),
                         _line('SINE', item['sineSnapshoted']),
                         _line('Ticket', item['ticketId']),
-                        _line('Descripcion', item['descripcion']),
-                        _line('Trabajo realizado', item['descripcionTrabajoRealizado']),
+                        _line(
+                          'Detalle',
+                          item['detalle'],
+                          maxLines: 2,
+                        ),
+                        _line(
+                          'Trabajo',
+                          item['descripcionTrabajoRealizado'],
+                          maxLines: 2,
+                        ),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 12,
@@ -215,10 +235,12 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                                   ? const SizedBox(
                                       height: 16,
                                       width: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
                                     )
                                   : const Icon(Icons.picture_as_pdf_outlined),
-                              label: Text(_downloadingPdf ? 'Descargando...' : 'Descargar PDF'),
+                              label:
+                                  Text(_downloadingPdf ? 'Bajando...' : 'PDF'),
                             ),
                             OutlinedButton.icon(
                               onPressed: _sendingEmail ? null : _reenviarCorreo,
@@ -226,20 +248,22 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                                   ? const SizedBox(
                                       height: 16,
                                       width: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
                                     )
                                   : const Icon(Icons.mark_email_read_outlined),
-                              label: Text(_sendingEmail ? 'Enviando...' : 'Reenviar correo'),
+                              label: Text(
+                                  _sendingEmail ? 'Enviando...' : 'Correo'),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
                         _SignaturePreview(
-                          title: 'Firma del tecnico',
+                          title: 'Firma tecnico',
                           base64Value: item['firmaTecnico'],
                         ),
                         _SignaturePreview(
-                          title: 'Firma del custodio',
+                          title: 'Firma custodio',
                           base64Value: item['firmaCustodio'],
                         ),
                       ],
@@ -253,8 +277,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                     minLines: 3,
                     maxLines: 5,
                     decoration: const InputDecoration(
-                      labelText: 'Observaciones de cierre',
-                      hintText: 'Describe el trabajo realizado por el tecnico',
+                      labelText: 'Observaciones',
+                      hintText: 'Resumen del trabajo',
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -267,20 +291,20 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.check_circle_outline),
-                    label: Text(_closing ? 'Cerrando...' : 'Cerrar mantenimiento'),
+                    label: Text(_closing ? 'Cerrando...' : 'Cerrar'),
                   ),
                 ] else if (cerrado)
                   const Card(
                     child: Padding(
                       padding: EdgeInsets.all(16),
-                      child: Text('Este mantenimiento ya fue cerrado.'),
+                      child: Text('Mantenimiento cerrado.'),
                     ),
                   )
                 else
                   const Card(
                     child: Padding(
                       padding: EdgeInsets.all(16),
-                      child: Text('Tu rol no puede cerrar mantenimientos desde la app.'),
+                      child: Text('No puedes cerrar este mantenimiento.'),
                     ),
                   ),
               ],
@@ -375,15 +399,15 @@ class _SignaturePreview extends StatelessWidget {
   }
 }
 
-Widget _line(String label, dynamic value) {
+Widget _line(String label, dynamic value, {int maxLines = 1}) {
   final text = _text(value, fallback: '');
   if (text.isEmpty) {
     return const SizedBox.shrink();
   }
   return Padding(
     padding: const EdgeInsets.only(bottom: 8),
-    child: RichText(
-      text: TextSpan(
+    child: Text.rich(
+      TextSpan(
         style: const TextStyle(color: Colors.black87),
         children: [
           TextSpan(
@@ -393,6 +417,8 @@ Widget _line(String label, dynamic value) {
           TextSpan(text: text),
         ],
       ),
+      maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
     ),
   );
 }

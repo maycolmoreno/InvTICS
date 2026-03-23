@@ -7,11 +7,7 @@
 			<div class="operations-strip">
 				<div class="operations-hero">
 					<div class="eyebrow text-white-50">Mesa tecnica</div>
-					<h2>Control central de mantenimientos y seguimiento operativo.</h2>
-					<p>
-						Consulta el historial, prioriza ordenes segun criticidad y manten visibilidad sobre tecnicos,
-						custodios y estado de ejecucion desde una sola vista.
-					</p>
+					<h2>Mantenimientos</h2>
 					<div class="operations-badges">
 						<div class="operations-badge"><i class="feather-tool"></i><span th:text="${#lists.size(listamantenimientos)} + ' ordenes'">0 ordenes</span></div>
 						<div class="operations-badge"><i class="feather-clock"></i><span th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])} + ' en proceso'">0 en proceso</span></div>
@@ -22,7 +18,6 @@
 					<div class="content-card-header mb-0">
 						<div>
 							<h2 class="content-card-title">Indicadores rapidos</h2>
-							<p class="content-card-copy">Lectura ejecutiva del comportamiento actual del soporte.</p>
 						</div>
 					</div>
 					<div class="insight-list">
@@ -30,7 +25,6 @@
 							<i class="feather-activity"></i>
 							<div>
 								<div class="signal-title">Preventivos</div>
-								<div class="signal-copy">Ordenes enfocadas en continuidad y prevencion.</div>
 							</div>
 							<div class="insight-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'PREVENTIVO'])}">0</div>
 						</div>
@@ -38,7 +32,6 @@
 							<i class="feather-alert-octagon"></i>
 							<div>
 								<div class="signal-title">Correctivos</div>
-								<div class="signal-copy">Casos reactivos con necesidad de intervencion tecnica.</div>
 							</div>
 							<div class="insight-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO'])}">0</div>
 						</div>
@@ -46,7 +39,6 @@
 							<i class="feather-users"></i>
 							<div>
 								<div class="signal-title">Tecnicos con carga</div>
-								<div class="signal-copy">Visibilidad de ejecuciones actuales y recientes.</div>
 							</div>
 							<div class="insight-value" th:text="${#lists.size(listamantenimientos.?[tecnicoNombre != null])}">0</div>
 						</div>
@@ -58,7 +50,6 @@
 				<div>
 					<div class="eyebrow">Operaciones de Mantenimiento</div>
 					<h1 class="view-title">Historial de Mantenimiento</h1>
-					<p class="view-subtitle">Seguimiento consolidado de ordenes de trabajo, tecnicos asignados y estado general de ejecucion.</p>
 				</div>
 			<div class="d-flex gap-3 flex-wrap">
 				<a th:href="@{/mantenimiento/nuevo}" class="btn btn-primary px-4 py-3">Nuevo mantenimiento</a>
@@ -97,7 +88,6 @@
 			<div class="content-card-header">
 				<div>
 					<h2 class="content-card-title">Ordenes de Mantenimiento Recientes</h2>
-					<p class="content-card-copy">Seguimiento de las actualizaciones operativas mas recientes.</p>
 				</div>
 			</div>
 			<div class="table-responsive">

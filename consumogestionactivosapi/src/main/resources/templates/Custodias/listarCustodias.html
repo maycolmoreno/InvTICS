@@ -13,10 +13,7 @@
         <div class="operations-strip">
             <div class="operations-hero">
                 <div class="eyebrow text-white-50">Control documental</div>
-                <h2>Custodias, actas y trazabilidad del responsable del activo.</h2>
-                <p>
-                    Administra asignaciones, traslados y cierres con respaldo formal, lectura rapida del estado y acceso inmediato a los documentos emitidos.
-                </p>
+                <h2>Custodias y actas</h2>
                 <div class="operations-badges">
                     <div class="operations-badge"><i class="feather-file-text"></i><span th:text="${#lists.size(actas)} + ' actas'">0 actas</span></div>
                     <div class="operations-badge"><i class="feather-user-check"></i><span th:text="${#lists.size(actas.?[activa == true])} + ' activas'">0 activas</span></div>
@@ -27,7 +24,6 @@
                 <div class="content-card-header mb-0">
                     <div>
                         <h2 class="content-card-title">Lectura ejecutiva</h2>
-                        <p class="content-card-copy">Visibilidad inmediata del estado documental del inventario asignado.</p>
                     </div>
                 </div>
                 <div class="insight-list">
@@ -35,7 +31,6 @@
                         <i class="feather-check-circle"></i>
                         <div>
                             <div class="signal-title">Custodias activas</div>
-                            <div class="signal-copy">Actas vigentes con responsable y activos asociados.</div>
                         </div>
                         <div class="insight-value" th:text="${#lists.size(actas.?[activa == true])}">0</div>
                     </div>
@@ -43,7 +38,6 @@
                         <i class="feather-repeat"></i>
                         <div>
                             <div class="signal-title">Traslados y cambios</div>
-                            <div class="signal-copy">Movimientos documentados dentro del ciclo de vida del activo.</div>
                         </div>
                         <div class="insight-value" th:text="${#lists.size(actas.?[tipoMovimiento == 'TRASLADO'])}">0</div>
                     </div>
@@ -51,7 +45,6 @@
                         <i class="feather-user"></i>
                         <div>
                             <div class="signal-title">Custodios identificados</div>
-                            <div class="signal-copy">Responsables visibles para auditoria y seguimiento.</div>
                         </div>
                         <div class="insight-value" th:text="${#lists.size(actas.?[custodio != null])}">0</div>
                     </div>
@@ -63,7 +56,6 @@
             <div>
                 <div class="eyebrow">Gestion de Custodias</div>
                 <h1 class="view-title">Actas y responsables de activos</h1>
-                <p class="view-subtitle">Consola central para consultar actas, revisar equipos asignados y mantener respaldo documental del inventario.</p>
             </div>
             <div class="d-flex gap-3 flex-wrap">
                 <a th:href="@{/custodias/nueva-custodia}" class="btn btn-primary px-4 py-3">

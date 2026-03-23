@@ -13,7 +13,6 @@
       <div class="operations-hero-copy">
         <div class="eyebrow">Clasificacion Tecnica</div>
         <h1>Categorias de equipo</h1>
-        <h2>Organiza tipos de activos para mejorar checklist, mantenimiento, reportes y busquedas operativas.</h2>
       </div>
       <div class="operations-hero-actions">
         <a th:href="@{/categorias-equipo/nueva-categoria}" class="btn btn-primary px-4 py-3">
@@ -26,17 +25,14 @@
       <article class="admin-summary-card">
         <div class="admin-summary-label">Total categorias</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarcategorias)}">0</div>
-        <div class="admin-summary-copy">Tipos de activos disponibles para clasificar el inventario.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Activas</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarcategorias.?[estado])}">0</div>
-        <div class="admin-summary-copy">Categorias habilitadas para nuevos equipos y procesos de mantenimiento.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Inactivas</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarcategorias.?[!estado])}">0</div>
-        <div class="admin-summary-copy">Categorias retiradas que se conservan por trazabilidad historica.</div>
       </article>
     </section>
 
@@ -46,11 +42,7 @@
     </div>
 
     <section class="surface-card page-panel">
-      <div class="management-toolbar mb-4">
-        <div class="management-toolbar-copy">
-          Un buen catalogo de categorias mejora desde la carga inicial de activos hasta los checklist que se ejecutan en mantenimiento.
-        </div>
-      </div>
+      <div class="management-toolbar mb-4"></div>
 
       <div class="table-shell">
         <div class="table-responsive">
@@ -68,7 +60,6 @@
               <td><strong th:text="${categoria.idCategoria}">1</strong></td>
               <td>
                 <div class="fw-semibold" th:text="${categoria.nombre}">Laptop</div>
-                <div class="text-muted small">Clasificacion base para equipos y procesos asociados.</div>
               </td>
               <td><span th:class="${categoria.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}" th:text="${categoria.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
               <td>
@@ -89,7 +80,6 @@
                 <div class="table-empty-state">
                   <i class="feather-layers"></i>
                   <div class="fw-semibold">No hay categorias registradas</div>
-                  <div>Crea la primera categoria para clasificar adecuadamente los activos.</div>
                 </div>
               </td>
             </tr>

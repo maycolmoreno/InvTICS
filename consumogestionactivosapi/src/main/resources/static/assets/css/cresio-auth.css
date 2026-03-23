@@ -140,8 +140,9 @@
     position: relative;
     padding: 48px 42px;
     background:
-        radial-gradient(circle at top right, rgba(255,255,255,0.14), transparent 26%),
-        linear-gradient(135deg, rgba(73,0,141,0.98) 0%, rgba(58,19,120,0.97) 52%, rgba(232,65,45,0.9) 100%);
+        linear-gradient(180deg, rgba(9, 14, 44, 0.18), rgba(9, 14, 44, 0.18)),
+        radial-gradient(circle at top right, rgba(255,255,255,0.12), transparent 26%),
+        linear-gradient(135deg, #35106b 0%, #24113f 45%, #8f2d3b 100%);
     color: #fff;
 }
 
@@ -180,7 +181,7 @@
 }
 
 .auth-showcase .auth-brand-sub {
-    opacity: .68;
+    opacity: .86;
 }
 
 .auth-hero-title {
@@ -189,13 +190,15 @@
     font-weight: 800;
     margin-bottom: 16px;
     max-width: 520px;
+    color: #ffffff;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
 .auth-hero-copy {
     max-width: 520px;
     font-size: 15px;
     line-height: 1.75;
-    color: rgba(255,255,255,0.82);
+    color: rgba(255,255,255,0.92);
     margin-bottom: 28px;
 }
 
@@ -232,7 +235,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: #fff;
+    background: #ffffff;
 }
 
 .auth-panel-top {
@@ -246,6 +249,16 @@
     text-transform: uppercase;
     color: #7b8190;
     margin-bottom: 10px;
+}
+
+.auth-container input:-webkit-autofill,
+.auth-container input:-webkit-autofill:hover,
+.auth-container input:-webkit-autofill:focus,
+.auth-container input:-webkit-autofill:active {
+    -webkit-text-fill-color: #1f2937;
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+    box-shadow: 0 0 0 1000px #ffffff inset;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 /* ── SETUP-SPECIFIC ───────────────────────────────────── */

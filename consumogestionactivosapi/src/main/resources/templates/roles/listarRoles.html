@@ -13,7 +13,6 @@
       <div class="operations-hero-copy">
         <div class="eyebrow">Seguridad Operativa</div>
         <h1>Catalogo de roles y alcance funcional</h1>
-        <h2>Controla perfiles de acceso para administracion, soporte tecnico y auditoria sin perder claridad sobre el alcance de cada cuenta.</h2>
       </div>
       <div class="operations-hero-actions">
         <a th:href="@{/roles/nuevo-rol}" class="btn btn-primary px-4 py-3">
@@ -26,17 +25,14 @@
       <article class="admin-summary-card">
         <div class="admin-summary-label">Roles disponibles</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarroles)}">0</div>
-        <div class="admin-summary-copy">Perfiles preparados para cubrir gestion, ejecucion tecnica y supervision.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Roles activos</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarroles.?[estado])}">0</div>
-        <div class="admin-summary-copy">Perfiles habilitados para asignar a nuevos usuarios.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Roles inactivos</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarroles.?[!estado])}">0</div>
-        <div class="admin-summary-copy">Perfiles retirados de la operacion actual para evitar asignaciones nuevas.</div>
       </article>
     </section>
 
@@ -47,9 +43,6 @@
 
     <section class="surface-card page-panel">
       <div class="management-toolbar mb-4">
-        <div class="management-toolbar-copy">
-          Define con precision que puede hacer cada perfil antes de asignarlo a una persona. Este catalogo impacta menus, autorizaciones y visibilidad sobre informacion sensible.
-        </div>
         <div class="toolbar-pills">
           <div class="toolbar-pill"><i class="feather-shield"></i><span>Activos <strong th:text="${#lists.size(listarroles.?[estado])}">0</strong></span></div>
           <div class="toolbar-pill"><i class="feather-slash"></i><span>Inactivos <strong th:text="${#lists.size(listarroles.?[!estado])}">0</strong></span></div>
@@ -72,7 +65,6 @@
               <td><strong th:text="${rol.idRol}">1</strong></td>
               <td>
                 <div class="fw-semibold" th:text="${rol.nombre}">Administrador</div>
-                <div class="text-muted small">Perfil de control y navegacion del sistema.</div>
               </td>
               <td>
                 <span th:class="${rol.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}"
@@ -97,7 +89,6 @@
                 <div class="table-empty-state">
                   <i class="feather-shield"></i>
                   <div class="fw-semibold">No hay roles configurados</div>
-                  <div>Agrega un rol base antes de crear usuarios operativos.</div>
                 </div>
               </td>
             </tr>

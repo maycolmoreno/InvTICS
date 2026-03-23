@@ -13,7 +13,6 @@
       <div class="operations-hero-copy">
         <div class="eyebrow">Organizacion Interna</div>
         <h1>Catalogo de departamentos</h1>
-        <h2>Relaciona areas funcionales con sus ubicaciones para sostener mejor usuarios, cargos y custodias.</h2>
       </div>
       <div class="operations-hero-actions">
         <a th:href="@{/departamentos/nuevo-departamento}" class="btn btn-primary px-4 py-3">
@@ -26,25 +25,19 @@
       <article class="admin-summary-card">
         <div class="admin-summary-label">Total departamentos</div>
         <div class="admin-summary-value" th:text="${#lists.size(listadepartamento)}">0</div>
-        <div class="admin-summary-copy">Areas registradas para clasificar responsabilidades y recursos.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Activos</div>
         <div class="admin-summary-value" th:text="${#lists.size(listadepartamento.?[estado])}">0</div>
-        <div class="admin-summary-copy">Departamentos disponibles para nuevas vinculaciones operativas.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Con ubicacion</div>
         <div class="admin-summary-value" th:text="${#aggregates.sum(listadepartamento.![fkUbicacion != null ? 1 : 0])}">0</div>
-        <div class="admin-summary-copy">Areas que ya cuentan con referencia geografica asociada.</div>
       </article>
     </section>
 
     <section class="surface-card page-panel">
       <div class="management-toolbar mb-4">
-        <div class="management-toolbar-copy">
-          Un catalogo limpio de departamentos facilita analitica, control de responsables y segmentacion administrativa.
-        </div>
         <div class="toolbar-pills">
           <div class="toolbar-pill"><i class="feather-home"></i><span>Ubicaciones asociadas</span></div>
           <div class="toolbar-pill"><i class="feather-check-circle"></i><span>Activos <strong th:text="${#lists.size(listadepartamento.?[estado])}">0</strong></span></div>
@@ -85,7 +78,6 @@
                 <div class="table-empty-state">
                   <i class="feather-grid"></i>
                   <div class="fw-semibold">No hay departamentos registrados</div>
-                  <div>Agrega el primer departamento para estructurar mejor la organizacion.</div>
                 </div>
               </td>
             </tr>

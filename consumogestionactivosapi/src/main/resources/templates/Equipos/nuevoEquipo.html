@@ -14,10 +14,7 @@
             <div class="operations-strip">
                 <div class="operations-hero">
                     <div class="eyebrow text-white-50">Alta de inventario</div>
-                    <h2>Registro estructurado de nuevos activos tecnologicos.</h2>
-                    <p>
-                        Consolida informacion principal, capacidades tecnicas, red y contexto operativo en un formulario mas claro y profesional para el equipo administrador.
-                    </p>
+                    <h2>Nuevo equipo</h2>
                     <div class="operations-badges">
                         <div class="operations-badge"><i class="feather-box"></i><span>Ficha tecnica centralizada</span></div>
                         <div class="operations-badge"><i class="feather-cpu"></i><span>Hardware y red</span></div>
@@ -28,7 +25,6 @@
                     <div class="content-card-header mb-0">
                         <div>
                             <h2 class="content-card-title">Buenas practicas</h2>
-                            <p class="content-card-copy">Campos clave para mantener calidad en el inventario.</p>
                         </div>
                     </div>
                     <div class="insight-list">
@@ -36,7 +32,6 @@
                             <i class="feather-check-circle"></i>
                             <div>
                                 <div class="signal-title">Codigo y serial</div>
-                                <div class="signal-copy">Permiten trazabilidad y busqueda rapida del activo.</div>
                             </div>
                             <div class="signal-tag">Obligatorio</div>
                         </div>
@@ -44,7 +39,6 @@
                             <i class="feather-layers"></i>
                             <div>
                                 <div class="signal-title">Marca y categoria</div>
-                                <div class="signal-copy">Mejoran reportes, agrupaciones y mantenimiento futuro.</div>
                             </div>
                             <div class="signal-tag">Clasificacion</div>
                         </div>
@@ -52,7 +46,6 @@
                             <i class="feather-wifi"></i>
                             <div>
                                 <div class="signal-title">Datos de red</div>
-                                <div class="signal-copy">Utiles para soporte tecnico y diagnostico remoto.</div>
                             </div>
                             <div class="signal-tag">Opcional</div>
                         </div>
@@ -64,7 +57,6 @@
                 <div>
                     <div class="eyebrow">Registro de activos</div>
                     <h1 class="view-title">Nuevo Equipo</h1>
-                    <p class="view-subtitle">Registra un nuevo activo con datos operativos, hardware, red y licenciamiento desde un formulario mas limpio y legible.</p>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
                     <a th:href="@{/equipos}" class="btn btn-outline-secondary px-4 py-3">Atras</a>
@@ -77,22 +69,10 @@
             <form id="frmEquipo" th:action="@{/equipos}" th:object="${equipo}" method="post" class="form-shell">
                 <input type="hidden" th:field="*{idEquipo}" />
 
-                <div class="helper-callout">
-                    <i class="feather-info"></i>
-                    <div>
-                        <p class="helper-callout-title">Antes de guardar</p>
-                        <p class="helper-callout-copy">
-                            Verifica codigo, serial y clasificacion del activo. Esa informacion sera la base para custodias,
-                            mantenimiento y reportes posteriores.
-                        </p>
-                    </div>
-                </div>
-
                 <div class="surface-card page-panel">
                     <div class="content-card-header">
                         <div>
                             <h2 class="content-card-title">Informacion principal</h2>
-                            <p class="content-card-copy">Campos esenciales del activo para ponerlo en inventario.</p>
                         </div>
                     </div>
                     <div class="form-grid">
@@ -218,9 +198,6 @@
                 </div>
 
                 <div class="action-footer">
-                    <div class="action-footer-copy">
-                        Guarda el activo cuando la informacion principal este completa. Los datos avanzados pueden ampliarse despues si hace falta.
-                    </div>
                     <div class="d-flex flex-wrap gap-2">
                         <a th:href="@{/equipos}" class="btn btn-outline-secondary px-4 py-2">Cancelar</a>
                         <button type="submit" class="btn btn-primary px-4 py-2">

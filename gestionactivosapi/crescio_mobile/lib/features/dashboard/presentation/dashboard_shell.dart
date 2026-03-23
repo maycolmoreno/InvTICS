@@ -177,13 +177,18 @@ class _HomeTab extends StatelessWidget {
           spacing: 12,
           runSpacing: 12,
           children: [
-            _SummaryCard(title: 'Mantenimientos abiertos', value: '$openMantenimientos'),
+            _SummaryCard(
+                title: 'Mantenimientos abiertos', value: '$openMantenimientos'),
             _SummaryCard(title: 'Equipos activos', value: '$activeEquipos'),
-            _SummaryCard(title: 'Notificaciones', value: '$pendingNotifications'),
+            _SummaryCard(
+                title: 'Notificaciones', value: '$pendingNotifications'),
           ],
         ),
         const SizedBox(height: 12),
-        _SummaryCard(title: 'Pendientes offline', value: '$pendingOffline', fullWidth: true),
+        _SummaryCard(
+            title: 'Pendientes offline',
+            value: '$pendingOffline',
+            fullWidth: true),
         const SizedBox(height: 20),
         const Text(
           'Actividad reciente',
@@ -202,13 +207,15 @@ class _HomeTab extends StatelessWidget {
             (item) => Card(
               child: ListTile(
                 leading: const Icon(Icons.build_circle_outlined),
-                title: Text(_text(item['equipoCodigoSap'], fallback: 'Sin codigo')),
+                title: Text(
+                    _text(item['equipoCodigoSap'], fallback: 'Sin codigo')),
                 subtitle: Text(
                   '${_text(item['equipoDescripcion'])}\n'
                   'Estado: ${_text(item['estadoInterno'])}',
                 ),
                 isThreeLine: true,
-                trailing: Text(_text(item['fechaMantenimiento'], fallback: '-')),
+                trailing:
+                    Text(_text(item['fechaMantenimiento'], fallback: '-')),
               ),
             ),
           ),
@@ -244,7 +251,8 @@ class _SummaryCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 value,
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -263,16 +271,6 @@ class _MoreTab extends StatelessWidget {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        if (auth.hasCapability(UserCapability.viewVisitas))
-          ListTile(
-            leading: const Icon(Icons.assignment_outlined),
-            title: const Text('Visita tecnica'),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const VisitasScreen()),
-              );
-            },
-          ),
         if (auth.hasCapability(UserCapability.viewNotificaciones))
           ListTile(
             leading: const Icon(Icons.notifications_outlined),

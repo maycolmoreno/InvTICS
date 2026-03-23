@@ -147,7 +147,6 @@
 				<div>
 					<div class="eyebrow">Operaciones Geograficas</div>
 					<h1 class="view-title">Gestion de Ubicaciones</h1>
-					<p class="view-subtitle">Consulta ubicaciones en una tabla rapida, con filtros y acciones directas sin cargar mapas ni paneles pesados.</p>
 				</div>
 				<div class="d-flex gap-3 flex-wrap">
 					<a th:href="@{/ubicaciones/nueva-ubicacion}" class="btn btn-primary px-4 py-3">
@@ -161,17 +160,14 @@
 					<div class="location-stat-card">
 						<div class="location-stat-label">Total ubicaciones</div>
 						<div class="location-stat-value" th:text="${#lists.size(listaubicacion)}">0</div>
-						<div class="location-stat-hint">Sedes registradas en el sistema.</div>
 					</div>
 					<div class="location-stat-card">
 						<div class="location-stat-label">Ubicaciones activas</div>
 						<div class="location-stat-value" th:text="${#aggregates.sum(listaubicacion.![estado ? 1 : 0])}">0</div>
-						<div class="location-stat-hint">Con estado operativo habilitado.</div>
 					</div>
 					<div class="location-stat-card">
 						<div class="location-stat-label">Con coordenadas</div>
 						<div class="location-stat-value" th:text="${#aggregates.sum(listaubicacion.![latitud != null and !#strings.isEmpty(latitud) and longitud != null and !#strings.isEmpty(longitud) ? 1 : 0])}">0</div>
-						<div class="location-stat-hint">Listas para abrir directamente en Maps.</div>
 					</div>
 				</div>
 

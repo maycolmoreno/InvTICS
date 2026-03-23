@@ -44,6 +44,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MantenimientoManualService {
 
+    private static final String TRABAJO_REALIZADO_LABEL = "Trabajo realizado:";
+
     private final IMantenimientosJpaRepositorio mantenimientosRepo;
     private final IActividadRealizadaJpaRepositorio actividadRealizadaRepo;
     private final IActividadChecklistJpaRepositorio actividadChecklistRepo;
@@ -128,9 +130,12 @@ public class MantenimientoManualService {
     }
 
     @Transactional
-    public MantenimientoManualResponseDTO cerrar(Integer idMantenimiento) {
+    public MantenimientoManualResponseDTO cerrar(Integer idMantenimiento, String descripcionTrabajoRealizado) {
         MantenimientosJpa mantenimiento = mantenimientosRepo.findById(idMantenimiento)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mantenimiento no encontrado"));
+        mantenimiento.setDescripcion(actualizarDescripcionCierre(
+                mantenimiento.getDescripcion(),
+                descripcionTrabajoRealizado));
         mantenimiento.setEstadoInterno(EstadoInternoMantenimiento.CERRADO);
         mantenimiento.setFecCierre(LocalDateTime.now());
         mantenimientosRepo.save(mantenimiento);
@@ -254,6 +259,8 @@ public class MantenimientoManualService {
                 .buscarPorMantenimientoYTipo(mantenimiento.getIdMantenimiento(), TipoFirma.CUSTODIO)
                 .map(FirmaMantenimiento::firmaBase64)
                 .orElse(null);
+        String detalle = extraerDetalleTecnico(mantenimiento.getDescripcion());
+        String trabajoRealizado = extraerTrabajoRealizado(mantenimiento.getDescripcion());
 
         return MantenimientoManualResponseDTO.builder()
                 .idMantenimiento(mantenimiento.getIdMantenimiento())
@@ -269,7 +276,8 @@ public class MantenimientoManualService {
                 .tecnicoNombre(mantenimiento.getFkUsuario() != null ? mantenimiento.getFkUsuario().getNombre() : null)
                 .tipoMantenimiento(mantenimiento.getTipoMantenimiento())
                 .fechaMantenimiento(mantenimiento.getFechaProgramada() != null ? mantenimiento.getFechaProgramada().toLocalDate() : null)
-                .detalle(mantenimiento.getDescripcion())
+                .detalle(detalle)
+                .descripcionTrabajoRealizado(trabajoRealizado)
                 .estadoGeneral(mantenimiento.getEstadoGeneral())
                 .proximaFecha(mantenimiento.getProximaFecha())
                 .firmaTecnico(firmaTecnico)
@@ -280,5 +288,51 @@ public class MantenimientoManualService {
                 .actividades(actividades)
                 .imagenes(imagenes)
                 .build();
+    }
+
+    private String actualizarDescripcionCierre(String descripcionActual, String descripcionTrabajoRealizado) {
+        String detalle = extraerDetalleTecnico(descripcionActual);
+        String trabajo = limpiar(descripcionTrabajoRealizado);
+        if (trabajo == null) {
+            return detalle;
+        }
+        if (detalle == null) {
+            return TRABAJO_REALIZADO_LABEL + "\n" + trabajo;
+        }
+        return detalle + "\n\n" + TRABAJO_REALIZADO_LABEL + "\n" + trabajo;
+    }
+
+    private String extraerDetalleTecnico(String descripcion) {
+        String limpia = limpiar(descripcion);
+        if (limpia == null) {
+            return null;
+        }
+        int markerIndex = limpia.indexOf(TRABAJO_REALIZADO_LABEL);
+        if (markerIndex < 0) {
+            return limpia;
+        }
+        String detalle = limpia.substring(0, markerIndex).trim();
+        return detalle.isEmpty() ? null : detalle;
+    }
+
+    private String extraerTrabajoRealizado(String descripcion) {
+        String limpia = limpiar(descripcion);
+        if (limpia == null) {
+            return null;
+        }
+        int markerIndex = limpia.indexOf(TRABAJO_REALIZADO_LABEL);
+        if (markerIndex < 0) {
+            return null;
+        }
+        String trabajo = limpia.substring(markerIndex + TRABAJO_REALIZADO_LABEL.length()).trim();
+        return trabajo.isEmpty() ? null : trabajo;
+    }
+
+    private String limpiar(String texto) {
+        if (texto == null) {
+            return null;
+        }
+        String limpio = texto.trim();
+        return limpio.isEmpty() ? null : limpio;
     }
 }

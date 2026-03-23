@@ -24,10 +24,7 @@
           <div class="operations-strip">
             <div class="operations-hero">
               <div class="eyebrow text-white-50">Documento operativo</div>
-              <h2>Construye una custodia formal con responsables, ubicacion y activos asociados.</h2>
-              <p>
-                El asistente permite registrar acta, custodio y equipos en una sola secuencia, reduciendo errores y mejorando la calidad documental.
-              </p>
+              <h2>Nueva custodia</h2>
               <div class="operations-badges">
                 <div class="operations-badge"><i class="feather-file-text"></i><span>Acta estructurada</span></div>
                 <div class="operations-badge"><i class="feather-user-check"></i><span>Responsable identificado</span></div>
@@ -38,7 +35,6 @@
               <div class="content-card-header mb-0">
                 <div>
                   <h2 class="content-card-title">Flujo guiado</h2>
-                  <p class="content-card-copy">La carga esta organizada para que el registro quede consistente desde el primer ingreso.</p>
                 </div>
               </div>
               <div class="insight-list">
@@ -46,7 +42,6 @@
                   <i class="feather-check-square"></i>
                   <div>
                     <div class="signal-title">Paso 1</div>
-                    <div class="signal-copy">Informacion del acta, custodio, cargo y ubicacion.</div>
                   </div>
                   <div class="signal-tag">Base</div>
                 </div>
@@ -54,7 +49,6 @@
                   <i class="feather-cpu"></i>
                   <div>
                     <div class="signal-title">Paso 2</div>
-                    <div class="signal-copy">Seleccion de equipos disponibles para la asignacion.</div>
                   </div>
                   <div class="signal-tag">Activos</div>
                 </div>
@@ -66,20 +60,9 @@
             <div>
               <div class="eyebrow">Custodias</div>
               <h1 class="view-title">Crear nueva custodia</h1>
-              <p class="view-subtitle">Registro guiado del documento de entrega, traslado o baja con trazabilidad del responsable y equipos involucrados.</p>
             </div>
             <div class="d-flex gap-3 flex-wrap">
               <a th:href="@{/custodias}" class="btn btn-outline-secondary px-4 py-3">Atras</a>
-            </div>
-          </div>
-
-          <div class="helper-callout">
-            <i class="feather-clipboard"></i>
-            <div>
-              <p class="helper-callout-title">Recomendacion operativa</p>
-              <p class="helper-callout-copy">
-                Completa primero custodio, cargo, departamento y ubicacion. Eso mejora la calidad del acta y reduce reprocesos al seleccionar equipos.
-              </p>
             </div>
           </div>
 
@@ -104,9 +87,6 @@
             <div class="card-body">
               <div class="wizard-step active" id="step-1">
                 <h4 class="mb-3">Informacion del Acta</h4>
-                <p class="text-muted">
-                  Completa los campos principales para registrar la custodia.
-                </p>
                 <hr />
 
                 <div class="row">
@@ -269,9 +249,7 @@
 
               <div class="wizard-step" id="step-2">
                 <h4 class="mb-3">Equipos Asociados</h4>
-                <p class="text-muted mb-3" id="textoAyudaEquipos">
-                  Busca y selecciona equipos disponibles para asignacion.
-                </p>
+                <p class="text-muted mb-3" id="textoAyudaEquipos"></p>
                 <hr />
 
                 <!-- Filtros -->
@@ -416,9 +394,6 @@
             </div>
           </div>
           <div class="action-footer">
-            <div class="action-footer-copy">
-              El acta quedara mas solida si el custodio y los equipos seleccionados corresponden exactamente al movimiento real que se desea documentar.
-            </div>
             <div class="d-flex flex-wrap gap-2">
               <a th:href="@{/custodias}" class="btn btn-outline-secondary px-4 py-2">Cancelar</a>
               <button type="button" class="btn btn-light px-4 py-2" onclick="window.scrollTo({top:0,behavior:'smooth'})">Revisar datos</button>

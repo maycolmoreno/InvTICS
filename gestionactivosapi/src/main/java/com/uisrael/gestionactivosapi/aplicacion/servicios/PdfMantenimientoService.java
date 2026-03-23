@@ -154,6 +154,8 @@ public class PdfMantenimientoService {
         resumen.addCell(tipoCell(valor(mantenimiento.getEstadoGeneral()), false));
         resumen.addCell(tipoCell("Detalle tecnico", true));
         resumen.addCell(tipoCell(valor(mantenimiento.getDetalle()), false));
+        resumen.addCell(tipoCell("Trabajo realizado", true));
+        resumen.addCell(tipoCell(valor(mantenimiento.getDescripcionTrabajoRealizado()), false));
         resumen.addCell(tipoCell("Fecha mantenimiento", true));
         resumen.addCell(tipoCell(mantenimiento.getFechaMantenimiento() != null ? mantenimiento.getFechaMantenimiento().toString() : "-", false));
         resumen.addCell(tipoCell("Proxima fecha", true));

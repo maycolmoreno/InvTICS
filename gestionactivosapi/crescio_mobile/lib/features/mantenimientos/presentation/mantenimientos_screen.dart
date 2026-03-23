@@ -37,7 +37,9 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
 
   Future<void> _reload() async {
     final future = _loadMantenimientos();
-    setState(() => _future = future);
+    setState(() {
+      _future = future;
+    });
     await future;
   }
 

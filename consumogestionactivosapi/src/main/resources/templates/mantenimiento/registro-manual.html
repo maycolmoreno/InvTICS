@@ -12,7 +12,6 @@
             <div>
                 <div class="eyebrow">Flujo de Mantenimiento</div>
                 <h1 class="view-title">Orden de Trabajo Manual</h1>
-                <p class="view-subtitle">Crea una orden completa con checklist, firmas, diagnostico y evidencias para uno o varios equipos.</p>
             </div>
             <div class="d-flex gap-2">
                 <a th:href="@{/mantenimiento}" class="btn btn-outline-secondary px-4 py-3">Atras</a>
@@ -27,7 +26,6 @@
                 <div class="content-card-header">
                     <div>
                         <h2 class="content-card-title">Datos del equipo y custodio</h2>
-                        <p class="content-card-copy">Selecciona el custodio responsable y veras solamente los equipos que tiene asignados.</p>
                     </div>
                 </div>
                 <div class="form-grid">
@@ -128,7 +126,6 @@
                 <div class="content-card-header">
                     <div>
                         <h2 class="content-card-title">Checklist de actividades</h2>
-                        <p class="content-card-copy">Debes completar el checklist operativo antes de enviar el informe.</p>
                     </div>
                     <strong id="checkProgress" th:text="${'0 / ' + totalActividades}">0 / 10</strong>
                 </div>
@@ -158,7 +155,6 @@
                 <div class="content-card-header">
                     <div>
                         <h2 class="content-card-title">Diagnostico</h2>
-                        <p class="content-card-copy">Resume el estado general y deja trazabilidad tecnica del servicio.</p>
                     </div>
                 </div>
                 <div class="form-grid">
@@ -181,7 +177,6 @@
                 <div class="content-card-header">
                     <div>
                         <h2 class="content-card-title">Evidencias</h2>
-                        <p class="content-card-copy">Carga maximo 5 imagenes y visualiza la evidencia antes de guardar.</p>
                     </div>
                 </div>
                 <div class="field-group">
@@ -195,7 +190,6 @@
                 <div class="content-card-header">
                     <div>
                         <h2 class="content-card-title">Firmas</h2>
-                        <p class="content-card-copy">Confirma las firmas digitalizadas del tecnico y del custodio.</p>
                     </div>
                 </div>
                 <div class="form-grid">

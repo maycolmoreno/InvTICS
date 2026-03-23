@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../core/errors/exceptions.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/local_database.dart';
 import '../../mantenimientos/data/mantenimientos_repository.dart';
@@ -46,30 +47,38 @@ class DashboardProvider extends ChangeNotifier {
       return;
     }
 
-    await SyncService(_apiClient).syncPendingOperations();
-    _pendingOffline = await LocalDatabase.instance.contarPendientes();
+    try {
+      await SyncService(_apiClient).syncPendingOperations();
+      _pendingOffline = await LocalDatabase.instance.contarPendientes();
 
-    final notificacionesRepository = NotificacionesRepository(_apiClient);
-    final mantenimientosRepository = MantenimientosRepository(_apiClient);
-    final equiposRaw = await _apiClient.get('/equipos');
-    final equipos = (equiposRaw as List)
-        .map((item) => Map<String, dynamic>.from(item as Map))
-        .toList();
-    final mantenimientos = await mantenimientosRepository.listar();
+      final notificacionesRepository = NotificacionesRepository(_apiClient);
+      final mantenimientosRepository = MantenimientosRepository(_apiClient);
+      final equiposRaw = await _apiClient.get('/equipos');
+      final equipos = (equiposRaw as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+      final mantenimientos = await mantenimientosRepository.listar();
 
-    _pendingNotifications = await notificacionesRepository.obtenerConteo();
-    _openMantenimientos = mantenimientos
-        .where((item) => _text(item['estadoInterno']).toUpperCase() != 'CERRADO')
-        .length;
-    _activeEquipos = equipos
-        .where((item) => _text(item['estadoEquipo']).toUpperCase() != 'BAJA')
-        .length;
+      _pendingNotifications = await notificacionesRepository.obtenerConteo();
+      _openMantenimientos = mantenimientos
+          .where((item) => _text(item['estadoInterno']).toUpperCase() != 'CERRADO')
+          .length;
+      _activeEquipos = equipos
+          .where((item) => _text(item['estadoEquipo']).toUpperCase() != 'BAJA')
+          .length;
 
-    final recent = List<Map<String, dynamic>>.from(mantenimientos)
-      ..sort(
-        (a, b) => _text(b['fechaMantenimiento']).compareTo(_text(a['fechaMantenimiento'])),
-      );
-    _recentMantenimientos = recent.take(4).toList();
+      final recent = List<Map<String, dynamic>>.from(mantenimientos)
+        ..sort(
+          (a, b) => _text(b['fechaMantenimiento']).compareTo(_text(a['fechaMantenimiento'])),
+        );
+      _recentMantenimientos = recent.take(4).toList();
+    } on OfflineException {
+      _offline = true;
+      _pendingNotifications = 0;
+      _openMantenimientos = 0;
+      _activeEquipos = 0;
+      _recentMantenimientos = const [];
+    }
     notifyListeners();
   }
 }

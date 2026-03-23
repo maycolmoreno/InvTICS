@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.uisrael.gestionactivosapi.aplicacion.servicios.MantenimientoArchivoService;
 import com.uisrael.gestionactivosapi.aplicacion.servicios.MantenimientoInformeService;
 import com.uisrael.gestionactivosapi.aplicacion.servicios.MantenimientoManualService;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.CerrarMantenimientoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.ImagenMantenimientoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.MantenimientoManualRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.MantenimientoManualResponseDTO;
@@ -85,8 +86,16 @@ public class MantenimientoManualControlador {
     }
 
     @PostMapping("/cerrar/{id}")
-    public MantenimientoManualResponseDTO cerrar(@PathVariable Integer id) {
-        return mantenimientoService.cerrar(id);
+    public MantenimientoManualResponseDTO cerrar(@PathVariable Integer id,
+            @RequestBody(required = false) CerrarMantenimientoRequestDTO request) {
+        MantenimientoManualResponseDTO cerrado = mantenimientoService.cerrar(id,
+                request != null ? request.getDescripcionTrabajoRealizado() : null);
+        try {
+            mantenimientoInformeService.generarGuardarYEnviar(cerrado);
+        } catch (Exception e) {
+            log.error("No se pudo generar/enviar el informe del mantenimiento cerrado {}: {}", id, e.getMessage(), e);
+        }
+        return cerrado;
     }
 
     @GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)

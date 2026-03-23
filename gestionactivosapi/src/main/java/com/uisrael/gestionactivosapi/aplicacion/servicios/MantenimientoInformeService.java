@@ -1,7 +1,9 @@
 package com.uisrael.gestionactivosapi.aplicacion.servicios;
 
 import java.nio.file.Path;
+import java.nio.file.InvalidPathException;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
@@ -36,7 +38,7 @@ public class MantenimientoInformeService {
                 pdfBytes,
                 mantenimiento.getFechaMantenimiento(),
                 mantenimiento.getTipoMantenimiento(),
-                mantenimiento.getDetalle());
+                resumenCorreo(mantenimiento));
     }
 
     public void reenviar(MantenimientoManualResponseDTO mantenimiento) {
@@ -65,7 +67,8 @@ public class MantenimientoInformeService {
                 : mantenimiento.getImagenes().stream()
                         .map(item -> item.getRutaArchivo())
                         .filter(path -> path != null && !path.isBlank())
-                        .map(Path::of)
+                        .map(this::pathSeguro)
+                        .filter(Objects::nonNull)
                         .toList();
 
         byte[] pdfBytes = pdfMantenimientoService.generarInforme(
@@ -88,5 +91,33 @@ public class MantenimientoInformeService {
         return custodiosRepo.findById(mantenimiento.getCustodioId())
                 .map(CustodiosJpa::getCorreo)
                 .orElse(null);
+    }
+
+    private Path pathSeguro(String rawPath) {
+        try {
+            return Path.of(rawPath);
+        } catch (InvalidPathException e) {
+            return null;
+        }
+    }
+
+    private String resumenCorreo(MantenimientoManualResponseDTO mantenimiento) {
+        String detalle = limpiar(mantenimiento.getDetalle());
+        String trabajo = limpiar(mantenimiento.getDescripcionTrabajoRealizado());
+        if (detalle == null) {
+            return trabajo;
+        }
+        if (trabajo == null) {
+            return detalle;
+        }
+        return detalle + "\n\nTrabajo realizado:\n" + trabajo;
+    }
+
+    private String limpiar(String texto) {
+        if (texto == null) {
+            return null;
+        }
+        String limpio = texto.trim();
+        return limpio.isEmpty() ? null : limpio;
     }
 }

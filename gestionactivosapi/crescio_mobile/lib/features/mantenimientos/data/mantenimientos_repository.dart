@@ -12,9 +12,17 @@ class MantenimientosRepository {
 
   Future<List<Map<String, dynamic>>> listar() async {
     final data = await _apiClient.get('/mantenimiento');
-    return (data as List)
+    final items = (data as List)
         .map((item) => Map<String, dynamic>.from(item as Map))
         .toList();
+    items.sort((a, b) {
+      final createdCompare = _createdAtOrMin(b).compareTo(_createdAtOrMin(a));
+      if (createdCompare != 0) {
+        return createdCompare;
+      }
+      return _asInt(b['idMantenimiento']).compareTo(_asInt(a['idMantenimiento']));
+    });
+    return items;
   }
 
   Future<Map<String, dynamic>> obtenerDetalle(int mantenimientoId) async {
@@ -305,4 +313,12 @@ int _asInt(dynamic value) {
 String _syncId(String prefix) {
   final random = Random().nextInt(1 << 32).toRadixString(16);
   return '$prefix-${DateTime.now().microsecondsSinceEpoch}-$random';
+}
+
+DateTime _createdAtOrMin(Map<String, dynamic> item) {
+  final raw = _text(item['creadoEn']);
+  if (raw.isEmpty) {
+    return DateTime.fromMillisecondsSinceEpoch(0);
+  }
+  return DateTime.tryParse(raw) ?? DateTime.fromMillisecondsSinceEpoch(0);
 }

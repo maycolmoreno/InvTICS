@@ -15,7 +15,6 @@
         <div class="operations-copy">
           <div class="eyebrow">Edicion De Ubicacion</div>
           <h1 class="operations-title">Actualizar sede operativa</h1>
-          <p class="operations-subtitle">Ajusta informacion geografica, referencia fisica y estado general de una ubicacion ya registrada en el sistema.</p>
         </div>
         <div class="operations-badges">
           <div class="operations-badge"><i class="feather-map"></i><span>Geografia consistente</span></div>
@@ -23,18 +22,9 @@
         </div>
       </section>
 
-      <div class="helper-callout">
-        <i class="feather-map-pin"></i>
-        <div>
-          <div class="helper-callout-title">Revision sugerida</div>
-          <p class="helper-callout-copy">Si cambias coordenadas o direccion, confirma que custodias y reportes asociados sigan apuntando a la misma sede real.</p>
-        </div>
-      </div>
-
       <section class="admin-form-grid">
         <article class="admin-form-card">
           <h2 class="admin-form-card-title">Ficha de ubicacion</h2>
-          <p class="admin-form-card-copy">Ajusta datos administrativos y de referencia para mantener limpio el catalogo geografico.</p>
 
           <input type="hidden" th:field="*{idUbicacion}">
 
@@ -70,7 +60,6 @@
 
         <article class="admin-form-card">
           <h2 class="admin-form-card-title">Coordenadas y disponibilidad</h2>
-          <p class="admin-form-card-copy">Mantiene sincronizada la referencia geografica y el estado operativo de la sede.</p>
 
           <div class="form-grid">
             <div>
@@ -103,7 +92,6 @@
       </section>
 
       <div class="action-footer">
-        <div class="action-footer-copy">Antes de guardar, revisa mapa, direccion y estado para que la sede siga siendo trazable en custodias, activos y reportes.</div>
         <div class="d-flex gap-2 flex-wrap">
           <a th:href="@{/ubicaciones}" class="btn btn-light px-4 py-3">Volver</a>
           <button type="submit" class="btn btn-primary px-4 py-3">

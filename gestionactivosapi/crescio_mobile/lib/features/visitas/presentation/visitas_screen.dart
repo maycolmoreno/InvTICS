@@ -31,7 +31,10 @@ class _VisitasScreenState extends State<VisitasScreen> {
   Future<void> _loadInitial() async {
     setState(() => _loading = true);
     try {
-      final ubicaciones = await _repository.listarUbicaciones();
+      final ubicaciones = _uniqueByInt(
+        await _repository.listarUbicaciones(),
+        (item) => _asInt(item['id']),
+      );
       if (!mounted) return;
       setState(() {
         _ubicaciones = ubicaciones;
@@ -63,7 +66,10 @@ class _VisitasScreenState extends State<VisitasScreen> {
     }
     setState(() => _loading = true);
     try {
-      final custodios = await _repository.listarCustodios(ubicacionId: _ubicacionId);
+      final custodios = _uniqueByInt(
+        await _repository.listarCustodios(ubicacionId: _ubicacionId),
+        (item) => _asInt(item['idCustodio']),
+      );
       final equipos = await _repository.listarEquipos(
         ubicacionId: _ubicacionId,
         custodioId: _custodioId,
@@ -71,7 +77,8 @@ class _VisitasScreenState extends State<VisitasScreen> {
       if (!mounted) return;
       setState(() {
         _custodios = custodios;
-        final custodioExiste = _custodios.any((item) => _asInt(item['idCustodio']) == _custodioId);
+        final custodioExiste =
+            _custodios.any((item) => _asInt(item['idCustodio']) == _custodioId);
         if (!custodioExiste) {
           _custodioId = null;
         }
@@ -94,6 +101,38 @@ class _VisitasScreenState extends State<VisitasScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ubicacionItems = [
+      const DropdownMenuItem<int?>(
+        value: null,
+        child: Text('Selecciona una ubicacion'),
+      ),
+      ..._ubicaciones.map(
+        (item) => DropdownMenuItem<int?>(
+          value: _asInt(item['id']),
+          child: Text(_text(item['nombre'], fallback: 'Sin nombre')),
+        ),
+      ),
+    ];
+    final custodioItems = [
+      const DropdownMenuItem<int?>(value: null, child: Text('Todos')),
+      ..._custodios.map(
+        (item) => DropdownMenuItem<int?>(
+          value: _asInt(item['idCustodio']),
+          child: Text(
+            '${_text(item['nombre'])} - ${_text(item['area'], fallback: 'Sin area')}',
+          ),
+        ),
+      ),
+    ];
+    final ubicacionValue = _validDropdownValue(
+      _ubicacionId,
+      ubicacionItems.map((item) => item.value),
+    );
+    final custodioValue = _validDropdownValue(
+      _custodioId,
+      custodioItems.map((item) => item.value),
+    );
+
     return Scaffold(
       appBar: AppBar(title: const Text('Visita tecnica')),
       body: RefreshIndicator(
@@ -103,17 +142,9 @@ class _VisitasScreenState extends State<VisitasScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
             DropdownButtonFormField<int?>(
-              initialValue: _ubicacionId,
+              initialValue: ubicacionValue,
               decoration: const InputDecoration(labelText: 'Ubicacion'),
-              items: [
-                const DropdownMenuItem<int?>(value: null, child: Text('Selecciona una ubicacion')),
-                ..._ubicaciones.map(
-                  (item) => DropdownMenuItem<int?>(
-                    value: _asInt(item['id']),
-                    child: Text(_text(item['nombre'], fallback: 'Sin nombre')),
-                  ),
-                ),
-              ],
+              items: ubicacionItems,
               onChanged: (value) async {
                 setState(() {
                   _ubicacionId = value;
@@ -124,25 +155,15 @@ class _VisitasScreenState extends State<VisitasScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<int?>(
-              initialValue: _custodioId,
+              initialValue: custodioValue,
               decoration: const InputDecoration(labelText: 'Custodio'),
-              items: [
-                const DropdownMenuItem<int?>(value: null, child: Text('Todos')),
-                ..._custodios.map(
-                  (item) => DropdownMenuItem<int?>(
-                    value: _asInt(item['idCustodio']),
-                    child: Text(
-                      '${_text(item['nombre'])} - ${_text(item['area'], fallback: 'Sin area')}',
-                    ),
-                  ),
-                ),
-              ],
+              items: custodioItems,
               onChanged: _ubicacionId == null
                   ? null
                   : (value) async {
-                setState(() => _custodioId = value);
-                await _applyFilters();
-              },
+                      setState(() => _custodioId = value);
+                      await _applyFilters();
+                    },
               hint: const Text('Selecciona una ubicacion primero'),
             ),
             const SizedBox(height: 16),
@@ -162,7 +183,8 @@ class _VisitasScreenState extends State<VisitasScreen> {
               const Card(
                 child: Padding(
                   padding: EdgeInsets.all(16),
-                  child: Text('Selecciona una ubicacion para consultar custodios y equipos.'),
+                  child: Text(
+                      'Selecciona una ubicacion para consultar custodios y equipos.'),
                 ),
               )
             else if (_equipos.isEmpty)
@@ -177,7 +199,8 @@ class _VisitasScreenState extends State<VisitasScreen> {
                 (item) => Card(
                   child: ListTile(
                     leading: const Icon(Icons.assignment_turned_in_outlined),
-                    title: Text(_text(item['codigoSap'], fallback: 'Sin codigo')),
+                    title:
+                        Text(_text(item['codigoSap'], fallback: 'Sin codigo')),
                     subtitle: Text(
                       '${_text(item['tipoEquipo'])} - ${_text(item['marca'])} ${_text(item['modelo'])}\n'
                       'Custodio: ${_text(item['custodioNombre'])}\n'
@@ -204,6 +227,33 @@ class _VisitasScreenState extends State<VisitasScreen> {
       ),
     );
   }
+}
+
+List<Map<String, dynamic>> _uniqueByInt(
+  List<Map<String, dynamic>> items,
+  int? Function(Map<String, dynamic>) keySelector,
+) {
+  final seen = <int>{};
+  final unique = <Map<String, dynamic>>[];
+  for (final item in items) {
+    final key = keySelector(item);
+    if (key == null) {
+      unique.add(item);
+      continue;
+    }
+    if (seen.add(key)) {
+      unique.add(item);
+    }
+  }
+  return unique;
+}
+
+T? _validDropdownValue<T>(T? currentValue, Iterable<T?> values) {
+  if (currentValue == null) {
+    return null;
+  }
+  final matches = values.where((T? value) => value == currentValue).length;
+  return matches == 1 ? currentValue as T : null;
 }
 
 int? _asInt(dynamic value) {

@@ -13,7 +13,6 @@
       <div class="operations-hero-copy">
         <div class="eyebrow">Estructura Organizacional</div>
         <h1>Catalogo de cargos</h1>
-        <h2>Ordena responsabilidades operativas y su relacion con cada departamento para mejorar custodias, usuarios y trazabilidad.</h2>
       </div>
       <div class="operations-hero-actions">
         <a th:href="@{/cargos/nuevo-cargo}" class="btn btn-primary px-4 py-3">
@@ -26,25 +25,19 @@
       <article class="admin-summary-card">
         <div class="admin-summary-label">Total cargos</div>
         <div class="admin-summary-value" th:text="${#lists.size(listacargo)}">0</div>
-        <div class="admin-summary-copy">Posiciones registradas para estructurar custodios y usuarios internos.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Activos</div>
         <div class="admin-summary-value" th:text="${#lists.size(listacargo.?[estado])}">0</div>
-        <div class="admin-summary-copy">Cargos disponibles para ser utilizados en nuevos registros.</div>
       </article>
       <article class="admin-summary-card">
         <div class="admin-summary-label">Inactivos</div>
         <div class="admin-summary-value" th:text="${#lists.size(listacargo.?[!estado])}">0</div>
-        <div class="admin-summary-copy">Posiciones retiradas que ya no deberian vincularse en la operacion diaria.</div>
       </article>
     </section>
 
     <section class="surface-card page-panel">
       <div class="management-toolbar mb-4">
-        <div class="management-toolbar-copy">
-          Mantener este catalogo claro facilita consistencia entre custodios, departamentos y estructura de atencion tecnica.
-        </div>
         <div class="toolbar-pills">
           <div class="toolbar-pill"><i class="feather-briefcase"></i><span>Activos <strong th:text="${#lists.size(listacargo.?[estado])}">0</strong></span></div>
           <div class="toolbar-pill"><i class="feather-layers"></i><span>Departamentos vinculados</span></div>
@@ -85,7 +78,6 @@
                 <div class="table-empty-state">
                   <i class="feather-briefcase"></i>
                   <div class="fw-semibold">No hay cargos registrados</div>
-                  <div>Crea el primer cargo para estructurar mejor custodios y perfiles internos.</div>
                 </div>
               </td>
             </tr>

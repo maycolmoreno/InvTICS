@@ -7,10 +7,7 @@
 		<div class="operations-strip">
 			<div class="operations-hero">
 				<div class="eyebrow text-white-50">Planificacion preventiva</div>
-				<h2>Programa ciclos de mantenimiento con visibilidad operativa.</h2>
-				<p>
-					Organiza frecuencias, responsables y proximas fechas para que el soporte no dependa de seguimiento manual.
-				</p>
+				<h2>Mantenimiento programado</h2>
 				<div class="operations-badges">
 					<div class="operations-badge"><i class="feather-calendar"></i><span th:text="${#lists.size(listaprogramados)} + ' programados'">0 programados</span></div>
 					<div class="operations-badge"><i class="feather-alert-circle"></i><span th:text="${#lists.size(vencidosProximos)} + ' proximos o vencidos'">0 proximos o vencidos</span></div>
@@ -21,7 +18,6 @@
 				<div class="content-card-header mb-0">
 					<div>
 						<h2 class="content-card-title">Lectura inmediata</h2>
-						<p class="content-card-copy">Resumen ejecutivo del cronograma actual.</p>
 					</div>
 				</div>
 				<div class="insight-list">
@@ -29,7 +25,6 @@
 						<i class="feather-clock"></i>
 						<div>
 							<div class="signal-title">Vencidos hoy</div>
-							<div class="signal-copy">Programaciones que ya requieren atencion del equipo tecnico.</div>
 						</div>
 						<div class="insight-value" th:text="${#lists.size(vencidosProximos)}">0</div>
 					</div>
@@ -37,7 +32,6 @@
 						<i class="feather-repeat"></i>
 						<div>
 							<div class="signal-title">Frecuencias activas</div>
-							<div class="signal-copy">Cobertura preventiva distribuida por activos y responsables.</div>
 						</div>
 						<div class="insight-value" th:text="${#lists.size(listaprogramados)}">0</div>
 					</div>
@@ -45,7 +39,6 @@
 						<i class="feather-briefcase"></i>
 						<div>
 							<div class="signal-title">Carga operativa</div>
-							<div class="signal-copy">Volumen visible de seguimiento preventivo en curso.</div>
 						</div>
 						<div class="insight-value" th:text="${#lists.size(listaprogramados.?[tecnicoNombre != null])}">0</div>
 					</div>
@@ -57,7 +50,6 @@
 			<div>
 				<div class="eyebrow">Operaciones programadas</div>
 				<h1 class="view-title">Mantenimiento Programado</h1>
-				<p class="view-subtitle">Programa frecuencias preventivas, vigila vencimientos y deja visible el tecnico responsable de cada equipo.</p>
 			</div>
 			<a th:href="@{/mantenimiento}" class="btn btn-outline-secondary px-4 py-3">Atras</a>
 		</div>
@@ -77,16 +69,6 @@
 			</div>
 		</div>
 
-		<div class="helper-callout">
-			<i class="feather-calendar"></i>
-			<div>
-				<p class="helper-callout-title">Programacion preventiva</p>
-				<p class="helper-callout-copy">
-					Usa esta vista para sostener continuidad operativa. Cada configuracion debe reflejar el tecnico responsable y la frecuencia real del equipo.
-				</p>
-			</div>
-		</div>
-
 		<div class="card-surface-strong">
 			<div class="soft-header">
 				<div class="section-toolbar">
@@ -100,7 +82,6 @@
 			<div class="content-card-header">
 				<div>
 					<h2 class="content-card-title">Programar mantenimiento</h2>
-					<p class="content-card-copy">Crea o ajusta una frecuencia operativa por equipo.</p>
 				</div>
 			</div>
 			<form th:action="@{/mantenimiento/programado/guardar}" method="post" class="row g-3">
@@ -150,7 +131,6 @@
 			<div class="content-card-header">
 				<div>
 					<h2 class="content-card-title">Cronograma de mantenimiento proximo</h2>
-					<p class="content-card-copy">Vista operativa por frecuencia, ultimo mantenimiento y proxima ejecucion.</p>
 				</div>
 			</div>
 			<div class="table-responsive">

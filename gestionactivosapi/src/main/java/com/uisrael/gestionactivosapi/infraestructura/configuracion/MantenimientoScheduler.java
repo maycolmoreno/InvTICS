@@ -28,7 +28,7 @@ public class MantenimientoScheduler {
         programadoService.obtenerPendientesParaNotificar().forEach(mp -> {
             notificacionService.crear(
                     mp.getTecnicoId(),
-                    "Mantenimiento pendiente: " + (mp.getFkEquipo() != null ? mp.getFkEquipo().getCodigoSap() : mp.getEquipoId()),
+                    "Pendiente: " + (mp.getFkEquipo() != null ? mp.getFkEquipo().getCodigoSap() : mp.getEquipoId()),
                     "/mantenimiento/nuevo?equipoId=" + mp.getEquipoId(),
                     null);
             CorreoSchedulerService correo = correoSchedulerService.getIfAvailable();

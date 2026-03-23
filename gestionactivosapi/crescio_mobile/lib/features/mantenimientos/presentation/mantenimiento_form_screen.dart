@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:signature/signature.dart';
 
+import '../../../core/errors/exceptions.dart';
 import '../../../core/network/api_client.dart';
 import '../../auth/data/auth_models.dart';
 import '../../auth/presentation/auth_provider.dart';
@@ -96,6 +97,19 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
         _custodias = custodias;
         _actividades = actividades;
         _ensureValidCustodioSelection();
+      });
+    } on OfflineException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
+      setState(() {
+        _equipos = const [];
+        _custodios = const [];
+        _custodias = const [];
+        _actividades = const [];
+        _custodioId = null;
+        _equipoIds.clear();
       });
     } finally {
       if (mounted) {

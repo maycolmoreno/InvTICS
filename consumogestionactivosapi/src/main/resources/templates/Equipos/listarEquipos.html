@@ -14,7 +14,6 @@
 				<div>
 					<div class="eyebrow">Resumen Operativo</div>
 					<h1 class="view-title">Inventario de Equipos</h1>
-					<p class="view-subtitle">Control centralizado del inventario de activos, con foco en estado operativo, ubicacion y acciones rapidas.</p>
 				</div>
 				<div class="d-flex gap-3 flex-wrap align-items-stretch">
 					<a th:href="@{/equipos/reporte-equipo}" class="btn btn-light px-4 py-3">
@@ -65,7 +64,6 @@
 				<div class="surface-card summary-stat-card">
 					<div class="metric-label">Total de Activos</div>
 					<div class="summary-stat-value" th:text="${#lists.size(listarequipos)}">0</div>
-					<div class="summary-stat-copy">Visibilidad central para equipos, seriales y estado operativo.</div>
 				</div>
 			</div>
 
