@@ -11,7 +11,6 @@ import '../../equipos/presentation/equipos_screen.dart';
 import '../../mantenimientos/presentation/mantenimientos_screen.dart';
 import '../../notificaciones/presentation/notificaciones_screen.dart';
 import '../../ubicaciones/presentation/ubicaciones_screen.dart';
-import '../../visitas/presentation/visitas_screen.dart';
 import 'dashboard_provider.dart';
 
 class DashboardShell extends StatefulWidget {
@@ -57,22 +56,6 @@ class _DashboardShellState extends State<DashboardShell> {
                   label: 'Mantenimientos',
                 ),
                 page: MantenimientosScreen(),
-              ),
-            );
-          }
-          if (auth.hasCapability(UserCapability.viewVisitas)) {
-            tabs.add(
-              _ShellTab(
-                title: 'Visita tecnica',
-                destination: NavigationDestination(
-                  icon: Badge(
-                    isLabelVisible: dashboard.pendingNotifications > 0,
-                    label: Text('${dashboard.pendingNotifications}'),
-                    child: const Icon(Icons.assignment_outlined),
-                  ),
-                  label: 'Visitas',
-                ),
-                page: const VisitasScreen(),
               ),
             );
           }

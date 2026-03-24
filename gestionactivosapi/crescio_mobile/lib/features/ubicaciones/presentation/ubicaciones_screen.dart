@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../auth/data/auth_models.dart';
@@ -43,8 +44,8 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
 
   Future<void> _openForm([Ubicacion? item]) async {
     final canManage = context.read<AuthProvider>().hasCapability(
-      UserCapability.manageUbicaciones,
-    );
+          UserCapability.manageUbicaciones,
+        );
     if (!canManage) {
       return;
     }
@@ -58,11 +59,30 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
     }
   }
 
+  Future<void> _openInMaps(Ubicacion item) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final uri = _mapsUri(item);
+    if (uri == null) {
+      messenger?.showSnackBar(
+        const SnackBar(
+            content:
+                Text('La ubicacion no tiene coordenadas o direccion valida.')),
+      );
+      return;
+    }
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      messenger?.showSnackBar(
+        const SnackBar(content: Text('No fue posible abrir Maps.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final canManage = context.watch<AuthProvider>().hasCapability(
-      UserCapability.manageUbicaciones,
-    );
+          UserCapability.manageUbicaciones,
+        );
     return Scaffold(
       appBar: AppBar(title: const Text('Ubicaciones')),
       floatingActionButton: canManage
@@ -127,16 +147,19 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
                   child: ListView.separated(
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: items.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final item = items[index];
                       final estado = item.estado;
                       final id = item.id == 0 ? null : item.id;
                       return Card(
                         child: ListTile(
-                          onTap: canManage ? () => _openForm(item) : null,
+                          onTap: () => _openInMaps(item),
                           leading: Icon(
-                            estado ? Icons.location_on_outlined : Icons.location_off_outlined,
+                            estado
+                                ? Icons.location_on_outlined
+                                : Icons.location_off_outlined,
                           ),
                           title: Text(item.nombre),
                           subtitle: Text(
@@ -155,12 +178,18 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
                                 color: estado ? Colors.green : Colors.red,
                               ),
                               const SizedBox(height: 6),
+                              IconButton(
+                                tooltip: 'Abrir en Maps',
+                                onPressed: () => _openInMaps(item),
+                                icon: const Icon(Icons.map_outlined),
+                              ),
                               if (canManage)
                                 IconButton(
                                   onPressed: id == null
                                       ? null
                                       : () async {
-                                          await UbicacionesRepository(context.read<ApiClient>())
+                                          await UbicacionesRepository(
+                                                  context.read<ApiClient>())
                                               .actualizarEstado(
                                             idUbicacion: id,
                                             estado: !estado,
@@ -206,6 +235,37 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
       return estadoOk && searchOk;
     }).toList();
   }
+}
+
+Uri? _mapsUri(Ubicacion item) {
+  final link = item.linkCoordenada.trim();
+  if (link.isNotEmpty) {
+    final uri = Uri.tryParse(link);
+    if (uri != null) {
+      return uri;
+    }
+  }
+
+  final lat = item.latitud.trim();
+  final lng = item.longitud.trim();
+  if (lat.isNotEmpty && lng.isNotEmpty) {
+    return Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+  }
+
+  final queryParts = [
+    item.nombre,
+    item.agencia,
+    item.ciudad,
+    item.direccion,
+  ].map((part) => part.trim()).where((part) => part.isNotEmpty).toList();
+  if (queryParts.isEmpty) {
+    return null;
+  }
+  return Uri.https('www.google.com', '/maps/search/', {
+    'api': '1',
+    'query': queryParts.join(', '),
+  });
 }
 
 class UbicacionFormScreen extends StatefulWidget {
@@ -291,11 +351,12 @@ class _UbicacionFormScreenState extends State<UbicacionFormScreen> {
   @override
   Widget build(BuildContext context) {
     final canManage = context.watch<AuthProvider>().hasCapability(
-      UserCapability.manageUbicaciones,
-    );
+          UserCapability.manageUbicaciones,
+        );
     final editing = widget.ubicacion != null;
     return Scaffold(
-      appBar: AppBar(title: Text(editing ? 'Editar ubicacion' : 'Nueva ubicacion')),
+      appBar:
+          AppBar(title: Text(editing ? 'Editar ubicacion' : 'Nueva ubicacion')),
       body: canManage
           ? Form(
               key: _formKey,
@@ -305,15 +366,17 @@ class _UbicacionFormScreenState extends State<UbicacionFormScreen> {
                   TextFormField(
                     controller: _nombreController,
                     decoration: const InputDecoration(labelText: 'Nombre'),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'Ingresa el nombre' : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Ingresa el nombre'
+                        : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _agenciaController,
                     decoration: const InputDecoration(labelText: 'Agencia'),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'Ingresa la agencia' : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Ingresa la agencia'
+                        : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -330,7 +393,9 @@ class _UbicacionFormScreenState extends State<UbicacionFormScreen> {
                   const SizedBox(height: 12),
                   SwitchListTile(
                     value: _estado,
-                    onChanged: editing ? (value) => setState(() => _estado = value) : null,
+                    onChanged: editing
+                        ? (value) => setState(() => _estado = value)
+                        : null,
                     title: const Text('Ubicacion activa'),
                   ),
                   const SizedBox(height: 20),

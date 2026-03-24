@@ -16,9 +16,9 @@ class EquiposScreen extends StatefulWidget {
 class _EquiposScreenState extends State<EquiposScreen> {
   final _searchController = TextEditingController();
   String _estado = 'todos';
-  String _tipo = 'todos';
-  String _custodio = 'todos';
-  String _ubicacion = 'todos';
+  String? _tipo;
+  String? _custodio;
+  String? _ubicacion;
   late Future<List<EquipoListItem>> _future;
 
   @override
@@ -78,22 +78,32 @@ class _EquiposScreenState extends State<EquiposScreen> {
                 builder: (context, snapshot) {
                   final tipos = _tipos(snapshot.data ?? const []);
                   final tipoValue = _validDropdownValue(_tipo, [
-                    'todos',
                     ...tipos,
                   ]);
                   return DropdownButtonFormField<String>(
+                    key: ValueKey('tipo-${tipos.join('|')}-$tipoValue'),
                     initialValue: tipoValue,
+                    isExpanded: true,
                     decoration: const InputDecoration(labelText: 'Tipo'),
                     items: [
-                      const DropdownMenuItem(
-                          value: 'todos', child: Text('Todos')),
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text(
+                          'Todos',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       ...tipos.map(
-                        (tipo) =>
-                            DropdownMenuItem(value: tipo, child: Text(tipo)),
+                        (tipo) => DropdownMenuItem(
+                          value: tipo,
+                          child: Text(
+                            tipo,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
                     ],
-                    onChanged: (value) =>
-                        setState(() => _tipo = value ?? 'todos'),
+                    onChanged: (value) => setState(() => _tipo = value),
                   );
                 },
               ),
@@ -109,24 +119,34 @@ class _EquiposScreenState extends State<EquiposScreen> {
                 builder: (context, snapshot) {
                   final custodios = _custodios(snapshot.data ?? const []);
                   final custodioValue = _validDropdownValue(_custodio, [
-                    'todos',
                     ...custodios,
                   ]);
                   return DropdownButtonFormField<String>(
+                    key: ValueKey(
+                      'custodio-${custodios.join('|')}-$custodioValue',
+                    ),
                     initialValue: custodioValue,
+                    isExpanded: true,
                     decoration: const InputDecoration(labelText: 'Custodio'),
                     items: [
-                      const DropdownMenuItem(
-                          value: 'todos', child: Text('Todos')),
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text(
+                          'Todos',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       ...custodios.map(
                         (custodio) => DropdownMenuItem(
                           value: custodio,
-                          child: Text(custodio),
+                          child: Text(
+                            custodio,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                     ],
-                    onChanged: (value) =>
-                        setState(() => _custodio = value ?? 'todos'),
+                    onChanged: (value) => setState(() => _custodio = value),
                   );
                 },
               ),
@@ -138,24 +158,34 @@ class _EquiposScreenState extends State<EquiposScreen> {
                 builder: (context, snapshot) {
                   final ubicaciones = _ubicaciones(snapshot.data ?? const []);
                   final ubicacionValue = _validDropdownValue(_ubicacion, [
-                    'todos',
                     ...ubicaciones,
                   ]);
                   return DropdownButtonFormField<String>(
+                    key: ValueKey(
+                      'ubicacion-${ubicaciones.join('|')}-$ubicacionValue',
+                    ),
                     initialValue: ubicacionValue,
+                    isExpanded: true,
                     decoration: const InputDecoration(labelText: 'Ubicacion'),
                     items: [
-                      const DropdownMenuItem(
-                          value: 'todos', child: Text('Todas')),
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text(
+                          'Todas',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       ...ubicaciones.map(
                         (ubicacion) => DropdownMenuItem(
                           value: ubicacion,
-                          child: Text(ubicacion),
+                          child: Text(
+                            ubicacion,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                     ],
-                    onChanged: (value) =>
-                        setState(() => _ubicacion = value ?? 'todos'),
+                    onChanged: (value) => setState(() => _ubicacion = value),
                   );
                 },
               ),
@@ -270,12 +300,12 @@ class _EquiposScreenState extends State<EquiposScreen> {
     return items.where((item) {
       final estadoOk =
           _estado == 'todos' || item.estadoEquipo.toUpperCase() == _estado;
-      final tipoOk = _tipo == 'todos' ||
-          item.tipoEquipo.toUpperCase() == _tipo.toUpperCase();
-      final custodioOk = _custodio == 'todos' ||
-          item.custodioNombre.toUpperCase() == _custodio.toUpperCase();
-      final ubicacionOk = _ubicacion == 'todos' ||
-          item.ubicacionNombre.toUpperCase() == _ubicacion.toUpperCase();
+      final tipoOk = _tipo == null ||
+          item.tipoEquipo.toUpperCase() == _tipo!.toUpperCase();
+      final custodioOk = _custodio == null ||
+          item.custodioNombre.toUpperCase() == _custodio!.toUpperCase();
+      final ubicacionOk = _ubicacion == null ||
+          item.ubicacionNombre.toUpperCase() == _ubicacion!.toUpperCase();
       final haystack = [
         _text(item.codigoSap),
         _text(item.serial),

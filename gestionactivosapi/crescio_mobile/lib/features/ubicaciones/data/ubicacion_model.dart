@@ -5,6 +5,9 @@ class Ubicacion {
     required this.agencia,
     required this.ciudad,
     required this.direccion,
+    required this.latitud,
+    required this.longitud,
+    required this.linkCoordenada,
     required this.estado,
   });
 
@@ -13,15 +16,26 @@ class Ubicacion {
   final String agencia;
   final String ciudad;
   final String direccion;
+  final String latitud;
+  final String longitud;
+  final String linkCoordenada;
   final bool estado;
 
   factory Ubicacion.fromJson(Map<String, dynamic> json) {
     return Ubicacion(
-      id: _asInt(json['idUbicacion']) != 0 ? _asInt(json['idUbicacion']) : _asInt(json['id']),
+      id: _asInt(json['idUbicacion']) != 0
+          ? _asInt(json['idUbicacion'])
+          : _asInt(json['id']),
       nombre: _text(json['nombre'], fallback: 'Sin nombre'),
       agencia: _text(json['agencia'], fallback: ''),
       ciudad: _text(json['ciudad'], fallback: ''),
       direccion: _text(json['direccion'], fallback: ''),
+      latitud: _text(json['latitud'], fallback: ''),
+      longitud: _text(json['longitud'], fallback: ''),
+      linkCoordenada: _text(
+        json['linkCoordenada'] ?? json['link_coordenada'],
+        fallback: '',
+      ),
       estado: json['estado'] == true,
     );
   }

@@ -23,7 +23,8 @@ class MantenimientoFormScreen extends StatefulWidget {
   final List<int> initialEquipoIds;
 
   @override
-  State<MantenimientoFormScreen> createState() => _MantenimientoFormScreenState();
+  State<MantenimientoFormScreen> createState() =>
+      _MantenimientoFormScreenState();
 }
 
 class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
@@ -76,6 +77,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   }
 
   Future<void> _loadCatalogs() async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
     setState(() => _loading = true);
     try {
       final apiClient = context.read<ApiClient>();
@@ -89,7 +91,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
           .map((item) => _text(item['categoria'], fallback: 'General'))
           .toSet();
       for (final category in categories) {
-        _observacionControllers.putIfAbsent(category, TextEditingController.new);
+        _observacionControllers.putIfAbsent(
+            category, TextEditingController.new);
       }
       setState(() {
         _equipos = equipos;
@@ -100,9 +103,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       });
     } on OfflineException catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.message)),
-      );
+      messenger?.showSnackBar(SnackBar(content: Text(error.message)));
       setState(() {
         _equipos = const [];
         _custodios = const [];
@@ -139,40 +140,50 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   }
 
   Future<void> _save() async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final navigator = Navigator.of(context);
+    final apiClient = context.read<ApiClient>();
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
     if (_equipoIds.isEmpty || _custodioId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona al menos un equipo y un custodio.')),
+      messenger?.showSnackBar(
+        const SnackBar(
+            content: Text('Selecciona al menos un equipo y un custodio.')),
       );
       return;
     }
-    final equiposInvalidos = _equipoIds.where((equipoId) => !_equipoPerteneceACustodio(equipoId, _custodioId!));
+    final equiposInvalidos = _equipoIds.where(
+        (equipoId) => !_equipoPerteneceACustodio(equipoId, _custodioId!));
     if (equiposInvalidos.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger?.showSnackBar(
         const SnackBar(
-          content: Text('Uno o mas equipos no pertenecen al custodio indicado.'),
+          content:
+              Text('Uno o mas equipos no pertenecen al custodio indicado.'),
         ),
       );
       return;
     }
-    if (_actividades.isEmpty || _actividadesSeleccionadas.length != _actividades.length) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    if (_actividades.isEmpty ||
+        _actividadesSeleccionadas.length != _actividades.length) {
+      messenger?.showSnackBar(
         const SnackBar(content: Text('Debes completar todo el checklist.')),
       );
       return;
     }
     if (_firmaTecnicoController.isEmpty || _firmaCustodioController.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Debes registrar la firma del tecnico y del custodio.')),
+      messenger?.showSnackBar(
+        const SnackBar(
+            content:
+                Text('Debes registrar la firma del tecnico y del custodio.')),
       );
       return;
     }
 
     setState(() => _saving = true);
     try {
-      final repository = MantenimientosRepository(context.read<ApiClient>());
+      final repository = MantenimientosRepository(apiClient);
       final firmaTecnico = await _signatureBase64(_firmaTecnicoController);
       final firmaCustodio = await _signatureBase64(_firmaCustodioController);
       final payloadImagenes = <Map<String, dynamic>>[];
@@ -198,7 +209,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger?.showSnackBar(
         SnackBar(
           content: Text(
             queuedOffline
@@ -207,10 +218,10 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
           ),
         ),
       );
-      Navigator.of(context).pop(true);
+      navigator.pop(true);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger?.showSnackBar(
         const SnackBar(content: Text('No fue posible crear el mantenimiento.')),
       );
     } finally {
@@ -237,17 +248,20 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                 children: [
                   Text(
                     entry.key,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 8),
                   ...entry.value.map((item) {
                     final actividadId = _asInt(item['idActividad']) ?? 0;
-                    final selected = _actividadesSeleccionadas.contains(actividadId);
+                    final selected =
+                        _actividadesSeleccionadas.contains(actividadId);
                     return CheckboxListTile(
                       contentPadding: EdgeInsets.zero,
                       value: selected,
                       title: Text(_text(item['nombre'], fallback: 'Actividad')),
-                      subtitle: Text('Orden ${_text(item['orden'], fallback: '-')}'),
+                      subtitle:
+                          Text('Orden ${_text(item['orden'], fallback: '-')}'),
                       onChanged: (value) {
                         setState(() {
                           if (value == true) {
@@ -282,7 +296,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   bool _equipoPerteneceACustodio(int equipoId, int custodioId) {
     return _custodias.any((custodia) {
       final estado = custodia['estado'] == true;
-      final fkEquipo = Map<String, dynamic>.from(custodia['fkEquipo'] as Map? ?? const {});
+      final fkEquipo =
+          Map<String, dynamic>.from(custodia['fkEquipo'] as Map? ?? const {});
       final fkCustodio =
           Map<String, dynamic>.from(custodia['fkCustodio'] as Map? ?? const {});
       final custodioMatch = _asInt(fkCustodio['idCustodio']) == custodioId ||
@@ -304,13 +319,15 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       return _custodias
           .where((custodia) {
             final estado = custodia['estado'] == true;
-            final fkEquipo = Map<String, dynamic>.from(custodia['fkEquipo'] as Map? ?? const {});
+            final fkEquipo = Map<String, dynamic>.from(
+                custodia['fkEquipo'] as Map? ?? const {});
             return estado && _asInt(fkEquipo['idEquipo']) == equipoId;
           })
           .map((custodia) {
-            final fkCustodio =
-                Map<String, dynamic>.from(custodia['fkCustodio'] as Map? ?? const {});
-            return _asInt(fkCustodio['idCustodio']) ?? _asInt(custodia['idCustodio']);
+            final fkCustodio = Map<String, dynamic>.from(
+                custodia['fkCustodio'] as Map? ?? const {});
+            return _asInt(fkCustodio['idCustodio']) ??
+                _asInt(custodia['idCustodio']);
           })
           .whereType<int>()
           .toSet();
@@ -329,7 +346,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
 
   Future<void> _pickEquipos() async {
     if (_custodioId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         const SnackBar(content: Text('Selecciona primero un custodio.')),
       );
       return;
@@ -354,7 +371,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                     return CheckboxListTile(
                       value: checked,
                       title: Text(_equipoLabel(item)),
-                      subtitle: Text(_text(item.serial, fallback: 'Sin serial')),
+                      subtitle:
+                          Text(_text(item.serial, fallback: 'Sin serial')),
                       onChanged: (value) {
                         setModalState(() {
                           if (value == true) {
@@ -445,7 +463,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
     } else if (_custodioId != null) {
       _custodioController.text = _custodioDisplay(
         _custodios.firstWhere(
-          (item) => (_asInt(item['idCustodio']) ?? _asInt(item['id'])) == _custodioId,
+          (item) =>
+              (_asInt(item['idCustodio']) ?? _asInt(item['id'])) == _custodioId,
           orElse: () => const <String, dynamic>{},
         ),
       );
@@ -457,7 +476,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
     if (custodioId == null) {
       return;
     }
-    final equiposAsignados = _equiposDelCustodio(custodioId).map((equipo) => equipo.id).toSet();
+    final equiposAsignados =
+        _equiposDelCustodio(custodioId).map((equipo) => equipo.id).toSet();
     setState(() {
       _custodioId = custodioId;
       _custodioController.text = _custodioDisplay(item);
@@ -471,20 +491,23 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
     final equipoIds = _custodias
         .where((custodia) {
           final estado = custodia['estado'] == true;
-          final fkCustodio =
-              Map<String, dynamic>.from(custodia['fkCustodio'] as Map? ?? const {});
+          final fkCustodio = Map<String, dynamic>.from(
+              custodia['fkCustodio'] as Map? ?? const {});
           return estado &&
               ((_asInt(fkCustodio['idCustodio']) == custodioId) ||
                   (_asInt(custodia['idCustodio']) == custodioId));
         })
         .map((custodia) {
-          final fkEquipo = Map<String, dynamic>.from(custodia['fkEquipo'] as Map? ?? const {});
+          final fkEquipo = Map<String, dynamic>.from(
+              custodia['fkEquipo'] as Map? ?? const {});
           return _asInt(fkEquipo['idEquipo']);
         })
         .whereType<int>()
         .toSet();
 
-    final equipos = _equipos.where((item) => item.id > 0 && equipoIds.contains(item.id)).toList();
+    final equipos = _equipos
+        .where((item) => item.id > 0 && equipoIds.contains(item.id))
+        .toList();
     equipos.sort((a, b) => _equipoLabel(a).compareTo(_equipoLabel(b)));
     return equipos;
   }
@@ -499,7 +522,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       }
       final nombre = _normalizeText(_text(item['nombre'], fallback: ''));
       final cedula = _normalizeText(_text(item['cedula'], fallback: ''));
-      return nombre.contains(normalizedQuery) || cedula.contains(normalizedQuery);
+      return nombre.contains(normalizedQuery) ||
+          cedula.contains(normalizedQuery);
     });
   }
 
@@ -512,8 +536,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   @override
   Widget build(BuildContext context) {
     final canCreate = context.watch<AuthProvider>().hasCapability(
-      UserCapability.createMantenimiento,
-    );
+          UserCapability.createMantenimiento,
+        );
     if (!canCreate) {
       return Scaffold(
         appBar: AppBar(title: const Text('Nuevo mantenimiento')),
@@ -538,21 +562,25 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   Autocomplete<Map<String, dynamic>>(
-                    initialValue: TextEditingValue(text: _custodioController.text),
+                    initialValue:
+                        TextEditingValue(text: _custodioController.text),
                     displayStringForOption: _custodioDisplay,
                     optionsBuilder: (textEditingValue) {
                       return _buscarCustodios(textEditingValue.text).take(20);
                     },
                     onSelected: _onCustodioSelected,
-                    fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-                      if (textEditingController.text != _custodioController.text) {
+                    fieldViewBuilder: (context, textEditingController,
+                        focusNode, onFieldSubmitted) {
+                      if (textEditingController.text !=
+                          _custodioController.text) {
                         textEditingController.value = _custodioController.value;
                       }
                       return TextFormField(
                         controller: textEditingController,
                         focusNode: focusNode,
                         onChanged: (value) {
-                          _custodioController.value = textEditingController.value;
+                          _custodioController.value =
+                              textEditingController.value;
                           if (value.trim().isEmpty && _custodioId != null) {
                             setState(() {
                               _custodioId = null;
@@ -565,7 +593,9 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                           hintText: 'Busca por cédula, nombre o apellidos',
                           prefixIcon: Icon(Icons.search),
                         ),
-                        validator: (_) => _custodioId == null ? 'Selecciona un custodio' : null,
+                        validator: (_) => _custodioId == null
+                            ? 'Selecciona un custodio'
+                            : null,
                       );
                     },
                     optionsViewBuilder: (context, onSelected, options) {
@@ -576,7 +606,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                           elevation: 4,
                           borderRadius: BorderRadius.circular(12),
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 280, minWidth: 280),
+                            constraints: const BoxConstraints(
+                                maxHeight: 280, minWidth: 280),
                             child: ListView.builder(
                               padding: EdgeInsets.zero,
                               shrinkWrap: true,
@@ -584,8 +615,10 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                               itemBuilder: (context, index) {
                                 final item = items[index];
                                 return ListTile(
-                                  title: Text(_text(item['nombre'], fallback: 'Sin nombre')),
-                                  subtitle: Text(_text(item['cedula'], fallback: 'Sin cédula')),
+                                  title: Text(_text(item['nombre'],
+                                      fallback: 'Sin nombre')),
+                                  subtitle: Text(_text(item['cedula'],
+                                      fallback: 'Sin cédula')),
                                   onTap: () => onSelected(item),
                                 );
                               },
@@ -606,7 +639,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (_custodioId != null && _equiposDelCustodio(_custodioId!).isEmpty)
+                  if (_custodioId != null &&
+                      _equiposDelCustodio(_custodioId!).isEmpty)
                     const Padding(
                       padding: EdgeInsets.only(bottom: 8),
                       child: Text(
@@ -619,7 +653,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                       spacing: 8,
                       runSpacing: 8,
                       children: _equipos
-                          .where((item) => item.id > 0 && _equipoIds.contains(item.id))
+                          .where((item) =>
+                              item.id > 0 && _equipoIds.contains(item.id))
                           .map(
                             (item) => InputChip(
                               label: Text(_equipoLabel(item)),
@@ -639,22 +674,30 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                     initialValue: _tipo,
                     decoration: const InputDecoration(labelText: 'Tipo'),
                     items: const [
-                      DropdownMenuItem(value: 'PREVENTIVO', child: Text('Preventivo')),
-                      DropdownMenuItem(value: 'CORRECTIVO', child: Text('Correctivo')),
+                      DropdownMenuItem(
+                          value: 'PREVENTIVO', child: Text('Preventivo')),
+                      DropdownMenuItem(
+                          value: 'CORRECTIVO', child: Text('Correctivo')),
                     ],
-                    onChanged: (value) => setState(() => _tipo = value ?? _tipo),
+                    onChanged: (value) =>
+                        setState(() => _tipo = value ?? _tipo),
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: _estadoGeneral,
-                    decoration: const InputDecoration(labelText: 'Estado general'),
+                    decoration:
+                        const InputDecoration(labelText: 'Estado general'),
                     items: const [
-                      DropdownMenuItem(value: 'OPERATIVO', child: Text('Operativo')),
-                      DropdownMenuItem(value: 'REQUIERE_REVISION', child: Text('Requiere revision')),
-                      DropdownMenuItem(value: 'NO_OPERATIVO', child: Text('No operativo')),
+                      DropdownMenuItem(
+                          value: 'OPERATIVO', child: Text('Operativo')),
+                      DropdownMenuItem(
+                          value: 'REQUIERE_REVISION',
+                          child: Text('Requiere revision')),
+                      DropdownMenuItem(
+                          value: 'NO_OPERATIVO', child: Text('No operativo')),
                     ],
-                    onChanged: (value) =>
-                        setState(() => _estadoGeneral = value ?? _estadoGeneral),
+                    onChanged: (value) => setState(
+                        () => _estadoGeneral = value ?? _estadoGeneral),
                   ),
                   const SizedBox(height: 12),
                   ListTile(
@@ -690,7 +733,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                     const Card(
                       child: Padding(
                         padding: EdgeInsets.all(16),
-                        child: Text('No hay actividades checklist configuradas.'),
+                        child:
+                            Text('No hay actividades checklist configuradas.'),
                       ),
                     )
                   else
@@ -718,14 +762,16 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                     controller: _firmaCustodioController,
                   ),
                   const SizedBox(height: 16),
-                  Row(
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       OutlinedButton.icon(
                         onPressed: _pickImages,
                         icon: const Icon(Icons.photo_library_outlined),
                         label: const Text('Agregar imagenes'),
                       ),
-                      const SizedBox(width: 12),
                       Text('${_imagenes.length} seleccionadas'),
                     ],
                   ),
@@ -736,11 +782,17 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.image_outlined),
                         title: Text(image.name),
-                        subtitle: Text(image.path),
+                        subtitle: Text(
+                          image.path,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         trailing: IconButton(
                           onPressed: () {
                             setState(
-                              () => _imagenes = _imagenes.where((item) => item.path != image.path).toList(),
+                              () => _imagenes = _imagenes
+                                  .where((item) => item.path != image.path)
+                                  .toList(),
                             );
                           },
                           icon: const Icon(Icons.delete_outline),
@@ -757,7 +809,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.save_outlined),
-                    label: Text(_saving ? 'Guardando...' : 'Crear mantenimiento'),
+                    label:
+                        Text(_saving ? 'Guardando...' : 'Crear mantenimiento'),
                   ),
                 ],
               ),
@@ -848,7 +901,8 @@ String _normalizeText(String value) {
   const target = 'AAAAEEEEIIIIOOOOUUUUNaaaaeeeeiiiioooouuuun';
   var normalized = value.trim().toLowerCase();
   for (var index = 0; index < source.length; index++) {
-    normalized = normalized.replaceAll(source[index].toLowerCase(), target[index].toLowerCase());
+    normalized = normalized.replaceAll(
+        source[index].toLowerCase(), target[index].toLowerCase());
   }
   return normalized;
 }
