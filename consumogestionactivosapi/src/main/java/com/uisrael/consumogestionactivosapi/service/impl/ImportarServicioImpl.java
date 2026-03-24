@@ -12,6 +12,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ImportarServicioImpl implements IImportarServicio {
 
+    private static final Logger logger = LoggerFactory.getLogger(ImportarServicioImpl.class);
     private final IEquiposServicio servicioEquipos;
     private final IMarcasServicio servicioMarcas;
 
@@ -129,7 +132,7 @@ public class ImportarServicioImpl implements IImportarServicio {
                         servicioMarcas.nuevaMarca(nueva);
                         marcasMap = buildMarcasMap();
                     } catch (Exception e) {
-                        System.err.println("No se pudo crear la marca '" + fila.getMarca() + "': " + e.getMessage());
+                        logger.warn("No se pudo crear la marca '{}': {}", fila.getMarca(), e.getMessage());
                         marcasMap = buildMarcasMap();
                     }
                 }
@@ -142,8 +145,7 @@ public class ImportarServicioImpl implements IImportarServicio {
                     servicioEquipos.crearEquipo(dto);
                     count++;
                 } catch (Exception e) {
-                    System.err.println("Error importando equipo (fila '" + fila.getDescripcion()
-                            + "', unidad " + (i + 1) + "): " + e.getMessage());
+                    logger.error("Error importando equipo (fila '{}', unidad {}): {}", fila.getDescripcion(), (i + 1), e.getMessage());
                 }
             }
         }

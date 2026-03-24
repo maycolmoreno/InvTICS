@@ -2,6 +2,8 @@ package com.uisrael.consumogestionactivosapi.service.impl;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,6 +16,7 @@ import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 @Service
 public class EquiposServicioImpl implements IEquiposServicio {
 
+	private static final Logger logger = LoggerFactory.getLogger(EquiposServicioImpl.class);
 	private final WebClient clienteWeb;
 
 	public EquiposServicioImpl(WebClient clienteWeb) {
@@ -31,12 +34,11 @@ public class EquiposServicioImpl implements IEquiposServicio {
 
 		try {
 		    clienteWeb.post().uri("/equipos").bodyValue(dto).retrieve().toBodilessEntity().block();
-
+		    logger.info("Equipo creado exitosamente");
 
 		} catch (WebClientResponseException ex) {
-		    System.out.println("STATUS: " + ex.getStatusCode());
-		    System.out.println("BODY: " + ex.getResponseBodyAsString());
-		    throw ex; // o maneja el error devolviendo a la vista con mensaje
+		    logger.error("Error al crear equipo - STATUS: {}, BODY: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
+		    throw ex;
 		}
 	}
 
