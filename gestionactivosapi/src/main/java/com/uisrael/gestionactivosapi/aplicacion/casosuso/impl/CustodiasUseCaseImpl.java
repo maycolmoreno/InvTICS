@@ -8,14 +8,14 @@ import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICustodiasUseC
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.DuplicidadException;
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ICustodiasRepositorio;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodiasRepositorioPuerto;
 
 public class CustodiasUseCaseImpl implements ICustodiasUseCase {
 
-    private final ICustodiasRepositorio repositorio;
+    private final CustodiasRepositorioPuerto custodiasRepositorio;
 
-    public CustodiasUseCaseImpl(ICustodiasRepositorio repositorio) {
-        this.repositorio = repositorio;
+    public CustodiasUseCaseImpl(CustodiasRepositorioPuerto custodiasRepositorio) {
+        this.custodiasRepositorio = custodiasRepositorio;
     }
 
     @Override
@@ -25,18 +25,18 @@ public class CustodiasUseCaseImpl implements ICustodiasUseCase {
             throw new IllegalArgumentException("La custodia es obligatoria");
         }
         validarEquipoDisponibleParaCustodia(custodia);
-        return repositorio.guardar(custodia);
+        return custodiasRepositorio.guardar(custodia);
     }
 
     @Override
     public Custodias obtenerPorId(int id) {
-        return repositorio.buscarPorId(id)
+        return custodiasRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Custodia no encontrada"));
     }
 
     @Override
     public List<Custodias> listar() {
-        return repositorio.listarTodos();
+        return custodiasRepositorio.listarTodos();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class CustodiasUseCaseImpl implements ICustodiasUseCase {
         if (custodia == null) {
             throw new IllegalArgumentException("La custodia es obligatoria");
         }
-        repositorio.buscarPorId(id)
+        custodiasRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Custodia no encontrada"));
 
         if (custodia.getFkEquipo() == null || custodia.getFkEquipo().getIdEquipo() <= 0) {
@@ -53,11 +53,11 @@ public class CustodiasUseCaseImpl implements ICustodiasUseCase {
         }
 
         if (custodia.isEstado()
-                && repositorio.existeCustodiaActivaPorEquipoParaOtroRegistro(custodia.getFkEquipo().getIdEquipo(), id)) {
+                && custodiasRepositorio.existeCustodiaActivaPorEquipoParaOtroRegistro(custodia.getFkEquipo().getIdEquipo(), id)) {
             throw new DuplicidadException("El equipo ya se encuentra asociado a otro custodio activo");
         }
 
-        Custodias actualizada = repositorio.actualizar(id, custodia);
+        Custodias actualizada = custodiasRepositorio.actualizar(id, custodia);
         return actualizada;
     }
 
@@ -67,14 +67,14 @@ public class CustodiasUseCaseImpl implements ICustodiasUseCase {
         if (custodia == null) {
             throw new IllegalArgumentException("La custodia es obligatoria");
         }
-        repositorio.buscarPorId(id)
+        custodiasRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Custodia no encontrada"));
-        return repositorio.actualizarEstado(id, custodia);
+        return custodiasRepositorio.actualizarEstado(id, custodia);
     }
 
     @Override
     public long contarPorTipoMovimiento(String tipoMovimiento) {
-        return repositorio.contarPorTipoMovimiento(tipoMovimiento);
+        return custodiasRepositorio.contarPorTipoMovimiento(tipoMovimiento);
     }
 
     private void validarEquipoDisponibleParaCustodia(Custodias custodia) {
@@ -82,7 +82,7 @@ public class CustodiasUseCaseImpl implements ICustodiasUseCase {
             throw new IllegalArgumentException("Debe seleccionar un equipo");
         }
 
-        if (repositorio.existeCustodiaActivaPorEquipo(custodia.getFkEquipo().getIdEquipo())) {
+        if (custodiasRepositorio.existeCustodiaActivaPorEquipo(custodia.getFkEquipo().getIdEquipo())) {
             throw new DuplicidadException("El equipo ya se encuentra asociado a un custodio activo");
         }
     }

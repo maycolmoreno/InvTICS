@@ -8,19 +8,19 @@ import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoE
 import com.uisrael.gestionactivosapi.dominio.entidades.ActividadRealizada;
 import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.entidades.Mantenimientos;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IActividadRealizadaRepository;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IMantenimientoRepository;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ActividadRealizadaRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.ActividadRealizadaRequestDTO;
 
 public class GuardarMantenimientoUseCaseImpl implements IGuardarMantenimientoUseCase {
 
-    private final IMantenimientoRepository mantenimientoRepository;
-    private final IActividadRealizadaRepository actividadRealizadaRepository;
+    private final MantenimientoRepositorioPuerto mantenimientoRepositorio;
+    private final ActividadRealizadaRepositorioPuerto actividadRealizadaRepositorio;
 
-    public GuardarMantenimientoUseCaseImpl(IMantenimientoRepository mantenimientoRepository,
-            IActividadRealizadaRepository actividadRealizadaRepository) {
-        this.mantenimientoRepository = mantenimientoRepository;
-        this.actividadRealizadaRepository = actividadRealizadaRepository;
+    public GuardarMantenimientoUseCaseImpl(MantenimientoRepositorioPuerto mantenimientoRepositorio,
+            ActividadRealizadaRepositorioPuerto actividadRealizadaRepositorio) {
+        this.mantenimientoRepositorio = mantenimientoRepositorio;
+        this.actividadRealizadaRepositorio = actividadRealizadaRepositorio;
     }
 
     @Override
@@ -30,10 +30,10 @@ public class GuardarMantenimientoUseCaseImpl implements IGuardarMantenimientoUse
             throw new IllegalArgumentException("idMantenimiento es obligatorio");
         }
 
-        Mantenimientos mantenimiento = mantenimientoRepository.buscarPorId(idMantenimiento)
+        Mantenimientos mantenimiento = mantenimientoRepositorio.buscarPorId(idMantenimiento)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mantenimiento no encontrado"));
 
-        actividadRealizadaRepository.eliminarPorMantenimiento(idMantenimiento);
+        actividadRealizadaRepositorio.eliminarPorMantenimiento(idMantenimiento);
 
         if (actividades != null && !actividades.isEmpty()) {
             List<ActividadRealizada> entidades = actividades.stream().filter(a -> a != null).map(a -> {
@@ -43,7 +43,7 @@ public class GuardarMantenimientoUseCaseImpl implements IGuardarMantenimientoUse
                 ar.setRealizada(Boolean.TRUE.equals(a.getRealizada()));
                 return ar;
             }).toList();
-            actividadRealizadaRepository.guardarTodas(entidades);
+            actividadRealizadaRepositorio.guardarTodas(entidades);
         }
 
         StringBuilder desc = new StringBuilder();
@@ -67,6 +67,6 @@ public class GuardarMantenimientoUseCaseImpl implements IGuardarMantenimientoUse
         mantenimiento.setEstadoInterno(EstadoInternoMantenimiento.CERRADO);
         mantenimiento.setFecCierre(LocalDateTime.now());
 
-        mantenimientoRepository.guardar(mantenimiento);
+        mantenimientoRepositorio.guardar(mantenimiento);
     }
 }

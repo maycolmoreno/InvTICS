@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../core/errors/exceptions.dart';
+import '../../../core/domain/usecases/auth/get_stored_session_usecase.dart';
+import '../../../core/domain/usecases/auth/login_usecase.dart';
+import '../../../core/domain/usecases/auth/logout_usecase.dart';
+import '../../../core/domain/entities/auth_entity.dart';
 import '../data/auth_models.dart';
-import '../data/auth_repository.dart';
 
 enum AuthStatus {
   loading,
@@ -12,9 +14,17 @@ enum AuthStatus {
 }
 
 class AuthProvider extends ChangeNotifier {
-  AuthProvider({required AuthRepository repository}) : _repository = repository;
+  AuthProvider({
+    required LoginUseCase loginUseCase,
+    required LogoutUseCase logoutUseCase,
+    required GetStoredSessionUseCase getStoredSessionUseCase,
+  })  : _loginUseCase = loginUseCase,
+        _logoutUseCase = logoutUseCase,
+        _getStoredSessionUseCase = getStoredSessionUseCase;
 
-  final AuthRepository _repository;
+  final LoginUseCase _loginUseCase;
+  final LogoutUseCase _logoutUseCase;
+  final GetStoredSessionUseCase _getStoredSessionUseCase;
 
   AuthStatus _status = AuthStatus.loading;
   AuthStatus get status => _status;
@@ -38,22 +48,20 @@ class AuthProvider extends ChangeNotifier {
       return;
     }
 
-    final stored = await _repository.readStoredSession();
+    final stored = await _getStoredSessionUseCase();
     if (stored == null) {
       _status = AuthStatus.unauthenticated;
       notifyListeners();
       return;
     }
 
-    if (!stored.isSupported) {
-      await _repository.logout();
-      _status = AuthStatus.unauthenticated;
-      _errorMessage = 'El rol actual no esta soportado por la aplicacion movil';
-      notifyListeners();
-      return;
-    }
-
-    _session = stored;
+    // Convertir AuthSession (entity) a AuthSession (model) si es necesario
+    _session = AuthSession(
+      token: stored.token,
+      username: stored.user.username,
+      displayName: stored.user.displayName,
+      role: stored.user.role,
+    );
     _status = AuthStatus.authenticated;
     notifyListeners();
   }
@@ -64,40 +72,51 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final session = await _repository.login(
-        LoginRequest(username: username.trim(), password: password),
-      );
-      if (!session.isSupported) {
-        await _repository.logout();
-        _status = AuthStatus.unauthenticated;
-        _errorMessage = 'El rol actual no esta soportado por la aplicacion movil';
-        notifyListeners();
-        return false;
-      }
+      final credentials = LoginCredentials(username: username.trim(), password: password);
+      final result = await _loginUseCase(credentials);
 
-      _session = session;
-      _status = AuthStatus.authenticated;
-      notifyListeners();
-      return true;
-    } on AuthException catch (e) {
+      return result.fold(
+        (failure) {
+          _status = AuthStatus.unauthenticated;
+          _errorMessage = failure.message;
+          notifyListeners();
+          return false;
+        },
+        (session) {
+          // Convertir a AuthSession model
+          _session = AuthSession(
+            token: session.token,
+            username: session.user.username,
+            displayName: session.user.displayName,
+            role: session.user.role,
+          );
+          _status = AuthStatus.authenticated;
+          notifyListeners();
+          return true;
+        },
+      );
+    } catch (e) {
       _status = AuthStatus.unauthenticated;
-      _errorMessage = e.message;
-      notifyListeners();
-      return false;
-    } catch (_) {
-      _status = AuthStatus.unauthenticated;
-      _errorMessage = 'No fue posible iniciar sesion.';
+      _errorMessage = 'No fue posible iniciar sesión.';
       notifyListeners();
       return false;
     }
   }
 
   Future<void> logout() async {
-    await _repository.logout();
-    _session = null;
-    _status = AuthStatus.unauthenticated;
+    final result = await _logoutUseCase();
+    result.fold(
+      (failure) {
+        _errorMessage = failure.message;
+      },
+      (_) {
+        _session = null;
+        _status = AuthStatus.unauthenticated;
+      },
+    );
     notifyListeners();
   }
+}
 
   void markServerConfigured() {
     _status = AuthStatus.unauthenticated;

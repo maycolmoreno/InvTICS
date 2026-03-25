@@ -14,18 +14,18 @@ import com.uisrael.gestionactivosapi.dominio.entidades.PrioridadTicket;
 import com.uisrael.gestionactivosapi.dominio.entidades.Ticket;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoOrigenMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoOrigenTicket;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IMantenimientosRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ITicketsRepositorio;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.TicketRepositorioPuerto;
 
 public class TicketsUseCaseImpl implements ITicketsUseCase {
 
-    private final ITicketsRepositorio ticketsRepositorio;
-    private final IMantenimientosRepositorio mantenimientosRepositorio;
+    private final TicketRepositorioPuerto ticketRepositorio;
+    private final MantenimientoRepositorioPuerto mantenimientoRepositorio;
 
-    public TicketsUseCaseImpl(ITicketsRepositorio ticketsRepositorio,
-            IMantenimientosRepositorio mantenimientosRepositorio) {
-        this.ticketsRepositorio = ticketsRepositorio;
-        this.mantenimientosRepositorio = mantenimientosRepositorio;
+    public TicketsUseCaseImpl(TicketRepositorioPuerto ticketRepositorio,
+            MantenimientoRepositorioPuerto mantenimientoRepositorio) {
+        this.ticketRepositorio = ticketRepositorio;
+        this.mantenimientoRepositorio = mantenimientoRepositorio;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class TicketsUseCaseImpl implements ITicketsUseCase {
                 ticket.creadoEn() == null ? ahora : ticket.creadoEn(),
                 ahora,
                 ticket.fkMantenimiento());
-        return ticketsRepositorio.guardar(nuevo);
+        return ticketRepositorio.guardar(nuevo);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class TicketsUseCaseImpl implements ITicketsUseCase {
             throw new IllegalArgumentException("El tecnico asignado es obligatorio");
         }
         Ticket ticket = obtenerPorId(idTicket);
-        return ticketsRepositorio.guardar(ticket.conAsignacion(idTecnicoAsignado));
+        return ticketRepositorio.guardar(ticket.conAsignacion(idTecnicoAsignado));
     }
 
     @Override
@@ -85,27 +85,27 @@ public class TicketsUseCaseImpl implements ITicketsUseCase {
         mantenimiento.setOdooTicketId(ticket.odooTicketId());
         mantenimiento.setActivo(Boolean.TRUE);
 
-        Mantenimientos guardado = mantenimientosRepositorio.guardar(mantenimiento);
-        return ticketsRepositorio.guardar(ticket.conCierre(guardado.getIdMantenimiento()));
+        Mantenimientos guardado = mantenimientoRepositorio.guardar(mantenimiento);
+        return ticketRepositorio.guardar(ticket.conCierre(guardado.getIdMantenimiento()));
     }
 
     @Override
     public Ticket obtenerPorId(Integer idTicket) {
-        return ticketsRepositorio.buscarPorId(idTicket)
+        return ticketRepositorio.buscarPorId(idTicket)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Ticket no encontrado"));
     }
 
     @Override
     public List<Ticket> listar(EstadoTicket estado, Integer idEquipo, String odooTicketId) {
         if (odooTicketId != null && !odooTicketId.isBlank()) {
-            return ticketsRepositorio.buscarPorOdooTicketId(odooTicketId).stream().toList();
+            return ticketRepositorio.buscarPorOdooTicketId(odooTicketId).stream().toList();
         }
         if (idEquipo != null) {
-            return ticketsRepositorio.buscarPorEquipo(idEquipo);
+            return ticketRepositorio.buscarPorEquipo(idEquipo);
         }
         if (estado != null) {
-            return ticketsRepositorio.buscarPorEstado(estado);
+            return ticketRepositorio.buscarPorEstado(estado);
         }
-        return ticketsRepositorio.listarTodos();
+        return ticketRepositorio.listarTodos();
     }
 }

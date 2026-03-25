@@ -6,33 +6,33 @@ import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IVincularCusto
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodios;
 import com.uisrael.gestionactivosapi.dominio.entidades.Usuarios;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ICustodiosRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IUsuariosRepositorio;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodioRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.UsuarioRepositorioPuerto;
 
 public class VincularCustodioConUsuarioUseCaseImpl implements IVincularCustodioConUsuarioUseCase {
 
-    private final ICustodiosRepositorio custodiosRepositorio;
-    private final IUsuariosRepositorio usuariosRepositorio;
+    private final CustodioRepositorioPuerto custodioRepositorio;
+    private final UsuarioRepositorioPuerto usuarioRepositorio;
 
-    public VincularCustodioConUsuarioUseCaseImpl(ICustodiosRepositorio custodiosRepositorio,
-            IUsuariosRepositorio usuariosRepositorio) {
-        this.custodiosRepositorio = custodiosRepositorio;
-        this.usuariosRepositorio = usuariosRepositorio;
+    public VincularCustodioConUsuarioUseCaseImpl(CustodioRepositorioPuerto custodioRepositorio,
+            UsuarioRepositorioPuerto usuarioRepositorio) {
+        this.custodioRepositorio = custodioRepositorio;
+        this.usuarioRepositorio = usuarioRepositorio;
     }
 
     @Override
     @Transactional
     public Custodios ejecutar(int idCustodio, int idUsuario) {
-        Custodios custodio = custodiosRepositorio.buscarPorId(idCustodio)
+        Custodios custodio = custodioRepositorio.buscarPorId(idCustodio)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Custodio no encontrado"));
-        Usuarios usuario = usuariosRepositorio.buscarPorId(idUsuario)
+        Usuarios usuario = usuarioRepositorio.buscarPorId(idUsuario)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
 
-        if (custodiosRepositorio.existeUsuarioVinculadoEnOtroCustodio(idUsuario, idCustodio)) {
+        if (custodioRepositorio.existeUsuarioVinculadoEnOtroCustodio(idUsuario, idCustodio)) {
             throw new IllegalArgumentException("El usuario ya esta vinculado a otro custodio");
         }
 
         custodio.setFkUsuario(usuario);
-        return custodiosRepositorio.vincularUsuario(idCustodio, idUsuario);
+        return custodioRepositorio.vincularUsuario(idCustodio, idUsuario);
     }
 }

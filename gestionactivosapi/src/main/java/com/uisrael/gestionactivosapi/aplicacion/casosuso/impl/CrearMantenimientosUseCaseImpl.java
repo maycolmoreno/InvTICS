@@ -13,22 +13,22 @@ import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimient
 import com.uisrael.gestionactivosapi.dominio.entidades.Mantenimientos;
 import com.uisrael.gestionactivosapi.dominio.entidades.PrioridadMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoMantenimiento;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ICustodiasRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IEquiposRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IMantenimientoRepository;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodiasRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EquipoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;
 
 public class CrearMantenimientosUseCaseImpl implements ICrearMantenimientosUseCase {
 
     private static final long DIAS_MINIMO_PREVENTIVO = 90L;
 
-    private final IMantenimientoRepository mantenimientoRepository;
-    private final ICustodiasRepositorio custodiasRepositorio;
-    private final IEquiposRepositorio equiposRepositorio;
+    private final MantenimientoRepositorioPuerto mantenimientoRepositorio;
+    private final CustodiasRepositorioPuerto custodiasRepositorio;
+    private final EquipoRepositorioPuerto equiposRepositorio;
 
-    public CrearMantenimientosUseCaseImpl(IMantenimientoRepository mantenimientoRepository,
-            ICustodiasRepositorio custodiasRepositorio,
-            IEquiposRepositorio equiposRepositorio) {
-        this.mantenimientoRepository = mantenimientoRepository;
+    public CrearMantenimientosUseCaseImpl(MantenimientoRepositorioPuerto mantenimientoRepositorio,
+            CustodiasRepositorioPuerto custodiasRepositorio,
+            EquipoRepositorioPuerto equiposRepositorio) {
+        this.mantenimientoRepositorio = mantenimientoRepositorio;
         this.custodiasRepositorio = custodiasRepositorio;
         this.equiposRepositorio = equiposRepositorio;
     }
@@ -48,7 +48,7 @@ public class CrearMantenimientosUseCaseImpl implements ICrearMantenimientosUseCa
 
         LocalDateTime now = LocalDateTime.now();
         int year = now.getYear();
-        Integer max = mantenimientoRepository.obtenerMaxSecuenciaPorYear(year);
+        Integer max = mantenimientoRepositorio.obtenerMaxSecuenciaPorYear(year);
         int secuencia = (max == null) ? 1 : (max + 1);
 
         List<Mantenimientos> creados = new ArrayList<>();
@@ -85,7 +85,7 @@ public class CrearMantenimientosUseCaseImpl implements ICrearMantenimientosUseCa
                 m.setIdUsuario(idUsuarioTecnico);
             }
 
-            Mantenimientos guardado = mantenimientoRepository.guardar(m);
+            Mantenimientos guardado = mantenimientoRepositorio.guardar(m);
             creados.add(guardado);
         }
 
@@ -97,7 +97,7 @@ public class CrearMantenimientosUseCaseImpl implements ICrearMantenimientosUseCa
     }
 
     private void validarVentanaPreventiva(Integer equipoId, LocalDate fechaActual) {
-        LocalDateTime ultimoCierre = mantenimientoRepository.obtenerUltimoCierrePorEquipo(equipoId);
+        LocalDateTime ultimoCierre = mantenimientoRepositorio.obtenerUltimoCierrePorEquipo(equipoId);
         if (ultimoCierre == null) {
             return;
         }

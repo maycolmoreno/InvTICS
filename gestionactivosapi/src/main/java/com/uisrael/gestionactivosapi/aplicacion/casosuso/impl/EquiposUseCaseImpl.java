@@ -6,16 +6,16 @@ import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IEquiposUseCas
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.DuplicidadException;
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Equipos;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IEquiposRepositorio;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EquipoRepositorioPuerto;
 
 public class EquiposUseCaseImpl implements IEquiposUseCase {
 
 	private static final String CODIGO_ACTIVO_FIJO_REGEX = "^[A-Z]_EC_\\d{11}$";
 
-	private final IEquiposRepositorio repositorio;
+	private final EquipoRepositorioPuerto equipoRepositorio;
 
-	public EquiposUseCaseImpl(IEquiposRepositorio repositorio) {
-		this.repositorio = repositorio;
+	public EquiposUseCaseImpl(EquipoRepositorioPuerto equipoRepositorio) {
+		this.equipoRepositorio = equipoRepositorio;
 	}
 
 	@Override
@@ -25,18 +25,18 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 			if (!codigoActivoFijo.matches(CODIGO_ACTIVO_FIJO_REGEX)) {
 				throw new IllegalArgumentException("El Código Activo Fijo debe tener el formato A_EC_00000000919");
 			}
-			if (repositorio.existeCodigo(codigoActivoFijo)) {
+			if (equipoRepositorio.existeCodigo(codigoActivoFijo)) {
 				throw new DuplicidadException("Ya existe un equipo con ese Código Activo Fijo");
 			}
 		}
-		if (repositorio.existeSerial(equipo.getSerial().trim())) {
+		if (equipoRepositorio.existeSerial(equipo.getSerial().trim())) {
 			throw new DuplicidadException("Ya existe un equipo con ese Serial");
 		}
 
 		if (equipo.getIp() != null && !equipo.getIp().isBlank()) {
 			String ip = equipo.getIp().trim();
 
-			if (repositorio.existeIP(ip)) {
+			if (equipoRepositorio.existeIP(ip)) {
 				throw new DuplicidadException("Ya existe un equipo con esa dirección IP");
 			}
 
@@ -45,23 +45,23 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 		if (equipo.getMac() != null && !equipo.getMac().isBlank()) {
 			String mac = equipo.getMac().trim().toUpperCase();
 
-			if (repositorio.existeMAC(mac)) {
+			if (equipoRepositorio.existeMAC(mac)) {
 				throw new DuplicidadException("Ya existe un equipo con esa dirección MAC");
 			}
 
 		}
 
-		return repositorio.guardar(equipo);
+		return equipoRepositorio.guardar(equipo);
 	}
 
 	@Override
 	public Equipos obtenerPorId(int id) {
-		return repositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Equipo no encontrado"));
+		return equipoRepositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Equipo no encontrado"));
 	}
 
 	@Override
 	public List<Equipos> listar() {
-		return repositorio.listarTodos();
+		return equipoRepositorio.listarTodos();
 	}
 
 	@Override
@@ -71,23 +71,23 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 			if (!codigoActivoFijo.matches(CODIGO_ACTIVO_FIJO_REGEX)) {
 				throw new IllegalArgumentException("El Código Activo Fijo debe tener el formato A_EC_00000000919");
 			}
-			if (repositorio.existeCodigoParaOtro(codigoActivoFijo, id)) {
+			if (equipoRepositorio.existeCodigoParaOtro(codigoActivoFijo, id)) {
 				throw new DuplicidadException("Ya existe un equipo con ese Código Activo Fijo");
 			}
 		}
 
-		if (repositorio.existeSerialParaOtro(equipo.getSerial().trim(), id)) {
+		if (equipoRepositorio.existeSerialParaOtro(equipo.getSerial().trim(), id)) {
 			throw new DuplicidadException("Ya existe un equipo con ese Serial");
 		}
 
 		if (equipo.getIp() != null && !equipo.getIp().isBlank()) {
-			if (repositorio.existeIPParaOtro(equipo.getIp().trim(), id)) {
+			if (equipoRepositorio.existeIPParaOtro(equipo.getIp().trim(), id)) {
 				throw new DuplicidadException("Ya existe un equipo con esa dirección IP");
 			}
 		}
 
 		if (equipo.getMac() != null && !equipo.getMac().isBlank()) {
-			if (repositorio.existeMACParaOtro(equipo.getMac().trim(), id)) {
+			if (equipoRepositorio.existeMACParaOtro(equipo.getMac().trim(), id)) {
 				throw new DuplicidadException("Ya existe un equipo con esa dirección MAC");
 			}
 		}
@@ -100,13 +100,13 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 				equipo.getFechaCompra(), equipo.getPrecioCompra(), equipo.getEstadoEquipo(),
 				equipo.getObservacionEquipo(), equipo.isEstado(), equipo.getFkMarca(), equipo.getFkCategoria());
 
-		return repositorio.actualizar(id, actualizado);
+		return equipoRepositorio.actualizar(id, actualizado);
 	}
 
 	@Override
 	public Equipos actualizarEstado(int id, boolean estado) {
 
-		Equipos equipo = repositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Equipo no encontrado"));
+		Equipos equipo = equipoRepositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Equipo no encontrado"));
 
 		Equipos actualizado = new Equipos(id, equipo.getCodigoSap(), equipo.getTipoEquipo(), equipo.getModelo(),
 				equipo.getSerial(), equipo.getProcesador(), equipo.getMemoriaRamGb(),
@@ -116,47 +116,47 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 				equipo.getFechaCompra(), equipo.getPrecioCompra(), equipo.getEstadoEquipo(),
 				equipo.getObservacionEquipo(), estado, equipo.getFkMarca(), equipo.getFkCategoria());
 
-		return repositorio.actualizar(id, actualizado);
+		return equipoRepositorio.actualizar(id, actualizado);
 	}
 
 	@Override
 	public boolean existeCodigo(String codigo) {
-		return repositorio.existeCodigo(codigo.trim());
+		return equipoRepositorio.existeCodigo(codigo.trim());
 	}
 
 	@Override
 	public boolean existeCodigoParaOtro(String codigo, int idEquipo) {
-		return repositorio.existeCodigoParaOtro(codigo.trim(), idEquipo);
+		return equipoRepositorio.existeCodigoParaOtro(codigo.trim(), idEquipo);
 	}
 
 	@Override
 	public boolean existeSerial(String serial) {
-		return repositorio.existeSerial(serial.trim());
+		return equipoRepositorio.existeSerial(serial.trim());
 	}
 
 	@Override
 	public boolean existeSerialParaOtro(String serial, int idEquipo) {
-		return repositorio.existeSerialParaOtro(serial.trim(), idEquipo);
+		return equipoRepositorio.existeSerialParaOtro(serial.trim(), idEquipo);
 	}
 
 	@Override
 	public boolean existeIP(String ip) {
-		return repositorio.existeIP(ip.trim());
+		return equipoRepositorio.existeIP(ip.trim());
 	}
 
 	@Override
 	public boolean existeIPParaOtro(String ip, int idEquipo) {
-		return repositorio.existeIPParaOtro(ip.trim(), idEquipo);
+		return equipoRepositorio.existeIPParaOtro(ip.trim(), idEquipo);
 	}
 
 	@Override
 	public boolean existeMAC(String mac) {
-		return repositorio.existeMAC(mac.trim());
+		return equipoRepositorio.existeMAC(mac.trim());
 	}
 
 	@Override
 	public boolean existeMACParaOtro(String mac, int idEquipo) {
-		return repositorio.existeMACParaOtro(mac.trim(), idEquipo);
+		return equipoRepositorio.existeMACParaOtro(mac.trim(), idEquipo);
 	}
 
 }

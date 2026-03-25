@@ -9,14 +9,14 @@ import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IMantenimiento
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Mantenimientos;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoOrigenMantenimiento;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IMantenimientosRepositorio;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;
 
 public class MantenimientosUseCaseImpl implements IMantenimientosUseCase {
 
-    private final IMantenimientosRepositorio repositorio;
+    private final MantenimientoRepositorioPuerto mantenimientoRepositorio;
 
-    public MantenimientosUseCaseImpl(IMantenimientosRepositorio repositorio) {
-        this.repositorio = repositorio;
+    public MantenimientosUseCaseImpl(MantenimientoRepositorioPuerto mantenimientoRepositorio) {
+        this.mantenimientoRepositorio = mantenimientoRepositorio;
     }
 
     @Override
@@ -44,17 +44,17 @@ public class MantenimientosUseCaseImpl implements IMantenimientosUseCase {
         if (mantenimiento.getCreadoEn() == null) {
             mantenimiento.setCreadoEn(LocalDateTime.now());
         }
-        return repositorio.guardar(mantenimiento);
+        return mantenimientoRepositorio.guardar(mantenimiento);
     }
 
     @Override
     public List<Mantenimientos> listar() {
-        return repositorio.listarTodos();
+        return mantenimientoRepositorio.listarTodos();
     }
 
     @Override
     public Mantenimientos obtenerPorId(int id) {
-        return repositorio.buscarPorId(id)
+        return mantenimientoRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mantenimiento no encontrado"));
     }
 }

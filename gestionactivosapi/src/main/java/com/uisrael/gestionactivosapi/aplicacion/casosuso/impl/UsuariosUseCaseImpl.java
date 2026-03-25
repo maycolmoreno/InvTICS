@@ -9,23 +9,23 @@ import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoE
 import com.uisrael.gestionactivosapi.dominio.entidades.Departamentos;
 import com.uisrael.gestionactivosapi.dominio.entidades.Roles;
 import com.uisrael.gestionactivosapi.dominio.entidades.Usuarios;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IDepartamentosRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IRolesRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IUsuariosRepositorio;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.DepartamentoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.RolRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.UsuarioRepositorioPuerto;
 import com.uisrael.gestionactivosapi.dominio.validacion.CedulaEcuatorianaUtils;
 
 public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 
-	private final IUsuariosRepositorio repositorio;
-	private final IRolesRepositorio rolesRepositorio;
-	private final IDepartamentosRepositorio departamentosRepositorio;
+	private final UsuarioRepositorioPuerto usuarioRepositorio;
+	private final RolRepositorioPuerto rolRepositorio;
+	private final DepartamentoRepositorioPuerto departamentoRepositorio;
 	private final PasswordEncoder passwordEncoder;
 
-	public UsuariosUseCaseImpl(IUsuariosRepositorio repositorio, IRolesRepositorio rolesRepositorio,
-			IDepartamentosRepositorio departamentosRepositorio, PasswordEncoder passwordEncoder) {
-		this.repositorio = repositorio;
-		this.rolesRepositorio = rolesRepositorio;
-		this.departamentosRepositorio = departamentosRepositorio;
+	public UsuariosUseCaseImpl(UsuarioRepositorioPuerto usuarioRepositorio, RolRepositorioPuerto rolRepositorio,
+			DepartamentoRepositorioPuerto departamentoRepositorio, PasswordEncoder passwordEncoder) {
+		this.usuarioRepositorio = usuarioRepositorio;
+		this.rolRepositorio = rolRepositorio;
+		this.departamentoRepositorio = departamentoRepositorio;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -72,7 +72,7 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 			}
 		}
 
-		if (repositorio.buscarPorCorreo(usuario.getCorreo()).isPresent()) {
+		if (usuarioRepositorio.buscarPorCorreo(usuario.getCorreo()).isPresent()) {
 			throw new IllegalArgumentException("Ya existe un usuario con el correo: " + usuario.getCorreo());
 		}
 
@@ -91,22 +91,22 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 			rol
 		);
 
-		return repositorio.guardar(usuarioConContrasenaEncriptada);
+		return usuarioRepositorio.guardar(usuarioConContrasenaEncriptada);
 	}
 
 	@Override
 	public Usuarios obtenerPorId(int id) {
-		return repositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+		return usuarioRepositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
 	}
 
 	@Override
 	public List<Usuarios> listar() {
-		return repositorio.listarTodos();
+		return usuarioRepositorio.listarTodos();
 	}
 
 	@Override
 	public void eliminar(int id) {
-		Usuarios usuario = repositorio.buscarPorId(id)
+		Usuarios usuario = usuarioRepositorio.buscarPorId(id)
 			.orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado con ID: " + id));
 
 		if (!usuario.isEstado()) {
@@ -141,7 +141,7 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 			throw new IllegalArgumentException("La cedula debe ser ecuatoriana valida de 10 digitos");
 		}
 
-		Usuarios usuarioExistente = repositorio.buscarPorId(usuario.getIdUsuario())
+		Usuarios usuarioExistente = usuarioRepositorio.buscarPorId(usuario.getIdUsuario())
 			.orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado con ID: " + usuario.getIdUsuario()));
 
 		if (usuario.getFkRol() != null) {
@@ -165,7 +165,7 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 			}
 		}
 
-		repositorio.buscarPorCorreo(usuario.getCorreo()).ifPresent(usuarioConCorreo -> {
+		usuarioRepositorio.buscarPorCorreo(usuario.getCorreo()).ifPresent(usuarioConCorreo -> {
 			if (usuarioConCorreo.getIdUsuario() != usuario.getIdUsuario()) {
 				throw new IllegalArgumentException("Ya existe otro usuario con el correo: " + usuario.getCorreo());
 			}
@@ -190,7 +190,7 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 			rol
 		);
 
-		return repositorio.guardar(usuarioActualizado);
+		return usuarioRepositorio.guardar(usuarioActualizado);
 	}
 
 }

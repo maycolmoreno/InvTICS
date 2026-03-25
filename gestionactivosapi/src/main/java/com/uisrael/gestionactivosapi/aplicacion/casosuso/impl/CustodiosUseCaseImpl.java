@@ -6,52 +6,52 @@ import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICustodiosUseC
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.DuplicidadException;
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodios;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ICustodiosRepositorio;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodioRepositorioPuerto;
 
 public class CustodiosUseCaseImpl implements ICustodiosUseCase {
 
-    private final ICustodiosRepositorio repositorio;
+    private final CustodioRepositorioPuerto custodioRepositorio;
 
-    public CustodiosUseCaseImpl(ICustodiosRepositorio repositorio) {
-        this.repositorio = repositorio;
+    public CustodiosUseCaseImpl(CustodioRepositorioPuerto custodioRepositorio) {
+        this.custodioRepositorio = custodioRepositorio;
     }
 
     @Override
     public Custodios crear(Custodios custodio) {
 
-    	if (repositorio.existeCorreo(custodio.getCorreo().trim())) {
+    	if (custodioRepositorio.existeCorreo(custodio.getCorreo().trim())) {
 			throw new DuplicidadException("Ya existe un empleado con ese correo");
 		}
 
-    	if (repositorio.existeCedula(custodio.getCedula().trim())) {
+    	if (custodioRepositorio.existeCedula(custodio.getCedula().trim())) {
 			throw new DuplicidadException("Ya existe un empleado con esa cédula");
 		}
 
-        return repositorio.guardar(custodio);
+        return custodioRepositorio.guardar(custodio);
     }
 
     @Override
     public Custodios obtenerPorId(int id) {
-        return repositorio.buscarPorId(id)
+        return custodioRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Custodio no encontrado"));
     }
 
     @Override
     public List<Custodios> listar() {
-        return repositorio.listarTodos();
+        return custodioRepositorio.listarTodos();
     }
 
     @Override
     public Custodios actualizar(int id, Custodios custodio) {
-        repositorio.buscarPorId(id)
+        custodioRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Custodio no encontrado"));
 
 
-    	if (repositorio.existeCedulaParaOtro(custodio.getCedula().trim(), id)) {
+    	if (custodioRepositorio.existeCedulaParaOtro(custodio.getCedula().trim(), id)) {
 			throw new DuplicidadException("Ya existe otro empleado con esa cédula");
 		}
 
-    	if (repositorio.existeCorreoParaOtro(custodio.getCorreo().trim(), id)) {
+    	if (custodioRepositorio.existeCorreoParaOtro(custodio.getCorreo().trim(), id)) {
 			throw new DuplicidadException("Ya existe otro empleado con ese correo");
 		}
 
@@ -67,12 +67,12 @@ public class CustodiosUseCaseImpl implements ICustodiosUseCase {
         );
         actualizado.setFkUbicacion(custodio.getFkUbicacion());
 
-        return repositorio.actualizar(id, actualizado);
+        return custodioRepositorio.actualizar(id, actualizado);
     }
 
     @Override
     public Custodios actualizarEstado(int id, boolean estado) {
-    	Custodios custodio = repositorio.buscarPorId(id)
+    	Custodios custodio = custodioRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Custodio no encontrado"));
 
         Custodios actualizado = new Custodios(
@@ -87,26 +87,26 @@ public class CustodiosUseCaseImpl implements ICustodiosUseCase {
         );
         actualizado.setFkUbicacion(custodio.getFkUbicacion());
 
-        return repositorio.actualizarEstado(id, actualizado);
+        return custodioRepositorio.actualizarEstado(id, actualizado);
     }
 
 	@Override
 	public boolean existeCorreo(String correo) {
-		return repositorio.existeCorreo(correo.trim());
+		return custodioRepositorio.existeCorreo(correo.trim());
 	}
 
 	@Override
 	public boolean existeCorreoParaOtro(String correo, int idCustodio) {
-		return repositorio.existeCorreoParaOtro(correo.trim(), idCustodio);
+		return custodioRepositorio.existeCorreoParaOtro(correo.trim(), idCustodio);
 	}
 
 	@Override
 	public boolean existeCedula(String cedula) {
-		return repositorio.existeCedula(cedula.trim());
+		return custodioRepositorio.existeCedula(cedula.trim());
 	}
 
 	@Override
 	public boolean existeCedulaParaOtro(String cedula, int idCustodio) {
-		return repositorio.existeCedulaParaOtro(cedula.trim(), idCustodio);
+		return custodioRepositorio.existeCedulaParaOtro(cedula.trim(), idCustodio);
 	}
 }
