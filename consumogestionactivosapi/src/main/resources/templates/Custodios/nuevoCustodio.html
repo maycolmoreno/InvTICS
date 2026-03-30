@@ -187,6 +187,9 @@
 
         <script th:inline="javascript">
         (function () {
+            // Mover modales al body para evitar problemas de CSS containment
+            document.querySelectorAll('.modal').forEach(function(m) { document.body.appendChild(m); });
+
             var dataDep = /*[[${listadepartamento}]]*/ [];
             var dataCar = /*[[${listacargo}]]*/ [];
             var dataUbi = /*[[${listaubicacion}]]*/ [];

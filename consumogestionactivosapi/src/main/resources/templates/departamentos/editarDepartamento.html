@@ -83,6 +83,9 @@
 
   <script>
   (function () {
+    // Mover modales al body para evitar problemas de CSS containment
+    document.querySelectorAll('.modal').forEach(function(m) { document.body.appendChild(m); });
+
     function ajaxCrear(url, body, errorElId, onOk, btnEl) {
       var errorEl = document.getElementById(errorElId);
       btnEl.disabled = true;
