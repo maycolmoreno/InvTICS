@@ -38,7 +38,7 @@ public interface ICustodiasDtoMapper {
 		return new Equipos(dto.getEquipos().get(0).getIdEquipo(),
 				null, null, null, null, null, null, null, null,
 				null, null, null, null, null, null, null, null,
-				null, null, null, false, null, null);
+				null, null, null, false, null, null, null);
 	}
 
 	default Custodios mapCustodioReq(CustodiasRequestDTO dto) {
@@ -75,6 +75,7 @@ public interface ICustodiasDtoMapper {
 		dto.setEstado(e.isEstado());
 		dto.setFkMarca(map(e.getFkMarca()));
 		dto.setFkCategoria(map(e.getFkCategoria()));
+		dto.setFkUbicacion(map(e.getFkUbicacion()));
 		return dto;
 	}
 

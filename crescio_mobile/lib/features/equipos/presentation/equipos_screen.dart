@@ -67,7 +67,8 @@ class _EquiposScreenState extends State<EquiposScreen> {
                   DropdownMenuItem(value: 'ACTIVO', child: Text('Activos')),
                   DropdownMenuItem(value: 'BAJA', child: Text('Baja')),
                 ],
-                onChanged: (value) => setState(() => _estado = value ?? 'todos'),
+                onChanged: (value) =>
+                    setState(() => _estado = value ?? 'todos'),
               ),
             ),
             const SizedBox(width: 12),
@@ -80,12 +81,15 @@ class _EquiposScreenState extends State<EquiposScreen> {
                     initialValue: _tipo,
                     decoration: const InputDecoration(labelText: 'Tipo'),
                     items: [
-                      const DropdownMenuItem(value: 'todos', child: Text('Todos')),
+                      const DropdownMenuItem(
+                          value: 'todos', child: Text('Todos')),
                       ...tipos.map(
-                        (tipo) => DropdownMenuItem(value: tipo, child: Text(tipo)),
+                        (tipo) =>
+                            DropdownMenuItem(value: tipo, child: Text(tipo)),
                       ),
                     ],
-                    onChanged: (value) => setState(() => _tipo = value ?? 'todos'),
+                    onChanged: (value) =>
+                        setState(() => _tipo = value ?? 'todos'),
                   );
                 },
               ),
@@ -104,7 +108,8 @@ class _EquiposScreenState extends State<EquiposScreen> {
                     initialValue: _custodio,
                     decoration: const InputDecoration(labelText: 'Custodio'),
                     items: [
-                      const DropdownMenuItem(value: 'todos', child: Text('Todos')),
+                      const DropdownMenuItem(
+                          value: 'todos', child: Text('Todos')),
                       ...custodios.map(
                         (custodio) => DropdownMenuItem(
                           value: custodio,
@@ -112,7 +117,8 @@ class _EquiposScreenState extends State<EquiposScreen> {
                         ),
                       ),
                     ],
-                    onChanged: (value) => setState(() => _custodio = value ?? 'todos'),
+                    onChanged: (value) =>
+                        setState(() => _custodio = value ?? 'todos'),
                   );
                 },
               ),
@@ -127,7 +133,8 @@ class _EquiposScreenState extends State<EquiposScreen> {
                     initialValue: _ubicacion,
                     decoration: const InputDecoration(labelText: 'Ubicacion'),
                     items: [
-                      const DropdownMenuItem(value: 'todos', child: Text('Todas')),
+                      const DropdownMenuItem(
+                          value: 'todos', child: Text('Todas')),
                       ...ubicaciones.map(
                         (ubicacion) => DropdownMenuItem(
                           value: ubicacion,
@@ -135,7 +142,8 @@ class _EquiposScreenState extends State<EquiposScreen> {
                         ),
                       ),
                     ],
-                    onChanged: (value) => setState(() => _ubicacion = value ?? 'todos'),
+                    onChanged: (value) =>
+                        setState(() => _ubicacion = value ?? 'todos'),
                   );
                 },
               ),
@@ -176,7 +184,8 @@ class _EquiposScreenState extends State<EquiposScreen> {
                 child: ListView.separated(
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: equipos.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final equipo = equipos[index];
                     return Card(
@@ -186,7 +195,8 @@ class _EquiposScreenState extends State<EquiposScreen> {
                             : () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) => EquipoDetailScreen(equipoId: equipo.id),
+                                    builder: (_) =>
+                                        EquipoDetailScreen(equipoId: equipo.id),
                                   ),
                                 );
                               },
@@ -246,12 +256,14 @@ class _EquiposScreenState extends State<EquiposScreen> {
   List<EquipoListItem> _filter(List<EquipoListItem> items) {
     final query = _searchController.text.trim().toLowerCase();
     return items.where((item) {
-      final estadoOk = _estado == 'todos' || item.estadoEquipo.toUpperCase() == _estado;
-      final tipoOk = _tipo == 'todos' || item.tipoEquipo.toUpperCase() == _tipo.toUpperCase();
-      final custodioOk =
-          _custodio == 'todos' || item.custodioNombre.toUpperCase() == _custodio.toUpperCase();
-      final ubicacionOk =
-          _ubicacion == 'todos' || item.ubicacionNombre.toUpperCase() == _ubicacion.toUpperCase();
+      final estadoOk =
+          _estado == 'todos' || item.estadoEquipo.toUpperCase() == _estado;
+      final tipoOk = _tipo == 'todos' ||
+          item.tipoEquipo.toUpperCase() == _tipo.toUpperCase();
+      final custodioOk = _custodio == 'todos' ||
+          item.custodioNombre.toUpperCase() == _custodio.toUpperCase();
+      final ubicacionOk = _ubicacion == 'todos' ||
+          item.ubicacionNombre.toUpperCase() == _ubicacion.toUpperCase();
       final haystack = [
         _text(item.codigoSap),
         _text(item.serial),

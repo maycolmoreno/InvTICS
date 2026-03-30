@@ -53,6 +53,11 @@ public class MantenimientosUseCaseImpl implements IMantenimientosUseCase {
     }
 
     @Override
+    public List<Mantenimientos> listarPorEquipo(int idEquipo) {
+        return mantenimientoRepositorio.obtenerPorEquipo(idEquipo);
+    }
+
+    @Override
     public Mantenimientos obtenerPorId(int id) {
         return mantenimientoRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mantenimiento no encontrado"));

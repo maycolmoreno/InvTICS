@@ -33,12 +33,13 @@ public class Equipos implements Serializable {
 	// ✅ AGREGA ESTOS 3 (DOMINIO)
 	private Marcas fkMarca;
 	private CategoriaEquipos fkCategoria;
+	private Ubicaciones fkUbicacion;
 	public Equipos(int idEquipo, String codigoSap, String tipoEquipo, String modelo, String serial, String procesador,
 			Integer memoriaRamGb, Integer capacidadAlmacenamientoGb, String sistemaOperativo,
 			Boolean licenciaWindowsActivada, Boolean etiquetaActivoFijo, String tipoLicenciaOffice,
 			String versionOffice, Boolean unionDominio, String ip, String mac, LocalDate fechaCompra,
 			BigDecimal precioCompra, String estadoEquipo, String observacionEquipo, boolean estado, Marcas fkMarca,
-			CategoriaEquipos fkCategoria) {
+			CategoriaEquipos fkCategoria, Ubicaciones fkUbicacion) {
 		this.idEquipo = idEquipo;
 		this.codigoSap = codigoSap;
 		this.tipoEquipo = tipoEquipo;
@@ -62,6 +63,7 @@ public class Equipos implements Serializable {
 		this.estado = estado;
 		this.fkMarca = fkMarca;
 		this.fkCategoria = fkCategoria;
+		this.fkUbicacion = fkUbicacion;
 	}
 
 	public int getIdEquipo() {
@@ -163,6 +165,14 @@ public class Equipos implements Serializable {
 
 	public void setFkCategoria(CategoriaEquipos fkCategoria) {
 		this.fkCategoria = fkCategoria;
+	}
+
+	public Ubicaciones getFkUbicacion() {
+		return fkUbicacion;
+	}
+
+	public void setFkUbicacion(Ubicaciones fkUbicacion) {
+		this.fkUbicacion = fkUbicacion;
 	}
 
 	@Override

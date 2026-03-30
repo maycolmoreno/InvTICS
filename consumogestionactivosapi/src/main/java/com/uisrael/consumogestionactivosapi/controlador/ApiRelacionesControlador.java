@@ -12,13 +12,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CargosRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.CategoriaEquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.DepartamentosRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.MarcasRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.RolesRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.UbicacionesRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CargosResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.CategoriaEquiposResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.DepartamentosResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.MarcasResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.RolesResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICargosServicio;
+import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IDepartamentosServicio;
+import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
+import com.uisrael.consumogestionactivosapi.service.IRolesServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +40,9 @@ public class ApiRelacionesControlador {
     private final IDepartamentosServicio servicioDepartamento;
     private final ICargosServicio servicioCargo;
     private final IUbicacionesServicio servicioUbicacion;
+    private final IMarcasServicio servicioMarca;
+    private final ICategoriaEquiposServicio servicioCategoria;
+    private final IRolesServicio servicioRol;
 
     @GetMapping("/departamentos")
     public List<DepartamentosResponseDTO> listarDepartamentos() {
@@ -149,5 +161,113 @@ public class ApiRelacionesControlador {
             return ResponseEntity.status(HttpStatus.CREATED).body(lista.get(lista.size() - 1));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Ubicacion creada"));
+    }
+
+    // ── MARCAS ──────────────────────────────────────────────
+
+    @GetMapping("/marcas")
+    public List<MarcasResponseDTO> listarMarcas() {
+        return servicioMarca.listarMarca();
+    }
+
+    @PostMapping("/marcas")
+    public ResponseEntity<?> crearMarca(@RequestBody Map<String, String> body) {
+        String nombre = body.get("nombre");
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El nombre es obligatorio"));
+        }
+        try {
+            MarcasRequestDTO dto = new MarcasRequestDTO();
+            dto.setNombre(nombre.trim());
+            dto.setEstado(true);
+            servicioMarca.nuevaMarca(dto);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", ex.getMessage()));
+        }
+        List<MarcasResponseDTO> lista = servicioMarca.listarMarca().stream()
+                .filter(m -> m.getNombre().equalsIgnoreCase(nombre.trim()))
+                .toList();
+        if (!lista.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(lista.get(lista.size() - 1));
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Marca creada"));
+    }
+
+    // ── CATEGORIAS EQUIPO ───────────────────────────────────
+
+    @GetMapping("/categorias")
+    public List<CategoriaEquiposResponseDTO> listarCategorias() {
+        return servicioCategoria.listarCategoriaEquipo();
+    }
+
+    @PostMapping("/categorias")
+    public ResponseEntity<?> crearCategoria(@RequestBody Map<String, String> body) {
+        String nombre = body.get("nombre");
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El nombre es obligatorio"));
+        }
+        boolean existe = servicioCategoria.listarCategoriaEquipo().stream()
+                .anyMatch(c -> c.getNombre().equalsIgnoreCase(nombre.trim()));
+        if (existe) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Ya existe una categoria con ese nombre"));
+        }
+        try {
+            CategoriaEquiposRequestDTO dto = new CategoriaEquiposRequestDTO();
+            dto.setNombre(nombre.trim());
+            dto.setEstado(true);
+            servicioCategoria.nuevoCategoriaEquipo(dto);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Error al crear la categoria"));
+        }
+        List<CategoriaEquiposResponseDTO> lista = servicioCategoria.listarCategoriaEquipo().stream()
+                .filter(c -> c.getNombre().equalsIgnoreCase(nombre.trim()))
+                .toList();
+        if (!lista.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(lista.get(lista.size() - 1));
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Categoria creada"));
+    }
+
+    // ── ROLES ───────────────────────────────────────────────
+
+    @GetMapping("/roles")
+    public List<RolesResponseDTO> listarRoles() {
+        return servicioRol.listarRol().stream()
+                .filter(RolesResponseDTO::isEstado)
+                .toList();
+    }
+
+    @PostMapping("/roles")
+    public ResponseEntity<?> crearRol(@RequestBody Map<String, String> body) {
+        String nombre = body.get("nombre");
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El nombre es obligatorio"));
+        }
+        boolean existe = servicioRol.listarRol().stream()
+                .filter(RolesResponseDTO::isEstado)
+                .anyMatch(r -> r.getNombre().equalsIgnoreCase(nombre.trim()));
+        if (existe) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Ya existe un rol con ese nombre"));
+        }
+        try {
+            RolesRequestDTO dto = new RolesRequestDTO();
+            dto.setNombre(nombre.trim());
+            dto.setEstado(true);
+            servicioRol.nuevoRol(dto);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Error al crear el rol"));
+        }
+        List<RolesResponseDTO> lista = servicioRol.listarRol().stream()
+                .filter(r -> r.isEstado() && r.getNombre().equalsIgnoreCase(nombre.trim()))
+                .toList();
+        if (!lista.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(lista.get(lista.size() - 1));
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Rol creado"));
     }
 }

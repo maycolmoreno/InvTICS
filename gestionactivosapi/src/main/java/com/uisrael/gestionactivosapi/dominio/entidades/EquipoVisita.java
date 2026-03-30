@@ -1,6 +1,8 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class EquipoVisita {
 
@@ -74,5 +76,31 @@ public class EquipoVisita {
 
     public LocalDateTime getFechaUltimoMantenimiento() {
         return fechaUltimoMantenimiento;
+    }
+
+    public LocalDate getFechaUltimoMantenimientoLocal() {
+        return fechaUltimoMantenimiento != null ? fechaUltimoMantenimiento.toLocalDate() : null;
+    }
+
+    public Long getDiasSinMantenimiento() {
+        LocalDate fecha = getFechaUltimoMantenimientoLocal();
+        return fecha != null ? ChronoUnit.DAYS.between(fecha, LocalDate.now()) : null;
+    }
+
+    public EstadoMantenimientoVisita getEstadoMantenimiento() {
+        Long dias = getDiasSinMantenimiento();
+        if (dias == null) {
+            return EstadoMantenimientoVisita.URGENTE;
+        }
+        if (dias == 0) {
+            return EstadoMantenimientoVisita.REVISADO;
+        }
+        if (dias > 180) {
+            return EstadoMantenimientoVisita.URGENTE;
+        }
+        if (dias >= 90) {
+            return EstadoMantenimientoVisita.PROXIMO;
+        }
+        return EstadoMantenimientoVisita.AL_DIA;
     }
 }

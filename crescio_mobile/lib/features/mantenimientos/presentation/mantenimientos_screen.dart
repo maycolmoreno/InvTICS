@@ -26,12 +26,14 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _loadMantenimientos() async {
-    final items = await MantenimientosRepository(context.read<ApiClient>()).listar();
+    final items =
+        await MantenimientosRepository(context.read<ApiClient>()).listar();
     if (_estado == 'todos') {
       return items;
     }
     return items
-        .where((item) => _text(item['estadoInterno']).toLowerCase() == _estado.toLowerCase())
+        .where((item) =>
+            _text(item['estadoInterno']).toLowerCase() == _estado.toLowerCase())
         .toList();
   }
 
@@ -54,9 +56,11 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
                 initialValue: _estado,
                 items: const [
                   DropdownMenuItem(value: 'todos', child: Text('Todos')),
-                  DropdownMenuItem(value: 'EN_PROCESO', child: Text('En proceso')),
+                  DropdownMenuItem(
+                      value: 'EN_PROCESO', child: Text('En proceso')),
                   DropdownMenuItem(value: 'CERRADO', child: Text('Cerrado')),
-                  DropdownMenuItem(value: 'PENDIENTE', child: Text('Pendiente')),
+                  DropdownMenuItem(
+                      value: 'PENDIENTE', child: Text('Pendiente')),
                 ],
                 onChanged: (value) {
                   if (value == null) return;
@@ -71,7 +75,8 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
               FilledButton.icon(
                 onPressed: () async {
                   final created = await Navigator.of(context).push<bool>(
-                    MaterialPageRoute(builder: (_) => const MantenimientoFormScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const MantenimientoFormScreen()),
                   );
                   if (created == true) {
                     await _reload();
@@ -104,7 +109,8 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: const [
                       SizedBox(height: 80),
-                      Center(child: Text('No hay mantenimientos para mostrar.')),
+                      Center(
+                          child: Text('No hay mantenimientos para mostrar.')),
                     ],
                   ),
                 );
@@ -115,14 +121,16 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
                 child: ListView.separated(
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: items.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final item = items[index];
                     return Card(
                       child: ListTile(
                         onTap: () {
                           final mantenimientoId =
-                              _asInt(item['idMantenimiento']) ?? _asInt(item['id']);
+                              _asInt(item['idMantenimiento']) ??
+                                  _asInt(item['id']);
                           if (mantenimientoId == null) {
                             return;
                           }
@@ -135,14 +143,16 @@ class _MantenimientosScreenState extends State<MantenimientosScreen> {
                           );
                         },
                         leading: const Icon(Icons.build_outlined),
-                        title: Text(_text(item['equipoCodigoSap'], fallback: 'Sin codigo')),
+                        title: Text(_text(item['equipoCodigoSap'],
+                            fallback: 'Sin codigo')),
                         subtitle: Text(
                           '${_text(item['equipoDescripcion'])}\n'
                           'Tecnico: ${_text(item['tecnicoNombre'])}\n'
                           'Estado: ${_text(item['estadoInterno'])}',
                         ),
                         isThreeLine: true,
-                        trailing: Text(_text(item['fechaMantenimiento'], fallback: '')),
+                        trailing: Text(
+                            _text(item['fechaMantenimiento'], fallback: '')),
                       ),
                     );
                   },

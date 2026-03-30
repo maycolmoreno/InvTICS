@@ -9,57 +9,40 @@ import java.util.Optional;
  * Define el contrato para operaciones de persistencia de actividades completadas en mantenimiento.
  */
 public interface ActividadRealizadaRepositorioPuerto {
-    
-    /**
-     * Guarda una nueva actividad realizada.
-     * 
-     * @param actividad la actividad a guardar
-     * @return la actividad guardada con ID asignado
-     */
-    ActividadRealizada guardar(ActividadRealizada actividad);
-    
-    /**
-     * Obtiene una actividad realizada por su ID.
-     * 
-     * @param id el ID de la actividad
-     * @return Optional con la actividad si existe
-     */
-    Optional<ActividadRealizada> obtenerPorId(Integer id);
-    
-    /**
-     * Obtiene todas las actividades realizadas.
-     * 
-     * @return lista de todas las actividades
-     */
-    List<ActividadRealizada> obtenerTodas();
-    
-    /**
-     * Actualiza una actividad realizada.
-     * 
-     * @param actividad la actividad con datos actualizados
-     */
-    void actualizar(ActividadRealizada actividad);
-    
-    /**
-     * Elimina una actividad realizada.
-     * 
-     * @param id el ID de la actividad a eliminar
-     */
-    void eliminar(Integer id);
-    
-    /**
-     * Obtiene actividades de un mantenimiento específico.
-     * 
-     * @param mantenimientoId el ID del mantenimiento
-     * @return lista de actividades del mantenimiento
-     */
-    List<ActividadRealizada> obtenerPorMantenimiento(Integer mantenimientoId);
-    
-    /**
-     * Obtiene actividades realizadas por un técnico específico.
-     * 
-     * @param tecnicoId el ID del técnico
-     * @return lista de actividades realizadas por el técnico
-     */
-    List<ActividadRealizada> obtenerPorTecnico(Integer tecnicoId);
+
+    default ActividadRealizada guardar(ActividadRealizada actividad) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    default Optional<ActividadRealizada> obtenerPorId(Integer id) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    default List<ActividadRealizada> obtenerTodas() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    default void actualizar(ActividadRealizada actividad) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    default void eliminar(Integer id) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    default List<ActividadRealizada> obtenerPorMantenimiento(Integer mantenimientoId) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    default List<ActividadRealizada> obtenerPorTecnico(Integer tecnicoId) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    void eliminarPorMantenimiento(int mantenimientoId);
+
+    List<ActividadRealizada> guardarTodas(List<ActividadRealizada> actividades);
+
+    default List<ActividadRealizada> listarPorMantenimiento(int idMantenimiento) {
+        return obtenerPorMantenimiento(idMantenimiento);
+    }
 }

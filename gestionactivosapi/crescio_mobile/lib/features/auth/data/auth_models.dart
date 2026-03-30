@@ -53,14 +53,28 @@ class AuthSession {
   });
 
   factory AuthSession.fromJson(Map<String, dynamic> json) {
+    final roleData = json['fkRol'];
+    final roleName = roleData is Map<String, dynamic>
+        ? roleData['nombre']
+        : roleData is Map
+            ? roleData['nombre']
+            : null;
+
     return AuthSession(
       token: json['token']?.toString() ?? json['jwt']?.toString() ?? '',
-      username: json['username']?.toString() ?? json['usuario']?.toString() ?? '',
+      username: json['correo']?.toString() ??
+          json['username']?.toString() ??
+          json['usuario']?.toString() ??
+          '',
       displayName: json['nombre']?.toString() ??
           json['displayName']?.toString() ??
+          json['correo']?.toString() ??
           json['username']?.toString() ??
           '',
-      role: json['role']?.toString() ?? json['rol']?.toString() ?? '',
+      role: roleName?.toString() ??
+          json['role']?.toString() ??
+          json['rol']?.toString() ??
+          '',
     );
   }
 

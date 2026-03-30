@@ -95,6 +95,10 @@ public class MantenimientosJpa implements Serializable {
     private EquiposJpa fkEquipo;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_programado", insertable = false, updatable = false)
+    private MantenimientoProgramadoJpa programadoRel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", insertable = false, updatable = false)
     private CustodiosJpa fkCliente;
 
@@ -325,5 +329,13 @@ public class MantenimientosJpa implements Serializable {
 
     public void setEquipoSnapshot(EquipoSnapshotEmbeddable equipoSnapshot) {
         this.equipoSnapshot = equipoSnapshot;
+    }
+
+    public MantenimientoProgramadoJpa getProgramadoRel() {
+        return programadoRel;
+    }
+
+    public void setProgramadoRel(MantenimientoProgramadoJpa programadoRel) {
+        this.programadoRel = programadoRel;
     }
 }

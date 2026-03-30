@@ -7,16 +7,18 @@ public class Custodias implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final int idCustodiaEquipo;
-    private final LocalDate fechaInicio;
-    private final LocalDate fechaFin;
-    private final String observacion;
-    private final boolean estado;
+    private int idCustodiaEquipo;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
+    private String observacion;
+    private boolean estado;
 
     private Equipos fkEquipo;
     private Custodios fkCustodio;
     private Ubicaciones fkUbicacion;
     private String tipoMovimiento;
+
+    public Custodias() {}
 
     public Custodias(int idCustodiaEquipo,
                      LocalDate fechaInicio,
@@ -36,10 +38,15 @@ public class Custodias implements Serializable {
     }
 
     public int getIdCustodiaEquipo() { return idCustodiaEquipo; }
+    public void setIdCustodiaEquipo(int idCustodiaEquipo) { this.idCustodiaEquipo = idCustodiaEquipo; }
     public LocalDate getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
     public LocalDate getFechaFin() { return fechaFin; }
+    public void setFechaFin(LocalDate fechaFin) { this.fechaFin = fechaFin; }
     public String getObservacion() { return observacion; }
+    public void setObservacion(String observacion) { this.observacion = observacion; }
     public boolean isEstado() { return estado; }
+    public void setEstado(boolean estado) { this.estado = estado; }
 
     public Equipos getFkEquipo() { return fkEquipo; }
     public void setFkEquipo(Equipos fkEquipo) { this.fkEquipo = fkEquipo; }

@@ -4,6 +4,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoManualService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoProgramadoService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.NotificacionService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.CorreoMantenimientoService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.CorreoSchedulerService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoArchivoService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoInformeService;
+
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICargosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICategoriaEquiposUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICrearMantenimientosUseCase;
@@ -18,11 +26,23 @@ import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IObtenerCheckl
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IObtenerOrdenTrabajoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IObtenerHistorialEquipoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IRolesUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ITicketsUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ISetupInicialUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IUbicacionesUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IUsuariosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IVincularCustodioConUsuarioUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.CargosUseCaseImpl;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.PdfMantenimientoService;
+import com.uisrael.gestionactivosapi.dominio.puertos.servicios.AlmacenadorArchivosPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.servicios.EnviadorCorreoPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.servicios.GeneradorPdfPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.servicios.ServicioAuditoriaPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.servicios.ServicioNotificacionPuerto;
+import com.uisrael.gestionactivosapi.infraestructura.adaptadores.archivos.AlmacenadorArchivosAdaptador;
+import com.uisrael.gestionactivosapi.infraestructura.adaptadores.auditoria.ServicioAuditoriaAdaptador;
+import com.uisrael.gestionactivosapi.infraestructura.adaptadores.correo.EnviadorCorreoAdaptador;
+import com.uisrael.gestionactivosapi.infraestructura.adaptadores.notificacion.ServicioNotificacionAdaptador;
+import com.uisrael.gestionactivosapi.infraestructura.adaptadores.pdf.GeneradorPdfAdaptador;
+
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.CategoriaEquiposUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.CrearMantenimientosUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.CustodiasUseCaseImpl;
@@ -36,46 +56,42 @@ import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ObtenerChecklistPo
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ObtenerOrdenTrabajoUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ObtenerHistorialEquipoUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.RolesUseCaseImpl;
-import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.TicketsUseCaseImpl;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.SetupInicialUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.UbicacionesUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.UsuariosUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.VincularCustodioConUsuarioUseCaseImpl;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IActividadChecklistRepository;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IActividadRealizadaRepository;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ICargosRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ICategoriaEquiposRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ICustodiasRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ICustodiosRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IDepartamentosRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IEquiposRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IEquipoVisitaRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IFirmaMantenimientoRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IHistorialEquipoRepository;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IMantenimientoRepository;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IMarcasRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IMantenimientosRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IRolesRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ITicketsRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IUbicacionesRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IUsuariosRepositorio;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.ActividadChecklistRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.ActividadRealizadaRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.CargosRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.CategoriaEquiposRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.CustodiasRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.CustodiosRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.DepartamentosRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.EquiposRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.EquipoVisitaRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.FirmaMantenimientoRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.HistorialEquipoRepositoryImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.MarcasRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.MantenimientoRepositoryImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.MantenimientosRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.RolesRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.TicketsRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.UbicacionesRepositorioImpl;
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.adaptadores.UsuariosRepositorioImpl;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IAutenticarUsuarioUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IActualizarActivoUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IBuscarActivoPorIdUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IVisitaTecnicaUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.AutenticarUsuarioUseCaseImpl;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ActualizarActivoUseCaseImpl;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.BuscarActivoPorIdUseCaseImpl;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.VisitaTecnicaUseCaseImpl;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ActivoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ActualizacionActivoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ActividadChecklistRepositorioPuerto;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.IActivoJpaMapper;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.IActualizacionActivoJpaMapper;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.repositorios.ActivoRepositorioImpl;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.repositorios.ActualizacionActivoRepositorioImpl;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IActivoJpaRepositorio;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IActualizacionActivoJpaRepositorio;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ActividadRealizadaRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CargosRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CategoriaRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodiasRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodioRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.DepartamentoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EquipoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EquipoVisitaRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.FirmaMantenimientoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.HistorialEquipoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MarcaRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.RolRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.UbicacionRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.UsuarioRepositorioPuerto;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.ICargosJpaMapper;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.ICategoriaEquiposJpaMapper;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.ICustodiasJpaMapper;
@@ -87,6 +103,7 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.IMa
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.IRolesJpaMapper;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.IUbicacionesJpaMapper;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.IUsuariosJpaMapper;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.repositorios.*;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICargosJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICategoriaEquiposJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IActividadChecklistJpaRepositorio;
@@ -96,10 +113,12 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICustodiosJpaR
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IDepartamentosJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IEquiposJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IFirmaMantenimientoJpaRepositorio;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IImagenMantenimientoJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IMarcasJpaRepositorio;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IMantenimientoProgramadoJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IMantenimientosJpaRepositorio;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.INotificacionJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IRolesJpaRepositorio;
-import com.uisrael.gestionactivosapi.infraestructura.repositorios.ITicketsJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUbicacionesJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUsuariosJpaRepositorio;
 
@@ -107,199 +126,326 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUsuariosJpaRe
 public class ConfiguracionGeneral {
 
 	@Bean
-	IDepartamentosUseCase departamentoUseCase(IDepartamentosRepositorio repositorio) {
+	IDepartamentosUseCase departamentoUseCase(DepartamentoRepositorioPuerto repositorio) {
 		return new DepartamentosUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	IUbicacionesUseCase ubicacionUseCase(IUbicacionesRepositorio repositorio) {
+	IUbicacionesUseCase ubicacionUseCase(UbicacionRepositorioPuerto repositorio) {
 		return new UbicacionesUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	ICargosUseCase cargoUseCase(ICargosRepositorio repositorio) {
+	ICargosUseCase cargoUseCase(CargosRepositorioPuerto repositorio) {
 		return new CargosUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	IDepartamentosRepositorio departamentoRepositorio(IDepartamentosJpaRepositorio jpaRepositorio,
+	DepartamentosRepositorioImpl departamentoRepositorio(IDepartamentosJpaRepositorio jpaRepositorio,
 			IDepartamentosJpaMapper mapper) {
 		return new DepartamentosRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	IUbicacionesRepositorio ubicacionRepositorio(IUbicacionesJpaRepositorio jpaRepositorio,
+	UbicacionesRepositorioImpl ubicacionRepositorio(IUbicacionesJpaRepositorio jpaRepositorio,
 			IUbicacionesJpaMapper mapper) {
 		return new UbicacionesRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	ICargosRepositorio cargoRepositorio(ICargosJpaRepositorio jpaRepositorio, ICargosJpaMapper mapper) {
+	CargosRepositorioImpl cargoRepositorio(ICargosJpaRepositorio jpaRepositorio, ICargosJpaMapper mapper) {
 		return new CargosRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	IMarcasUseCase marcasUseCase(IMarcasRepositorio repositorio) {
+	IMarcasUseCase marcasUseCase(MarcaRepositorioPuerto repositorio) {
 		return new MarcasUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	IMarcasRepositorio marcasRepositorio(IMarcasJpaRepositorio jpaRepositorio, IMarcasJpaMapper mapper) {
+	MarcasRepositorioImpl marcasRepositorio(IMarcasJpaRepositorio jpaRepositorio, IMarcasJpaMapper mapper) {
 		return new MarcasRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	IMantenimientosUseCase mantenimientosUseCase(IMantenimientosRepositorio repositorio) {
+	IMantenimientosUseCase mantenimientosUseCase(MantenimientoRepositorioPuerto repositorio) {
 		return new MantenimientosUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	IMantenimientosRepositorio mantenimientosRepositorio(IMantenimientosJpaRepositorio jpaRepositorio,
+	MantenimientoRepositorioPuerto mantenimientosRepositorio(IMantenimientosJpaRepositorio jpaRepositorio,
 			IMantenimientosJpaMapper mapper) {
 		return new MantenimientosRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	IMantenimientoRepository mantenimientoRepository(IMantenimientosJpaRepositorio jpaRepositorio,
-			IMantenimientosJpaMapper mapper) {
-		return new MantenimientoRepositoryImpl(jpaRepositorio, mapper);
-	}
-
-	@Bean
-	IEquiposUseCase equiposUseCase(IEquiposRepositorio repositorio) {
+	IEquiposUseCase equiposUseCase(EquipoRepositorioPuerto repositorio) {
 		return new EquiposUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	IEquiposRepositorio equiposRepositorio(IEquiposJpaRepositorio jpaRepositorio, IEquiposJpaMapper mapper) {
+	EquiposRepositorioImpl equiposRepositorio(IEquiposJpaRepositorio jpaRepositorio, IEquiposJpaMapper mapper) {
 		return new EquiposRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	IEquipoVisitaRepositorio equipoVisitaRepositorio(jakarta.persistence.EntityManager entityManager) {
+	EquipoVisitaRepositorioPuerto equipoVisitaRepositorio(jakarta.persistence.EntityManager entityManager) {
 		return new EquipoVisitaRepositorioImpl(entityManager);
 	}
 
 	@Bean
-	ICustodiosUseCase custodiosUseCase(ICustodiosRepositorio repositorio) {
+	ICustodiosUseCase custodiosUseCase(CustodioRepositorioPuerto repositorio) {
 		return new CustodiosUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	ICustodiosRepositorio custodiosRepositorio(ICustodiosJpaRepositorio jpaRepositorio, ICustodiosJpaMapper mapper) {
+	CustodiosRepositorioImpl custodiosRepositorio(ICustodiosJpaRepositorio jpaRepositorio, ICustodiosJpaMapper mapper) {
 		return new CustodiosRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	ICustodiasUseCase custodiasUseCase(ICustodiasRepositorio repositorio) {
+	ICustodiasUseCase custodiasUseCase(CustodiasRepositorioPuerto repositorio) {
 		return new CustodiasUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	public ICustodiasRepositorio custodiasRepositorio(ICustodiasJpaRepositorio jpaRepositorio,
+	public CustodiasRepositorioImpl custodiasRepositorio(ICustodiasJpaRepositorio jpaRepositorio,
 			ICustodiasJpaMapper mapper, IEquiposJpaRepositorio equiposRepo, ICustodiosJpaRepositorio custodiosRepo,
 			IUbicacionesJpaRepositorio ubicacionesRepo) {
 		return new CustodiasRepositorioImpl(jpaRepositorio, mapper, equiposRepo, custodiosRepo, ubicacionesRepo);
 	}
 
 	@Bean
-	IRolesUseCase rolesUseCase(IRolesRepositorio repositorio) {
+	IRolesUseCase rolesUseCase(RolRepositorioPuerto repositorio) {
 		return new RolesUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	IRolesRepositorio rolesRepositorio(IRolesJpaRepositorio jpaRepositorio, IRolesJpaMapper mapper) {
+	RolesRepositorioImpl rolesRepositorio(IRolesJpaRepositorio jpaRepositorio, IRolesJpaMapper mapper) {
 		return new RolesRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	IUsuariosUseCase usuariosUseCase(IUsuariosRepositorio repositorio, IRolesRepositorio rolesRepositorio,
-			IDepartamentosRepositorio departamentosRepositorio, PasswordEncoder passwordEncoder) {
+	IUsuariosUseCase usuariosUseCase(UsuarioRepositorioPuerto repositorio, RolRepositorioPuerto rolesRepositorio,
+			DepartamentoRepositorioPuerto departamentosRepositorio, PasswordEncoder passwordEncoder) {
 		return new UsuariosUseCaseImpl(repositorio, rolesRepositorio, departamentosRepositorio, passwordEncoder);
 	}
 
 	@Bean
-	IUsuariosRepositorio usuariosRepositorio(IUsuariosJpaRepositorio jpaRepositorio, IUsuariosJpaMapper mapper) {
+	ISetupInicialUseCase setupInicialUseCase(UsuarioRepositorioPuerto usuariosRepositorio,
+			RolRepositorioPuerto rolesRepositorio, DepartamentoRepositorioPuerto departamentosRepositorio,
+			PasswordEncoder passwordEncoder) {
+		return new SetupInicialUseCaseImpl(usuariosRepositorio, rolesRepositorio, departamentosRepositorio,
+				passwordEncoder);
+	}
+
+	@Bean
+	UsuariosRepositorioImpl usuariosRepositorio(IUsuariosJpaRepositorio jpaRepositorio, IUsuariosJpaMapper mapper) {
 		return new UsuariosRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	ICategoriaEquiposUseCase categoriaEquiposUseCase(ICategoriaEquiposRepositorio repositorio) {
+	ICategoriaEquiposUseCase categoriaEquiposUseCase(CategoriaRepositorioPuerto repositorio) {
 		return new CategoriaEquiposUseCaseImpl(repositorio);
 	}
 
 	@Bean
-	ICategoriaEquiposRepositorio categoriaEquiposRepositorio(ICategoriaEquiposJpaRepositorio jpaRepositorio,
+	CategoriaEquiposRepositorioImpl categoriaEquiposRepositorio(ICategoriaEquiposJpaRepositorio jpaRepositorio,
 			ICategoriaEquiposJpaMapper mapper) {
 		return new CategoriaEquiposRepositorioImpl(jpaRepositorio, mapper);
 	}
 
 	@Bean
-	IActividadChecklistRepository actividadChecklistRepositorio(IActividadChecklistJpaRepositorio jpaRepositorio) {
+	ActividadChecklistRepositorioPuerto actividadChecklistRepositorio(IActividadChecklistJpaRepositorio jpaRepositorio) {
 		return new ActividadChecklistRepositorioImpl(jpaRepositorio);
 	}
 
 	@Bean
 	IObtenerChecklistPorCategoriaUseCase obtenerChecklistPorCategoriaUseCase(
-			IActividadChecklistRepository actividadChecklistRepository) {
+			ActividadChecklistRepositorioPuerto actividadChecklistRepository) {
 		return new ObtenerChecklistPorCategoriaUseCaseImpl(actividadChecklistRepository);
 	}
 
 	@Bean
-	IActividadRealizadaRepository actividadRealizadaRepositorio(IActividadRealizadaJpaRepositorio jpaRepositorio) {
+	ActividadRealizadaRepositorioPuerto actividadRealizadaRepositorio(IActividadRealizadaJpaRepositorio jpaRepositorio) {
 		return new ActividadRealizadaRepositorioImpl(jpaRepositorio);
 	}
 
 	@Bean
-	ICrearMantenimientosUseCase crearMantenimientosUseCase(IMantenimientoRepository mantenimientoRepository,
-			ICustodiasRepositorio custodiasRepositorio, IEquiposRepositorio equiposRepositorio) {
+	ICrearMantenimientosUseCase crearMantenimientosUseCase(MantenimientoRepositorioPuerto mantenimientoRepository,
+			CustodiasRepositorioPuerto custodiasRepositorio, EquipoRepositorioPuerto equiposRepositorio) {
 		return new CrearMantenimientosUseCaseImpl(mantenimientoRepository, custodiasRepositorio, equiposRepositorio);
 	}
 
 	@Bean
-	IGuardarMantenimientoUseCase guardarMantenimientoUseCase(IMantenimientoRepository mantenimientoRepository,
-			IActividadRealizadaRepository actividadRealizadaRepository) {
+	IGuardarMantenimientoUseCase guardarMantenimientoUseCase(MantenimientoRepositorioPuerto mantenimientoRepository,
+			ActividadRealizadaRepositorioPuerto actividadRealizadaRepository) {
 		return new GuardarMantenimientoUseCaseImpl(mantenimientoRepository, actividadRealizadaRepository);
 	}
 
 	@Bean
-	IObtenerOrdenTrabajoUseCase obtenerOrdenTrabajoUseCase(IMantenimientoRepository mantenimientoRepository,
-			IEquiposRepositorio equiposRepositorio, ICustodiasRepositorio custodiasRepositorio,
-			IActividadChecklistRepository actividadChecklistRepository,
-			IActividadRealizadaRepository actividadRealizadaRepository) {
+	IObtenerOrdenTrabajoUseCase obtenerOrdenTrabajoUseCase(MantenimientoRepositorioPuerto mantenimientoRepository,
+			EquipoRepositorioPuerto equiposRepositorio, CustodiasRepositorioPuerto custodiasRepositorio,
+			ActividadChecklistRepositorioPuerto actividadChecklistRepository,
+			ActividadRealizadaRepositorioPuerto actividadRealizadaRepository) {
 		return new ObtenerOrdenTrabajoUseCaseImpl(mantenimientoRepository, equiposRepositorio, custodiasRepositorio,
 				actividadChecklistRepository, actividadRealizadaRepository);
 	}
 
 	@Bean
-	IHistorialEquipoRepository historialEquipoRepository(jakarta.persistence.EntityManager em) {
-		return new HistorialEquipoRepositoryImpl(em);
+	HistorialEquipoRepositorioPuerto historialEquipoRepository(EquipoRepositorioPuerto equiposRepositorio,
+			CustodiasRepositorioPuerto custodiasRepositorio, MantenimientoRepositorioPuerto mantenimientosRepositorio,
+			UsuarioRepositorioPuerto usuariosRepositorio) {
+		return new HistorialEquipoRepositoryImpl(equiposRepositorio, custodiasRepositorio, mantenimientosRepositorio,
+				usuariosRepositorio);
 	}
 
 	@Bean
-	IFirmaMantenimientoRepositorio firmaMantenimientoRepositorio(IFirmaMantenimientoJpaRepositorio jpaRepositorio) {
+	FirmaMantenimientoRepositorioPuerto firmaMantenimientoRepositorio(IFirmaMantenimientoJpaRepositorio jpaRepositorio) {
 		return new FirmaMantenimientoRepositorioImpl(jpaRepositorio);
 	}
 
 	@Bean
-	IObtenerHistorialEquipoUseCase obtenerHistorialEquipoUseCase(IHistorialEquipoRepository historialRepo) {
+	IObtenerHistorialEquipoUseCase obtenerHistorialEquipoUseCase(HistorialEquipoRepositorioPuerto historialRepo) {
 		return new ObtenerHistorialEquipoUseCaseImpl(historialRepo);
 	}
 
 	@Bean
-	ITicketsUseCase ticketsUseCase(ITicketsRepositorio ticketsRepositorio,
-			IMantenimientosRepositorio mantenimientosRepositorio) {
-		return new TicketsUseCaseImpl(ticketsRepositorio, mantenimientosRepositorio);
+	ActivoRepositorioPuerto activoRepositorio(IActivoJpaRepositorio jpaRepo, IActivoJpaMapper mapper) {
+		return new ActivoRepositorioImpl(jpaRepo, mapper);
 	}
 
 	@Bean
-	ITicketsRepositorio ticketsRepositorio(ITicketsJpaRepositorio jpaRepositorio) {
-		return new TicketsRepositorioImpl(jpaRepositorio);
+	ActualizacionActivoRepositorioPuerto actualizacionActivoRepositorio(
+			IActualizacionActivoJpaRepositorio jpaRepo, IActualizacionActivoJpaMapper mapper) {
+		return new ActualizacionActivoRepositorioImpl(jpaRepo, mapper);
 	}
 
 	@Bean
-	IVincularCustodioConUsuarioUseCase vincularCustodioConUsuarioUseCase(ICustodiosRepositorio custodiosRepositorio,
-			IUsuariosRepositorio usuariosRepositorio) {
+	IVincularCustodioConUsuarioUseCase vincularCustodioConUsuarioUseCase(CustodioRepositorioPuerto custodiosRepositorio,
+			UsuarioRepositorioPuerto usuariosRepositorio) {
 		return new VincularCustodioConUsuarioUseCaseImpl(custodiosRepositorio, usuariosRepositorio);
+	}
+
+	@Bean
+	IAutenticarUsuarioUseCase autenticarUsuarioUseCase(UsuarioRepositorioPuerto usuariosRepositorio,
+			PasswordEncoder passwordEncoder) {
+		return new AutenticarUsuarioUseCaseImpl(usuariosRepositorio, passwordEncoder);
+	}
+
+	@Bean
+	IActualizarActivoUseCase actualizarActivoUseCase(ActivoRepositorioPuerto activoRepositorio) {
+		return new ActualizarActivoUseCaseImpl(activoRepositorio);
+	}
+
+	@Bean
+	IBuscarActivoPorIdUseCase buscarActivoPorIdUseCase(ActivoRepositorioPuerto activoRepositorio) {
+		return new BuscarActivoPorIdUseCaseImpl(activoRepositorio);
+	}
+
+	@Bean
+	IVisitaTecnicaUseCase visitaTecnicaUseCase(EquipoVisitaRepositorioPuerto equipoVisitaRepositorio) {
+		return new VisitaTecnicaUseCaseImpl(equipoVisitaRepositorio);
+	}
+
+	// ---- Adaptadores de puertos de servicio ----
+
+	@Bean
+	EnviadorCorreoPuerto enviadorCorreoPuerto(
+			org.springframework.mail.javamail.JavaMailSender mailSender,
+			@org.springframework.beans.factory.annotation.Value("${spring.mail.username:}") String remitente,
+			@org.springframework.beans.factory.annotation.Value("${app.mail.from-name:CRESIO - Gestion de Activos}") String nombreRemitente) {
+		return new EnviadorCorreoAdaptador(mailSender, remitente, nombreRemitente);
+	}
+
+	@Bean
+	AlmacenadorArchivosPuerto almacenadorArchivosPuerto(
+			@org.springframework.beans.factory.annotation.Value("${mantenimiento.storage.base-path:./data/mantenimientos}") String basePath) {
+		return new AlmacenadorArchivosAdaptador(basePath);
+	}
+
+	@Bean
+	GeneradorPdfPuerto generadorPdfPuerto(PdfMantenimientoService pdfService) {
+		return new GeneradorPdfAdaptador(pdfService);
+	}
+
+	@Bean
+	ServicioNotificacionPuerto servicioNotificacionPuerto(EnviadorCorreoPuerto enviadorCorreo) {
+		return new ServicioNotificacionAdaptador(enviadorCorreo);
+	}
+
+	@Bean
+	ServicioAuditoriaPuerto servicioAuditoriaPuerto() {
+		return new ServicioAuditoriaAdaptador();
+	}
+
+	// ---- Servicios de infraestructura ----
+
+	@Bean
+	PdfMantenimientoService pdfMantenimientoService() {
+		return new PdfMantenimientoService();
+	}
+
+	@Bean
+	CorreoMantenimientoService correoMantenimientoService(
+			org.springframework.mail.javamail.JavaMailSender mailSender) {
+		return new CorreoMantenimientoService(mailSender);
+	}
+
+	@Bean
+	MantenimientoArchivoService mantenimientoArchivoService(
+			@org.springframework.beans.factory.annotation.Value("${mantenimiento.storage.base-path:./data/mantenimientos}") String basePath) {
+		return new MantenimientoArchivoService(basePath);
+	}
+
+	@Bean
+	MantenimientoInformeService mantenimientoInformeService(
+			EquipoRepositorioPuerto equiposRepo,
+			CustodioRepositorioPuerto custodiosRepo,
+			UsuarioRepositorioPuerto usuariosRepo,
+			PdfMantenimientoService pdfService,
+			MantenimientoArchivoService archivoService,
+			CorreoMantenimientoService correoService) {
+		return new MantenimientoInformeService(equiposRepo, custodiosRepo, usuariosRepo, pdfService, archivoService, correoService);
+	}
+
+	@Bean
+	CorreoSchedulerService correoSchedulerService(EnviadorCorreoPuerto enviadorCorreo) {
+		return new CorreoSchedulerService(enviadorCorreo);
+	}
+
+	// ---- Servicios de aplicación ----
+
+	@Bean
+	MantenimientoManualService mantenimientoManualService(
+			IMantenimientosJpaRepositorio mantenimientosRepo,
+			IActividadRealizadaJpaRepositorio actividadRealizadaRepo,
+			IActividadChecklistJpaRepositorio actividadChecklistRepo,
+			IImagenMantenimientoJpaRepositorio imagenRepo,
+			IEquiposJpaRepositorio equiposRepo,
+			ICustodiosJpaRepositorio custodiosRepo,
+			IUsuariosJpaRepositorio usuariosRepo,
+			MantenimientoProgramadoService programadoService,
+			NotificacionService notificacionService,
+			FirmaMantenimientoRepositorioPuerto firmaMantenimientoRepositorio) {
+		return new MantenimientoManualService(mantenimientosRepo, actividadRealizadaRepo, actividadChecklistRepo,
+				imagenRepo, equiposRepo, custodiosRepo, usuariosRepo, programadoService, notificacionService,
+				firmaMantenimientoRepositorio);
+	}
+
+	@Bean
+	MantenimientoProgramadoService mantenimientoProgramadoService(
+			IMantenimientoProgramadoJpaRepositorio programadoRepo,
+			IEquiposJpaRepositorio equiposRepo,
+			IUsuariosJpaRepositorio usuariosRepo) {
+		return new MantenimientoProgramadoService(programadoRepo, equiposRepo, usuariosRepo);
+	}
+
+	@Bean
+	NotificacionService notificacionService(
+			INotificacionJpaRepositorio notificacionRepo,
+			IUsuariosJpaRepositorio usuariosRepo,
+			IMantenimientosJpaRepositorio mantenimientosRepo) {
+		return new NotificacionService(notificacionRepo, usuariosRepo, mantenimientosRepo);
 	}
 }

@@ -74,9 +74,10 @@
 										th:text="${d.fkEquipo != null ? d.fkEquipo.tipoEquipo : ''}"></td>
 									<td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
 									<td th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></td>
-								</tr>
-								<tr th:if="${detalles == null or #lists.isEmpty(detalles)}">
-									<td colspan="5" class="text-center text-muted">Sin
+											<td th:text="${d.fkEquipo != null and d.fkEquipo.fkUbicacion != null ? d.fkEquipo.fkUbicacion.nombre : ''}"></td>
+									</tr>
+									<tr th:if="${detalles == null or #lists.isEmpty(detalles)}">
+										<td colspan="6" class="text-center text-muted">Sin
 										detalles</td>
 								</tr>
 							</tbody>

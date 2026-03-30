@@ -45,6 +45,13 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="cedula" class="form-label">Cedula</label>
+                        <input type="text" class="form-control" id="cedula" name="cedula"
+                               th:value="${cedula}" placeholder="Ej: 1234567890"
+                               maxlength="20">
+                    </div>
+
+                    <div class="mb-3">
                         <label for="correo" class="form-label">Correo electronico</label>
                         <input type="email" class="form-control" id="correo" name="correo"
                                th:value="${correo}" placeholder="admin@cresio.com"

@@ -30,9 +30,12 @@
           </div>
           <div>
             <label class="field-label">Departamento</label>
-            <select id="cbdepartamentos" class="form-select" th:field="*{fkDepartamento.idDepartamento}">
-              <option th:each="dep : ${listadepartamento}" th:value="${dep.idDepartamento}" th:text="${dep.nombre}"></option>
-            </select>
+            <div class="d-flex gap-2">
+              <select id="cbdepartamentos" class="form-select" th:field="*{fkDepartamento.idDepartamento}">
+                <option th:each="dep : ${listadepartamento}" th:value="${dep.idDepartamento}" th:text="${dep.nombre}"></option>
+              </select>
+              <button type="button" class="btn btn-outline-primary btn-sm" title="Crear departamento" data-bs-toggle="modal" data-bs-target="#modalCrearDepartamento"><i class="feather-plus"></i></button>
+            </div>
             <div class="text-danger small mt-1" th:if="${errorSeleccionDepartamento}" th:text="${errorSeleccionDepartamento}"></div>
           </div>
         </div>
@@ -57,6 +60,56 @@
       </div>
     </div>
   </form>
+
+  <!-- Modal Crear Departamento -->
+  <div class="modal fade" id="modalCrearDepartamento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Nuevo Departamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="modalDepNombre" maxlength="100" /></div>
+          <div class="text-danger small" id="modalDepError"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnCrearDep">Crear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    function ajaxCrear(url, body, errorElId, onOk, btnEl) {
+      var errorEl = document.getElementById(errorElId);
+      btnEl.disabled = true;
+      fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) {
+        if (r.status === 409) return r.json().then(function (d) { throw new Error(d.error || 'Ya existe'); });
+        if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Error'); });
+        return r.json();
+      })
+      .then(function (data) { onOk(data); })
+      .catch(function (e) { errorEl.textContent = e.message; })
+      .finally(function () { btnEl.disabled = false; });
+    }
+
+    document.getElementById('btnCrearDep').addEventListener('click', function () {
+      var n = document.getElementById('modalDepNombre').value.trim();
+      if (!n) { document.getElementById('modalDepError').textContent = 'El nombre es obligatorio'; return; }
+      ajaxCrear('/api/relaciones/departamentos', { nombre: n }, 'modalDepError', function (data) {
+        var sel = document.getElementById('cbdepartamentos');
+        var opt = new Option(data.nombre, data.idDepartamento, true, true);
+        sel.appendChild(opt);
+        bootstrap.Modal.getInstance(document.getElementById('modalCrearDepartamento')).hide();
+        document.getElementById('modalDepNombre').value = '';
+        document.getElementById('modalDepError').textContent = '';
+      }, this);
+    });
+  })();
+  </script>
 </div>
 </body>
 </html>

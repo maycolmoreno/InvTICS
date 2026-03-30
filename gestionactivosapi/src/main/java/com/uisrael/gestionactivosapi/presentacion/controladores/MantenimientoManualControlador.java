@@ -19,9 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.uisrael.gestionactivosapi.aplicacion.servicios.MantenimientoArchivoService;
-import com.uisrael.gestionactivosapi.aplicacion.servicios.MantenimientoInformeService;
-import com.uisrael.gestionactivosapi.aplicacion.servicios.MantenimientoManualService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoArchivoService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoInformeService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoManualService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.ActividadManualComando;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.ImagenMantenimientoComando;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.MantenimientoManualComando;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.CerrarMantenimientoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.ImagenMantenimientoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.MantenimientoManualRequestDTO;
@@ -60,7 +63,7 @@ public class MantenimientoManualControlador {
     @ResponseStatus(HttpStatus.CREATED)
     public MantenimientoManualResponseDTO crear(@Valid @RequestBody MantenimientoManualRequestDTO request,
             Principal principal) {
-        MantenimientoManualResponseDTO creado = mantenimientoService.crear(request, principal.getName());
+        MantenimientoManualResponseDTO creado = mantenimientoService.crear(toCommand(request), principal.getName());
         try {
             mantenimientoInformeService.generarGuardarYEnviar(creado);
         } catch (Exception e) {
@@ -73,7 +76,7 @@ public class MantenimientoManualControlador {
     @PostMapping("/{id}/imagenes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void guardarImagenes(@PathVariable Integer id, @RequestBody List<ImagenMantenimientoRequestDTO> imagenes) {
-        mantenimientoService.guardarImagenes(id, imagenes);
+        mantenimientoService.guardarImagenes(id, toImageCommands(imagenes));
     }
 
     @PostMapping(value = "/{id}/imagenes/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -81,7 +84,7 @@ public class MantenimientoManualControlador {
             @PathVariable Integer id,
             @RequestPart("files") List<MultipartFile> files) {
         List<ImagenMantenimientoRequestDTO> metadata = mantenimientoArchivoService.guardarImagenes(id, files);
-        mantenimientoService.guardarImagenes(id, metadata);
+        mantenimientoService.guardarImagenes(id, toImageCommands(metadata));
         return metadata;
     }
 
@@ -113,5 +116,32 @@ public class MantenimientoManualControlador {
         MantenimientoManualResponseDTO mantenimiento = mantenimientoService.obtenerDetalle(id);
         mantenimientoInformeService.reenviar(mantenimiento);
         return ResponseEntity.ok(Map.of("message", "Correo reenviado correctamente."));
+    }
+
+    private MantenimientoManualComando toCommand(MantenimientoManualRequestDTO request) {
+        return new MantenimientoManualComando(
+                request.getEquipoId(),
+                request.getCustodioId(),
+                request.getTipoMantenimiento(),
+                request.getFechaMantenimiento(),
+                request.getDetalle(),
+                request.getEstadoGeneral(),
+                request.getProximaFecha(),
+                request.getFirmaTecnico(),
+                request.getFirmaCustodio(),
+                request.getIpOrigen(),
+                request.getActividades() == null ? List.of() : request.getActividades().stream()
+                        .map(a -> new ActividadManualComando(a.getIdActividad(), a.getRealizada()))
+                        .toList(),
+                toImageCommands(request.getImagenes()));
+    }
+
+    private List<ImagenMantenimientoComando> toImageCommands(List<ImagenMantenimientoRequestDTO> imagenes) {
+        if (imagenes == null) {
+            return List.of();
+        }
+        return imagenes.stream()
+                .map(img -> new ImagenMantenimientoComando(img.getNombreArchivo(), img.getRutaArchivo(), img.getTamanioBytes()))
+                .toList();
     }
 }

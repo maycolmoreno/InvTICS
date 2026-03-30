@@ -96,4 +96,83 @@ public interface EquipoRepositorioPuerto {
     default List<Equipos> listarTodos() {
         return obtenerTodos();
     }
+    
+    /**
+     * Actualiza un equipo existente con ID especificado.
+     * 
+     * @param id el ID del equipo a actualizar
+     * @param equipo el equipo con datos actualizados
+     * @return el equipo actualizado
+     */
+    Equipos actualizar(int id, Equipos equipo);
+    
+    /**
+     * Verifica si existe un equipo con el Código SAP (Activo Fijo) especificado.
+     * 
+     * @param codigo el código SAP
+     * @return true si existe, false en caso contrario
+     */
+    boolean existeCodigo(String codigo);
+    
+    /**
+     * Verifica si existe otro equipo con el Código SAP especificado (excluyendo el actual).
+     * 
+     * @param codigo el código SAP
+     * @param idEquipo el ID del equipo actual a excluir
+     * @return true si existe otro, false en caso contrario
+     */
+    boolean existeCodigoParaOtro(String codigo, int idEquipo);
+    
+    /**
+     * Verifica si existe un equipo con el serial especificado.
+     * 
+     * @param serial el serial del equipo
+     * @return true si existe, false en caso contrario
+     */
+    boolean existeSerial(String serial);
+    
+    /**
+     * Verifica si existe otro equipo con el serial especificado (excluyendo el actual).
+     * 
+     * @param serial el serial del equipo
+     * @param idEquipo el ID del equipo actual a excluir
+     * @return true si existe otro, false en caso contrario
+     */
+    boolean existeSerialParaOtro(String serial, int idEquipo);
+    
+    /**
+     * Verifica si existe un equipo con la dirección IP especificada.
+     * 
+     * @param ip la dirección IP
+     * @return true si existe, false en caso contrario
+     */
+    boolean existeIP(String ip);
+    
+    /**
+     * Verifica si existe otro equipo con la dirección IP especificada (excluyendo el actual).
+     * 
+     * @param ip la dirección IP
+     * @param idEquipo el ID del equipo actual a excluir
+     * @return true si existe otro, false en caso contrario
+     */
+    boolean existeIPParaOtro(String ip, int idEquipo);
+    
+    /**
+     * Verifica si existe un equipo con la dirección MAC especificada.
+     * 
+     * @param mac la dirección MAC
+     * @return true si existe, false en caso contrario
+     */
+    boolean existeMAC(String mac);
+    
+    /**
+     * Verifica si existe otro equipo con la dirección MAC especificada (excluyendo el actual).
+     * 
+     * @param mac la dirección MAC
+     * @param idEquipo el ID del equipo actual a excluir
+     * @return true si existe otro, false en caso contrario
+     */
+    boolean existeMACParaOtro(String mac, int idEquipo);
+
+    Equipos actualizarEstado(int id, boolean estado);
 }

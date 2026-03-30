@@ -108,11 +108,12 @@
                             <th>Tipo</th>
                             <th>Modelo</th>
                             <th>Serial</th>
+                            <th>Ubicación</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:if="${detalles == null or #lists.isEmpty(detalles)}">
-                            <td colspan="5">
+                            <td colspan="6">
                                 <div class="table-empty-state">
                                     <i class="feather-inbox"></i>
                                     <div>No hay equipos asociados a esta acta.</div>
@@ -125,6 +126,7 @@
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.tipoEquipo : ''}"></td>
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
                             <td><code class="serial-code" th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></code></td>
+                            <td th:text="${d.fkEquipo != null and d.fkEquipo.fkUbicacion != null ? d.fkEquipo.fkUbicacion.nombre : ''}"></td>
                         </tr>
                         </tbody>
                     </table>

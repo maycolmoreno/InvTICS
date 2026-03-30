@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.LoginRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.RefreshTokenRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.AuthResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.RolesResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponseDTO;
 import com.uisrael.consumogestionactivosapi.security.JwtTokenProvider;
 
@@ -56,20 +57,30 @@ public class ApiAuthControlador {
 					.defaultHeader("Authorization", "Basic " + credencialesBase64)
 					.build();
 
-			// Obtener datos del usuario autenticado
-			UsuariosResponseDTO usuario = clienteTemp
+			// La API principal expone el usuario autenticado en /api/auth/yo usando Basic Auth
+			Map<String, String> usuarioActual = clienteTemp
 					.get()
-					.uri("/usuarios/perfil")
+					.uri("/auth/yo")
 					.retrieve()
-					.bodyToMono(new ParameterizedTypeReference<UsuariosResponseDTO>() {
+					.bodyToMono(new ParameterizedTypeReference<Map<String, String>>() {
 					})
 					.block();
 
-			if (usuario == null) {
+			if (usuarioActual == null || usuarioActual.isEmpty()) {
 				logger.warn("Usuario no encontrado: {}", loginRequest.getCorreo());
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 						.body(Map.of("error", "Credenciales inválidas"));
 			}
+
+			UsuariosResponseDTO usuario = new UsuariosResponseDTO();
+			usuario.setCorreo(usuarioActual.getOrDefault("correo", loginRequest.getCorreo()));
+			usuario.setNombre(usuarioActual.getOrDefault("nombreUsuario", loginRequest.getCorreo()));
+			usuario.setEstado(true);
+
+			RolesResponseDTO rol = new RolesResponseDTO();
+			rol.setNombre(usuarioActual.getOrDefault("rol", "AUDITOR"));
+			rol.setEstado(true);
+			usuario.setFkRol(rol);
 
 			// Generar tokens JWT
 			String accessToken = jwtTokenProvider.generateAccessToken(usuario.getCorreo());

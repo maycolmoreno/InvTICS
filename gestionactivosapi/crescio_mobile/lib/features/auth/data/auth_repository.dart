@@ -18,12 +18,18 @@ class AuthRepository {
     final basicToken = base64Encode(
       utf8.encode('${request.username}:${request.password}'),
     );
+    final uri = Uri.parse('${AppConfig.baseUrl}/autenticacion/login').replace(
+      queryParameters: {
+        'correo': request.username,
+        'contrasena': request.password,
+      },
+    );
+
     final response = await http
-        .get(
-          Uri.parse('${AppConfig.baseUrl}/auth/yo'),
-          headers: {
+        .post(
+          uri,
+          headers: const {
             'Accept': 'application/json',
-            'Authorization': 'Basic $basicToken',
           },
         )
         .timeout(const Duration(seconds: 15));
@@ -39,12 +45,10 @@ class AuthRepository {
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final session = AuthSession(
-      token: basicToken,
-      username: data['correo']?.toString() ?? request.username,
-      displayName: data['nombreUsuario']?.toString() ?? request.username,
-      role: data['rol']?.toString() ?? '',
-    );
+    final session = AuthSession.fromJson({
+      ...data,
+      'token': basicToken,
+    });
     await _secureStorage.saveSession(
       token: session.token,
       username: session.username,

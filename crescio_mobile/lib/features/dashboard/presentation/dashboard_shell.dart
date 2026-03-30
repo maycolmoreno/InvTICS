@@ -45,6 +45,7 @@ class _DashboardShellState extends State<DashboardShell> {
                 recentMantenimientos: dashboard.recentMantenimientos,
                 pendingOffline: dashboard.pendingOffline,
                 offline: dashboard.offline,
+                error: dashboard.error,
               ),
             ),
           ];
@@ -150,6 +151,7 @@ class _HomeTab extends StatelessWidget {
     required this.recentMantenimientos,
     required this.pendingOffline,
     required this.offline,
+    this.error,
   });
 
   final int pendingNotifications;
@@ -158,6 +160,7 @@ class _HomeTab extends StatelessWidget {
   final List<Map<String, dynamic>> recentMantenimientos;
   final int pendingOffline;
   final bool offline;
+  final String? error;
 
   @override
   Widget build(BuildContext context) {
@@ -173,17 +176,31 @@ class _HomeTab extends StatelessWidget {
               textColor: Color(0xFF8A6300),
             ),
           ),
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: StatusBanner(
+              text: 'Error al cargar datos: $error',
+              backgroundColor: const Color(0xFFF8D7DA),
+              textColor: const Color(0xFF842029),
+            ),
+          ),
         Wrap(
           spacing: 12,
           runSpacing: 12,
           children: [
-            _SummaryCard(title: 'Mantenimientos abiertos', value: '$openMantenimientos'),
+            _SummaryCard(
+                title: 'Mantenimientos abiertos', value: '$openMantenimientos'),
             _SummaryCard(title: 'Equipos activos', value: '$activeEquipos'),
-            _SummaryCard(title: 'Notificaciones', value: '$pendingNotifications'),
+            _SummaryCard(
+                title: 'Notificaciones', value: '$pendingNotifications'),
           ],
         ),
         const SizedBox(height: 12),
-        _SummaryCard(title: 'Pendientes offline', value: '$pendingOffline', fullWidth: true),
+        _SummaryCard(
+            title: 'Pendientes offline',
+            value: '$pendingOffline',
+            fullWidth: true),
         const SizedBox(height: 20),
         const Text(
           'Actividad reciente',
@@ -202,13 +219,15 @@ class _HomeTab extends StatelessWidget {
             (item) => Card(
               child: ListTile(
                 leading: const Icon(Icons.build_circle_outlined),
-                title: Text(_text(item['equipoCodigoSap'], fallback: 'Sin codigo')),
+                title: Text(
+                    _text(item['equipoCodigoSap'], fallback: 'Sin codigo')),
                 subtitle: Text(
                   '${_text(item['equipoDescripcion'])}\n'
                   'Estado: ${_text(item['estadoInterno'])}',
                 ),
                 isThreeLine: true,
-                trailing: Text(_text(item['fechaMantenimiento'], fallback: '-')),
+                trailing:
+                    Text(_text(item['fechaMantenimiento'], fallback: '-')),
               ),
             ),
           ),
@@ -244,7 +263,8 @@ class _SummaryCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 value,
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
             ],
           ),

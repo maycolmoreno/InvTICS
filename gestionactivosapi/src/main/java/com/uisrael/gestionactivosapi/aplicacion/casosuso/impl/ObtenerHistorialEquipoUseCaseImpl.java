@@ -6,15 +6,15 @@ import com.uisrael.gestionactivosapi.dominio.dto.HistorialCompletoDTO;
 import com.uisrael.gestionactivosapi.dominio.dto.HistorialEquipoDTO;
 import com.uisrael.gestionactivosapi.dominio.dto.MantenimientoHistorialDTO;
 import com.uisrael.gestionactivosapi.dominio.entidades.EstadoMantenimientoVisita;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IHistorialEquipoRepository;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.HistorialEquipoRepositorioPuerto;
 
 import java.util.List;
 
 public class ObtenerHistorialEquipoUseCaseImpl implements IObtenerHistorialEquipoUseCase {
 
-    private final IHistorialEquipoRepository historialRepositorio;
+    private final HistorialEquipoRepositorioPuerto historialRepositorio;
 
-    public ObtenerHistorialEquipoUseCaseImpl(IHistorialEquipoRepository historialRepositorio) {
+    public ObtenerHistorialEquipoUseCaseImpl(HistorialEquipoRepositorioPuerto historialRepositorio) {
         this.historialRepositorio = historialRepositorio;
     }
 

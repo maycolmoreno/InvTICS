@@ -2,12 +2,12 @@ package com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas;
 
 import java.util.List;
 
-import com.uisrael.gestionactivosapi.presentacion.dto.response.VisitaCustodioResponseDTO;
-import com.uisrael.gestionactivosapi.presentacion.dto.response.VisitaEquipoResponseDTO;
+import com.uisrael.gestionactivosapi.dominio.entidades.CustodioVisita;
+import com.uisrael.gestionactivosapi.dominio.entidades.EquipoVisita;
 
 public interface IVisitaTecnicaUseCase {
 
-    List<VisitaEquipoResponseDTO> obtenerEquipos(Long ubicacionId, Long custodioId);
+    List<EquipoVisita> obtenerEquipos(Long ubicacionId, Long custodioId);
 
-    List<VisitaCustodioResponseDTO> obtenerCustodios(Long ubicacionId);
+    List<CustodioVisita> obtenerCustodios(Long ubicacionId);
 }

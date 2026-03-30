@@ -55,8 +55,12 @@ public class TestFixtures {
         dto.setEtiquetaActivoFijo(true);
         dto.setEstadoEquipo("Activo");
         dto.setEstado(true);
-        dto.setFechaPrecioCompra(LocalDate.now());
+        dto.setFechaCompra(LocalDate.now());
         dto.setPrecioCompra(new BigDecimal("1500.00"));
+        dto.setFkMarca(new MarcasRequestDTO());
+        dto.getFkMarca().setIdMarca(1);
+        dto.setFkCategoria(new CategoriaEquiposRequestDTO());
+        dto.getFkCategoria().setIdCategoria(1);
         return dto;
     }
 
@@ -93,8 +97,7 @@ public class TestFixtures {
      */
     public static CargosRequestDTO crearCargoDePrueba() {
         CargosRequestDTO dto = new CargosRequestDTO();
-        dto.setNombre("Técnico de TI");
-        dto.setDescripcion("Encargado de mantenimiento de equipos");
+        dto.setNombre("Tecnico de TI");
         dto.setEstado(true);
         return dto;
     }
@@ -105,7 +108,6 @@ public class TestFixtures {
     public static CategoriaEquiposRequestDTO crearCategoriaDePrueba() {
         CategoriaEquiposRequestDTO dto = new CategoriaEquiposRequestDTO();
         dto.setNombre("Computadoras de Escritorio");
-        dto.setDescripcion("Equipos de cómputo para oficina");
         dto.setEstado(true);
         return dto;
     }

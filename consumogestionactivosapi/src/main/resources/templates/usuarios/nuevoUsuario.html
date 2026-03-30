@@ -67,17 +67,23 @@
           <div class="form-grid">
             <div>
               <label class="field-label">Rol</label>
-              <select class="form-select" name="fkRolId" required>
-                <option value="">Seleccione un rol</option>
-                <option th:each="rol : ${roles}" th:if="${rol.estado}" th:value="${rol.idRol}" th:text="${rol.nombre}"></option>
-              </select>
+              <div class="d-flex gap-2">
+                <select class="form-select" id="selRol" name="fkRolId" required>
+                  <option value="">Seleccione un rol</option>
+                  <option th:each="rol : ${roles}" th:if="${rol.estado}" th:value="${rol.idRol}" th:text="${rol.nombre}"></option>
+                </select>
+                <button type="button" class="btn btn-outline-primary btn-sm" title="Crear rol" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="feather-plus"></i></button>
+              </div>
             </div>
             <div>
               <label class="field-label">Departamento</label>
-              <select class="form-select" name="fkDepartamentoId" required>
-                <option value="">Seleccione un departamento</option>
-                <option th:each="departamento : ${departamentos}" th:if="${departamento.estado}" th:value="${departamento.idDepartamento}" th:text="${departamento.nombre}"></option>
-              </select>
+              <div class="d-flex gap-2">
+                <select class="form-select" id="selDepartamento" name="fkDepartamentoId" required>
+                  <option value="">Seleccione un departamento</option>
+                  <option th:each="departamento : ${departamentos}" th:if="${departamento.estado}" th:value="${departamento.idDepartamento}" th:text="${departamento.nombre}"></option>
+                </select>
+                <button type="button" class="btn btn-outline-primary btn-sm" title="Crear departamento" data-bs-toggle="modal" data-bs-target="#modalCrearDepartamento"><i class="feather-plus"></i></button>
+              </div>
             </div>
           </div>
 
@@ -99,6 +105,88 @@
       </div>
     </div>
   </form>
+
+  <!-- Modal Crear Rol -->
+  <div class="modal fade" id="modalCrearRol" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Nuevo Rol</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="modalRolNombre" maxlength="100" /></div>
+          <div class="text-danger small" id="modalRolError"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnCrearRol">Crear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crear Departamento -->
+  <div class="modal fade" id="modalCrearDepartamento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Nuevo Departamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="modalDepNombre" maxlength="100" /></div>
+          <div class="text-danger small" id="modalDepError"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnCrearDep">Crear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    function ajaxCrear(url, body, errorElId, onOk, btnEl) {
+      var errorEl = document.getElementById(errorElId);
+      btnEl.disabled = true;
+      fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) {
+        if (r.status === 409) return r.json().then(function (d) { throw new Error(d.error || 'Ya existe'); });
+        if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Error'); });
+        return r.json();
+      })
+      .then(function (data) { onOk(data); })
+      .catch(function (e) { errorEl.textContent = e.message; })
+      .finally(function () { btnEl.disabled = false; });
+    }
+
+    document.getElementById('btnCrearRol').addEventListener('click', function () {
+      var n = document.getElementById('modalRolNombre').value.trim();
+      if (!n) { document.getElementById('modalRolError').textContent = 'El nombre es obligatorio'; return; }
+      ajaxCrear('/api/relaciones/roles', { nombre: n }, 'modalRolError', function (data) {
+        var sel = document.getElementById('selRol');
+        var opt = new Option(data.nombre, data.idRol, true, true);
+        sel.appendChild(opt);
+        bootstrap.Modal.getInstance(document.getElementById('modalCrearRol')).hide();
+        document.getElementById('modalRolNombre').value = '';
+        document.getElementById('modalRolError').textContent = '';
+      }, this);
+    });
+
+    document.getElementById('btnCrearDep').addEventListener('click', function () {
+      var n = document.getElementById('modalDepNombre').value.trim();
+      if (!n) { document.getElementById('modalDepError').textContent = 'El nombre es obligatorio'; return; }
+      ajaxCrear('/api/relaciones/departamentos', { nombre: n }, 'modalDepError', function (data) {
+        var sel = document.getElementById('selDepartamento');
+        var opt = new Option(data.nombre, data.idDepartamento, true, true);
+        sel.appendChild(opt);
+        bootstrap.Modal.getInstance(document.getElementById('modalCrearDepartamento')).hide();
+        document.getElementById('modalDepNombre').value = '';
+        document.getElementById('modalDepError').textContent = '';
+      }, this);
+    });
+  })();
+  </script>
 </div>
 </body>
 </html>

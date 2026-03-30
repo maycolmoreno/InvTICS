@@ -22,7 +22,8 @@ class MantenimientoFormScreen extends StatefulWidget {
   final List<int> initialEquipoIds;
 
   @override
-  State<MantenimientoFormScreen> createState() => _MantenimientoFormScreenState();
+  State<MantenimientoFormScreen> createState() =>
+      _MantenimientoFormScreenState();
 }
 
 class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
@@ -46,6 +47,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   int? _custodioId;
   bool _loading = true;
   bool _saving = false;
+  String? _loadError;
   List<EquipoListItem> _equipos = const [];
   List<Map<String, dynamic>> _custodios = const [];
   List<Map<String, dynamic>> _custodias = const [];
@@ -73,7 +75,10 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   }
 
   Future<void> _loadCatalogs() async {
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _loadError = null;
+    });
     try {
       final apiClient = context.read<ApiClient>();
       final repository = MantenimientosRepository(apiClient);
@@ -86,7 +91,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
           .map((item) => _text(item['categoria'], fallback: 'General'))
           .toSet();
       for (final category in categories) {
-        _observacionControllers.putIfAbsent(category, TextEditingController.new);
+        _observacionControllers.putIfAbsent(
+            category, TextEditingController.new);
       }
       setState(() {
         _equipos = equipos;
@@ -98,6 +104,10 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
           _custodioId = null;
         }
       });
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loadError = e.toString().replaceAll('Exception: ', ''));
+      }
     } finally {
       if (mounted) {
         setState(() => _loading = false);
@@ -131,20 +141,24 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
     }
     if (_equipoIds.isEmpty || _custodioId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona al menos un equipo y un custodio.')),
+        const SnackBar(
+            content: Text('Selecciona al menos un equipo y un custodio.')),
       );
       return;
     }
-    final equiposInvalidos = _equipoIds.where((equipoId) => !_equipoPerteneceACustodio(equipoId, _custodioId!));
+    final equiposInvalidos = _equipoIds.where(
+        (equipoId) => !_equipoPerteneceACustodio(equipoId, _custodioId!));
     if (equiposInvalidos.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Uno o mas equipos no pertenecen al custodio indicado.'),
+          content:
+              Text('Uno o mas equipos no pertenecen al custodio indicado.'),
         ),
       );
       return;
     }
-    if (_actividades.isEmpty || _actividadesSeleccionadas.length != _actividades.length) {
+    if (_actividades.isEmpty ||
+        _actividadesSeleccionadas.length != _actividades.length) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Debes completar todo el checklist.')),
       );
@@ -152,7 +166,9 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
     }
     if (_firmaTecnicoController.isEmpty || _firmaCustodioController.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Debes registrar la firma del tecnico y del custodio.')),
+        const SnackBar(
+            content:
+                Text('Debes registrar la firma del tecnico y del custodio.')),
       );
       return;
     }
@@ -224,17 +240,20 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                 children: [
                   Text(
                     entry.key,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 8),
                   ...entry.value.map((item) {
                     final actividadId = _asInt(item['idActividad']) ?? 0;
-                    final selected = _actividadesSeleccionadas.contains(actividadId);
+                    final selected =
+                        _actividadesSeleccionadas.contains(actividadId);
                     return CheckboxListTile(
                       contentPadding: EdgeInsets.zero,
                       value: selected,
                       title: Text(_text(item['nombre'], fallback: 'Actividad')),
-                      subtitle: Text('Orden ${_text(item['orden'], fallback: '-')}'),
+                      subtitle:
+                          Text('Orden ${_text(item['orden'], fallback: '-')}'),
                       onChanged: (value) {
                         setState(() {
                           if (value == true) {
@@ -269,7 +288,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   bool _equipoPerteneceACustodio(int equipoId, int custodioId) {
     return _custodias.any((custodia) {
       final estado = custodia['estado'] == true;
-      final fkEquipo = Map<String, dynamic>.from(custodia['fkEquipo'] as Map? ?? const {});
+      final fkEquipo =
+          Map<String, dynamic>.from(custodia['fkEquipo'] as Map? ?? const {});
       final fkCustodio =
           Map<String, dynamic>.from(custodia['fkCustodio'] as Map? ?? const {});
       final custodioMatch = _asInt(fkCustodio['idCustodio']) == custodioId ||
@@ -291,13 +311,15 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       return _custodias
           .where((custodia) {
             final estado = custodia['estado'] == true;
-            final fkEquipo = Map<String, dynamic>.from(custodia['fkEquipo'] as Map? ?? const {});
+            final fkEquipo = Map<String, dynamic>.from(
+                custodia['fkEquipo'] as Map? ?? const {});
             return estado && _asInt(fkEquipo['idEquipo']) == equipoId;
           })
           .map((custodia) {
-            final fkCustodio =
-                Map<String, dynamic>.from(custodia['fkCustodio'] as Map? ?? const {});
-            return _asInt(fkCustodio['idCustodio']) ?? _asInt(custodia['idCustodio']);
+            final fkCustodio = Map<String, dynamic>.from(
+                custodia['fkCustodio'] as Map? ?? const {});
+            return _asInt(fkCustodio['idCustodio']) ??
+                _asInt(custodia['idCustodio']);
           })
           .whereType<int>()
           .toSet();
@@ -333,7 +355,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                     return CheckboxListTile(
                       value: checked,
                       title: Text(_equipoLabel(item)),
-                      subtitle: Text(_text(item.serial, fallback: 'Sin serial')),
+                      subtitle:
+                          Text(_text(item.serial, fallback: 'Sin serial')),
                       onChanged: (value) {
                         setModalState(() {
                           if (value == true) {
@@ -389,13 +412,15 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       return _custodias
           .where((custodia) {
             final estado = custodia['estado'] == true;
-            final fkEquipo = Map<String, dynamic>.from(custodia['fkEquipo'] as Map? ?? const {});
+            final fkEquipo = Map<String, dynamic>.from(
+                custodia['fkEquipo'] as Map? ?? const {});
             return estado && _asInt(fkEquipo['idEquipo']) == equipoId;
           })
           .map((custodia) {
-            final fkCustodio =
-                Map<String, dynamic>.from(custodia['fkCustodio'] as Map? ?? const {});
-            return _asInt(fkCustodio['idCustodio']) ?? _asInt(custodia['idCustodio']);
+            final fkCustodio = Map<String, dynamic>.from(
+                custodia['fkCustodio'] as Map? ?? const {});
+            return _asInt(fkCustodio['idCustodio']) ??
+                _asInt(custodia['idCustodio']);
           })
           .whereType<int>()
           .toSet();
@@ -455,8 +480,8 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   @override
   Widget build(BuildContext context) {
     final canCreate = context.watch<AuthProvider>().hasCapability(
-      UserCapability.createMantenimiento,
-    );
+          UserCapability.createMantenimiento,
+        );
     if (!canCreate) {
       return Scaffold(
         appBar: AppBar(title: const Text('Nuevo mantenimiento')),
@@ -475,207 +500,260 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       appBar: AppBar(title: const Text('Nuevo mantenimiento')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _pickEquipos,
-                    icon: const Icon(Icons.devices_outlined),
-                    label: Text(
-                      _equipoIds.isEmpty
-                          ? 'Seleccionar equipos'
-                          : 'Equipos seleccionados: ${_equipoIds.length}',
+          : _loadError != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.error_outline,
+                            size: 48, color: Colors.redAccent),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No fue posible cargar los datos del formulario.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _loadError!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton.icon(
+                          onPressed: _loadCatalogs,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Reintentar'),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  if (_equipoIds.isNotEmpty)
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _equipos
-                          .where((item) {
-                            return item.id > 0 && _equipoIds.contains(item.id);
-                          })
-                          .map(
-                            (item) => InputChip(
-                              label: Text(_equipoLabel(item)),
-                              onDeleted: () {
-                                setState(() {
-                                  if (item.id > 0) {
-                                    _equipoIds.remove(item.id);
-                                    final validos = _custodiosValidos();
-                                    if (_custodioId != null && !validos.contains(_custodioId)) {
-                                      _custodioId = null;
-                                    }
-                                  }
-                                });
-                              },
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  const SizedBox(height: 12),
-                  Builder(
-                    builder: (context) {
-                      final validos = _custodiosValidos();
-                      final custodiosFiltrados = _custodios.where((item) {
-                        final id = _asInt(item['idCustodio']) ?? _asInt(item['id']);
-                        return id != null && validos.contains(id);
-                      }).toList();
-                      return DropdownButtonFormField<int>(
-                        initialValue: _custodioId,
-                        decoration: const InputDecoration(labelText: 'Custodio'),
-                        items: custodiosFiltrados
-                            .map(
-                              (item) => DropdownMenuItem<int>(
-                                value: _asInt(item['idCustodio']) ?? _asInt(item['id']),
-                                child: Text(_text(item['nombre'], fallback: 'Sin nombre')),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) => setState(() => _custodioId = value),
-                        validator: (value) => value == null ? 'Selecciona un custodio' : null,
-                      );
-                    },
-                  ),
-                  if (_equipoIds.isNotEmpty && _custodiosValidos().isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Text(
-                        'No hay custodios en comun para los equipos seleccionados.',
-                        style: TextStyle(color: Colors.redAccent),
-                      ),
-                    ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    initialValue: _tipo,
-                    decoration: const InputDecoration(labelText: 'Tipo'),
-                    items: const [
-                      DropdownMenuItem(value: 'PREVENTIVO', child: Text('Preventivo')),
-                      DropdownMenuItem(value: 'CORRECTIVO', child: Text('Correctivo')),
-                    ],
-                    onChanged: (value) => setState(() => _tipo = value ?? _tipo),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    initialValue: _estadoGeneral,
-                    decoration: const InputDecoration(labelText: 'Estado general'),
-                    items: const [
-                      DropdownMenuItem(value: 'OPERATIVO', child: Text('Operativo')),
-                      DropdownMenuItem(value: 'REQUIERE_REVISION', child: Text('Requiere revision')),
-                      DropdownMenuItem(value: 'NO_OPERATIVO', child: Text('No operativo')),
-                    ],
-                    onChanged: (value) =>
-                        setState(() => _estadoGeneral = value ?? _estadoGeneral),
-                  ),
-                  const SizedBox(height: 12),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Fecha de mantenimiento'),
-                    subtitle: Text(_formatDate(_fecha)),
-                    trailing: const Icon(Icons.calendar_today_outlined),
-                    onTap: _selectDate,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _detalleController,
-                    minLines: 3,
-                    maxLines: 5,
-                    decoration: const InputDecoration(
-                      labelText: 'Detalle',
-                      hintText: 'Describe el trabajo o hallazgo tecnico',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Ingresa el detalle del mantenimiento';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Checklist tecnico',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  if (_actividades.isEmpty)
-                    const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text('No hay actividades checklist configuradas.'),
-                      ),
-                    )
-                  else
-                    ..._buildChecklistWidgets(),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Observaciones por bloque',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  ..._buildObservacionesWidgets(),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Firmas',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  _SignatureCard(
-                    title: 'Firma del tecnico',
-                    controller: _firmaTecnicoController,
-                  ),
-                  const SizedBox(height: 12),
-                  _SignatureCard(
-                    title: 'Firma del custodio',
-                    controller: _firmaCustodioController,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
+                )
+              : Form(
+                  key: _formKey,
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
                     children: [
                       OutlinedButton.icon(
-                        onPressed: _pickImages,
-                        icon: const Icon(Icons.photo_library_outlined),
-                        label: const Text('Agregar imagenes'),
-                      ),
-                      const SizedBox(width: 12),
-                      Text('${_imagenes.length} seleccionadas'),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  if (_imagenes.isNotEmpty)
-                    ..._imagenes.map(
-                      (image) => ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.image_outlined),
-                        title: Text(image.name),
-                        subtitle: Text(image.path),
-                        trailing: IconButton(
-                          onPressed: () {
-                            setState(
-                              () => _imagenes = _imagenes.where((item) => item.path != image.path).toList(),
-                            );
-                          },
-                          icon: const Icon(Icons.delete_outline),
+                        onPressed: _pickEquipos,
+                        icon: const Icon(Icons.devices_outlined),
+                        label: Text(
+                          _equipoIds.isEmpty
+                              ? 'Seleccionar equipos'
+                              : 'Equipos seleccionados: ${_equipoIds.length}',
                         ),
                       ),
-                    ),
-                  const SizedBox(height: 20),
-                  FilledButton.icon(
-                    onPressed: _saving ? null : _save,
-                    icon: _saving
-                        ? const SizedBox(
-                            height: 16,
-                            width: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.save_outlined),
-                    label: Text(_saving ? 'Guardando...' : 'Crear mantenimiento'),
+                      const SizedBox(height: 8),
+                      if (_equipoIds.isNotEmpty)
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _equipos
+                              .where((item) {
+                                return item.id > 0 &&
+                                    _equipoIds.contains(item.id);
+                              })
+                              .map(
+                                (item) => InputChip(
+                                  label: Text(_equipoLabel(item)),
+                                  onDeleted: () {
+                                    setState(() {
+                                      if (item.id > 0) {
+                                        _equipoIds.remove(item.id);
+                                        final validos = _custodiosValidos();
+                                        if (_custodioId != null &&
+                                            !validos.contains(_custodioId)) {
+                                          _custodioId = null;
+                                        }
+                                      }
+                                    });
+                                  },
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      const SizedBox(height: 12),
+                      Builder(
+                        builder: (context) {
+                          final validos = _custodiosValidos();
+                          final custodiosFiltrados = _custodios.where((item) {
+                            final id = _asInt(item['idCustodio']) ??
+                                _asInt(item['id']);
+                            return id != null && validos.contains(id);
+                          }).toList();
+                          return DropdownButtonFormField<int>(
+                            initialValue: _custodioId,
+                            decoration:
+                                const InputDecoration(labelText: 'Custodio'),
+                            items: custodiosFiltrados
+                                .map(
+                                  (item) => DropdownMenuItem<int>(
+                                    value: _asInt(item['idCustodio']) ??
+                                        _asInt(item['id']),
+                                    child: Text(_text(item['nombre'],
+                                        fallback: 'Sin nombre')),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) =>
+                                setState(() => _custodioId = value),
+                            validator: (value) =>
+                                value == null ? 'Selecciona un custodio' : null,
+                          );
+                        },
+                      ),
+                      if (_equipoIds.isNotEmpty && _custodiosValidos().isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text(
+                            'No hay custodios en comun para los equipos seleccionados.',
+                            style: TextStyle(color: Colors.redAccent),
+                          ),
+                        ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        initialValue: _tipo,
+                        decoration: const InputDecoration(labelText: 'Tipo'),
+                        items: const [
+                          DropdownMenuItem(
+                              value: 'PREVENTIVO', child: Text('Preventivo')),
+                          DropdownMenuItem(
+                              value: 'CORRECTIVO', child: Text('Correctivo')),
+                        ],
+                        onChanged: (value) =>
+                            setState(() => _tipo = value ?? _tipo),
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        initialValue: _estadoGeneral,
+                        decoration:
+                            const InputDecoration(labelText: 'Estado general'),
+                        items: const [
+                          DropdownMenuItem(
+                              value: 'OPERATIVO', child: Text('Operativo')),
+                          DropdownMenuItem(
+                              value: 'REQUIERE_REVISION',
+                              child: Text('Requiere revision')),
+                          DropdownMenuItem(
+                              value: 'NO_OPERATIVO',
+                              child: Text('No operativo')),
+                        ],
+                        onChanged: (value) => setState(
+                            () => _estadoGeneral = value ?? _estadoGeneral),
+                      ),
+                      const SizedBox(height: 12),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Fecha de mantenimiento'),
+                        subtitle: Text(_formatDate(_fecha)),
+                        trailing: const Icon(Icons.calendar_today_outlined),
+                        onTap: _selectDate,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _detalleController,
+                        minLines: 3,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
+                          labelText: 'Detalle',
+                          hintText: 'Describe el trabajo o hallazgo tecnico',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Ingresa el detalle del mantenimiento';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Checklist tecnico',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      if (_actividades.isEmpty)
+                        const Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Text(
+                                'No hay actividades checklist configuradas.'),
+                          ),
+                        )
+                      else
+                        ..._buildChecklistWidgets(),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Observaciones por bloque',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      ..._buildObservacionesWidgets(),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Firmas',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      _SignatureCard(
+                        title: 'Firma del tecnico',
+                        controller: _firmaTecnicoController,
+                      ),
+                      const SizedBox(height: 12),
+                      _SignatureCard(
+                        title: 'Firma del custodio',
+                        controller: _firmaCustodioController,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: _pickImages,
+                            icon: const Icon(Icons.photo_library_outlined),
+                            label: const Text('Agregar imagenes'),
+                          ),
+                          const SizedBox(width: 12),
+                          Text('${_imagenes.length} seleccionadas'),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (_imagenes.isNotEmpty)
+                        ..._imagenes.map(
+                          (image) => ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.image_outlined),
+                            title: Text(image.name),
+                            subtitle: Text(image.path),
+                            trailing: IconButton(
+                              onPressed: () {
+                                setState(
+                                  () => _imagenes = _imagenes
+                                      .where((item) => item.path != image.path)
+                                      .toList(),
+                                );
+                              },
+                              icon: const Icon(Icons.delete_outline),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 20),
+                      FilledButton.icon(
+                        onPressed: _saving ? null : _save,
+                        icon: _saving
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.save_outlined),
+                        label: Text(
+                            _saving ? 'Guardando...' : 'Crear mantenimiento'),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 }

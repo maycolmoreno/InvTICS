@@ -7,12 +7,12 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +37,16 @@ class EquiposIntegrationTest {
 
     private static final Logger logger = LoggerFactory.getLogger(EquiposIntegrationTest.class);
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @Value("${local.server.port}")
+    private int port;
+
+    private RestTemplate restTemplate;
+    private String baseUrl;
 
     @BeforeEach
     void setUp() {
+        restTemplate = new RestTemplate();
+        baseUrl = "http://localhost:" + port;
         logger.info("Inicializando prueba de integración");
         assertThat(restTemplate).isNotNull();
     }
@@ -51,7 +56,7 @@ class EquiposIntegrationTest {
     void testListarEquipos_ReturnsOk() {
         // Arrange & Act
         ResponseEntity<List> response = restTemplate.getForEntity(
-            "/api/equipos",
+            baseUrl + "/api/equipos",
             List.class
         );
 
@@ -73,7 +78,7 @@ class EquiposIntegrationTest {
 
         // Act
         ResponseEntity<EquiposResponseDTO> response = restTemplate.postForEntity(
-            "/api/equipos",
+            baseUrl + "/api/equipos",
             request,
             EquiposResponseDTO.class
         );
@@ -90,7 +95,7 @@ class EquiposIntegrationTest {
     void testObtenerEquipo_NotFound() {
         // Arrange & Act
         ResponseEntity<String> response = restTemplate.getForEntity(
-            "/api/equipos/999",
+            baseUrl + "/api/equipos/999",
             String.class
         );
 
@@ -110,7 +115,7 @@ class EquiposIntegrationTest {
 
         // Act
         ResponseEntity<String> response = restTemplate.postForEntity(
-            "/api/equipos",
+            baseUrl + "/api/equipos",
             invalidRequest,
             String.class
         );

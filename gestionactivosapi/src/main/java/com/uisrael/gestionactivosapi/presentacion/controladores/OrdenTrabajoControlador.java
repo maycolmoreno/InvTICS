@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.comandos.ActividadRealizadaComando;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICrearMantenimientosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IGuardarMantenimientoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IObtenerOrdenTrabajoUseCase;
@@ -50,7 +51,11 @@ public class OrdenTrabajoControlador {
 
     @PostMapping("/{id}/guardar")
     public ResponseEntity<Void> guardar(@PathVariable Integer id, @RequestBody OrdenGuardarRequestDTO request) {
-        guardarUseCase.guardar(id, request.getActividades(), request.getObservaciones(),
+        guardarUseCase.guardar(id, request.getActividades() == null ? java.util.List.of()
+                        : request.getActividades().stream()
+                                .map(a -> new ActividadRealizadaComando(a.getIdActividad(), a.getRealizada()))
+                                .toList(),
+                request.getObservaciones(),
                 request.getEstadoGeneral(), request.getFirmaBase64());
         return ResponseEntity.ok().build();
     }

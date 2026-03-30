@@ -4,9 +4,9 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.uisrael.gestionactivosapi.aplicacion.servicios.CorreoSchedulerService;
-import com.uisrael.gestionactivosapi.aplicacion.servicios.MantenimientoProgramadoService;
-import com.uisrael.gestionactivosapi.aplicacion.servicios.NotificacionService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.CorreoSchedulerService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoProgramadoService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.NotificacionService;
 
 @Component
 public class MantenimientoScheduler {

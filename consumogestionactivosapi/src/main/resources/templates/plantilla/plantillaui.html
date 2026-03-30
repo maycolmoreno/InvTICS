@@ -59,12 +59,6 @@
 						</a>
 					</li>
 					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
-						<a th:href="@{/tickets}" class="nxl-link">
-							<span class="nxl-micon"><i class="feather-life-buoy"></i></span>
-							<span class="nxl-mtext">Tickets</span>
-						</a>
-					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
 						<a th:href="@{/custodias}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-clipboard"></i></span>
 							<span class="nxl-mtext">Custodias</span>
@@ -99,6 +93,12 @@
 							<span class="nxl-micon"><i class="feather-bell"></i></span>
 							<span class="nxl-mtext">Notificaciones</span>
 							<span class="badge bg-danger ms-auto" th:if="${notificacionesPendientes > 0}" th:text="${notificacionesPendientes}">0</span>
+						</a>
+					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+						<a th:href="@{/checklist}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-check-square"></i></span>
+							<span class="nxl-mtext">Checklist</span>
 						</a>
 					</li>
 					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
@@ -137,10 +137,6 @@
 					<a th:href="@{/visita}" class="sidebar-secondary-link">
 						<i class="feather-map"></i>
 						<span>Visita tecnica</span>
-					</a>
-					<a th:href="@{/tickets}" class="sidebar-secondary-link">
-						<i class="feather-life-buoy"></i>
-						<span>Tickets</span>
 					</a>
 					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO' || sesionUsuario.rol == 'AUDITOR'}" th:href="@{/custodias/reporte}" class="sidebar-secondary-link">
 						<i class="feather-file-text"></i>

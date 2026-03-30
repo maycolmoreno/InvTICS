@@ -19,6 +19,7 @@ class DashboardProvider extends ChangeNotifier {
   int _pendingNotifications = 0;
   int _openMantenimientos = 0;
   int _activeEquipos = 0;
+  String? _error;
   List<Map<String, dynamic>> _recentMantenimientos = const [];
 
   bool get offline => _offline;
@@ -26,6 +27,7 @@ class DashboardProvider extends ChangeNotifier {
   int get pendingNotifications => _pendingNotifications;
   int get openMantenimientos => _openMantenimientos;
   int get activeEquipos => _activeEquipos;
+  String? get error => _error;
   List<Map<String, dynamic>> get recentMantenimientos => _recentMantenimientos;
 
   Future<void> _init() async {
@@ -33,6 +35,7 @@ class DashboardProvider extends ChangeNotifier {
   }
 
   Future<void> refresh() async {
+    _error = null;
     final connectivity = await Connectivity().checkConnectivity();
     _offline = connectivity.contains(ConnectivityResult.none);
     _pendingOffline = await LocalDatabase.instance.contarPendientes();
@@ -46,30 +49,36 @@ class DashboardProvider extends ChangeNotifier {
       return;
     }
 
-    await SyncService(_apiClient).syncPendingOperations();
-    _pendingOffline = await LocalDatabase.instance.contarPendientes();
+    try {
+      await SyncService(_apiClient).syncPendingOperations();
+      _pendingOffline = await LocalDatabase.instance.contarPendientes();
 
-    final notificacionesRepository = NotificacionesRepository(_apiClient);
-    final mantenimientosRepository = MantenimientosRepository(_apiClient);
-    final equiposRaw = await _apiClient.get('/equipos');
-    final equipos = (equiposRaw as List)
-        .map((item) => Map<String, dynamic>.from(item as Map))
-        .toList();
-    final mantenimientos = await mantenimientosRepository.listar();
+      final notificacionesRepository = NotificacionesRepository(_apiClient);
+      final mantenimientosRepository = MantenimientosRepository(_apiClient);
+      final equiposRaw = await _apiClient.get('/equipos');
+      final equipos = (equiposRaw as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+      final mantenimientos = await mantenimientosRepository.listar();
 
-    _pendingNotifications = await notificacionesRepository.obtenerConteo();
-    _openMantenimientos = mantenimientos
-        .where((item) => _text(item['estadoInterno']).toUpperCase() != 'CERRADO')
-        .length;
-    _activeEquipos = equipos
-        .where((item) => _text(item['estadoEquipo']).toUpperCase() != 'BAJA')
-        .length;
+      _pendingNotifications = await notificacionesRepository.obtenerConteo();
+      _openMantenimientos = mantenimientos
+          .where(
+              (item) => _text(item['estadoInterno']).toUpperCase() != 'CERRADO')
+          .length;
+      _activeEquipos = equipos
+          .where((item) => _text(item['estadoEquipo']).toUpperCase() != 'BAJA')
+          .length;
 
-    final recent = List<Map<String, dynamic>>.from(mantenimientos)
-      ..sort(
-        (a, b) => _text(b['fechaMantenimiento']).compareTo(_text(a['fechaMantenimiento'])),
-      );
-    _recentMantenimientos = recent.take(4).toList();
+      final recent = List<Map<String, dynamic>>.from(mantenimientos)
+        ..sort(
+          (a, b) => _text(b['fechaMantenimiento'])
+              .compareTo(_text(a['fechaMantenimiento'])),
+        );
+      _recentMantenimientos = recent.take(4).toList();
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+    }
     notifyListeners();
   }
 }

@@ -13,27 +13,27 @@ import com.uisrael.gestionactivosapi.dominio.entidades.ActividadRealizada;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
 import com.uisrael.gestionactivosapi.dominio.entidades.Equipos;
 import com.uisrael.gestionactivosapi.dominio.entidades.Mantenimientos;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IActividadChecklistRepository;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IActividadRealizadaRepository;
-import com.uisrael.gestionactivosapi.dominio.repositorios.ICustodiasRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IEquiposRepositorio;
-import com.uisrael.gestionactivosapi.dominio.repositorios.IMantenimientoRepository;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ActividadChecklistRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ActividadRealizadaRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodiasRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EquipoRepositorioPuerto;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.OrdenActividadResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.OrdenTrabajoResponseDTO;
 
 public class ObtenerOrdenTrabajoUseCaseImpl implements IObtenerOrdenTrabajoUseCase {
 
-    private final IMantenimientoRepository mantenimientoRepository;
-    private final IEquiposRepositorio equiposRepositorio;
-    private final ICustodiasRepositorio custodiasRepositorio;
-    private final IActividadChecklistRepository actividadChecklistRepository;
-    private final IActividadRealizadaRepository actividadRealizadaRepository;
+    private final MantenimientoRepositorioPuerto mantenimientoRepository;
+    private final EquipoRepositorioPuerto equiposRepositorio;
+    private final CustodiasRepositorioPuerto custodiasRepositorio;
+    private final ActividadChecklistRepositorioPuerto actividadChecklistRepository;
+    private final ActividadRealizadaRepositorioPuerto actividadRealizadaRepository;
 
-    public ObtenerOrdenTrabajoUseCaseImpl(IMantenimientoRepository mantenimientoRepository,
-            IEquiposRepositorio equiposRepositorio,
-            ICustodiasRepositorio custodiasRepositorio,
-            IActividadChecklistRepository actividadChecklistRepository,
-            IActividadRealizadaRepository actividadRealizadaRepository) {
+    public ObtenerOrdenTrabajoUseCaseImpl(MantenimientoRepositorioPuerto mantenimientoRepository,
+            EquipoRepositorioPuerto equiposRepositorio,
+            CustodiasRepositorioPuerto custodiasRepositorio,
+            ActividadChecklistRepositorioPuerto actividadChecklistRepository,
+            ActividadRealizadaRepositorioPuerto actividadRealizadaRepository) {
         this.mantenimientoRepository = mantenimientoRepository;
         this.equiposRepositorio = equiposRepositorio;
         this.custodiasRepositorio = custodiasRepositorio;

@@ -38,6 +38,7 @@ public class EquiposResponseDTO {
 	// âœ… FKs completas para que en el consumo se vea el NOMBRE
 	private MarcasResponseDTO fkMarca;
 	private CategoriaEquiposResponseDTO fkCategoria;
+	private UbicacionesResponseDTO fkUbicacion;
 
 	public int getIdEquipo() {
 		return idEquipo;
@@ -221,6 +222,14 @@ public class EquiposResponseDTO {
 
 	public void setFkCategoria(CategoriaEquiposResponseDTO fkCategoria) {
 		this.fkCategoria = fkCategoria;
+	}
+
+	public UbicacionesResponseDTO getFkUbicacion() {
+		return fkUbicacion;
+	}
+
+	public void setFkUbicacion(UbicacionesResponseDTO fkUbicacion) {
+		this.fkUbicacion = fkUbicacion;
 	}
 }
 

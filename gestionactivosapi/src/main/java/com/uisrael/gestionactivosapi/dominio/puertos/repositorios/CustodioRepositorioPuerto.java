@@ -72,6 +72,14 @@ public interface CustodioRepositorioPuerto {
     Custodios actualizarEstado(int id, Custodios custodio);
     
     /**
+     * Verifica si existe un custodio con el correo especificado.
+     * 
+     * @param correo el correo a buscar
+     * @return true si existe, false en caso contrario
+     */
+    boolean existeCorreo(String correo);
+    
+    /**
      * Verifica si existe otro custodio con el correo especificado (excluyendo el actual).
      * 
      * @param correo el correo a buscar
@@ -153,4 +161,6 @@ public interface CustodioRepositorioPuerto {
      * @return lista de custodios autorizados
      */
     List<Custodios> obtenerAutorizadosPorCategoria(Integer categoriaId);
+
+    boolean existeUsuarioVinculado(int idUsuario);
 }

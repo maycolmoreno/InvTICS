@@ -36,9 +36,11 @@ public interface UsuarioRepositorioPuerto {
     /**
      * Actualiza un Usuarios existente.
      * 
+     * @param id el ID del Usuarios a actualizar
      * @param Usuarios el Usuarios con datos actualizados
+     * @return el Usuarios actualizado
      */
-    void actualizar(Usuarios Usuarios);
+    Usuarios actualizar(int id, Usuarios Usuarios);
     
     /**
      * Elimina un Usuarios.
@@ -85,4 +87,36 @@ public interface UsuarioRepositorioPuerto {
      * @return true si existe, false en caso contrario
      */
     boolean existePorCorreo(String correo);
+    
+    /**
+     * Busca un usuario por su ID.
+     * Alias para obtenerPorId para compatibilidad.
+     * 
+     * @param id el ID del usuario
+     * @return Optional con el usuario si existe
+     */
+    default Optional<Usuarios> buscarPorId(int id) {
+        return obtenerPorId(id);
+    }
+    
+    /**
+     * Obtiene todos los usuarios.
+     * Alias para obtenerTodos para compatibilidad.
+     * 
+     * @return lista de todos los usuarios
+     */
+    default List<Usuarios> listarTodos() {
+        return obtenerTodos();
+    }
+    
+    /**
+     * Busca un usuario por su correo.
+     * Alias para obtenerPorCorreo para compatibilidad.
+     * 
+     * @param correo el correo del usuario
+     * @return Optional con el usuario si existe
+     */
+    default Optional<Usuarios> buscarPorCorreo(String correo) {
+        return obtenerPorCorreo(correo);
+    }
 }

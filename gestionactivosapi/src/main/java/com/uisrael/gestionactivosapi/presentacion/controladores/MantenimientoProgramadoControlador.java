@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.uisrael.gestionactivosapi.aplicacion.servicios.MantenimientoProgramadoService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoProgramadoService;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.MantenimientoProgramadoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.MantenimientoProgramadoResponseDTO;
 

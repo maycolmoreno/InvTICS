@@ -85,19 +85,32 @@ public class AuthControlador {
 	@PostMapping("/setup")
 	public String procesarSetup(
 			@RequestParam String nombre,
+			@RequestParam(required = false) String cedula,
 			@RequestParam String correo,
 			@RequestParam String contrasena,
+			@RequestParam String confirmar,
 			Model model) {
 
 		if (!setupNecesario()) {
 			return "redirect:/login";
 		}
 
+		if (!contrasena.equals(confirmar)) {
+			model.addAttribute("error", "Las contrasenas no coinciden.");
+			model.addAttribute("nombre", nombre);
+			model.addAttribute("cedula", cedula);
+			model.addAttribute("correo", correo);
+			return "auth/setup";
+		}
+
 		try {
-			Map<String, String> datos = Map.of(
-					"nombre", nombre,
-					"correo", correo,
-					"contrasena", contrasena);
+			Map<String, String> datos = new java.util.HashMap<>();
+			datos.put("nombre", nombre);
+			datos.put("correo", correo);
+			datos.put("contrasena", contrasena);
+			if (cedula != null && !cedula.isBlank()) {
+				datos.put("cedula", cedula);
+			}
 
 			Map<String, Object> resp = WebClient.create(apiBaseUrl)
 					.post()
@@ -114,6 +127,7 @@ public class AuthControlador {
 
 			model.addAttribute("error", "No se pudo crear el administrador.");
 			model.addAttribute("nombre", nombre);
+			model.addAttribute("cedula", cedula);
 			model.addAttribute("correo", correo);
 			return "auth/setup";
 
@@ -121,11 +135,13 @@ public class AuthControlador {
 			String body = ex.getResponseBodyAsString();
 			model.addAttribute("error", body.contains("error") ? "Error: " + body : "Error al crear administrador.");
 			model.addAttribute("nombre", nombre);
+			model.addAttribute("cedula", cedula);
 			model.addAttribute("correo", correo);
 			return "auth/setup";
 		} catch (Exception e) {
 			model.addAttribute("error", "Error de conexion con la API.");
 			model.addAttribute("nombre", nombre);
+			model.addAttribute("cedula", cedula);
 			model.addAttribute("correo", correo);
 			return "auth/setup";
 		}

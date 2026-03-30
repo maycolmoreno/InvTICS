@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJpa;
 
-@Mapper(componentModel = "spring", uses = {IEquiposJpaMapper.class, ICustodiosJpaMapper.class, IUbicacionesJpaMapper.class})
+@Mapper(componentModel = "spring", uses = {IEquiposJpaMapper.class, ICustodiosJpaMapper.class})
 public interface ICustodiasJpaMapper {
 
     Custodias toDomain(CustodiasJpa entity);

@@ -208,8 +208,7 @@ class ApiClient {
     return {
       'Accept': 'application/json',
       if (includeJson) 'Content-Type': 'application/json',
-      // Cambiar de Basic a Bearer para JWT
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Basic $token',
     };
   }
 

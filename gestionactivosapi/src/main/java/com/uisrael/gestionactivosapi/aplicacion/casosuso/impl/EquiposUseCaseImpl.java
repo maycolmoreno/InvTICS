@@ -98,7 +98,7 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 				equipo.getLicenciaWindowsActivada(), equipo.getEtiquetaActivoFijo(), equipo.getTipoLicenciaOffice(),
 				equipo.getVersionOffice(), equipo.getUnionDominio(), equipo.getIp(), equipo.getMac(),
 				equipo.getFechaCompra(), equipo.getPrecioCompra(), equipo.getEstadoEquipo(),
-				equipo.getObservacionEquipo(), equipo.isEstado(), equipo.getFkMarca(), equipo.getFkCategoria());
+				equipo.getObservacionEquipo(), equipo.isEstado(), equipo.getFkMarca(), equipo.getFkCategoria(), equipo.getFkUbicacion());
 
 		return equipoRepositorio.actualizar(id, actualizado);
 	}
@@ -114,7 +114,7 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 				equipo.getLicenciaWindowsActivada(), equipo.getEtiquetaActivoFijo(), equipo.getTipoLicenciaOffice(),
 				equipo.getVersionOffice(), equipo.getUnionDominio(), equipo.getIp(), equipo.getMac(),
 				equipo.getFechaCompra(), equipo.getPrecioCompra(), equipo.getEstadoEquipo(),
-				equipo.getObservacionEquipo(), estado, equipo.getFkMarca(), equipo.getFkCategoria());
+				equipo.getObservacionEquipo(), estado, equipo.getFkMarca(), equipo.getFkCategoria(), equipo.getFkUbicacion());
 
 		return equipoRepositorio.actualizar(id, actualizado);
 	}

@@ -71,7 +71,8 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       children: const [
                         SizedBox(height: 80),
-                        Center(child: Text('Sin notificaciones para este filtro')),
+                        Center(
+                            child: Text('Sin notificaciones para este filtro')),
                       ],
                     ),
                   );
@@ -83,7 +84,8 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                     padding: const EdgeInsets.all(16),
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: items.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final item = items[index];
                       final leida = item.leida;
@@ -93,12 +95,14 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                             if (item.id <= 0 || leida) {
                               return;
                             }
-                            await NotificacionesRepository(context.read<ApiClient>())
+                            await NotificacionesRepository(
+                                    context.read<ApiClient>())
                                 .marcarLeida(item.id);
                             if (!mounted) return;
                             ScaffoldMessenger.of(this.context).showSnackBar(
                               const SnackBar(
-                                content: Text('Notificacion marcada como leida'),
+                                content:
+                                    Text('Notificacion marcada como leida'),
                               ),
                             );
                             await _reload();

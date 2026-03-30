@@ -2,6 +2,8 @@ package com.uisrael.consumogestionactivosapi.controlador;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -39,11 +41,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CategoriaEquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.EquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.MarcasRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.UbicacionesRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
+import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 
 import lombok.RequiredArgsConstructor;
 
@@ -56,6 +60,7 @@ public class EquiposControlador {
 	private final IMarcasServicio servicioMarcas;
 	private final ICategoriaEquiposServicio servicioCategoriaEquipos;
 	private final ICustodiosServicio servicioCustodios;
+	private final IUbicacionesServicio servicioUbicaciones;
 
 	@GetMapping
 	public String listarEquipos(Model model) {
@@ -83,6 +88,9 @@ public class EquiposControlador {
 		equipo.setFkCategoria(new CategoriaEquiposRequestDTO());
 		equipo.getFkCategoria().setIdCategoria(0);
 
+		equipo.setFkUbicacion(new UbicacionesRequestDTO());
+		equipo.getFkUbicacion().setIdUbicacion(0);
+
 		// combos
 		cargarCombos(model, 0, 0);
 		model.addAttribute("equipo", equipo);
@@ -97,11 +105,21 @@ public class EquiposControlador {
 
 		Integer idCategoria = dto.getFkCategoria().getIdCategoria();
 
+		// Inicializar fkUbicacion si viene null para evitar NPE en el template
+		if (dto.getFkUbicacion() == null) {
+			var ub = new com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO();
+			ub.setIdUbicacion(0);
+			dto.setFkUbicacion(ub);
+		}
+
 		model.addAttribute("listamarcas", servicioMarcas.listarMarca().stream()
 				.filter(marca -> marca.isEstado() || marca.getIdMarca() == idMarca).toList());
 
 		model.addAttribute("listacategorias", servicioCategoriaEquipos.listarCategoriaEquipo().stream()
 				.filter(cate -> cate.isEstado() || cate.getIdCategoria() == idCategoria).toList());
+
+		model.addAttribute("listaubicaciones", servicioUbicaciones.listarUbicaciones().stream()
+				.filter(u -> u.isEstado()).toList());
 
 		model.addAttribute("equipo", dto);
 
@@ -118,6 +136,10 @@ public class EquiposControlador {
 		if (equipo.getFkCategoria() == null) {
 			equipo.setFkCategoria(new CategoriaEquiposRequestDTO());
 			equipo.getFkCategoria().setIdCategoria(0);
+		}
+		if (equipo.getFkUbicacion() == null) {
+			equipo.setFkUbicacion(new UbicacionesRequestDTO());
+			equipo.getFkUbicacion().setIdUbicacion(0);
 		}
 
 		boolean hayErrores = false;
@@ -234,6 +256,11 @@ public class EquiposControlador {
 			return ubicacionesFormulario(equipo); // solo nuevo (si luego haces editar, se ajusta)
 		}
 
+		// Si ubicacion no fue seleccionada, enviar null al API
+		if (equipo.getFkUbicacion() != null && equipo.getFkUbicacion().getIdUbicacion() <= 0) {
+			equipo.setFkUbicacion(null);
+		}
+
 		if (equipo.getIdEquipo() > 0) {
 			servicioEquipos.actualizarEquipo(equipo.getIdEquipo(), equipo);
 		} else {
@@ -265,9 +292,11 @@ public class EquiposControlador {
 		model.addAttribute("listamarcas", servicioMarcas.listarMarca().stream()
 				.filter(m -> m.isEstado() || m.getIdMarca() == idMarcaSel).collect(Collectors.toList()));
 
-		model.addAttribute("listacategorias", servicioCategoriaEquipos.listarCategoriaEquipo().stream() // ✅ tu método
-																										// real
+		model.addAttribute("listacategorias", servicioCategoriaEquipos.listarCategoriaEquipo().stream()
 				.filter(c -> c.isEstado() || c.getIdCategoria() == idCatSel).collect(Collectors.toList()));
+
+		model.addAttribute("listaubicaciones", servicioUbicaciones.listarUbicaciones().stream()
+				.filter(u -> u.isEstado()).collect(Collectors.toList()));
 	}
 
 	public static boolean esIpValida(String ip) {

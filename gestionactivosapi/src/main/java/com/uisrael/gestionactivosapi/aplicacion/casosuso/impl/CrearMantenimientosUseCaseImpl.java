@@ -13,9 +13,9 @@ import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimient
 import com.uisrael.gestionactivosapi.dominio.entidades.Mantenimientos;
 import com.uisrael.gestionactivosapi.dominio.entidades.PrioridadMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoMantenimiento;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodiasRepositorioPuerto;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EquipoRepositorioPuerto;
-import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;
 
 public class CrearMantenimientosUseCaseImpl implements ICrearMantenimientosUseCase {
 

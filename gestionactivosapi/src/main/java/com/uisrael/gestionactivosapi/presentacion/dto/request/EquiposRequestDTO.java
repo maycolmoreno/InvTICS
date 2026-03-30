@@ -32,8 +32,7 @@ public class EquiposRequestDTO {
 
     private MarcasRequestDTO fkMarca;
     private CategoriaEquiposRequestDTO fkCategoria;
-
-
+    private UbicacionesRequestDTO fkUbicacion;
 
 }
 

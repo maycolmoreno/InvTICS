@@ -1,5 +1,6 @@
 package com.uisrael.gestionactivosapi.infraestructura.repositorios;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -12,4 +13,11 @@ public interface IUsuariosJpaRepositorio extends JpaRepository<UsuariosJpa, Inte
 	@EntityGraph(attributePaths = {"fkDepartamento", "fkDepartamento.fkUbicacion", "fkRol"})
 	Optional<UsuariosJpa> findByCorreo(String correo);
 
+	@EntityGraph(attributePaths = {"fkDepartamento", "fkDepartamento.fkUbicacion", "fkRol"})
+	List<UsuariosJpa> findAllByEstadoTrue();
+
+	@EntityGraph(attributePaths = {"fkDepartamento", "fkDepartamento.fkUbicacion", "fkRol"})
+	List<UsuariosJpa> findAllByFkRol_IdRol(Integer rolId);
+
+	boolean existsByCorreoIgnoreCase(String correo);
 }

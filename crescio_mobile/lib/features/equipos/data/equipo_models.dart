@@ -31,7 +31,9 @@ class EquipoListItem {
 
   factory EquipoListItem.fromJson(Map<String, dynamic> json) {
     return EquipoListItem(
-      id: _asInt(json['idEquipo']) != 0 ? _asInt(json['idEquipo']) : _asInt(json['id']),
+      id: _asInt(json['idEquipo']) != 0
+          ? _asInt(json['idEquipo'])
+          : _asInt(json['id']),
       codigoSap: _text(json['codigoSap'], fallback: 'Sin codigo'),
       tipoEquipo: _text(json['tipoEquipo'], fallback: '-'),
       modelo: _text(json['modelo'], fallback: '-'),
@@ -41,7 +43,10 @@ class EquipoListItem {
       ip: _text(json['ip'], fallback: ''),
       mac: _text(json['mac'], fallback: ''),
       custodioNombre: _text(json['custodioNombre'], fallback: ''),
-      ubicacionNombre: _text(json['ubicacionNombre'], fallback: ''),
+      ubicacionNombre: json['fkUbicacion'] != null
+          ? _text((json['fkUbicacion'] as Map<String, dynamic>)['nombre'],
+              fallback: '')
+          : _text(json['ubicacionNombre'], fallback: ''),
       estadoMantenimiento: _text(json['estadoMantenimiento'], fallback: ''),
       diasSinMantenimiento: _asInt(json['diasSinMantenimiento']),
     );
@@ -71,7 +76,8 @@ class EquipoHistorial {
       ),
       estadoMantenimiento: _text(json['estadoMantenimiento'], fallback: '-'),
       mantenimientos: (json['mantenimientos'] as List? ?? const [])
-          .map((item) => EquipoMantenimientoResumen.fromJson(Map<String, dynamic>.from(item as Map)))
+          .map((item) => EquipoMantenimientoResumen.fromJson(
+              Map<String, dynamic>.from(item as Map)))
           .toList(),
     );
   }
@@ -175,7 +181,8 @@ class EquipoEstadisticas {
       totalCerrados: _asInt(json['totalCerrados']),
       totalEnProceso: _asInt(json['totalEnProceso']),
       diasSinMantenimiento: _asInt(json['diasSinMantenimiento']),
-      promedioDiasEntreMantenimientos: _asInt(json['promedioDiasEntreMantenimientos']),
+      promedioDiasEntreMantenimientos:
+          _asInt(json['promedioDiasEntreMantenimientos']),
     );
   }
 }

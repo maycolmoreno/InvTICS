@@ -84,13 +84,14 @@ public class CustodiasPdfService {
 		doc.add(new Paragraph("Observaci\u00f3n: " + nvl(cab.getObservacion()), NORMAL_FONT));
 		doc.add(new Paragraph(" ", NORMAL_FONT));
 
-		PdfPTable table = new PdfPTable(5);
+		PdfPTable table = new PdfPTable(6);
 		table.setWidthPercentage(100);
 		table.addCell(headerCell("ID Equipo"));
 		table.addCell(headerCell("C\u00f3digo"));
 		table.addCell(headerCell("Tipo"));
 		table.addCell(headerCell("Modelo"));
 		table.addCell(headerCell("Serial"));
+		table.addCell(headerCell("Ubicaci\u00f3n"));
 
 		Set<Integer> seen = new HashSet<>();
 		for (CustodiasResponseDTO it : lista) {
@@ -103,6 +104,9 @@ public class CustodiasPdfService {
 			table.addCell(cell(nvl(it.getFkEquipo().getTipoEquipo())));
 			table.addCell(cell(nvl(it.getFkEquipo().getModelo())));
 			table.addCell(cell(nvl(it.getFkEquipo().getSerial())));
+			String ubicacion = it.getFkEquipo().getFkUbicacion() != null
+					? nvl(it.getFkEquipo().getFkUbicacion().getNombre()) : "";
+			table.addCell(cell(ubicacion));
 		}
 
 		doc.add(table);
@@ -226,12 +230,12 @@ public class CustodiasPdfService {
 		doc.add(new Paragraph(" ", new Font(Font.TIMES_ROMAN, 4)));
 
 		// Tabla de equipos
-		PdfPTable table = new PdfPTable(9);
+		PdfPTable table = new PdfPTable(10);
 		table.setWidthPercentage(100);
-		table.setWidths(new float[]{5, 14, 10, 8, 14, 11, 11, 11, 8});
+		table.setWidths(new float[]{4, 12, 9, 7, 12, 9, 10, 10, 10, 9});
 
 		String[] headers = {"N°", "CODIGO", "CODIGO\nCUENTA", "TIPO DE\nBIEN",
-				"DESCRIPCION", "MARCA", "SERIE", "MODELO", "ESTADO"};
+				"DESCRIPCION", "MARCA", "SERIE", "MODELO", "UBICACION", "ESTADO"};
 		for (String h : headers) {
 			PdfPCell hc = new PdfPCell(new Phrase(h, ACTA_TABLE_HEADER));
 			hc.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -260,7 +264,10 @@ public class CustodiasPdfService {
 			table.addCell(tableCell(serie.isEmpty() ? "N/A" : serie));
 			String modelo = nvl(it.getFkEquipo().getModelo());
 			table.addCell(tableCell(modelo.isEmpty() ? "N/A" : modelo));
-			table.addCell(tableCell(nvl(it.getFkEquipo().getEstadoEquipo()) .isEmpty()
+			String ubicacion = it.getFkEquipo().getFkUbicacion() != null
+					? nvl(it.getFkEquipo().getFkUbicacion().getNombre()) : "N/A";
+			table.addCell(tableCell(ubicacion.isEmpty() ? "N/A" : ubicacion));
+			table.addCell(tableCell(nvl(it.getFkEquipo().getEstadoEquipo()).isEmpty()
 					? "BUENO" : it.getFkEquipo().getEstadoEquipo()));
 		}
 
@@ -416,12 +423,12 @@ public class CustodiasPdfService {
 
 		doc.add(new Paragraph(" ", new Font(Font.TIMES_ROMAN, 4)));
 
-		PdfPTable table = new PdfPTable(9);
+		PdfPTable table = new PdfPTable(10);
 		table.setWidthPercentage(100);
-		table.setWidths(new float[]{5, 14, 10, 8, 14, 11, 11, 11, 8});
+		table.setWidths(new float[]{4, 12, 9, 7, 12, 9, 10, 10, 10, 9});
 
 		String[] headers = {"N\u00b0", "CODIGO", "CODIGO\nCUENTA", "TIPO DE\nBIEN",
-				"DESCRIPCION", "MARCA", "SERIE", "MODELO", "ESTADO"};
+				"DESCRIPCION", "MARCA", "SERIE", "MODELO", "UBICACION", "ESTADO"};
 		for (String h : headers) {
 			PdfPCell hc = new PdfPCell(new Phrase(h, ACTA_TABLE_HEADER));
 			hc.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -450,6 +457,9 @@ public class CustodiasPdfService {
 			table.addCell(tableCell(serie.isEmpty() ? "N/A" : serie));
 			String modelo = nvl(it.getFkEquipo().getModelo());
 			table.addCell(tableCell(modelo.isEmpty() ? "N/A" : modelo));
+			String ubicacion = it.getFkEquipo().getFkUbicacion() != null
+					? nvl(it.getFkEquipo().getFkUbicacion().getNombre()) : "N/A";
+			table.addCell(tableCell(ubicacion.isEmpty() ? "N/A" : ubicacion));
 			table.addCell(tableCell(nvl(it.getFkEquipo().getEstadoEquipo()).isEmpty()
 					? "BUENO" : it.getFkEquipo().getEstadoEquipo()));
 		}
@@ -509,13 +519,14 @@ public class CustodiasPdfService {
 		doc.add(new Paragraph("Motivo / Observacion: " + obs, NORMAL_FONT));
 		doc.add(new Paragraph(" ", NORMAL_FONT));
 
-		PdfPTable table = new PdfPTable(6);
+		PdfPTable table = new PdfPTable(7);
 		table.setWidthPercentage(100);
 		table.addCell(headerCell("ID"));
 		table.addCell(headerCell("Codigo"));
 		table.addCell(headerCell("Tipo"));
 		table.addCell(headerCell("Modelo"));
 		table.addCell(headerCell("Serial"));
+		table.addCell(headerCell("Ubicaci\u00f3n"));
 		table.addCell(headerCell("Estado"));
 
 		for (EquiposResponseDTO e : equipos) {
@@ -525,6 +536,8 @@ public class CustodiasPdfService {
 			table.addCell(cell(nvl(e.getTipoEquipo())));
 			table.addCell(cell(nvl(e.getModelo())));
 			table.addCell(cell(nvl(e.getSerial())));
+			String ubicacion = e.getFkUbicacion() != null ? nvl(e.getFkUbicacion().getNombre()) : "";
+			table.addCell(cell(ubicacion));
 			table.addCell(cell("BAJA"));
 		}
 

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.uisrael.gestionactivosapi.aplicacion.servicios.NotificacionService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.NotificacionService;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.NotificacionResponseDTO;
 
 import lombok.RequiredArgsConstructor;

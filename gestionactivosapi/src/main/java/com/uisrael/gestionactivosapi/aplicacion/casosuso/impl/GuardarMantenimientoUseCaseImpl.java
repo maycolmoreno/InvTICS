@@ -3,6 +3,7 @@ package com.uisrael.gestionactivosapi.aplicacion.casosuso.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.comandos.ActividadRealizadaComando;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IGuardarMantenimientoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.ActividadRealizada;
@@ -10,7 +11,6 @@ import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimient
 import com.uisrael.gestionactivosapi.dominio.entidades.Mantenimientos;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ActividadRealizadaRepositorioPuerto;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;
-import com.uisrael.gestionactivosapi.presentacion.dto.request.ActividadRealizadaRequestDTO;
 
 public class GuardarMantenimientoUseCaseImpl implements IGuardarMantenimientoUseCase {
 
@@ -24,7 +24,7 @@ public class GuardarMantenimientoUseCaseImpl implements IGuardarMantenimientoUse
     }
 
     @Override
-    public void guardar(Integer idMantenimiento, List<ActividadRealizadaRequestDTO> actividades,
+    public void guardar(Integer idMantenimiento, List<ActividadRealizadaComando> actividades,
             String observaciones, String estadoGeneral, String firmaBase64) {
         if (idMantenimiento == null || idMantenimiento <= 0) {
             throw new IllegalArgumentException("idMantenimiento es obligatorio");
@@ -39,8 +39,8 @@ public class GuardarMantenimientoUseCaseImpl implements IGuardarMantenimientoUse
             List<ActividadRealizada> entidades = actividades.stream().filter(a -> a != null).map(a -> {
                 ActividadRealizada ar = new ActividadRealizada();
                 ar.setIdMantenimiento(idMantenimiento);
-                ar.setIdActividad(a.getIdActividad());
-                ar.setRealizada(Boolean.TRUE.equals(a.getRealizada()));
+                ar.setIdActividad(a.idActividad());
+                ar.setRealizada(Boolean.TRUE.equals(a.realizada()));
                 return ar;
             }).toList();
             actividadRealizadaRepositorio.guardarTodas(entidades);

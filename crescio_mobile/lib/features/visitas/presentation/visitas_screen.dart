@@ -49,7 +49,8 @@ class _VisitasScreenState extends State<VisitasScreen> {
   Future<void> _applyFilters() async {
     setState(() => _loading = true);
     try {
-      final custodios = await _repository.listarCustodios(ubicacionId: _ubicacionId);
+      final custodios =
+          await _repository.listarCustodios(ubicacionId: _ubicacionId);
       final equipos = await _repository.listarEquipos(
         ubicacionId: _ubicacionId,
         custodioId: _custodioId,
@@ -57,7 +58,8 @@ class _VisitasScreenState extends State<VisitasScreen> {
       if (!mounted) return;
       setState(() {
         _custodios = custodios;
-        final custodioExiste = _custodios.any((item) => _asInt(item['idCustodio']) == _custodioId);
+        final custodioExiste =
+            _custodios.any((item) => _asInt(item['idCustodio']) == _custodioId);
         if (!custodioExiste) {
           _custodioId = null;
         }
@@ -138,7 +140,8 @@ class _VisitasScreenState extends State<VisitasScreen> {
                 (item) => Card(
                   child: ListTile(
                     leading: const Icon(Icons.assignment_turned_in_outlined),
-                    title: Text(_text(item['codigoSap'], fallback: 'Sin codigo')),
+                    title:
+                        Text(_text(item['codigoSap'], fallback: 'Sin codigo')),
                     subtitle: Text(
                       '${_text(item['tipoEquipo'])} - ${_text(item['marca'])} ${_text(item['modelo'])}\n'
                       'Custodio: ${_text(item['custodioNombre'])}\n'

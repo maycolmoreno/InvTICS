@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IVisitaTecnicaUseCase;
+import com.uisrael.gestionactivosapi.dominio.entidades.CustodioVisita;
+import com.uisrael.gestionactivosapi.dominio.entidades.EquipoVisita;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.VisitaCustodioResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.VisitaEquipoResponseDTO;
 
@@ -29,7 +31,24 @@ public class VisitaTecnicaControlador {
         if (ubicacionId == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(visitaUseCase.obtenerEquipos(ubicacionId, custodioId));
+        List<EquipoVisita> equipos = visitaUseCase.obtenerEquipos(ubicacionId, custodioId);
+        List<VisitaEquipoResponseDTO> resultado = equipos.stream().map(e -> {
+            VisitaEquipoResponseDTO dto = new VisitaEquipoResponseDTO();
+            dto.setIdEquipo(e.getIdEquipo());
+            dto.setSerial(e.getSerial());
+            dto.setMarca(e.getMarca());
+            dto.setModelo(e.getModelo());
+            dto.setTipoEquipo(e.getTipoEquipo());
+            dto.setCodigoSap(e.getCodigoSap());
+            dto.setCustodioNombre(e.getCustodioNombre());
+            dto.setCustodioArea(e.getCustodioArea());
+            dto.setUbicacionNombre(e.getUbicacionNombre());
+            dto.setFechaUltimoMantenimiento(e.getFechaUltimoMantenimientoLocal());
+            dto.setDiasSinMantenimiento(e.getDiasSinMantenimiento());
+            dto.setEstadoMantenimiento(e.getEstadoMantenimiento().name());
+            return dto;
+        }).toList();
+        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/custodios")
@@ -38,6 +57,14 @@ public class VisitaTecnicaControlador {
         if (ubicacionId == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(visitaUseCase.obtenerCustodios(ubicacionId));
+        List<CustodioVisita> custodios = visitaUseCase.obtenerCustodios(ubicacionId);
+        List<VisitaCustodioResponseDTO> resultado = custodios.stream().map(c -> {
+            VisitaCustodioResponseDTO dto = new VisitaCustodioResponseDTO();
+            dto.setIdCustodio(c.idCustodio());
+            dto.setNombre(c.nombre());
+            dto.setArea(c.area());
+            return dto;
+        }).toList();
+        return ResponseEntity.ok(resultado);
     }
 }

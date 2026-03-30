@@ -10,5 +10,7 @@ public interface IMantenimientosUseCase {
 
     List<Mantenimientos> listar();
 
+    List<Mantenimientos> listarPorEquipo(int idEquipo);
+
     Mantenimientos obtenerPorId(int id);
 }

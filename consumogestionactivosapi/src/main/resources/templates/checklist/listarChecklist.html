@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+<head>
+<title>Checklist de Actividades</title>
+<style>
+	.checklist-shell { display: flex; flex-direction: column; gap: 1.25rem; }
+	.checklist-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+	.checklist-stat-card {
+		border-radius: 22px; padding: 1.2rem 1.3rem;
+		background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+		border: 1px solid rgba(22,54,120,0.08);
+		box-shadow: 0 16px 38px rgba(16,42,92,0.08);
+	}
+	.checklist-stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.14em; color: #6d7b9a; margin-bottom: 0.4rem; }
+	.checklist-stat-value { font-size: 1.8rem; font-weight: 800; color: #102a5c; line-height: 1; }
+	.category-section { margin-bottom: 1rem; }
+	.category-header {
+		font-size: 1rem; font-weight: 700; color: #102a5c;
+		padding: 0.75rem 1rem; background: #f0f4fa; border-radius: 12px 12px 0 0;
+		border-bottom: 2px solid rgba(22,54,120,0.08);
+	}
+	.checklist-table th {
+		font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: #6d7b9a; border-bottom-width: 1px;
+	}
+	.checklist-table td { vertical-align: middle; }
+	.status-pill {
+		display: inline-flex; align-items: center; gap: 0.45rem;
+		border-radius: 999px; padding: 0.35rem 0.8rem; font-size: 0.84rem; font-weight: 700;
+	}
+	.status-pill.is-active { background: rgba(23,178,106,0.12); color: #0d8a50; }
+	.status-pill.is-inactive { background: rgba(228,90,79,0.12); color: #bb3f35; }
+	.actions-inline { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+	.btn-soft-light { border-radius: 999px; padding-inline: 0.9rem; }
+	.orden-badge {
+		display: inline-flex; align-items: center; justify-content: center;
+		width: 32px; height: 32px; border-radius: 50%; background: #e8edf5; color: #102a5c;
+		font-weight: 700; font-size: 0.9rem;
+	}
+	@media (max-width: 768px) { .checklist-summary { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+	<div class="page-shell">
+		<div class="view-heading">
+			<div>
+				<div class="eyebrow">Configuracion Operativa</div>
+				<h1 class="view-title">Checklist de Actividades</h1>
+			</div>
+			<div class="d-flex gap-3 flex-wrap">
+				<a th:href="@{/checklist/nueva}" class="btn btn-primary px-4 py-3">
+					<i class="feather-plus-circle me-2"></i>Nueva actividad
+				</a>
+			</div>
+		</div>
+
+		<div class="checklist-shell">
+			<div class="checklist-summary">
+				<div class="checklist-stat-card">
+					<div class="checklist-stat-label">Total actividades</div>
+					<div class="checklist-stat-value" th:text="${totalActividades}">0</div>
+				</div>
+				<div class="checklist-stat-card">
+					<div class="checklist-stat-label">Categorias</div>
+					<div class="checklist-stat-value" th:text="${totalCategorias}">0</div>
+				</div>
+			</div>
+
+			<div th:if="${#maps.isEmpty(porCategoria)}" class="surface-card page-panel text-center py-5">
+				<i class="feather-check-square" style="font-size:3rem;color:#6d7b9a"></i>
+				<p class="mt-3 mb-0" style="color:#6d7b9a">No hay actividades checklist configuradas. Crea la primera.</p>
+			</div>
+
+			<div th:each="entry : ${porCategoria}" class="category-section">
+				<div class="category-header">
+					<i class="feather-folder me-2"></i><span th:text="${entry.key}">Categoria</span>
+					<span class="badge bg-secondary ms-2" th:text="${#lists.size(entry.value)}">0</span>
+				</div>
+				<div class="surface-card table-shell checklist-table" style="border-radius: 0 0 12px 12px;">
+					<div class="table-responsive">
+						<table class="table align-middle mb-0">
+							<thead>
+								<tr>
+									<th style="width:60px">Orden</th>
+									<th>Nombre</th>
+									<th>Estado</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="act : ${entry.value}">
+									<td><span class="orden-badge" th:text="${act.orden != null ? act.orden : '-'}">-</span></td>
+									<td><strong th:text="${act.nombre}">Actividad</strong></td>
+									<td>
+										<span class="status-pill"
+											th:classappend="${act.estado} ? ' is-active' : ' is-inactive'">
+											<i class="feather-circle"></i>
+											<span th:text="${act.estado} ? 'Activa' : 'Inactiva'">Estado</span>
+										</span>
+									</td>
+									<td>
+										<div class="actions-inline">
+											<a class="btn btn-light btn-sm btn-soft-light"
+												th:href="@{/checklist/editar/{id}(id=${act.idActividad})}">
+												<i class="feather-edit-2 me-1"></i>Editar
+											</a>
+											<form th:action="@{/checklist/eliminar}" method="post" style="display:inline"
+												onsubmit="return confirm('Eliminar esta actividad del checklist?')">
+												<input type="hidden" name="idActividad" th:value="${act.idActividad}">
+												<button type="submit" class="btn btn-outline-danger btn-sm btn-soft-light">
+													<i class="feather-trash-2 me-1"></i>Eliminar
+												</button>
+											</form>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

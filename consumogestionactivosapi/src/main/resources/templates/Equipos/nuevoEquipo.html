@@ -98,19 +98,35 @@
                         </div>
                         <div class="span-4 field-group">
                             <label class="field-label">Marca</label>
-                            <select class="form-select" th:field="*{fkMarca.idMarca}">
-                                <option value="0">Seleccione una marca</option>
-                                <option th:each="m : ${listamarcas}" th:value="${m.idMarca}" th:text="${m.nombre}"></option>
-                            </select>
+                            <div class="d-flex gap-2">
+                                <select class="form-select" id="selMarca" th:field="*{fkMarca.idMarca}">
+                                    <option value="0">Seleccione una marca</option>
+                                    <option th:each="m : ${listamarcas}" th:value="${m.idMarca}" th:text="${m.nombre}"></option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary btn-sm" title="Crear marca" data-bs-toggle="modal" data-bs-target="#modalCrearMarca"><i class="feather-plus"></i></button>
+                            </div>
                             <div class="text-danger small" th:if="${errorMarca}" th:text="${errorMarca}"></div>
                         </div>
                         <div class="span-4 field-group">
                             <label class="field-label">Categoria</label>
-                            <select class="form-select" th:field="*{fkCategoria.idCategoria}">
-                                <option value="0">Seleccione una categoria</option>
-                                <option th:each="c : ${listacategorias}" th:value="${c.idCategoria}" th:text="${c.nombre}"></option>
-                            </select>
+                            <div class="d-flex gap-2">
+                                <select class="form-select" id="selCategoria" th:field="*{fkCategoria.idCategoria}">
+                                    <option value="0">Seleccione una categoria</option>
+                                    <option th:each="c : ${listacategorias}" th:value="${c.idCategoria}" th:text="${c.nombre}"></option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary btn-sm" title="Crear categoria" data-bs-toggle="modal" data-bs-target="#modalCrearCategoria"><i class="feather-plus"></i></button>
+                            </div>
                             <div class="text-danger small" th:if="${errorCategoria}" th:text="${errorCategoria}"></div>
+                        </div>
+                        <div class="span-4 field-group">
+                            <label class="field-label">Ubicacion</label>
+                            <div class="d-flex gap-2">
+                                <select class="form-select" id="selUbicacion" th:field="*{fkUbicacion.idUbicacion}">
+                                    <option value="0">Seleccione una ubicacion</option>
+                                    <option th:each="u : ${listaubicaciones}" th:value="${u.idUbicacion}" th:text="${u.nombre + ' - ' + u.agencia}"></option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary btn-sm" title="Crear ubicacion" data-bs-toggle="modal" data-bs-target="#modalCrearUbicacion"><i class="feather-plus"></i></button>
+                            </div>
                         </div>
                         <div class="span-4 field-group">
                             <label class="field-label">Estado equipo</label>
@@ -207,6 +223,125 @@
                 </div>
             </form>
         </div>
+
+        <!-- Modal Crear Marca -->
+        <div class="modal fade" id="modalCrearMarca" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">Nueva Marca</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="modalMarcaNombre" maxlength="100" /></div>
+                        <div class="text-danger small" id="modalMarcaError"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="btnCrearMarca">Crear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Crear Categoria -->
+        <div class="modal fade" id="modalCrearCategoria" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">Nueva Categoria</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="modalCategoriaNombre" maxlength="100" /></div>
+                        <div class="text-danger small" id="modalCategoriaError"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="btnCrearCategoria">Crear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Crear Ubicacion -->
+        <div class="modal fade" id="modalCrearUbicacion" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">Nueva Ubicacion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="modalUbiNombre" maxlength="100" /></div>
+                        <div class="mb-3"><label class="form-label">Agencia <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="modalUbiAgencia" maxlength="100" /></div>
+                        <div class="text-danger small" id="modalUbiError"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="btnCrearUbi">Crear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        (function () {
+            function ajaxCrear(url, body, errorElId, onOk, btnEl) {
+                var errorEl = document.getElementById(errorElId);
+                btnEl.disabled = true;
+                fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+                .then(function (r) {
+                    if (r.status === 409) return r.json().then(function (d) { throw new Error(d.error || 'Ya existe'); });
+                    if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Error'); });
+                    return r.json();
+                })
+                .then(function (data) { onOk(data); })
+                .catch(function (e) { errorEl.textContent = e.message; })
+                .finally(function () { btnEl.disabled = false; });
+            }
+
+            document.getElementById('btnCrearMarca').addEventListener('click', function () {
+                var n = document.getElementById('modalMarcaNombre').value.trim();
+                if (!n) { document.getElementById('modalMarcaError').textContent = 'El nombre es obligatorio'; return; }
+                ajaxCrear('/api/relaciones/marcas', { nombre: n }, 'modalMarcaError', function (data) {
+                    var sel = document.getElementById('selMarca');
+                    var opt = new Option(data.nombre, data.idMarca, true, true);
+                    sel.appendChild(opt);
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearMarca')).hide();
+                    document.getElementById('modalMarcaNombre').value = '';
+                    document.getElementById('modalMarcaError').textContent = '';
+                }, this);
+            });
+
+            document.getElementById('btnCrearCategoria').addEventListener('click', function () {
+                var n = document.getElementById('modalCategoriaNombre').value.trim();
+                if (!n) { document.getElementById('modalCategoriaError').textContent = 'El nombre es obligatorio'; return; }
+                ajaxCrear('/api/relaciones/categorias', { nombre: n }, 'modalCategoriaError', function (data) {
+                    var sel = document.getElementById('selCategoria');
+                    var opt = new Option(data.nombre, data.idCategoria, true, true);
+                    sel.appendChild(opt);
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearCategoria')).hide();
+                    document.getElementById('modalCategoriaNombre').value = '';
+                    document.getElementById('modalCategoriaError').textContent = '';
+                }, this);
+            });
+
+            document.getElementById('btnCrearUbi').addEventListener('click', function () {
+                var n = document.getElementById('modalUbiNombre').value.trim();
+                var a = document.getElementById('modalUbiAgencia').value.trim();
+                if (!n) { document.getElementById('modalUbiError').textContent = 'El nombre es obligatorio'; return; }
+                if (!a) { document.getElementById('modalUbiError').textContent = 'La agencia es obligatoria'; return; }
+                ajaxCrear('/api/relaciones/ubicaciones', { nombre: n, agencia: a }, 'modalUbiError', function (data) {
+                    var sel = document.getElementById('selUbicacion');
+                    var opt = new Option(data.nombre + ' - ' + (data.agencia || ''), data.idUbicacion, true, true);
+                    sel.appendChild(opt);
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearUbicacion')).hide();
+                    document.getElementById('modalUbiNombre').value = '';
+                    document.getElementById('modalUbiAgencia').value = '';
+                    document.getElementById('modalUbiError').textContent = '';
+                }, this);
+            });
+        })();
+        </script>
     </div>
 </body>
 </html>

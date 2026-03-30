@@ -12,15 +12,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.uisrael.consumogestionactivosapi.security.JwtAuthenticationFilter;
 import com.uisrael.consumogestionactivosapi.security.JwtTokenProvider;
+import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
 	private final JwtTokenProvider jwtTokenProvider;
+	private final SesionUsuario sesionUsuario;
 
-	public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
+	public SecurityConfig(JwtTokenProvider jwtTokenProvider, SesionUsuario sesionUsuario) {
 		this.jwtTokenProvider = jwtTokenProvider;
+		this.sesionUsuario = sesionUsuario;
 	}
 
 	@Bean
@@ -30,14 +33,14 @@ public class SecurityConfig {
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter(jwtTokenProvider);
+		return new JwtAuthenticationFilter(jwtTokenProvider, sesionUsuario);
 	}
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para API REST
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.csrf(csrf -> csrf.disable())
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 			.authorizeHttpRequests(authz -> authz
 				// Rutas públicas - sin autenticación requerida
 				.requestMatchers("/", "/login", "/setup").permitAll()
@@ -45,10 +48,15 @@ public class SecurityConfig {
 				.requestMatchers("/api/auth/login", "/api/auth/refresh").permitAll()
 				
 				// Recursos estáticos
-				.requestMatchers("/static/**", "/templates/**", "/css/**", "/js/**", "/images/**").permitAll()
+				.requestMatchers("/static/**", "/templates/**", "/assets/**", "/css/**", "/js/**", "/images/**").permitAll()
 				
 				// Todas las demás rutas requieren autenticación
 				.anyRequest().authenticated()
+			)
+			.exceptionHandling(ex -> ex
+				.authenticationEntryPoint((request, response, authException) -> {
+					response.sendRedirect("/login");
+				})
 			)
 			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 

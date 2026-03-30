@@ -19,9 +19,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
 	private final JwtTokenProvider tokenProvider;
+	private final SesionUsuario sesionUsuario;
 
-	public JwtAuthenticationFilter(JwtTokenProvider tokenProvider) {
+	public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, SesionUsuario sesionUsuario) {
 		this.tokenProvider = tokenProvider;
+		this.sesionUsuario = sesionUsuario;
 	}
 
 	@Override
@@ -34,15 +36,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				String username = tokenProvider.getUsernameFromToken(jwt);
 
 				if (username != null) {
-					// Crear un Authentication object sin contraseña
 					Authentication authentication = new UsernamePasswordAuthenticationToken(
 							username, null, null);
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 					logger.debug("Autenticación JWT establecida para usuario: {}", username);
 				}
+			} else if (sesionUsuario.isAutenticado()) {
+				Authentication authentication = new UsernamePasswordAuthenticationToken(
+						sesionUsuario.getCorreo(), null, null);
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+				logger.debug("Autenticación por sesión establecida para usuario: {}", sesionUsuario.getCorreo());
 			}
 		} catch (Exception ex) {
-			logger.error("No se pudo establecer autenticación JWT: {}", ex.getMessage());
+			logger.error("No se pudo establecer autenticación: {}", ex.getMessage());
 		}
 
 		filterChain.doFilter(request, response);

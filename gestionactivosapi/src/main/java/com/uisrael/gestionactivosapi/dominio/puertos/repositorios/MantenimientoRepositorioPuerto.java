@@ -49,7 +49,7 @@ public interface MantenimientoRepositorioPuerto {
      * @param id el ID del mantenimiento
      * @return Optional con el mantenimiento si existe
      */
-    default Optional<Mantenimientos> buscarPorId(Integer id) {
+    default Optional<Mantenimientos> buscarPorId(int id) {
         return obtenerPorId(id);
     }
     
@@ -77,44 +77,28 @@ public interface MantenimientoRepositorioPuerto {
      * @param equipoId el ID del equipo
      * @return LocalDateTime del último cierre o null si no hay registros
      */
-    LocalDateTime obtenerUltimoCierrePorEquipo(Integer equipoId);
+    LocalDateTime obtenerUltimoCierrePorEquipo(int equipoId);
     
     /**
      * Elimina un registro de mantenimiento.
      * 
      * @param id el ID del mantenimiento a eliminar
      */
-    void eliminar(Integer id);
-    
-    /**
-     * Obtiene mantenimientos por estado.
-     * 
-     * @param estado el estado del mantenimiento
-     * @return lista de mantenimientos con el estado especificado
-     */
-    List<Mantenimientos> obtenerPorEstado(String estado);
-    
-    /**
-     * Obtiene mantenimientos de un equipo específico.
-     * 
-     * @param equipoId el ID del equipo
-     * @return lista de mantenimientos del equipo
-     */
-    List<Mantenimientos> obtenerPorEquipo(Integer equipoId);
-    
-    /**
-     * Obtiene mantenimientos pendientes (sin completar).
-     * 
-     * @return lista de mantenimientos pendientes
-     */
-    List<Mantenimientos> obtenerPendientes();
-    
-    /**
-     * Obtiene mantenimientos en un rango de fechas.
-     * 
-     * @param desde fecha de inicio
-     * @param hasta fecha de fin
-     * @return lista de mantenimientos en el rango
-     */
-    List<Mantenimientos> obtenerPorRangoFechas(LocalDateTime desde, LocalDateTime hasta);
+    void eliminar(int id);
+
+    List<Mantenimientos> obtenerPorEquipo(int equipoId);
+
+    default List<Mantenimientos> obtenerPorEstado(String estado) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    default List<Mantenimientos> obtenerPendientes() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    default List<Mantenimientos> obtenerPorRangoFechas(LocalDateTime desde, LocalDateTime hasta) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    List<Mantenimientos> guardarTodos(List<Mantenimientos> mantenimientos);
 }

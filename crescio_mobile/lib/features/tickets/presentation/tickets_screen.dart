@@ -22,7 +22,9 @@ class _TicketsScreenState extends State<TicketsScreen> {
 
   Future<List<Map<String, dynamic>>> _loadTickets() async {
     final apiClient = context.read<ApiClient>();
-    final path = _estado == 'todos' ? '/tickets' : '/tickets?estado=${_estado.toUpperCase()}';
+    final path = _estado == 'todos'
+        ? '/tickets'
+        : '/tickets?estado=${_estado.toUpperCase()}';
     final data = await apiClient.get(path);
     return (data as List)
         .map((item) => Map<String, dynamic>.from(item as Map))
@@ -87,20 +89,23 @@ class _TicketsScreenState extends State<TicketsScreen> {
                 child: ListView.separated(
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: tickets.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final ticket = tickets[index];
                     return Card(
                       child: ListTile(
                         leading: const Icon(Icons.confirmation_num_outlined),
-                        title: Text(_text(ticket['titulo'], fallback: 'Sin titulo')),
+                        title: Text(
+                            _text(ticket['titulo'], fallback: 'Sin titulo')),
                         subtitle: Text(
                           'Estado: ${_text(ticket['estado'])}\n'
                           'Equipo: ${_text(ticket['idEquipo'])}\n'
                           '${_text(ticket['descripcion'], fallback: 'Sin descripcion')}',
                         ),
                         isThreeLine: true,
-                        trailing: Text(_text(ticket['prioridad'], fallback: '')),
+                        trailing:
+                            Text(_text(ticket['prioridad'], fallback: '')),
                       ),
                     );
                   },

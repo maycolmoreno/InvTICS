@@ -53,7 +53,7 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 
 		if (usuario.getFkRol() != null) {
 			int idRol = usuario.getFkRol().getIdRol();
-			var rolOpt = rolesRepositorio.buscarPorId(idRol);
+			var rolOpt = rolRepositorio.buscarPorId(idRol);
 			if (rolOpt.isEmpty()) {
 				throw new RecursoNoEncontradoException("Rol no encontrado");
 			}
@@ -63,7 +63,7 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 		}
 		if (usuario.getFkDepartamento() != null) {
 			int idDep = usuario.getFkDepartamento().getIdDepartamento();
-			var depOpt = departamentosRepositorio.buscarPorId(idDep);
+			var depOpt = departamentoRepositorio.buscarPorId(idDep);
 			if (depOpt.isEmpty()) {
 				throw new RecursoNoEncontradoException("Departamento no encontrado");
 			}
@@ -123,7 +123,7 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 			usuario.getFkDepartamento(),
 			usuario.getFkRol()
 		);
-		repositorio.guardar(usuarioInactivo);
+		usuarioRepositorio.guardar(usuarioInactivo);
 	}
 
 	@Override
@@ -146,7 +146,7 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 
 		if (usuario.getFkRol() != null) {
 			int idRol = usuario.getFkRol().getIdRol();
-			var rolOpt = rolesRepositorio.buscarPorId(idRol);
+			var rolOpt = rolRepositorio.buscarPorId(idRol);
 			if (rolOpt.isEmpty()) {
 				throw new RecursoNoEncontradoException("Rol no encontrado");
 			}
@@ -156,7 +156,7 @@ public class UsuariosUseCaseImpl implements IUsuariosUseCase {
 		}
 		if (usuario.getFkDepartamento() != null) {
 			int idDep = usuario.getFkDepartamento().getIdDepartamento();
-			var depOpt = departamentosRepositorio.buscarPorId(idDep);
+			var depOpt = departamentoRepositorio.buscarPorId(idDep);
 			if (depOpt.isEmpty()) {
 				throw new RecursoNoEncontradoException("Departamento no encontrado");
 			}

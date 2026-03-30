@@ -36,9 +36,11 @@ public interface RolRepositorioPuerto {
     /**
      * Actualiza un Roles existente.
      * 
+     * @param id el ID del Roles a actualizar
      * @param Roles el Roles con datos actualizados
+     * @return el Roles actualizado
      */
-    void actualizar(Roles Roles);
+    Roles actualizar(int id, Roles Roles);
     
     /**
      * Elimina un Roles.
@@ -61,4 +63,36 @@ public interface RolRepositorioPuerto {
      * @return lista de roles activos
      */
     List<Roles> obtenerActivos();
+    
+    /**
+     * Busca un rol por su nombre.
+     * Alias para obtenerPorNombre para compatibilidad.
+     * 
+     * @param nombre el nombre del rol
+     * @return Optional con el rol si existe
+     */
+    default Optional<Roles> buscarPorNombre(String nombre) {
+        return obtenerPorNombre(nombre);
+    }
+    
+    /**
+     * Busca un rol por su ID.
+     * Alias para obtenerPorId para compatibilidad.
+     * 
+     * @param id el ID del rol
+     * @return Optional con el rol si existe
+     */
+    default Optional<Roles> buscarPorId(int id) {
+        return obtenerPorId(id);
+    }
+    
+    /**
+     * Obtiene todos los roles.
+     * Alias para obtenerTodos para compatibilidad.
+     * 
+     * @return lista de todos los roles
+     */
+    default List<Roles> listarTodos() {
+        return obtenerTodos();
+    }
 }

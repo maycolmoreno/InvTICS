@@ -46,4 +46,5 @@ public class EquiposResponseDTO {
 
     private MarcasResponseDTO fkMarca;
     private CategoriaEquiposResponseDTO fkCategoria;
+    private UbicacionesResponseDTO fkUbicacion;
 }

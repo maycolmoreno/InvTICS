@@ -36,9 +36,11 @@ public interface MarcaRepositorioPuerto {
     /**
      * Actualiza una Marcas existente.
      * 
+     * @param id el ID de la Marcas a actualizar
      * @param Marcas la Marcas con datos actualizados
+     * @return la Marcas actualizada
      */
-    void actualizar(Marcas Marcas);
+    Marcas actualizar(int id, Marcas Marcas);
     
     /**
      * Elimina una Marcas.
@@ -61,4 +63,25 @@ public interface MarcaRepositorioPuerto {
      * @return lista de marcas activas
      */
     List<Marcas> obtenerActivas();
+    
+    /**
+     * Busca una marca por su ID.
+     * Alias para obtenerPorId para compatibilidad.
+     * 
+     * @param id el ID de la marca
+     * @return Optional con la marca si existe
+     */
+    default Optional<Marcas> buscarPorId(int id) {
+        return obtenerPorId(id);
+    }
+    
+    /**
+     * Obtiene todas las marcas.
+     * Alias para obtenerTodas para compatibilidad.
+     * 
+     * @return lista de todas las marcas
+     */
+    default List<Marcas> listarTodos() {
+        return obtenerTodas();
+    }
 }

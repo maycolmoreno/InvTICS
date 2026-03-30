@@ -43,8 +43,8 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
 
   Future<void> _openForm([Ubicacion? item]) async {
     final canManage = context.read<AuthProvider>().hasCapability(
-      UserCapability.manageUbicaciones,
-    );
+          UserCapability.manageUbicaciones,
+        );
     if (!canManage) {
       return;
     }
@@ -61,8 +61,8 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
   @override
   Widget build(BuildContext context) {
     final canManage = context.watch<AuthProvider>().hasCapability(
-      UserCapability.manageUbicaciones,
-    );
+          UserCapability.manageUbicaciones,
+        );
     return Scaffold(
       appBar: AppBar(title: const Text('Ubicaciones')),
       floatingActionButton: canManage
@@ -127,7 +127,8 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
                   child: ListView.separated(
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: items.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final item = items[index];
                       final estado = item.estado;
@@ -136,7 +137,9 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
                         child: ListTile(
                           onTap: canManage ? () => _openForm(item) : null,
                           leading: Icon(
-                            estado ? Icons.location_on_outlined : Icons.location_off_outlined,
+                            estado
+                                ? Icons.location_on_outlined
+                                : Icons.location_off_outlined,
                           ),
                           title: Text(item.nombre),
                           subtitle: Text(
@@ -160,7 +163,8 @@ class _UbicacionesScreenState extends State<UbicacionesScreen> {
                                   onPressed: id == null
                                       ? null
                                       : () async {
-                                          await UbicacionesRepository(context.read<ApiClient>())
+                                          await UbicacionesRepository(
+                                                  context.read<ApiClient>())
                                               .actualizarEstado(
                                             idUbicacion: id,
                                             estado: !estado,
@@ -291,11 +295,12 @@ class _UbicacionFormScreenState extends State<UbicacionFormScreen> {
   @override
   Widget build(BuildContext context) {
     final canManage = context.watch<AuthProvider>().hasCapability(
-      UserCapability.manageUbicaciones,
-    );
+          UserCapability.manageUbicaciones,
+        );
     final editing = widget.ubicacion != null;
     return Scaffold(
-      appBar: AppBar(title: Text(editing ? 'Editar ubicacion' : 'Nueva ubicacion')),
+      appBar:
+          AppBar(title: Text(editing ? 'Editar ubicacion' : 'Nueva ubicacion')),
       body: canManage
           ? Form(
               key: _formKey,
@@ -305,15 +310,17 @@ class _UbicacionFormScreenState extends State<UbicacionFormScreen> {
                   TextFormField(
                     controller: _nombreController,
                     decoration: const InputDecoration(labelText: 'Nombre'),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'Ingresa el nombre' : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Ingresa el nombre'
+                        : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _agenciaController,
                     decoration: const InputDecoration(labelText: 'Agencia'),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'Ingresa la agencia' : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Ingresa la agencia'
+                        : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -330,7 +337,9 @@ class _UbicacionFormScreenState extends State<UbicacionFormScreen> {
                   const SizedBox(height: 12),
                   SwitchListTile(
                     value: _estado,
-                    onChanged: editing ? (value) => setState(() => _estado = value) : null,
+                    onChanged: editing
+                        ? (value) => setState(() => _estado = value)
+                        : null,
                     title: const Text('Ubicacion activa'),
                   ),
                   const SizedBox(height: 20),

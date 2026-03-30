@@ -29,9 +29,7 @@ Future<void> main() async {
     },
   );
   authProvider = AuthProvider(
-    repository: AuthRepository(
-      secureStorage: secureStorage,
-    ),
+    repository: AuthRepository(secureStorage: secureStorage),
   );
   await authProvider.bootstrap(hasServerConfig: AppConfig.isConfigured);
 
