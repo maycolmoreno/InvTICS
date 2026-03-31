@@ -48,6 +48,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request, Map.of());
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiError> handleIllegalState(IllegalStateException ex, WebRequest request) {
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request, Map.of());
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiError> handleRuntime(RuntimeException ex, WebRequest request) {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor", request, Map.of());

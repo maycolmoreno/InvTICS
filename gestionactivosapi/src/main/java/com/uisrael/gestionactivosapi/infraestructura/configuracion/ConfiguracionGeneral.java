@@ -11,6 +11,18 @@ import com.uisrael.gestionactivosapi.infraestructura.servicios.CorreoMantenimien
 import com.uisrael.gestionactivosapi.infraestructura.servicios.CorreoSchedulerService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoArchivoService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoInformeService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.ActividadPlanificadaService;
+
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IMantenimientoManualUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IActividadPlanificadaUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.RegistrarFirmaMantenimientoUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.ObtenerUbicacionEquipoUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.ObtenerFrecuenciaMantenimientoUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.ObtenerActividadesPorCategoriaUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.AsignarEmpresaAMantenimientoUseCase;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EmpresaRepositorioPuerto;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IEmpresaJpaRepositorio;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IActividadPlanificadaJpaRepositorio;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICargosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICategoriaEquiposUseCase;
@@ -121,6 +133,17 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.INotificacionJ
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IRolesJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUbicacionesJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUsuariosJpaRepositorio;
+
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IConsultarUbicacionesTiempoRealUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IRegistrarConsentimientoUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IRegistrarUbicacionTecnicoUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ConsultarUbicacionesTiempoRealUseCaseImpl;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.RegistrarConsentimientoUseCaseImpl;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.RegistrarUbicacionTecnicoUseCaseImpl;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ConsentimientoMonitoreoPort;
+import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.UbicacionTecnicoPort;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IConsentimientoMonitoreoJpaRepositorio;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUbicacionTecnicoJpaRepositorio;
 
 @Configuration
 public class ConfiguracionGeneral {
@@ -417,7 +440,7 @@ public class ConfiguracionGeneral {
 	// ---- Servicios de aplicación ----
 
 	@Bean
-	MantenimientoManualService mantenimientoManualService(
+	IMantenimientoManualUseCase mantenimientoManualService(
 			IMantenimientosJpaRepositorio mantenimientosRepo,
 			IActividadRealizadaJpaRepositorio actividadRealizadaRepo,
 			IActividadChecklistJpaRepositorio actividadChecklistRepo,
@@ -434,6 +457,13 @@ public class ConfiguracionGeneral {
 	}
 
 	@Bean
+	IActividadPlanificadaUseCase actividadPlanificadaService(
+			IActividadPlanificadaJpaRepositorio actividadRepo,
+			IUsuariosJpaRepositorio usuariosRepo) {
+		return new ActividadPlanificadaService(actividadRepo, usuariosRepo);
+	}
+
+	@Bean
 	MantenimientoProgramadoService mantenimientoProgramadoService(
 			IMantenimientoProgramadoJpaRepositorio programadoRepo,
 			IEquiposJpaRepositorio equiposRepo,
@@ -447,5 +477,80 @@ public class ConfiguracionGeneral {
 			IUsuariosJpaRepositorio usuariosRepo,
 			IMantenimientosJpaRepositorio mantenimientosRepo) {
 		return new NotificacionService(notificacionRepo, usuariosRepo, mantenimientosRepo);
+	}
+
+	// ---- GPS / Ubicaciones Técnicos ----
+
+	@Bean
+	ConsentimientoMonitoreoPort consentimientoMonitoreoPort(
+			IConsentimientoMonitoreoJpaRepositorio jpaRepositorio) {
+		return new ConsentimientoMonitoreoRepositorioImpl(jpaRepositorio);
+	}
+
+	@Bean
+	UbicacionTecnicoPort ubicacionTecnicoPort(
+			IUbicacionTecnicoJpaRepositorio jpaRepositorio) {
+		return new UbicacionTecnicoRepositorioImpl(jpaRepositorio);
+	}
+
+	@Bean
+	IRegistrarConsentimientoUseCase registrarConsentimientoUseCase(ConsentimientoMonitoreoPort consentimientoPort) {
+		return new RegistrarConsentimientoUseCaseImpl(consentimientoPort);
+	}
+
+	@Bean
+	IRegistrarUbicacionTecnicoUseCase registrarUbicacionTecnicoUseCase(
+			UbicacionTecnicoPort ubicacionPort,
+			ConsentimientoMonitoreoPort consentimientoPort,
+			UsuarioRepositorioPuerto usuarioRepositorio) {
+		return new RegistrarUbicacionTecnicoUseCaseImpl(ubicacionPort, consentimientoPort, usuarioRepositorio);
+	}
+
+	@Bean
+	IConsultarUbicacionesTiempoRealUseCase consultarUbicacionesTiempoRealUseCase(UbicacionTecnicoPort ubicacionPort) {
+		return new ConsultarUbicacionesTiempoRealUseCaseImpl(ubicacionPort);
+	}
+
+	// ---- Repositorio Empresa ----
+
+	@Bean
+	EmpresaRepositorioPuerto empresaRepositorio(IEmpresaJpaRepositorio jpaRepo) {
+		return new EmpresaRepositorioAdaptador(jpaRepo);
+	}
+
+	// ---- Casos de uso adicionales ----
+
+	@Bean
+	RegistrarFirmaMantenimientoUseCase registrarFirmaMantenimientoUseCase(
+			IFirmaMantenimientoJpaRepositorio firmaRepositorio,
+			IMantenimientosJpaRepositorio mantenimientoRepositorio,
+			IUsuariosJpaRepositorio usuarioRepositorio) {
+		return new RegistrarFirmaMantenimientoUseCase(firmaRepositorio, mantenimientoRepositorio, usuarioRepositorio);
+	}
+
+	@Bean
+	ObtenerUbicacionEquipoUseCase obtenerUbicacionEquipoUseCase(
+			IEquiposJpaRepositorio equipoRepo,
+			ICustodiasJpaRepositorio custodiaRepo) {
+		return new ObtenerUbicacionEquipoUseCase(equipoRepo, custodiaRepo);
+	}
+
+	@Bean
+	ObtenerFrecuenciaMantenimientoUseCase obtenerFrecuenciaMantenimientoUseCase(
+			IMantenimientosJpaRepositorio mantenimientoRepo) {
+		return new ObtenerFrecuenciaMantenimientoUseCase(mantenimientoRepo);
+	}
+
+	@Bean
+	ObtenerActividadesPorCategoriaUseCase obtenerActividadesPorCategoriaUseCase(
+			IActividadChecklistJpaRepositorio actividadRepo) {
+		return new ObtenerActividadesPorCategoriaUseCase(actividadRepo);
+	}
+
+	@Bean
+	AsignarEmpresaAMantenimientoUseCase asignarEmpresaAMantenimientoUseCase(
+			EmpresaRepositorioPuerto empresaRepo,
+			MantenimientoRepositorioPuerto mantenimientoRepo) {
+		return new AsignarEmpresaAMantenimientoUseCase(empresaRepo, mantenimientoRepo);
 	}
 }

@@ -10,21 +10,10 @@ public class Departamentos implements Serializable {
 	private final String nombre;
 	private final boolean estado;
 
-	private Ubicaciones fkUbicacion;
-
-	public Departamentos(int idDepartamento, String nombre, boolean estado, Ubicaciones fkUbicacion) {
+	public Departamentos(int idDepartamento, String nombre, boolean estado) {
 		this.idDepartamento = idDepartamento;
 		this.nombre = nombre;
 		this.estado = estado;
-		this.fkUbicacion = fkUbicacion;
-	}
-
-	public Ubicaciones getFkUbicacion() {
-		return fkUbicacion;
-	}
-
-	public void setFkUbicacion(Ubicaciones fkUbicacion) {
-		this.fkUbicacion = fkUbicacion;
 	}
 
 	public int getIdDepartamento() {
@@ -42,7 +31,7 @@ public class Departamentos implements Serializable {
 	@Override
 	public String toString() {
 		return "Departamentos [idDepartamento=" + idDepartamento + ", nombre=" + nombre + ", estado=" + estado
-				+ ", fkUbicacion=" + fkUbicacion + "]";
+				+ "]";
 	}
 
 }

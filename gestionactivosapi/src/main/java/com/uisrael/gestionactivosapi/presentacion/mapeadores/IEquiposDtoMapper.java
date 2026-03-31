@@ -72,7 +72,6 @@ public interface IEquiposDtoMapper {
         r.setIdDepartamento(d.getIdDepartamento());
         r.setNombre(d.getNombre());
         r.setEstado(d.isEstado());
-        r.setFkUbicacion(null); // si quieres incluir ubicacion, aqui ajustas
         return r;
     }
 

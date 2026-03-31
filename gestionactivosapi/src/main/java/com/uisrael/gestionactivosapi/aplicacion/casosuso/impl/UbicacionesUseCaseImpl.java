@@ -38,6 +38,7 @@ public class UbicacionesUseCaseImpl implements IUbicacionesUseCase {
 				ubicacion.isEstado(), ubicacion.getLatitud(), ubicacion.getLongitud(),
 				ubicacion.getDireccion(), ubicacion.getCiudad(), ubicacion.getParroquia(),
 				ubicacion.getProvincia(), ubicacion.getLinkCoordenada());
+		actualizado.setFkDepartamento(ubicacion.getFkDepartamento());
 
 		return ubicacionRepositorio.actualizar(id, actualizado);
 	}
@@ -54,6 +55,7 @@ public class UbicacionesUseCaseImpl implements IUbicacionesUseCase {
 				actual.getLatitud(), actual.getLongitud(), actual.getDireccion(),
 				actual.getCiudad(), actual.getParroquia(), actual.getProvincia(),
 				actual.getLinkCoordenada());
+		actualizado.setFkDepartamento(actual.getFkDepartamento());
 
 		return ubicacionRepositorio.actualizarEstado(id, actualizado);
 	}

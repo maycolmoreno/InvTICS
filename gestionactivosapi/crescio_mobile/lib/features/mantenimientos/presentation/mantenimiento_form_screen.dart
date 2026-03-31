@@ -88,7 +88,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       final actividades = await repository.listarActividadesChecklist();
       if (!mounted) return;
       final categories = actividades
-          .map((item) => _text(item['categoria'], fallback: 'General'))
+          .map((item) => _primeraCategoria(item, fallback: 'General'))
           .toSet();
       for (final category in categories) {
         _observacionControllers.putIfAbsent(
@@ -234,7 +234,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   List<Widget> _buildChecklistWidgets() {
     final grouped = <String, List<Map<String, dynamic>>>{};
     for (final item in _actividades) {
-      final category = _text(item['categoria'], fallback: 'General');
+      final category = _primeraCategoria(item, fallback: 'General');
       grouped.putIfAbsent(category, () => <Map<String, dynamic>>[]).add(item);
     }
 
@@ -287,7 +287,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       return {
         'idActividad': actividadId,
         'nombreActividad': _text(item['nombre'], fallback: 'Actividad'),
-        'categoriaActividad': _text(item['categoria'], fallback: 'General'),
+        'categoriaActividad': _primeraCategoria(item, fallback: 'General'),
         'realizada': _actividadesSeleccionadas.contains(actividadId),
       };
     }).toList();
@@ -910,4 +910,14 @@ String _normalizeText(String value) {
 String _text(dynamic value, {String fallback = '-'}) {
   final text = value?.toString().trim() ?? '';
   return text.isEmpty ? fallback : text;
+}
+
+/// Extrae la primera categoría de la lista `categorias` del JSON del backend.
+String _primeraCategoria(Map<String, dynamic> item,
+    {String fallback = 'General'}) {
+  final categorias = item['categorias'];
+  if (categorias is List && categorias.isNotEmpty) {
+    return _text(categorias.first, fallback: fallback);
+  }
+  return _text(item['categoria'], fallback: fallback);
 }

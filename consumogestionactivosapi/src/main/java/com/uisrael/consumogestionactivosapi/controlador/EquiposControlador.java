@@ -44,7 +44,6 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.MarcasRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.UbicacionesRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
-import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
@@ -59,7 +58,6 @@ public class EquiposControlador {
 	private final IEquiposServicio servicioEquipos;
 	private final IMarcasServicio servicioMarcas;
 	private final ICategoriaEquiposServicio servicioCategoriaEquipos;
-	private final ICustodiosServicio servicioCustodios;
 	private final IUbicacionesServicio servicioUbicaciones;
 
 	@GetMapping
@@ -118,8 +116,8 @@ public class EquiposControlador {
 		model.addAttribute("listacategorias", servicioCategoriaEquipos.listarCategoriaEquipo().stream()
 				.filter(cate -> cate.isEstado() || cate.getIdCategoria() == idCategoria).toList());
 
-		model.addAttribute("listaubicaciones", servicioUbicaciones.listarUbicaciones().stream()
-				.filter(u -> u.isEstado()).toList());
+		model.addAttribute("listaubicaciones",
+				servicioUbicaciones.listarUbicaciones().stream().filter(u -> u.isEstado()).toList());
 
 		model.addAttribute("equipo", dto);
 

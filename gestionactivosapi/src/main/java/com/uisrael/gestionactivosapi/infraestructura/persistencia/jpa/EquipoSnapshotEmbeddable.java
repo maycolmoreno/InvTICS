@@ -13,8 +13,8 @@ public class EquipoSnapshotEmbeddable {
     @Column(name = "serie_snapshot", length = 120)
     private String serieSnapshot;
 
-    @Column(name = "sine_snapshot", length = 50)
-    private String sineSnapshot;
+    @Column(name = "codigo_interno_snapshot", length = 50)
+    private String codigoInternoSnapshot;
 
     @Column(name = "year_snapshoted")
     private Integer yearSnapshoted;

@@ -3,7 +3,7 @@ package com.uisrael.consumogestionactivosapi.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClientResponseException;
 
 public final class WebClientHelper {
 
@@ -12,7 +12,7 @@ public final class WebClientHelper {
 	private WebClientHelper() {
 	}
 
-	public static String extraerMensajeError(WebClientResponseException ex) {
+	public static String extraerMensajeError(RestClientResponseException ex) {
 		try {
 			String errorBody = ex.getResponseBodyAsString();
 			if (errorBody == null || errorBody.isBlank()) {
@@ -46,7 +46,7 @@ public final class WebClientHelper {
 		}
 	}
 
-	public static RuntimeException manejarError(WebClientResponseException ex) {
+	public static RuntimeException manejarError(RestClientResponseException ex) {
 		return new RuntimeException(extraerMensajeError(ex));
 	}
 }

@@ -47,7 +47,14 @@ public class FirmaMantenimientoJpa implements Serializable {
     @Column(name = "ip_origen", length = 45)
     private String ipOrigen;
 
+    @Column(name = "firmado_por_id")
+    private Integer firmadoPorId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_mantenimiento", insertable = false, updatable = false)
     private MantenimientosJpa mantenimiento;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "firmado_por_id", insertable = false, updatable = false)
+    private UsuariosJpa firmadoPor;
 }

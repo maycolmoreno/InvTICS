@@ -1,7 +1,12 @@
 package com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa;
 
 import jakarta.persistence.*;
-import java.util.Date;
+
+import org.hibernate.annotations.SQLRestriction;
+
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.base.AuditableEntity;
+
+import java.time.LocalDate;
 
 /**
  * Entidad legacy para bienes/activos generales.
@@ -10,7 +15,8 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "activos")
-public class ActivoJpa {
+@SQLRestriction("deleted_at IS NULL")
+public class ActivoJpa extends AuditableEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer idActivo;
@@ -26,14 +32,18 @@ public class ActivoJpa {
 
 	private String modelo;
 
-	@Temporal(TemporalType.DATE)
-	private Date fechaAdquisicion;
+	private LocalDate fechaAdquisicion;
 
 	private Double valorActual;
 
 	private String estado;
 
-	private String ubicacion;
+	@Column(name = "fk_ubicacion")
+	private Integer fkUbicacion;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "fk_ubicacion", insertable = false, updatable = false)
+	private UbicacionesJpa ubicacionRel;
 
 	@Column(name = "fk_departamento")
 	private Integer fkDepartamento;
@@ -85,11 +95,11 @@ public class ActivoJpa {
 		this.modelo = modelo;
 	}
 
-	public Date getFechaAdquisicion() {
+	public LocalDate getFechaAdquisicion() {
 		return fechaAdquisicion;
 	}
 
-	public void setFechaAdquisicion(Date fechaAdquisicion) {
+	public void setFechaAdquisicion(LocalDate fechaAdquisicion) {
 		this.fechaAdquisicion = fechaAdquisicion;
 	}
 
@@ -109,12 +119,20 @@ public class ActivoJpa {
 		this.estado = estado;
 	}
 
-	public String getUbicacion() {
-		return ubicacion;
+	public Integer getFkUbicacion() {
+		return fkUbicacion;
 	}
 
-	public void setUbicacion(String ubicacion) {
-		this.ubicacion = ubicacion;
+	public void setFkUbicacion(Integer fkUbicacion) {
+		this.fkUbicacion = fkUbicacion;
+	}
+
+	public UbicacionesJpa getUbicacionRel() {
+		return ubicacionRel;
+	}
+
+	public void setUbicacionRel(UbicacionesJpa ubicacionRel) {
+		this.ubicacionRel = ubicacionRel;
 	}
 
 	public Integer getFkDepartamento() {

@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.ActividadChecklistRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.ActividadChecklistResponseDTO;
@@ -18,15 +18,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ActividadChecklistServicioImpl implements IActividadChecklistServicio {
 
-    private final WebClient clienteWeb;
+    private final RestClient clienteWeb;
 
     @Override
     public List<ActividadChecklistResponseDTO> listarActivas() {
         return clienteWeb.get()
                 .uri("/actividades-checklist")
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<ActividadChecklistResponseDTO>>() {})
-                .block();
+                .body(new ParameterizedTypeReference<List<ActividadChecklistResponseDTO>>() {});
     }
 
     @Override
@@ -35,9 +34,8 @@ public class ActividadChecklistServicioImpl implements IActividadChecklistServic
             return clienteWeb.get()
                     .uri("/actividades-checklist/{id}", id)
                     .retrieve()
-                    .bodyToMono(ActividadChecklistResponseDTO.class)
-                    .block();
-        } catch (WebClientResponseException e) {
+                    .body(ActividadChecklistResponseDTO.class);
+        } catch (RestClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new RuntimeException("Actividad checklist no encontrada con id: " + id);
             }
@@ -49,20 +47,18 @@ public class ActividadChecklistServicioImpl implements IActividadChecklistServic
     public void crear(ActividadChecklistRequestDTO dto) {
         clienteWeb.post()
                 .uri("/actividades-checklist")
-                .bodyValue(dto)
+                .body(dto)
                 .retrieve()
-                .toBodilessEntity()
-                .block();
+                .toBodilessEntity();
     }
 
     @Override
     public void actualizar(Integer id, ActividadChecklistRequestDTO dto) {
         clienteWeb.put()
                 .uri("/actividades-checklist/{id}", id)
-                .bodyValue(dto)
+                .body(dto)
                 .retrieve()
-                .toBodilessEntity()
-                .block();
+                .toBodilessEntity();
     }
 
     @Override
@@ -70,7 +66,6 @@ public class ActividadChecklistServicioImpl implements IActividadChecklistServic
         clienteWeb.delete()
                 .uri("/actividades-checklist/{id}", id)
                 .retrieve()
-                .toBodilessEntity()
-                .block();
+                .toBodilessEntity();
     }
 }

@@ -62,6 +62,6 @@ public class CustodiosJpa extends AuditableEntity implements Serializable {
     private UbicacionesJpa fkUbicacion;
 
     @ManyToOne
-    @JoinColumn(name = "fk_usuario")
+    @JoinColumn(name = "usuario_id")
     private UsuariosJpa fkUsuario;
 }

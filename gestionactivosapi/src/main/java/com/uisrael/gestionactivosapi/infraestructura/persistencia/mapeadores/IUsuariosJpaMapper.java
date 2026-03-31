@@ -17,6 +17,11 @@ public interface IUsuariosJpaMapper {
 	@Mapping(source = "idUsuario", target = "idUsuario")
 	@Mapping(source = "fkDepartamento", target = "fkDepartamento")
 	@Mapping(source = "fkRol", target = "fkRol")
+	@Mapping(target = "createdAt", ignore = true)
+	@Mapping(target = "createdBy", ignore = true)
+	@Mapping(target = "updatedAt", ignore = true)
+	@Mapping(target = "updatedBy", ignore = true)
+	@Mapping(target = "deletedAt", ignore = true)
 	UsuariosJpa toEntity(Usuarios usuario);
 
 }

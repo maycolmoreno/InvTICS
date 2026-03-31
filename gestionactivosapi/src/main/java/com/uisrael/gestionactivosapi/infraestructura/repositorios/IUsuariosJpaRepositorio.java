@@ -10,13 +10,13 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.UsuariosJp
 
 public interface IUsuariosJpaRepositorio extends JpaRepository<UsuariosJpa, Integer> {
 
-	@EntityGraph(attributePaths = {"fkDepartamento", "fkDepartamento.fkUbicacion", "fkRol"})
+	@EntityGraph(attributePaths = {"fkDepartamento", "fkRol"})
 	Optional<UsuariosJpa> findByCorreo(String correo);
 
-	@EntityGraph(attributePaths = {"fkDepartamento", "fkDepartamento.fkUbicacion", "fkRol"})
+	@EntityGraph(attributePaths = {"fkDepartamento", "fkRol"})
 	List<UsuariosJpa> findAllByEstadoTrue();
 
-	@EntityGraph(attributePaths = {"fkDepartamento", "fkDepartamento.fkUbicacion", "fkRol"})
+	@EntityGraph(attributePaths = {"fkDepartamento", "fkRol"})
 	List<UsuariosJpa> findAllByFkRol_IdRol(Integer rolId);
 
 	boolean existsByCorreoIgnoreCase(String correo);

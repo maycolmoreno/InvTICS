@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoArchivoService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoInformeService;
-import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoManualService;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IMantenimientoManualUseCase;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.ActividadManualComando;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.ImagenMantenimientoComando;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.MantenimientoManualComando;
@@ -40,7 +40,7 @@ public class MantenimientoManualControlador {
 
     private static final Logger log = LoggerFactory.getLogger(MantenimientoManualControlador.class);
 
-    private final MantenimientoManualService mantenimientoService;
+    private final IMantenimientoManualUseCase mantenimientoService;
     private final MantenimientoInformeService mantenimientoInformeService;
     private final MantenimientoArchivoService mantenimientoArchivoService;
 

@@ -6,8 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.EquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
@@ -17,15 +18,15 @@ import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 public class EquiposServicioImpl implements IEquiposServicio {
 
 	private static final Logger logger = LoggerFactory.getLogger(EquiposServicioImpl.class);
-	private final WebClient clienteWeb;
+	private final RestClient clienteWeb;
 
-	public EquiposServicioImpl(WebClient clienteWeb) {
+	public EquiposServicioImpl(RestClient clienteWeb) {
 		this.clienteWeb = clienteWeb;
 	}
 
 	@Override
 	public List<EquiposResponseDTO> listarEquipos() {
-		return clienteWeb.get().uri("/equipos").retrieve().bodyToFlux(EquiposResponseDTO.class).collectList().block();
+		return clienteWeb.get().uri("/equipos").retrieve().body(new ParameterizedTypeReference<List<EquiposResponseDTO>>() {});
 	}
 
 	@Override
@@ -33,10 +34,10 @@ public class EquiposServicioImpl implements IEquiposServicio {
 		//clienteWeb.post().uri("/equipos").bodyValue(dto).retrieve().toBodilessEntity().block();
 
 		try {
-		    clienteWeb.post().uri("/equipos").bodyValue(dto).retrieve().toBodilessEntity().block();
+		    clienteWeb.post().uri("/equipos").body(dto).retrieve().toBodilessEntity();
 		    logger.info("Equipo creado exitosamente");
 
-		} catch (WebClientResponseException ex) {
+		} catch (RestClientResponseException ex) {
 		    logger.error("Error al crear equipo - STATUS: {}, BODY: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
 		    throw ex;
 		}
@@ -46,8 +47,8 @@ public class EquiposServicioImpl implements IEquiposServicio {
 	public EquiposResponseDTO obtenerPorId(Integer idEquipo) {
 		try {
 			return clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/equipos/{id}").build(idEquipo)).retrieve()
-					.bodyToMono(EquiposResponseDTO.class).block();
-		} catch (WebClientResponseException e) {
+					.body(EquiposResponseDTO.class);
+		} catch (RestClientResponseException e) {
 			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
 				throw new RuntimeException("Equipo no encontrado con id: " + idEquipo);
 			}
@@ -57,8 +58,8 @@ public class EquiposServicioImpl implements IEquiposServicio {
 
 	@Override
 	public void actualizarEquipo(Integer idEquipo, EquiposRequestDTO dto) {
-		clienteWeb.put().uri(uriBuilder -> uriBuilder.path("/equipos/{id}").build(idEquipo)).bodyValue(dto).retrieve()
-				.toBodilessEntity().block();
+		clienteWeb.put().uri(uriBuilder -> uriBuilder.path("/equipos/{id}").build(idEquipo)).body(dto).retrieve()
+				.toBodilessEntity();
 	}
 
 	@Override
@@ -66,7 +67,7 @@ public class EquiposServicioImpl implements IEquiposServicio {
 		EquiposRequestDTO dto = new EquiposRequestDTO();
 		dto.setEstado(estado);
 
-		clienteWeb.put().uri("/equipos/estado/{id}", idEquipo).bodyValue(dto).retrieve().toBodilessEntity().block();
+		clienteWeb.put().uri("/equipos/estado/{id}", idEquipo).body(dto).retrieve().toBodilessEntity();
 	}
 
 	@Override
@@ -74,11 +75,11 @@ public class EquiposServicioImpl implements IEquiposServicio {
 		try {
 			Boolean resp = clienteWeb.get()
 					.uri(uriBuilder -> uriBuilder.path("/equipos/existe-codigo").queryParam("codigo", codigo).build())
-					.retrieve().bodyToMono(Boolean.class).block();
+					.retrieve().body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
 			return false;
 		}
@@ -89,11 +90,11 @@ public class EquiposServicioImpl implements IEquiposServicio {
 		try {
 			Boolean resp = clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/equipos/existe-codigo")
 					.queryParam("codigo", codigo).queryParam("id", idEquipo).build()).retrieve()
-					.bodyToMono(Boolean.class).block();
+					.body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			return false;
 		}
 	}
@@ -103,11 +104,11 @@ public class EquiposServicioImpl implements IEquiposServicio {
 		try {
 			Boolean resp = clienteWeb.get()
 					.uri(uriBuilder -> uriBuilder.path("/equipos/existe-serial").queryParam("serial", serial).build())
-					.retrieve().bodyToMono(Boolean.class).block();
+					.retrieve().body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
 			return false;
 		}
@@ -118,11 +119,11 @@ public class EquiposServicioImpl implements IEquiposServicio {
 		try {
 			Boolean resp = clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/equipos/existe-serial")
 					.queryParam("serial", serial).queryParam("id", idEquipo).build()).retrieve()
-					.bodyToMono(Boolean.class).block();
+					.body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			return false;
 		}
 	}
@@ -132,11 +133,11 @@ public class EquiposServicioImpl implements IEquiposServicio {
 		try {
 			Boolean resp = clienteWeb.get()
 					.uri(uriBuilder -> uriBuilder.path("/equipos/existe-ip").queryParam("ip", ip).build()).retrieve()
-					.bodyToMono(Boolean.class).block();
+					.body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
 			return false;
 		}
@@ -146,11 +147,11 @@ public class EquiposServicioImpl implements IEquiposServicio {
 	public boolean existeIPParaOtro(String ip, int idEquipo) {
 		try {
 			Boolean resp = clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/equipos/existe-ip").queryParam("ip", ip)
-					.queryParam("id", idEquipo).build()).retrieve().bodyToMono(Boolean.class).block();
+					.queryParam("id", idEquipo).build()).retrieve().body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			return false;
 		}
 	}
@@ -160,11 +161,11 @@ public class EquiposServicioImpl implements IEquiposServicio {
 		try {
 			Boolean resp = clienteWeb.get()
 					.uri(uriBuilder -> uriBuilder.path("/equipos/existe-mac").queryParam("mac", mac).build()).retrieve()
-					.bodyToMono(Boolean.class).block();
+					.body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
 			return false;
 		}
@@ -174,12 +175,11 @@ public class EquiposServicioImpl implements IEquiposServicio {
 	public boolean existeMACParaOtro(String mac, int idEquipo) {
 		try {
 			Boolean resp = clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/equipos/existe-mac")
-					.queryParam("mac", mac).queryParam("id", idEquipo).build()).retrieve().bodyToMono(Boolean.class)
-					.block();
+					.queryParam("mac", mac).queryParam("id", idEquipo).build()).retrieve().body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			return false;
 		}
 	}

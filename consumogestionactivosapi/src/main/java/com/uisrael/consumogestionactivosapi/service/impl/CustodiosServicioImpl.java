@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
@@ -14,30 +15,29 @@ import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 @Service
 public class CustodiosServicioImpl implements ICustodiosServicio {
 
-	private final WebClient clienteWeb;
+	private final RestClient clienteWeb;
 
-	public CustodiosServicioImpl(WebClient clienteWeb) {
+	public CustodiosServicioImpl(RestClient clienteWeb) {
 		this.clienteWeb = clienteWeb;
 	}
 
 	@Override
 	public List<CustodiosResponseDTO> listarCustodios() {
-		return clienteWeb.get().uri("/custodios").retrieve().bodyToFlux(CustodiosResponseDTO.class).collectList()
-				.block();
+		return clienteWeb.get().uri("/custodios").retrieve().body(new ParameterizedTypeReference<List<CustodiosResponseDTO>>() {});
 	}
 
 	@Override
 	public void crearCustodio(CustodiosRequestDTO dto) {
-		clienteWeb.post().uri("/custodios").bodyValue(dto).retrieve().toBodilessEntity().block();
+		clienteWeb.post().uri("/custodios").body(dto).retrieve().toBodilessEntity();
 	}
 
 	@Override
 	public CustodiosResponseDTO obtenerPorId(Integer idCustodio) {
 		try {
 			return clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/custodios/{id}").build(idCustodio)).retrieve()
-					.bodyToMono(CustodiosResponseDTO.class).block();
+					.body(CustodiosResponseDTO.class);
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
 				throw new RuntimeException("Custodio no encontrado con id: " + idCustodio);
 			}
@@ -47,8 +47,8 @@ public class CustodiosServicioImpl implements ICustodiosServicio {
 
 	@Override
 	public void actualizarCustodio(Integer idCustodio, CustodiosRequestDTO dto) {
-		clienteWeb.put().uri(uriBuilder -> uriBuilder.path("/custodios/{id}").build(idCustodio)).bodyValue(dto)
-				.retrieve().toBodilessEntity().block();
+		clienteWeb.put().uri(uriBuilder -> uriBuilder.path("/custodios/{id}").build(idCustodio)).body(dto)
+				.retrieve().toBodilessEntity();
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class CustodiosServicioImpl implements ICustodiosServicio {
 		dto.setEstado(estado);
 
 		clienteWeb.put().uri("/custodios/estado/{id}", idCustodio) // ✅ si tu baseUrl ya incluye /api
-				.bodyValue(dto).retrieve().toBodilessEntity().block();
+				.body(dto).retrieve().toBodilessEntity();
 	}
 
 	@Override
@@ -66,11 +66,11 @@ public class CustodiosServicioImpl implements ICustodiosServicio {
 		try {
 			Boolean resp = clienteWeb.get()
 					.uri(uriBuilder -> uriBuilder.path("/custodios/existe-correo").queryParam("correo", correo).build())
-					.retrieve().bodyToMono(Boolean.class).block();
+					.retrieve().body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
 			return false;
 		}
@@ -81,11 +81,11 @@ public class CustodiosServicioImpl implements ICustodiosServicio {
 		try {
 			Boolean resp = clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/custodios/existe-correo")
 					.queryParam("correo", correo).queryParam("id", idCustodio).build()).retrieve()
-					.bodyToMono(Boolean.class).block();
+					.body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			return false;
 		}
 	}
@@ -95,11 +95,11 @@ public class CustodiosServicioImpl implements ICustodiosServicio {
 		try {
 			Boolean resp = clienteWeb.get()
 					.uri(uriBuilder -> uriBuilder.path("/custodios/existe-cedula").queryParam("cedula", cedula).build())
-					.retrieve().bodyToMono(Boolean.class).block();
+					.retrieve().body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
 			return false;
 		}
@@ -110,11 +110,11 @@ public class CustodiosServicioImpl implements ICustodiosServicio {
 		try {
 			Boolean resp = clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/custodios/existe-cedula")
 					.queryParam("cedula", cedula).queryParam("id", idCustodio).build()).retrieve()
-					.bodyToMono(Boolean.class).block();
+					.body(Boolean.class);
 
 			return resp != null && resp;
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			return false;
 		}
 	}

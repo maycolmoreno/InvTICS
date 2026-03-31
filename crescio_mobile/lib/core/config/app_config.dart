@@ -1,8 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppConfig {
-  static const _defaultServerIp = '192.168.1.23';
-  static const _defaultServerPort = 8082;
+  static const _defaultServerIp = '192.168.2.242';
+  static const _defaultServerPort = 8083;
   static String _serverIp = _defaultServerIp;
   static int _serverPort = _defaultServerPort;
   static bool _configured = false;

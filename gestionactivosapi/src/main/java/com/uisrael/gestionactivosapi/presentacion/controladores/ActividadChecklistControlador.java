@@ -70,7 +70,7 @@ public class ActividadChecklistControlador {
         return ActividadChecklistResponseDTO.builder()
                 .idActividad(act.getIdActividad())
                 .nombre(act.getNombre())
-                .categoria(act.getCategoria())
+                .categorias(act.getCategoria() != null ? List.of(act.getCategoria()) : List.of())
                 .orden(act.getOrden())
                 .estado(act.isEstado())
                 .build();

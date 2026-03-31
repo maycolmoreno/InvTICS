@@ -64,10 +64,6 @@ public class ApiRelacionesControlador {
         DepartamentosRequestDTO dto = new DepartamentosRequestDTO();
         dto.setNombre(nombre.trim());
         dto.setEstado(true);
-        // Ubicacion por defecto (sin asignar)
-        UbicacionesRequestDTO ub = new UbicacionesRequestDTO();
-        ub.setIdUbicacion(0);
-        dto.setFkUbicacion(ub);
         servicioDepartamento.crearDepartamento(dto);
         // Retornar la lista actualizada para obtener el ID generado
         List<DepartamentosResponseDTO> lista = servicioDepartamento.listarDepartamentos().stream()

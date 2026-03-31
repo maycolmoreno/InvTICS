@@ -52,6 +52,9 @@ public class CustodiosControlador {
         dto.setFkDepartamento(new DepartamentosRequestDTO());
         dto.getFkDepartamento().setIdDepartamento(0);
 
+        dto.setFkCargo(new CargosRequestDTO());
+        dto.getFkCargo().setIdCargo(0);
+
         dto.setFkUbicacion(new UbicacionesRequestDTO());
         dto.getFkUbicacion().setIdUbicacion(0);
 

@@ -18,14 +18,19 @@ public interface IEquiposJpaMapper {
 
 	@Mapping(source = "fkMarca", target = "fkMarcas")
 	@Mapping(source = "fkCategoria", target = "fkCategoria")
-	@Mapping(source = "fkUbicacion", target = "fkUbicacion")
+	@Mapping(target = "createdAt", ignore = true)
+	@Mapping(target = "createdBy", ignore = true)
+	@Mapping(target = "updatedAt", ignore = true)
+	@Mapping(target = "updatedBy", ignore = true)
+	@Mapping(target = "deletedAt", ignore = true)
+	@Mapping(target = "activoFijo", ignore = true)
 	EquiposJpa toEntity(Equipos equipo);
 
 
 
 	@Mapping(source = "fkMarcas", target = "fkMarca")
 	@Mapping(source = "fkCategoria", target = "fkCategoria")
-	@Mapping(source = "fkUbicacion", target = "fkUbicacion")
+	@Mapping(target = "fkUbicacion", ignore = true)
 	Equipos toDomain(EquiposJpa entity);
 
 

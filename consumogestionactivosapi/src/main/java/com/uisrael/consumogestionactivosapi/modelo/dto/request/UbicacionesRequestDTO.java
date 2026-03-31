@@ -16,5 +16,6 @@ public class UbicacionesRequestDTO {
 	private String parroquia;
 	private String provincia;
 	private String linkCoordenada;
+	private DepartamentosRequestDTO fkDepartamento;
 
 }

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Planificación de Actividades</title>
+<style>
+    :root {
+        --pl-bg: #f4f6fb;
+        --pl-card: #ffffff;
+        --pl-line: #e3e7ef;
+        --pl-text: #152238;
+        --pl-muted: #6d7a92;
+        --pl-primary: #4e4acb;
+        --pl-primary-soft: #eeedff;
+        --pl-danger: #b22222;
+        --pl-warning: #9a5d00;
+        --pl-ok: #1f7a3f;
+        --pl-shadow: 0 10px 26px rgba(16, 24, 40, 0.06);
+    }
+    .pl-page { display: grid; gap: 14px; }
+    .pl-shell { background: var(--pl-card); border: 1px solid var(--pl-line); border-radius: 16px; box-shadow: var(--pl-shadow); overflow: hidden; }
+    .pl-top { padding: 14px 18px; border-bottom: 1px solid var(--pl-line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .pl-title { margin: 0; font-size: 24px; font-weight: 800; color: var(--pl-text); }
+    .pl-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pl-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; border: none; cursor: pointer; transition: .2s; }
+    .pl-btn-primary { background: var(--pl-primary); color: #fff; }
+    .pl-btn-primary:hover { opacity: .85; }
+    .pl-btn-outline { background: transparent; border: 1px solid var(--pl-line); color: var(--pl-text); }
+    .pl-btn-outline:hover { background: var(--pl-primary-soft); }
+    .pl-filters { padding: 12px 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--pl-line); }
+    .pl-filters select, .pl-filters input { padding: 6px 10px; border: 1px solid var(--pl-line); border-radius: 8px; font-size: 14px; }
+    .pl-table-wrap { overflow-x: auto; }
+    .pl-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .pl-table th { background: #f8f9fc; padding: 10px 14px; text-align: left; font-weight: 700; color: var(--pl-muted); border-bottom: 2px solid var(--pl-line); white-space: nowrap; }
+    .pl-table td { padding: 10px 14px; border-bottom: 1px solid var(--pl-line); color: var(--pl-text); }
+    .pl-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .pl-badge-pendiente { background: #fff3cd; color: var(--pl-warning); }
+    .pl-badge-progreso { background: #d1ecf1; color: #0c5460; }
+    .pl-badge-completada { background: #d4edda; color: var(--pl-ok); }
+    .pl-badge-vencida { background: #f8d7da; color: var(--pl-danger); }
+    .pl-badge-cancelada { background: #e2e3e5; color: #383d41; }
+    .pl-badge-alta, .pl-badge-urgente { background: #f8d7da; color: var(--pl-danger); }
+    .pl-badge-media { background: #fff3cd; color: var(--pl-warning); }
+    .pl-badge-baja { background: #d4edda; color: var(--pl-ok); }
+    .pl-empty { padding: 40px; text-align: center; color: var(--pl-muted); }
+    .pl-alert { padding: 12px 18px; border-radius: 8px; margin: 10px 18px; font-size: 14px; }
+    .pl-alert-success { background: #d4edda; color: var(--pl-ok); }
+    .pl-alert-error { background: #f8d7da; color: var(--pl-danger); }
+</style>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+    <div class="pl-page">
+        <div th:if="${mensaje}" class="pl-alert pl-alert-success" th:text="${mensaje}"></div>
+        <div th:if="${error}" class="pl-alert pl-alert-error" th:text="${error}"></div>
+
+        <div class="pl-shell">
+            <div class="pl-top">
+                <h1 class="pl-title">📋 Planificación de Actividades</h1>
+                <div class="pl-actions">
+                    <a href="/planificacion/metricas" class="pl-btn pl-btn-outline">📊 Ver Métricas</a>
+                    <a href="/planificacion/nueva" class="pl-btn pl-btn-primary">+ Nueva Actividad</a>
+                </div>
+            </div>
+
+            <div class="pl-filters">
+                <select id="filtroTecnico" onchange="filtrarActividades()">
+                    <option value="">Todos los técnicos</option>
+                    <option th:each="t : ${tecnicos}" th:value="${t.idUsuario}" th:text="${t.nombre}"></option>
+                </select>
+                <select id="filtroEstado" onchange="filtrarTabla()">
+                    <option value="">Todos los estados</option>
+                    <option value="PENDIENTE">Pendiente</option>
+                    <option value="EN_PROGRESO">En progreso</option>
+                    <option value="COMPLETADA">Completada</option>
+                    <option value="VENCIDA">Vencida</option>
+                    <option value="CANCELADA">Cancelada</option>
+                </select>
+                <select id="filtroTipo" onchange="filtrarTabla()">
+                    <option value="">Todos los tipos</option>
+                    <option value="TAREA_DIARIA">Tarea diaria</option>
+                    <option value="TAREA_SEMANAL">Tarea semanal</option>
+                    <option value="MANTENIMIENTO_PROGRAMADO">Mantenimiento programado</option>
+                    <option value="VISITA_TECNICA">Visita técnica</option>
+                    <option value="OBJETIVO_MENSUAL">Objetivo mensual</option>
+                </select>
+            </div>
+
+            <div class="pl-table-wrap">
+                <table class="pl-table" id="tablaActividades">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Título</th>
+                            <th>Técnico</th>
+                            <th>Tipo</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Fecha inicio</th>
+                            <th>Fecha fin</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${actividades}"
+                            th:data-tecnico="${a.tecnicoId}"
+                            th:data-estado="${a.estado}"
+                            th:data-tipo="${a.tipoActividad}">
+                            <td th:text="${a.idActividadPlanificada}"></td>
+                            <td>
+                                <strong th:text="${a.titulo}"></strong>
+                                <br><small th:text="${a.descripcion}" style="color:var(--pl-muted)"></small>
+                            </td>
+                            <td th:text="${a.tecnicoNombre}"></td>
+                            <td>
+                                <span th:text="${a.tipoActividad.replace('_', ' ')}" style="font-size:12px"></span>
+                            </td>
+                            <td>
+                                <span class="pl-badge"
+                                    th:classappend="${a.prioridad == 'ALTA' || a.prioridad == 'URGENTE'} ? 'pl-badge-alta' : (${a.prioridad == 'MEDIA'} ? 'pl-badge-media' : 'pl-badge-baja')"
+                                    th:text="${a.prioridad}"></span>
+                            </td>
+                            <td>
+                                <span class="pl-badge"
+                                    th:classappend="${a.estado == 'PENDIENTE'} ? 'pl-badge-pendiente' : (${a.estado == 'EN_PROGRESO'} ? 'pl-badge-progreso' : (${a.estado == 'COMPLETADA'} ? 'pl-badge-completada' : (${a.estado == 'VENCIDA'} ? 'pl-badge-vencida' : 'pl-badge-cancelada')))"
+                                    th:text="${a.estado.replace('_', ' ')}"></span>
+                            </td>
+                            <td th:text="${a.fechaInicio}"></td>
+                            <td th:text="${a.fechaFin}"></td>
+                            <td>
+                                <div th:if="${a.estado != 'COMPLETADA' and a.estado != 'CANCELADA'}" style="display:flex;gap:4px">
+                                    <form th:if="${a.estado == 'PENDIENTE'}" th:action="@{'/planificacion/' + ${a.idActividadPlanificada} + '/estado'}" method="post" style="display:inline">
+                                        <input type="hidden" name="estado" value="EN_PROGRESO">
+                                        <button class="pl-btn pl-btn-outline" style="padding:4px 8px;font-size:12px" type="submit">▶ Iniciar</button>
+                                    </form>
+                                    <form th:action="@{'/planificacion/' + ${a.idActividadPlanificada} + '/estado'}" method="post" style="display:inline">
+                                        <input type="hidden" name="estado" value="COMPLETADA">
+                                        <button class="pl-btn pl-btn-primary" style="padding:4px 8px;font-size:12px" type="submit">✓ Completar</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${#lists.isEmpty(actividades)}" class="pl-empty">
+                No hay actividades planificadas aún.
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+<script>
+function filtrarTabla() {
+    const estado = document.getElementById('filtroEstado').value;
+    const tipo = document.getElementById('filtroTipo').value;
+    const tecnico = document.getElementById('filtroTecnico').value;
+    document.querySelectorAll('#tablaActividades tbody tr').forEach(row => {
+        const matchEstado = !estado || row.dataset.estado === estado;
+        const matchTipo = !tipo || row.dataset.tipo === tipo;
+        const matchTecnico = !tecnico || row.dataset.tecnico === tecnico;
+        row.style.display = (matchEstado && matchTipo && matchTecnico) ? '' : 'none';
+    });
+}
+function filtrarActividades() { filtrarTabla(); }
+</script>
+</th:block>
+</body>
+</html>

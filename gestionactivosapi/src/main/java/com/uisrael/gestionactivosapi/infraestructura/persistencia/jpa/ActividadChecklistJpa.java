@@ -1,12 +1,18 @@
 package com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -23,14 +29,19 @@ public class ActividadChecklistJpa implements Serializable {
     @Column(name = "nombre", length = 200, nullable = false)
     private String nombre;
 
-    @Column(name = "categoria", length = 50, nullable = false)
-    private String categoria;
-
     @Column(name = "orden")
     private Integer orden;
 
     @Column(name = "estado")
     private Boolean estado;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "checklist_categoria",
+        joinColumns = @JoinColumn(name = "id_actividad"),
+        inverseJoinColumns = @JoinColumn(name = "id_categoria")
+    )
+    private Set<CategoriaEquiposJpa> categorias = new HashSet<>();
 
     public Integer getIdActividad() {
         return idActividad;
@@ -48,14 +59,6 @@ public class ActividadChecklistJpa implements Serializable {
         this.nombre = nombre;
     }
 
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
-
     public Integer getOrden() {
         return orden;
     }
@@ -70,5 +73,13 @@ public class ActividadChecklistJpa implements Serializable {
 
     public void setEstado(Boolean estado) {
         this.estado = estado;
+    }
+
+    public Set<CategoriaEquiposJpa> getCategorias() {
+        return categorias;
+    }
+
+    public void setCategorias(Set<CategoriaEquiposJpa> categorias) {
+        this.categorias = categorias;
     }
 }

@@ -15,6 +15,7 @@ public class SesionUsuario {
 	private String contrasena;
 	private String nombreUsuario;
 	private String rol;
+	private Integer idUsuario;
 	private boolean autenticado;
 
 	public SesionUsuario() {
@@ -29,11 +30,21 @@ public class SesionUsuario {
 		this.autenticado = true;
 	}
 
+	public void iniciarSesion(String correo, String contrasena, String nombreUsuario, String rol, Integer idUsuario) {
+		this.correo = correo;
+		this.contrasena = contrasena;
+		this.nombreUsuario = nombreUsuario;
+		this.rol = rol;
+		this.idUsuario = idUsuario;
+		this.autenticado = true;
+	}
+
 	public void cerrarSesion() {
 		this.correo = null;
 		this.contrasena = null;
 		this.nombreUsuario = null;
 		this.rol = null;
+		this.idUsuario = null;
 		this.autenticado = false;
 	}
 
@@ -51,6 +62,10 @@ public class SesionUsuario {
 
 	public String getRol() {
 		return rol;
+	}
+
+	public Integer getIdUsuario() {
+		return idUsuario;
 	}
 
 	public boolean isAutenticado() {

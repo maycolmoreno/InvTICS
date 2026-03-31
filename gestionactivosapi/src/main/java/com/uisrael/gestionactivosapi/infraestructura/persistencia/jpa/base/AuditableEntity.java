@@ -38,4 +38,26 @@ public abstract class AuditableEntity {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    /**
+     * Realiza soft delete: establece la fecha de eliminación en lugar de borrar físicamente.
+     * Las entidades con @SQLRestriction("deleted_at IS NULL") quedarán filtradas automáticamente.
+     */
+    public void eliminar() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    /**
+     * Indica si la entidad ha sido eliminada lógicamente.
+     */
+    public boolean estaEliminada() {
+        return this.deletedAt != null;
+    }
+
+    /**
+     * Restaura una entidad eliminada lógicamente.
+     */
+    public void restaurar() {
+        this.deletedAt = null;
+    }
 }

@@ -45,6 +45,12 @@ public class SecurityConfig {
 				.requestMatchers("/api/mantenimientos/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 				.requestMatchers("/api/orden/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 				.requestMatchers("/api/notificaciones/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
+
+				// UBICACIONES TECNICOS (GPS)
+				.requestMatchers(HttpMethod.GET, "/api/ubicaciones-tecnicos/tiempo-real").hasRole("ADMINISTRADOR")
+				.requestMatchers(HttpMethod.POST, "/api/ubicaciones-tecnicos/consentimiento").hasRole("TECNICO")
+				.requestMatchers(HttpMethod.POST, "/api/ubicaciones-tecnicos").hasRole("TECNICO")
+
 				.requestMatchers("/api/visita/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "AUDITOR")
 				.requestMatchers("/api/historial/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "AUDITOR")
 				.requestMatchers("/api/actividades-checklist/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "AUDITOR")

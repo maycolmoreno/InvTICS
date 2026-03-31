@@ -19,8 +19,14 @@ public interface IMantenimientosJpaRepositorio extends JpaRepository<Mantenimien
     @EntityGraph(attributePaths = {"fkEquipo", "fkCliente", "fkUsuario"})
     List<MantenimientosJpa> findAllByOrderByFechaProgramadaDescIdMantenimientoDesc();
 
-    @Query("select max(m.equipoSnapshot.sineSnapshot) from MantenimientosJpa m where m.equipoSnapshot.yearSnapshoted = :year")
-    String findMaxSineSnapshotedByYear(@Param("year") Integer year);
+    @Query("select max(m.equipoSnapshot.codigoInternoSnapshot) from MantenimientosJpa m where m.equipoSnapshot.yearSnapshoted = :year")
+    String findMaxCodigoInternoSnapshotByYear(@Param("year") Integer year);
+
+    /** @deprecated Usar {@link #findMaxCodigoInternoSnapshotByYear(Integer)} */
+    @Deprecated
+    default String findMaxSineSnapshotedByYear(Integer year) {
+        return findMaxCodigoInternoSnapshotByYear(year);
+    }
 
     Optional<MantenimientosJpa> findTopByEquipoIdAndFecCierreNotNullOrderByFecCierreDesc(Integer equipoId);
 

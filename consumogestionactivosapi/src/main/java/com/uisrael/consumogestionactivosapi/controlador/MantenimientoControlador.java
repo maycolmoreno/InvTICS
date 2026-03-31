@@ -82,7 +82,7 @@ public class MantenimientoControlador {
                     .map(Integer::valueOf)
                     .toList());
         }
-        Map<String, List<ActividadManualRequestDTO>> actividadesAgrupadas = actividadesBase();
+        List<ActividadManualRequestDTO> actividades = actividadesBase();
         List<CustodiasResponseDTO> custodiasActivas = custodiasServicio.listarCustodias().stream()
                 .filter(CustodiasResponseDTO::isEstado)
                 .filter(c -> c.getFkCustodio() != null && c.getFkEquipo() != null)
@@ -96,8 +96,8 @@ public class MantenimientoControlador {
 
         model.addAttribute("listaequipos", equiposServicio.listarEquipos());
         model.addAttribute("listacustodios", custodiosServicio.listarCustodios().stream().filter(CustodiosResponseDTO::isEstado).toList());
-        model.addAttribute("actividadesAgrupadas", actividadesAgrupadas);
-        model.addAttribute("totalActividades", actividadesAgrupadas.values().stream().mapToInt(List::size).sum());
+        model.addAttribute("actividades", actividades);
+        model.addAttribute("totalActividades", actividades.size());
         model.addAttribute("equiposPreseleccionados", preseleccion);
         model.addAttribute("custodiosPorEquipo", custodiosPorEquipo);
         model.addAttribute("hoy", LocalDate.now());
@@ -116,6 +116,7 @@ public class MantenimientoControlador {
             @RequestParam String firmaTecnico,
             @RequestParam String firmaCustodio,
             @RequestParam(name = "actividadIds") List<Integer> actividadIds,
+
             @RequestParam(name = "imagenes", required = false) List<MultipartFile> imagenes,
             @RequestParam Map<String, String> requestParams,
             RedirectAttributes redirectAttributes) {
@@ -231,10 +232,9 @@ public class MantenimientoControlador {
         return "redirect:/mantenimiento/programado";
     }
 
-    private Map<String, List<ActividadManualRequestDTO>> actividadesBase() {
-        List<ActividadManualRequestDTO> base = actividadChecklistServicio.listarActivas().stream()
-                .sorted(java.util.Comparator.comparing(ActividadChecklistResponseDTO::getCategoria)
-                        .thenComparing(ActividadChecklistResponseDTO::getOrden, java.util.Comparator.nullsLast(Integer::compareTo)))
+    private List<ActividadManualRequestDTO> actividadesBase() {
+        return actividadChecklistServicio.listarActivas().stream()
+                .sorted(java.util.Comparator.comparing(ActividadChecklistResponseDTO::getOrden, java.util.Comparator.nullsLast(Integer::compareTo)))
                 .map(act -> {
                     ActividadManualRequestDTO dto = new ActividadManualRequestDTO();
                     dto.setIdActividad(act.getIdActividad());
@@ -244,8 +244,6 @@ public class MantenimientoControlador {
                     return dto;
                 })
                 .toList();
-        base.forEach(a -> a.setRealizada(Boolean.FALSE));
-        return base.stream().collect(Collectors.groupingBy(ActividadManualRequestDTO::getCategoriaActividad, LinkedHashMap::new, Collectors.toList()));
     }
 
     private List<ActividadManualRequestDTO> construirActividadesSeleccionadas(List<Integer> actividadIds) {
@@ -261,21 +259,13 @@ public class MantenimientoControlador {
 
     private String construirDetalleConObservaciones(String detalleBase, Map<String, String> requestParams) {
         StringBuilder builder = new StringBuilder(Objects.toString(detalleBase, "").trim());
-        List<String> observaciones = requestParams.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith("observacionCategoria["))
-                .map(entry -> Map.entry(
-                        entry.getKey().replace("observacionCategoria[", "").replace("]", ""),
-                        Objects.toString(entry.getValue(), "").trim()))
-                .filter(entry -> !entry.getValue().isBlank())
-                .map(entry -> entry.getKey() + ": " + entry.getValue())
-                .toList();
+        String obsChecklist = Objects.toString(requestParams.get("observacionChecklist"), "").trim();
 
-        if (!observaciones.isEmpty()) {
-            if (builder.length() > 0) {
+        if (!obsChecklist.isBlank()) {
+            if (!builder.isEmpty()) {
                 builder.append("\n\n");
             }
-            builder.append("Observaciones por bloque:\n");
-            observaciones.forEach(obs -> builder.append("- ").append(obs).append('\n'));
+            builder.append("Observaciones checklist:\n").append(obsChecklist);
         }
 
         return builder.toString().trim();

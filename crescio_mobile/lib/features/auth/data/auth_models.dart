@@ -29,6 +29,8 @@ enum UserCapability {
   viewNotificaciones,
   manageUbicaciones,
   manageServerConfig,
+  sendGpsLocation,
+  viewGpsRealtime,
 }
 
 class RoleCapabilities {
@@ -44,18 +46,21 @@ class AuthSession {
   final String username;
   final String displayName;
   final String role;
+  final int? userId;
 
   const AuthSession({
     required this.token,
     required this.username,
     required this.displayName,
     required this.role,
+    this.userId,
   });
 
   factory AuthSession.fromJson(Map<String, dynamic> json) {
     return AuthSession(
       token: json['token']?.toString() ?? json['jwt']?.toString() ?? '',
-      username: json['username']?.toString() ?? json['usuario']?.toString() ?? '',
+      username:
+          json['username']?.toString() ?? json['usuario']?.toString() ?? '',
       displayName: json['nombre']?.toString() ??
           json['displayName']?.toString() ??
           json['username']?.toString() ??
@@ -110,6 +115,7 @@ class AuthSession {
           UserCapability.viewNotificaciones,
           UserCapability.manageUbicaciones,
           UserCapability.manageServerConfig,
+          UserCapability.viewGpsRealtime,
         });
       case UserRole.tecnico:
         return const RoleCapabilities({
@@ -119,6 +125,7 @@ class AuthSession {
           UserCapability.viewVisitas,
           UserCapability.viewEquipos,
           UserCapability.viewNotificaciones,
+          UserCapability.sendGpsLocation,
         });
       case UserRole.consulta:
         return const RoleCapabilities({

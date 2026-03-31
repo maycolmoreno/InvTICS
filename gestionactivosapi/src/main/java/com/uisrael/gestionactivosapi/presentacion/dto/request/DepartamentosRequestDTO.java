@@ -10,7 +10,5 @@ public class DepartamentosRequestDTO {
 
 	private boolean estado;
 
-	private UbicacionesRequestDTO fkUbicacion;
-
 }
 

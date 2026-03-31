@@ -49,16 +49,13 @@ public class MantenimientosJpa implements Serializable {
     @Column(name = "fec_cierre")
     private LocalDateTime fecCierre;
 
-    @Column(name = "frecuencia_dias")
-    private Integer frecuenciaDias;
-
     @Column(name = "descripcion", length = 2000)
     private String descripcion;
 
     @Column(name = "tipo_mantenimiento", length = 30)
     private String tipoMantenimiento;
 
-    @Column(name = "id_usuario")
+    @Column(name = "tecnico_id")
     private Integer idUsuario;
 
     @Column(name = "estado", length = 30)
@@ -103,8 +100,12 @@ public class MantenimientosJpa implements Serializable {
     private CustodiosJpa fkCliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", insertable = false, updatable = false)
+    @JoinColumn(name = "tecnico_id", insertable = false, updatable = false)
     private UsuariosJpa fkUsuario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "empresa_id", insertable = false, updatable = false)
+    private EmpresaJpa fkEmpresa;
 
     public Integer getIdMantenimiento() {
         return idMantenimiento;
@@ -165,14 +166,6 @@ public class MantenimientosJpa implements Serializable {
         this.fecCierre = fecCierre;
     }
 
-    public Integer getFrecuenciaDias() {
-        return frecuenciaDias;
-    }
-
-    public void setFrecuenciaDias(Integer frecuenciaDias) {
-        this.frecuenciaDias = frecuenciaDias;
-    }
-
     public String getDescripcion() {
         return descripcion;
     }
@@ -200,23 +193,39 @@ public class MantenimientosJpa implements Serializable {
         equipoSnapshot.setYearSnapshoted(yearSnapshoted);
     }
 
+    public String getCodigoInternoSnapshot() {
+        return equipoSnapshot != null ? equipoSnapshot.getCodigoInternoSnapshot() : null;
+    }
+
+    /** @deprecated Usar {@link #getCodigoInternoSnapshot()} */
+    @Deprecated
     public String getSineSnapshot() {
-        return equipoSnapshot != null ? equipoSnapshot.getSineSnapshot() : null;
+        return getCodigoInternoSnapshot();
     }
 
+    /** @deprecated Usar {@link #getCodigoInternoSnapshot()} */
+    @Deprecated
     public String getSineSnapshoted() {
-        return getSineSnapshot();
+        return getCodigoInternoSnapshot();
     }
 
-    public void setSineSnapshot(String sineSnapshoted) {
+    public void setCodigoInternoSnapshot(String codigoInterno) {
         if (equipoSnapshot == null) {
             equipoSnapshot = new EquipoSnapshotEmbeddable();
         }
-        equipoSnapshot.setSineSnapshot(sineSnapshoted);
+        equipoSnapshot.setCodigoInternoSnapshot(codigoInterno);
     }
 
+    /** @deprecated Usar {@link #setCodigoInternoSnapshot(String)} */
+    @Deprecated
+    public void setSineSnapshot(String sineSnapshoted) {
+        setCodigoInternoSnapshot(sineSnapshoted);
+    }
+
+    /** @deprecated Usar {@link #setCodigoInternoSnapshot(String)} */
+    @Deprecated
     public void setSineSnapshoted(String sineSnapshoted) {
-        setSineSnapshot(sineSnapshoted);
+        setCodigoInternoSnapshot(sineSnapshoted);
     }
 
     public Integer getIdUsuario() {

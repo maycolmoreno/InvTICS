@@ -8,7 +8,6 @@ public class DepartamentosResponseDTO {
 	private int idDepartamento;
 	private String nombre;
 	private boolean estado;
-	private UbicacionesResponseDTO fkUbicacion;
 
 
 }

@@ -70,41 +70,42 @@
                                 <div class="text-danger small" th:if="${errorFechaInicio}"><span th:text="${errorFechaInicio}"></span></div>
                             </div>
 
-                            <!-- DEPARTAMENTO: autocomplete + crear -->
+                            <!-- DEPARTAMENTO: select + crear -->
                             <div class="col-md-6 mb-4">
                                 <label class="form-label">Departamento <span class="text-danger">*</span></label>
-                                <div class="ac-wrap">
-                                    <input type="text" class="form-control" id="acDepartamentoInput"
-                                           placeholder="Buscar o crear departamento..." autocomplete="off" />
-                                    <input type="hidden" th:field="*{fkDepartamento.idDepartamento}" id="acDepartamentoHidden" />
-                                    <button type="button" class="ac-clear" id="acDepartamentoClear">&times;</button>
-                                    <div class="ac-drop" id="acDepartamentoDrop"></div>
+                                <div class="d-flex gap-2">
+                                    <select class="form-select" id="selDepartamento" th:field="*{fkDepartamento.idDepartamento}">
+                                        <option value="0">Seleccione un departamento</option>
+                                        <option th:each="d : ${listadepartamento}" th:value="${d.idDepartamento}" th:text="${d.nombre}"></option>
+                                    </select>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" title="Crear departamento" data-bs-toggle="modal" data-bs-target="#modalCrearDepartamento"><i class="feather-plus"></i></button>
                                 </div>
                                 <div class="text-danger small" th:if="${errorSeleccionDepartamento}"><span th:text="${errorSeleccionDepartamento}"></span></div>
                             </div>
 
-                            <!-- CARGO: autocomplete + crear -->
+                            <!-- CARGO: select + crear (filtrado por departamento) -->
                             <div class="col-md-6 mb-4">
                                 <label class="form-label">Cargo <span class="text-danger">*</span></label>
-                                <div class="ac-wrap">
-                                    <input type="text" class="form-control" id="acCargoInput"
-                                           placeholder="Buscar o crear cargo..." autocomplete="off" />
-                                    <input type="hidden" th:field="*{fkCargo.idCargo}" id="acCargoHidden" />
-                                    <button type="button" class="ac-clear" id="acCargoClear">&times;</button>
-                                    <div class="ac-drop" id="acCargoDrop"></div>
+                                <div class="d-flex gap-2">
+                                    <select class="form-select" id="selCargo" th:field="*{fkCargo.idCargo}">
+                                        <option value="0">Seleccione un cargo</option>
+                                        <option th:each="c : ${listacargo}" th:value="${c.idCargo}"
+                                                th:text="${c.nombre}" th:data-dep="${c.fkDepartamento != null ? c.fkDepartamento.idDepartamento : 0}"></option>
+                                    </select>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" title="Crear cargo" data-bs-toggle="modal" data-bs-target="#modalCrearCargo"><i class="feather-plus"></i></button>
                                 </div>
                                 <div class="text-danger small" th:if="${errorSeleccionCargo}"><span th:text="${errorSeleccionCargo}"></span></div>
                             </div>
 
-                            <!-- UBICACION: autocomplete + crear -->
+                            <!-- UBICACION: select + crear -->
                             <div class="col-md-6 mb-4">
                                 <label class="form-label">Sucursal / Ubicación</label>
-                                <div class="ac-wrap">
-                                    <input type="text" class="form-control" id="acUbicacionInput"
-                                           placeholder="Buscar o crear ubicacion..." autocomplete="off" />
-                                    <input type="hidden" th:field="*{fkUbicacion.idUbicacion}" id="acUbicacionHidden" />
-                                    <button type="button" class="ac-clear" id="acUbicacionClear">&times;</button>
-                                    <div class="ac-drop" id="acUbicacionDrop"></div>
+                                <div class="d-flex gap-2">
+                                    <select class="form-select" id="selUbicacion" th:field="*{fkUbicacion.idUbicacion}">
+                                        <option value="0">Seleccione una ubicacion</option>
+                                        <option th:each="u : ${listaubicacion}" th:value="${u.idUbicacion}" th:text="${u.nombre + ' - ' + u.agencia}"></option>
+                                    </select>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" title="Crear ubicacion" data-bs-toggle="modal" data-bs-target="#modalCrearUbicacion"><i class="feather-plus"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -192,160 +193,53 @@
             </div>
         </div>
 
-        <script th:inline="javascript">
+        <script>
         (function () {
             // Mover modales al body para evitar problemas de CSS containment
             document.querySelectorAll('.modal').forEach(function(m) { document.body.appendChild(m); });
 
-            var dataDep = /*[[${listadepartamento}]]*/ [];
-            var dataCar = /*[[${listacargo}]]*/ [];
-            var dataUbi = /*[[${listaubicacion}]]*/ [];
+            var selDep = document.getElementById('selDepartamento');
+            var selCar = document.getElementById('selCargo');
+            var selUbi = document.getElementById('selUbicacion');
 
-            function initAC(cfg) {
-                var inp = document.getElementById(cfg.inputId);
-                var hid = document.getElementById(cfg.hiddenId);
-                var drop = document.getElementById(cfg.dropId);
-                var clr = document.getElementById(cfg.clearId);
-                var items = cfg.items || [];
+            // Guardar todas las opciones de cargo para filtrar por departamento
+            var allCargoOptions = [];
+            var selectedCargoId = selCar.value;
+            Array.from(selCar.options).forEach(function (opt) {
+                if (opt.value !== '0') {
+                    allCargoOptions.push({ value: opt.value, text: opt.text, dep: opt.dataset.dep || '0' });
+                }
+            });
 
-                function setVal(item) {
-                    inp.value = cfg.label(item);
-                    hid.value = cfg.id(item);
-                    clr.classList.add("visible");
-                    drop.classList.remove("show");
-                    if (cfg.onSelected) cfg.onSelected(item);
-                }
-                function clear() {
-                    inp.value = "";
-                    hid.value = "0";
-                    clr.classList.remove("visible");
-                    if (cfg.onCleared) cfg.onCleared();
-                }
-                function render(list, term) {
-                    drop.innerHTML = "";
-                    list.forEach(function (it) {
-                        var d = document.createElement("div");
-                        d.className = "ac-item";
-                        var lbl = cfg.label(it);
-                        if (term) {
-                            var i = lbl.toLowerCase().indexOf(term.toLowerCase());
-                            if (i >= 0) lbl = lbl.substring(0, i) + "<strong>" + lbl.substring(i, i + term.length) + "</strong>" + lbl.substring(i + term.length);
-                        }
-                        d.innerHTML = lbl;
-                        d.addEventListener("mousedown", function (e) { e.preventDefault(); setVal(it); });
-                        drop.appendChild(d);
-                    });
-                    if (term && term.trim()) {
-                        var cd = document.createElement("div");
-                        cd.className = "ac-item ac-create";
-                        cd.innerHTML = '<i class="feather-plus-circle"></i>Crear: "<strong>' + term.replace(/</g,"&lt;").replace(/>/g,"&gt;") + '</strong>"';
-                        cd.addEventListener("mousedown", function (e) { e.preventDefault(); drop.classList.remove("show"); if (cfg.onCreate) cfg.onCreate(term.trim()); });
-                        drop.appendChild(cd);
+            // Filtrar cargos cuando cambia departamento
+            function filterCargos() {
+                var depId = selDep.value;
+                selCar.innerHTML = '<option value="0">Seleccione un cargo</option>';
+                allCargoOptions.forEach(function (c) {
+                    if (depId === '0' || c.dep === depId) {
+                        var opt = document.createElement('option');
+                        opt.value = c.value;
+                        opt.textContent = c.text;
+                        opt.dataset.dep = c.dep;
+                        selCar.appendChild(opt);
                     }
-                    drop.classList.toggle("show", drop.children.length > 0);
-                }
-                inp.addEventListener("input", function () {
-                    var t = inp.value.trim(); hid.value = "0";
-                    clr.classList.toggle("visible", t.length > 0);
-                    var f = t ? items.filter(function (x) { return cfg.label(x).toLowerCase().indexOf(t.toLowerCase()) >= 0; }) : items;
-                    render(f.slice(0, 15), t);
                 });
-                inp.addEventListener("focus", function () {
-                    var t = inp.value.trim();
-                    var f = t ? items.filter(function (x) { return cfg.label(x).toLowerCase().indexOf(t.toLowerCase()) >= 0; }) : items;
-                    render(f.slice(0, 15), t);
-                });
-                inp.addEventListener("blur", function () { setTimeout(function () { drop.classList.remove("show"); }, 200); });
-                clr.addEventListener("click", function () { clear(); inp.focus(); });
-
-                var preId = parseInt(hid.value);
-                if (preId > 0) {
-                    var pre = items.find(function (x) { return cfg.id(x) === preId; });
-                    if (pre) setVal(pre);
-                }
-
-                return {
-                    setItems: function (n) { items = n; },
-                    setVal: setVal,
-                    clear: clear,
-                    getItems: function () { return items; }
-                };
+            }
+            selDep.addEventListener('change', function () { filterCargos(); selCar.value = '0'; });
+            filterCargos();
+            // Restaurar cargo seleccionado tras filtrar
+            if (selectedCargoId && selectedCargoId !== '0') {
+                selCar.value = selectedCargoId;
             }
 
-            var acDep = initAC({
-                inputId: "acDepartamentoInput", hiddenId: "acDepartamentoHidden",
-                dropId: "acDepartamentoDrop", clearId: "acDepartamentoClear",
-                items: dataDep.map(function (d) { return { id: d.idDepartamento, nombre: d.nombre }; }),
-                label: function (x) { return x.nombre; },
-                id: function (x) { return x.id; },
-                onSelected: function (item) { if (acCar) applyCargoFilter(item.id); },
-                onCleared: function () { if (acCar) applyCargoFilter(0); },
-                onCreate: function (t) {
-                    document.getElementById("modalDepNombre").value = t;
-                    document.getElementById("modalDepError").textContent = "";
-                    new bootstrap.Modal(document.getElementById("modalCrearDepartamento")).show();
-                }
-            });
-
-            var allCargoItems = dataCar.map(function (c) {
-                return {
-                    id: c.idCargo,
-                    nombre: c.nombre,
-                    idDepartamento: c.fkDepartamento ? c.fkDepartamento.idDepartamento : 0
-                };
-            });
-
-            var acCar = initAC({
-                inputId: "acCargoInput", hiddenId: "acCargoHidden",
-                dropId: "acCargoDrop", clearId: "acCargoClear",
-                items: [],
-                label: function (x) { return x.nombre; },
-                id: function (x) { return x.id; },
-                onCreate: function (t) {
-                    document.getElementById("modalCarNombre").value = t;
-                    document.getElementById("modalCarError").textContent = "";
-                    new bootstrap.Modal(document.getElementById("modalCrearCargo")).show();
-                }
-            });
-
-            function applyCargoFilter(idDepartamento) {
-                var depId = parseInt(idDepartamento || 0);
-                var filtered = depId > 0
-                    ? allCargoItems.filter(function (c) { return c.idDepartamento === depId; })
-                    : [];
-
-                acCar.setItems(filtered);
-
-                var selectedCargoId = parseInt(document.getElementById("acCargoHidden").value || "0");
-                if (selectedCargoId > 0) {
-                    var exists = filtered.some(function (c) { return c.id === selectedCargoId; });
-                    if (!exists) acCar.clear();
-                }
-            }
-
-            applyCargoFilter(parseInt(document.getElementById("acDepartamentoHidden").value || "0"));
-
-            var acUbi = initAC({
-                inputId: "acUbicacionInput", hiddenId: "acUbicacionHidden",
-                dropId: "acUbicacionDrop", clearId: "acUbicacionClear",
-                items: dataUbi.map(function (u) { return { id: u.idUbicacion, nombre: u.nombre + (u.agencia ? " - " + u.agencia : "") }; }),
-                label: function (x) { return x.nombre; },
-                id: function (x) { return x.id; },
-                onCreate: function (t) {
-                    document.getElementById("modalUbiNombre").value = t;
-                    document.getElementById("modalUbiAgencia").value = "";
-                    document.getElementById("modalUbiError").textContent = "";
-                    new bootstrap.Modal(document.getElementById("modalCrearUbicacion")).show();
-                }
-            });
-
+            /* --- Crear via AJAX --- */
             function ajaxCrear(url, body, errorElId, onOk, btnEl) {
                 var errorEl = document.getElementById(errorElId);
                 btnEl.disabled = true;
-                fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+                fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
                 .then(function (r) {
-                    if (r.status === 409) return r.json().then(function (d) { throw new Error(d.error || "Ya existe"); });
-                    if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || "Error"); });
+                    if (r.status === 409) return r.json().then(function (d) { throw new Error(d.error || 'Ya existe'); });
+                    if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Error'); });
                     return r.json();
                 })
                 .then(function (data) { onOk(data); })
@@ -353,50 +247,53 @@
                 .finally(function () { btnEl.disabled = false; });
             }
 
-            document.getElementById("btnCrearDep").addEventListener("click", function () {
-                var n = document.getElementById("modalDepNombre").value.trim();
-                if (!n) { document.getElementById("modalDepError").textContent = "El nombre es obligatorio"; return; }
+            document.getElementById('btnCrearDep').addEventListener('click', function () {
+                var n = document.getElementById('modalDepNombre').value.trim();
+                if (!n) { document.getElementById('modalDepError').textContent = 'El nombre es obligatorio'; return; }
                 var btn = this;
-                ajaxCrear("/api/relaciones/departamentos", { nombre: n }, "modalDepError", function (data) {
-                    var ni = { id: data.idDepartamento, nombre: data.nombre };
-                    var its = acDep.getItems(); its.push(ni); acDep.setItems(its); acDep.setVal(ni);
-                    bootstrap.Modal.getInstance(document.getElementById("modalCrearDepartamento")).hide();
+                ajaxCrear('/api/relaciones/departamentos', { nombre: n }, 'modalDepError', function (data) {
+                    var opt = document.createElement('option');
+                    opt.value = data.idDepartamento;
+                    opt.textContent = data.nombre;
+                    selDep.appendChild(opt);
+                    selDep.value = data.idDepartamento;
+                    filterCargos();
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearDepartamento')).hide();
                 }, btn);
             });
 
-            document.getElementById("btnCrearCar").addEventListener("click", function () {
-                var n = document.getElementById("modalCarNombre").value.trim();
-                var idDepartamento = parseInt(document.getElementById("acDepartamentoHidden").value || "0");
-                if (!n) { document.getElementById("modalCarError").textContent = "El nombre es obligatorio"; return; }
-                if (idDepartamento <= 0) {
-                    document.getElementById("modalCarError").textContent = "Seleccione primero un departamento";
+            document.getElementById('btnCrearCar').addEventListener('click', function () {
+                var n = document.getElementById('modalCarNombre').value.trim();
+                var idDepartamento = selDep.value;
+                if (!n) { document.getElementById('modalCarError').textContent = 'El nombre es obligatorio'; return; }
+                if (!idDepartamento || idDepartamento === '0') {
+                    document.getElementById('modalCarError').textContent = 'Seleccione primero un departamento';
                     return;
                 }
                 var btn = this;
-                ajaxCrear("/api/relaciones/cargos", { nombre: n, idDepartamento: String(idDepartamento) }, "modalCarError", function (data) {
-                    var ni = {
-                        id: data.idCargo,
-                        nombre: data.nombre,
-                        idDepartamento: data.fkDepartamento ? data.fkDepartamento.idDepartamento : idDepartamento
-                    };
-                    allCargoItems.push(ni);
-                    applyCargoFilter(idDepartamento);
-                    acCar.setVal(ni);
-                    bootstrap.Modal.getInstance(document.getElementById("modalCrearCargo")).hide();
+                ajaxCrear('/api/relaciones/cargos', { nombre: n, idDepartamento: idDepartamento }, 'modalCarError', function (data) {
+                    var depId = data.fkDepartamento ? String(data.fkDepartamento.idDepartamento) : idDepartamento;
+                    allCargoOptions.push({ value: String(data.idCargo), text: data.nombre, dep: depId });
+                    filterCargos();
+                    selCar.value = data.idCargo;
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearCargo')).hide();
                 }, btn);
             });
 
-            document.getElementById("btnCrearUbi").addEventListener("click", function () {
-                var n = document.getElementById("modalUbiNombre").value.trim();
-                var a = document.getElementById("modalUbiAgencia").value.trim();
-                var errEl = document.getElementById("modalUbiError");
-                if (!n) { errEl.textContent = "El nombre es obligatorio"; return; }
-                if (!a) { errEl.textContent = "La agencia es obligatoria"; return; }
+            document.getElementById('btnCrearUbi').addEventListener('click', function () {
+                var n = document.getElementById('modalUbiNombre').value.trim();
+                var a = document.getElementById('modalUbiAgencia').value.trim();
+                var errEl = document.getElementById('modalUbiError');
+                if (!n) { errEl.textContent = 'El nombre es obligatorio'; return; }
+                if (!a) { errEl.textContent = 'La agencia es obligatoria'; return; }
                 var btn = this;
-                ajaxCrear("/api/relaciones/ubicaciones", { nombre: n, agencia: a }, "modalUbiError", function (data) {
-                    var ni = { id: data.idUbicacion, nombre: data.nombre + (data.agencia ? " - " + data.agencia : "") };
-                    var its = acUbi.getItems(); its.push(ni); acUbi.setItems(its); acUbi.setVal(ni);
-                    bootstrap.Modal.getInstance(document.getElementById("modalCrearUbicacion")).hide();
+                ajaxCrear('/api/relaciones/ubicaciones', { nombre: n, agencia: a }, 'modalUbiError', function (data) {
+                    var opt = document.createElement('option');
+                    opt.value = data.idUbicacion;
+                    opt.textContent = data.nombre + (data.agencia ? ' - ' + data.agencia : '');
+                    selUbi.appendChild(opt);
+                    selUbi.value = data.idUbicacion;
+                    bootstrap.Modal.getInstance(document.getElementById('modalCrearUbicacion')).hide();
                 }, btn);
             });
         })();

@@ -10,8 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 
@@ -31,13 +31,12 @@ public class AuthControlador {
 
 	private boolean setupNecesario() {
 		try {
-			Map<String, Object> resp = WebClient.create(apiBaseUrl)
+			Map<String, Object> resp = RestClient.create(apiBaseUrl)
 					.get()
 					.uri("/setup/necesario")
 					.retrieve()
-					.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
-					})
-					.block();
+					.body(new ParameterizedTypeReference<Map<String, Object>>() {
+					});
 			return resp != null && Boolean.TRUE.equals(resp.get("necesario"));
 		} catch (Exception e) {
 			return false;
@@ -112,14 +111,13 @@ public class AuthControlador {
 				datos.put("cedula", cedula);
 			}
 
-			Map<String, Object> resp = WebClient.create(apiBaseUrl)
+			Map<String, Object> resp = RestClient.create(apiBaseUrl)
 					.post()
 					.uri("/setup/admin")
-					.bodyValue(datos)
+					.body(datos)
 					.retrieve()
-					.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
-					})
-					.block();
+					.body(new ParameterizedTypeReference<Map<String, Object>>() {
+					});
 
 			if (resp != null && resp.containsKey("mensaje")) {
 				return "redirect:/login?setupOk";
@@ -131,7 +129,7 @@ public class AuthControlador {
 			model.addAttribute("correo", correo);
 			return "auth/setup";
 
-		} catch (WebClientResponseException ex) {
+		} catch (RestClientResponseException ex) {
 			String body = ex.getResponseBodyAsString();
 			model.addAttribute("error", body.contains("error") ? "Error: " + body : "Error al crear administrador.");
 			model.addAttribute("nombre", nombre);
@@ -158,7 +156,7 @@ public class AuthControlador {
 			String credenciales = correo + ":" + contrasena;
 			String credencialesBase64 = Base64.getEncoder().encodeToString(credenciales.getBytes());
 
-			WebClient clienteTemp = WebClient.builder()
+			RestClient clienteTemp = RestClient.builder()
 					.baseUrl(apiBaseUrl)
 					.defaultHeader("Authorization", "Basic " + credencialesBase64)
 					.build();
@@ -167,21 +165,23 @@ public class AuthControlador {
 				Map<String, Object> respuestaUsuario = clienteTemp.get()
 						.uri("/auth/yo")
 						.retrieve()
-						.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
-						})
-						.block();
+						.body(new ParameterizedTypeReference<Map<String, Object>>() {
+						});
 
 				if (respuestaUsuario != null) {
 					String nombreUsuario = (String) respuestaUsuario.getOrDefault("nombreUsuario", correo.split("@")[0]);
 					String rol = (String) respuestaUsuario.getOrDefault("rol", "AUDITOR");
-					sesionUsuario.iniciarSesion(correo, contrasena, nombreUsuario, rol);
+					Integer idUsuario = respuestaUsuario.get("idUsuario") != null
+							? ((Number) respuestaUsuario.get("idUsuario")).intValue()
+							: null;
+					sesionUsuario.iniciarSesion(correo, contrasena, nombreUsuario, rol, idUsuario);
 					return "redirect:/inicio";
 				}
 
 				sesionUsuario.iniciarSesion(correo, contrasena, correo.split("@")[0], "AUDITOR");
 				return "redirect:/inicio";
 
-			} catch (WebClientResponseException e) {
+			} catch (RestClientResponseException e) {
 				if (e.getStatusCode().value() == 401) {
 					return "redirect:/login?error";
 				}

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.LoginRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.RefreshTokenRequestDTO;
@@ -52,7 +52,7 @@ public class ApiAuthControlador {
 			String credenciales = loginRequest.getCorreo() + ":" + loginRequest.getContrasena();
 			String credencialesBase64 = Base64.getEncoder().encodeToString(credenciales.getBytes());
 
-			WebClient clienteTemp = WebClient.builder()
+			RestClient clienteTemp = RestClient.builder()
 					.baseUrl(apiBaseUrl)
 					.defaultHeader("Authorization", "Basic " + credencialesBase64)
 					.build();
@@ -62,9 +62,8 @@ public class ApiAuthControlador {
 					.get()
 					.uri("/auth/yo")
 					.retrieve()
-					.bodyToMono(new ParameterizedTypeReference<Map<String, String>>() {
-					})
-					.block();
+					.body(new ParameterizedTypeReference<Map<String, String>>() {
+					});
 
 			if (usuarioActual == null || usuarioActual.isEmpty()) {
 				logger.warn("Usuario no encontrado: {}", loginRequest.getCorreo());
@@ -97,7 +96,7 @@ public class ApiAuthControlador {
 			
 			return ResponseEntity.ok(response);
 
-		} catch (WebClientResponseException ex) {
+		} catch (RestClientResponseException ex) {
 			logger.warn("Error de autenticación - credenciales inválidas");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
 					.body(Map.of("error", "Correo o contraseña incorrectos"));

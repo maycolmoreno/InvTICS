@@ -6,8 +6,6 @@ public class DepartamentosResponseDTO {
 	private String nombre;
 	private boolean estado;
 
-	private UbicacionesResponseDTO fkUbicacion;
-
 	public int getIdDepartamento() {
 		return idDepartamento;
 	}
@@ -30,14 +28,6 @@ public class DepartamentosResponseDTO {
 
 	public void setEstado(boolean estado) {
 		this.estado = estado;
-	}
-
-	public UbicacionesResponseDTO getFkUbicacion() {
-		return fkUbicacion;
-	}
-
-	public void setFkUbicacion(UbicacionesResponseDTO fkUbicacion) {
-		this.fkUbicacion = fkUbicacion;
 	}
 
 }

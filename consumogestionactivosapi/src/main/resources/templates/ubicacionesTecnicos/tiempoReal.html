@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<title>Ubicaciones en tiempo real</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+	#mapTiempoReal {
+		height: 480px;
+		border-radius: 12px;
+		margin-bottom: 24px;
+	}
+	.tecnico-card {
+		transition: background-color 0.2s;
+	}
+	.tecnico-card:hover {
+		background-color: #f0f4ff;
+		cursor: pointer;
+	}
+	.status-dot {
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+	}
+	.status-dot.active { background-color: #28a745; }
+	.status-dot.warning { background-color: #ffc107; }
+	.status-dot.inactive { background-color: #6c757d; }
+	.tiempo-label {
+		font-size: 12px;
+		color: #6c757d;
+	}
+</style>
+</head>
+
+<body>
+<section layout:fragment="contenidopaginas">
+	<div class="page-header">
+		<div class="page-header-left d-flex align-items-center">
+			<div class="page-header-title">
+				<h5 class="m-b-10">Ubicaciones en tiempo real</h5>
+			</div>
+			<ul class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/inicio}">Inicio</a></li>
+				<li class="breadcrumb-item">Ubicaciones técnicos</li>
+			</ul>
+		</div>
+		<div class="page-header-right ms-auto">
+			<a th:href="@{/ubicaciones-tecnicos/tiempo-real}" class="btn btn-outline-primary btn-sm">
+				<i class="feather-refresh-cw me-1"></i>Actualizar
+			</a>
+		</div>
+	</div>
+
+	<div class="main-content">
+		<div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+			<span th:text="${error}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+		</div>
+
+		<!-- Mapa -->
+		<div class="card mb-4">
+			<div class="card-body p-0">
+				<div id="mapTiempoReal"></div>
+			</div>
+		</div>
+
+		<!-- Lista de técnicos -->
+		<div th:if="${ubicaciones != null && !ubicaciones.isEmpty()}" class="card">
+			<div class="card-header">
+				<h6 class="mb-0">
+					Técnicos activos
+					<span class="badge bg-primary ms-2" th:text="${ubicaciones.size()}">0</span>
+				</h6>
+			</div>
+			<div class="card-body p-0">
+				<div class="table-responsive">
+					<table class="table align-middle mb-0">
+						<thead>
+							<tr>
+								<th>Estado</th>
+								<th>Técnico</th>
+								<th>Departamento</th>
+								<th>Coordenadas</th>
+								<th>Precisión</th>
+								<th>Última vez</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="u : ${ubicaciones}" class="tecnico-card"
+								th:data-lat="${u.latitud}" th:data-lng="${u.longitud}"
+								th:data-nombre="${u.nombre}">
+								<td>
+									<span class="status-dot"
+										th:classappend="${u.minutosAtras < 5 ? 'active' : (u.minutosAtras < 30 ? 'warning' : 'inactive')}">
+									</span>
+								</td>
+								<td>
+									<strong th:text="${u.nombre}">Nombre</strong>
+								</td>
+								<td th:text="${u.departamento != null ? u.departamento : 'Sin departamento'}">Depto</td>
+								<td>
+									<small>
+										<span th:text="${#numbers.formatDecimal(u.latitud, 1, 5)}">0.00000</span>,
+										<span th:text="${#numbers.formatDecimal(u.longitud, 1, 5)}">0.00000</span>
+									</small>
+								</td>
+								<td>
+									<span th:if="${u.precisionMetros != null}"
+										th:text="'±' + ${#numbers.formatDecimal(u.precisionMetros, 1, 0)} + 'm'">-</span>
+									<span th:if="${u.precisionMetros == null}">-</span>
+								</td>
+								<td>
+									<span class="tiempo-label"
+										th:text="${u.minutosAtras < 1 ? 'Ahora' : 'Hace ' + u.minutosAtras + ' min'}">-</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div th:if="${ubicaciones == null || ubicaciones.isEmpty()}" class="card">
+			<div class="card-body text-center py-5">
+				<i class="feather-map-pin" style="font-size: 48px; color: #ccc;"></i>
+				<p class="mt-3 text-muted">No hay técnicos con ubicación activa en las últimas 2 horas.</p>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script th:inline="javascript">
+		document.addEventListener('DOMContentLoaded', function() {
+			var ubicaciones = /*[[${ubicaciones}]]*/ [];
+			var map = L.map('mapTiempoReal').setView([-0.1807, -78.4678], 7);
+
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '&copy; OpenStreetMap'
+			}).addTo(map);
+
+			if (ubicaciones && ubicaciones.length > 0) {
+				var bounds = [];
+				ubicaciones.forEach(function(u) {
+					var color = u.minutosAtras < 5 ? 'green' : (u.minutosAtras < 30 ? 'orange' : 'gray');
+					var icon = L.divIcon({
+						className: 'custom-marker',
+						html: '<div style="background:' + color + ';width:14px;height:14px;border-radius:50%;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',
+						iconSize: [14, 14],
+						iconAnchor: [7, 7]
+					});
+					var tiempoTexto = u.minutosAtras < 1 ? 'Ahora' : 'Hace ' + u.minutosAtras + ' min';
+					L.marker([u.latitud, u.longitud], { icon: icon })
+						.addTo(map)
+						.bindPopup('<strong>' + u.nombre + '</strong><br>' +
+							(u.departamento || 'Sin departamento') + '<br>' +
+							'<small>' + tiempoTexto + '</small>');
+					bounds.push([u.latitud, u.longitud]);
+				});
+				if (bounds.length > 0) {
+					map.fitBounds(bounds, { padding: [40, 40] });
+				}
+			}
+
+			// Click en fila de la tabla centra el mapa
+			document.querySelectorAll('.tecnico-card').forEach(function(row) {
+				row.addEventListener('click', function() {
+					var lat = parseFloat(this.dataset.lat);
+					var lng = parseFloat(this.dataset.lng);
+					if (!isNaN(lat) && !isNaN(lng)) {
+						map.setView([lat, lng], 16);
+					}
+				});
+			});
+		});
+	</script>
+</section>
+</body>
+</html>

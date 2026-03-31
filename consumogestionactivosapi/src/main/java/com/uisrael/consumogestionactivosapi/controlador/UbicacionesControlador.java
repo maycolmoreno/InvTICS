@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.DepartamentosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.UbicacionesRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO;
+import com.uisrael.consumogestionactivosapi.service.IDepartamentosServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class UbicacionesControlador {
 
 	private final IUbicacionesServicio servicioUbicacion;
+	private final IDepartamentosServicio servicioDepartamento;
 
 	@GetMapping
 	public String listarUbicaciones(Model model) {
@@ -35,9 +38,12 @@ public class UbicacionesControlador {
 	@GetMapping("/nueva-ubicacion")
 	public String nuevaUbicacion(Model model) {
 		UbicacionesRequestDTO ubicacion = new UbicacionesRequestDTO();
-		ubicacion.setEstado(true); // ✅ por defecto ACTIVO
+		ubicacion.setEstado(true);
+		ubicacion.setFkDepartamento(new DepartamentosRequestDTO());
 		model.addAttribute("ubicacion", ubicacion);
-		return "ubicaciones/nuevaUbicacion"; // ubicacion fisica page
+		model.addAttribute("listadepartamento",
+				servicioDepartamento.listarDepartamentos().stream().filter(d -> d.isEstado()).toList());
+		return "ubicaciones/nuevaUbicacion";
 	}
 
 	@GetMapping("/editar-ubicacion/{id}")
@@ -46,6 +52,11 @@ public class UbicacionesControlador {
 		UbicacionesResponseDTO ubicacion = servicioUbicacion.obtenerPorId(id);
 
 		model.addAttribute("ubicacion", ubicacion);
+		model.addAttribute("listadepartamento",
+				servicioDepartamento.listarDepartamentos().stream().filter(d -> d.isEstado()
+						|| (ubicacion.getFkDepartamento() != null
+								&& d.getIdDepartamento() == ubicacion.getFkDepartamento().getIdDepartamento()))
+						.toList());
 
 		return "ubicaciones/editarUbicacion";
 	}
@@ -53,21 +64,22 @@ public class UbicacionesControlador {
 	@PostMapping
 	public String guardarUbicacion(@ModelAttribute UbicacionesRequestDTO ubicacion, Model model) {
 
+		if (ubicacion.getFkDepartamento() == null) {
+			ubicacion.setFkDepartamento(new DepartamentosRequestDTO());
+		}
+
 		boolean hayErrores = false;
 
 		if (ubicacion.getNombre() == null || ubicacion.getNombre().trim().isEmpty()) {
 			model.addAttribute("errorNombre", "El nombre es obligatorio");
 			hayErrores = true;
 		} else {
-			// 2️⃣ Nombre no repetido
 			boolean nombreRepetido;
 
 			if (ubicacion.getIdUbicacion() > 0) {
-				// edición
 				nombreRepetido = servicioUbicacion.nombreExisteParaOtro(ubicacion.getNombre().trim(),
 						ubicacion.getIdUbicacion());
 			} else {
-				// creación
 				nombreRepetido = servicioUbicacion.nombreExiste(ubicacion.getNombre().trim());
 			}
 
@@ -82,9 +94,15 @@ public class UbicacionesControlador {
 			hayErrores = true;
 		}
 
-		// 🔴 Si hay errores, regreso al formulario
+		if (ubicacion.getFkDepartamento().getIdDepartamento() <= 0) {
+			model.addAttribute("errorDepartamento", "Debe seleccionar un departamento");
+			hayErrores = true;
+		}
+
 		if (hayErrores) {
 			model.addAttribute("ubicacion", ubicacion);
+			model.addAttribute("listadepartamento",
+					servicioDepartamento.listarDepartamentos().stream().filter(d -> d.isEstado()).toList());
 			return ubicacionesFormulario(ubicacion);
 		}
 

@@ -1,11 +1,9 @@
 package com.uisrael.consumogestionactivosapi.config;
 
-import java.util.Base64;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 
@@ -22,19 +20,15 @@ public class WebClientConfig {
 	}
 
 	@Bean
-	WebClient WebClient(WebClient.Builder builder) {
-		return builder
+	RestClient restClient() {
+		return RestClient.builder()
 			.baseUrl(apiBaseUrl)
-			.filter((request, next) -> {
+			.requestInterceptor((request, body, execution) -> {
 				if (sesionUsuario.isAutenticado()) {
-					String credenciales = sesionUsuario.getCorreo() + ":" + sesionUsuario.getContrasena();
-					String credencialesBase64 = Base64.getEncoder().encodeToString(credenciales.getBytes());
-					request = org.springframework.web.reactive.function.client.ClientRequest
-							.from(request)
-							.header("Authorization", "Basic " + credencialesBase64)
-							.build();
+					request.getHeaders().setBasicAuth(
+							sesionUsuario.getCorreo(), sesionUsuario.getContrasena());
 				}
-				return next.exchange(request);
+				return execution.execute(request, body);
 			})
 			.build();
 	}

@@ -19,4 +19,6 @@ public class UbicacionesResponseDTO {
 	private String provincia;
 	private String linkCoordenada;
 
+	private DepartamentosResponseDTO fkDepartamento;
+
 }

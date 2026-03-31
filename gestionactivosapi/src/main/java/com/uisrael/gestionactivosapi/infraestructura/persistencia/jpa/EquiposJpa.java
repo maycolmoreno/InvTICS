@@ -109,5 +109,8 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @JoinColumn(name = "fk_ubicacion")
     private UbicacionesJpa fkUbicacion;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "activo_id")
+    private ActivoJpa activoFijo;
 
 }

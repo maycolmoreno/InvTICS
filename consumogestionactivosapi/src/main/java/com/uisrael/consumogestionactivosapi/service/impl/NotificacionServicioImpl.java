@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.NotificacionResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.INotificacionServicio;
@@ -18,15 +18,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificacionServicioImpl implements INotificacionServicio {
 
-    private final WebClient clienteWeb;
+    private final RestClient clienteWeb;
 
     @Override
     public List<NotificacionResponseDTO> listar() {
         return clienteWeb.get()
                 .uri("/notificaciones")
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<NotificacionResponseDTO>>() {})
-                .block();
+                .body(new ParameterizedTypeReference<List<NotificacionResponseDTO>>() {});
     }
 
     @Override
@@ -34,8 +33,7 @@ public class NotificacionServicioImpl implements INotificacionServicio {
         Map<String, Long> resp = clienteWeb.get()
                 .uri("/notificaciones/count")
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, Long>>() {})
-                .block();
+                .body(new ParameterizedTypeReference<Map<String, Long>>() {});
         return resp != null ? resp.getOrDefault("count", 0L) : 0L;
     }
 
@@ -45,9 +43,8 @@ public class NotificacionServicioImpl implements INotificacionServicio {
             clienteWeb.post()
                     .uri("/notificaciones/{id}/leer", idNotificacion)
                     .retrieve()
-                    .toBodilessEntity()
-                    .block();
-        } catch (WebClientResponseException ex) {
+                    .toBodilessEntity();
+        } catch (RestClientResponseException ex) {
             throw WebClientHelper.manejarError(ex);
         }
     }

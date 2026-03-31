@@ -22,6 +22,7 @@ class AuthProvider extends ChangeNotifier {
   AuthSession? get session => _session;
   bool get isAuthenticated => _session != null;
   String get roleLabel => _session?.roleLabel ?? 'Sin rol';
+  int? get userId => _session?.userId;
 
   bool hasCapability(UserCapability capability) {
     return _session?.capabilities.has(capability) ?? false;

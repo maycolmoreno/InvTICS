@@ -10,14 +10,14 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ActividadC
 
 public interface IActividadChecklistJpaRepositorio extends JpaRepository<ActividadChecklistJpa, Integer> {
 
-    List<ActividadChecklistJpa> findAllByEstadoTrueOrderByCategoriaAscOrdenAsc();
+    List<ActividadChecklistJpa> findAllByEstadoTrueOrderByOrdenAsc();
 
     @Query("""
-            select a
-            from ActividadChecklistJpa a
-            join ChecklistCategoriaJpa c on c.idActividad = a.idActividad
-            where a.estado = true and c.idCategoria = :idCategoria
-            order by a.categoria asc, a.orden asc
+            SELECT DISTINCT a
+            FROM ActividadChecklistJpa a
+            JOIN a.categorias c
+            WHERE a.estado = true AND c.idCategoria = :idCategoria
+            ORDER BY a.orden ASC
             """)
     List<ActividadChecklistJpa> findActivasPorCategoria(@Param("idCategoria") Integer idCategoria);
 }

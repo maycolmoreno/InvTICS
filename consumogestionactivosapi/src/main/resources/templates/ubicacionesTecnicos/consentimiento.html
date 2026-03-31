@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+
+<head>
+<title>Monitoreo GPS - Consentimiento</title>
+<style>
+	.consent-container {
+		max-width: 680px;
+		margin: 0 auto;
+	}
+	.consent-icon {
+		font-size: 64px;
+		color: #185FA5;
+		text-align: center;
+		margin-bottom: 16px;
+	}
+	.consent-card {
+		background: #f8f9fa;
+		border-radius: 12px;
+		padding: 24px;
+		margin-bottom: 24px;
+	}
+	.consent-card ul {
+		padding-left: 20px;
+		margin-bottom: 0;
+	}
+	.consent-card ul li {
+		margin-bottom: 8px;
+	}
+</style>
+</head>
+
+<body>
+<section layout:fragment="contenidopaginas">
+	<div class="page-header">
+		<div class="page-header-left d-flex align-items-center">
+			<div class="page-header-title">
+				<h5 class="m-b-10">Monitoreo GPS</h5>
+			</div>
+			<ul class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/inicio}">Inicio</a></li>
+				<li class="breadcrumb-item">Monitoreo GPS</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="main-content consent-container">
+		<div class="text-center mb-4">
+			<div class="consent-icon">
+				<i class="feather-map-pin"></i>
+			</div>
+			<h4>Consentimiento de monitoreo</h4>
+		</div>
+
+		<!-- Mensajes flash -->
+		<div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+			<span th:text="${exito}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+		</div>
+		<div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+			<span th:text="${error}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+		</div>
+
+		<div class="consent-card">
+			<p>Para mejorar la gestión de actividades en campo, la aplicación registrará
+				su ubicación periódicamente mientras el módulo de monitoreo esté activo.</p>
+			<ul>
+				<li>La ubicación se registra para coordinación operativa.</li>
+				<li>Los datos se usan exclusivamente para seguimiento de actividades técnicas.</li>
+				<li>El administrador podrá ver su posición en el mapa de tiempo real.</li>
+			</ul>
+		</div>
+
+		<form th:action="@{/ubicaciones-tecnicos/consentimiento}" method="post">
+			<div class="d-grid">
+				<button type="submit" class="btn btn-primary btn-lg">
+					<i class="feather-check me-2"></i>Acepto el monitoreo GPS
+				</button>
+			</div>
+		</form>
+	</div>
+</section>
+</body>
+</html>

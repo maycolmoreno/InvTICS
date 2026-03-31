@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.MarcasRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MarcasResponseDTO;
@@ -14,16 +15,16 @@ import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
 @Service
 public class MarcasServicioImpl  implements IMarcasServicio{
 
-	private final WebClient clienteweb;
+	private final RestClient clienteweb;
 
-	public MarcasServicioImpl(WebClient clienteweb) {
+	public MarcasServicioImpl(RestClient clienteweb) {
 		super();
 		this.clienteweb = clienteweb;
 	}
 
 	@Override
 	public List<MarcasResponseDTO> listarMarca() {
-		return clienteweb.get().uri("/marcas").retrieve().bodyToFlux(MarcasResponseDTO.class).collectList().block();
+		return clienteweb.get().uri("/marcas").retrieve().body(new ParameterizedTypeReference<List<MarcasResponseDTO>>() {});
 	}
 
 	 @Override
@@ -44,12 +45,11 @@ public class MarcasServicioImpl  implements IMarcasServicio{
 	        try {
 	            clienteweb.post()
 	                    .uri("/marcas")
-	                    .bodyValue(dto)
+	                    .body(dto)
 	                    .retrieve()
-	                    .toBodilessEntity()
-	                    .block();
+	                    .toBodilessEntity();
 
-	        } catch (WebClientResponseException e) {
+	        } catch (RestClientResponseException e) {
 
 	            // Si la API responde duplicado como 400 o 409
 	            if (e.getStatusCode() == HttpStatus.BAD_REQUEST || e.getStatusCode() == HttpStatus.CONFLICT) {
@@ -66,9 +66,8 @@ public class MarcasServicioImpl  implements IMarcasServicio{
 	            return clienteweb.get()
 	                    .uri("/marcas/{id}", id)
 	                    .retrieve()
-	                    .bodyToMono(MarcasResponseDTO.class)
-	                    .block();
-	        } catch (WebClientResponseException e) {
+	                    .body(MarcasResponseDTO.class);
+	        } catch (RestClientResponseException e) {
 	            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
 	                return null;
 	            }
@@ -98,12 +97,11 @@ public class MarcasServicioImpl  implements IMarcasServicio{
 	        try {
 	            clienteweb.put()
 	                    .uri("/marcas/{id}", id)
-	                    .bodyValue(dto)
+	                    .body(dto)
 	                    .retrieve()
-	                    .toBodilessEntity()
-	                    .block();
+	                    .toBodilessEntity();
 
-	        } catch (WebClientResponseException e) {
+	        } catch (RestClientResponseException e) {
 
 	            if (e.getStatusCode() == HttpStatus.BAD_REQUEST || e.getStatusCode() == HttpStatus.CONFLICT) {
 	                throw new IllegalArgumentException("Ya existe una marca con ese nombre");
@@ -118,8 +116,7 @@ public class MarcasServicioImpl  implements IMarcasServicio{
         clienteweb.delete()
                 .uri("/marcas/{id}", id)
                 .retrieve()
-                .toBodilessEntity()
-                .block();
+                .toBodilessEntity();
     }
 
 	 private String normalizarTexto(String texto) {

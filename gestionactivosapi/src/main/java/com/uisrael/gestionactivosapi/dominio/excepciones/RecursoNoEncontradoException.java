@@ -7,6 +7,12 @@ public class RecursoNoEncontradoException extends ExcepcionDominio {
     
     private final String tipoEntidad;
     private final Object identificador;
+
+    public RecursoNoEncontradoException(String mensaje) {
+        super(mensaje);
+        this.tipoEntidad = null;
+        this.identificador = null;
+    }
     
     public RecursoNoEncontradoException(String tipoEntidad, Object identificador) {
         super(String.format("%s con identificador %s no encontrado", tipoEntidad, identificador));

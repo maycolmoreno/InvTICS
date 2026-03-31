@@ -14,7 +14,7 @@
         <div class="operations-copy">
           <div class="eyebrow">Alta De Departamento</div>
           <h1 class="operations-title">Crear nueva area funcional</h1>
-          <p class="operations-subtitle">Registra un departamento y opcionalmente asocialo a una ubicacion para fortalecer el orden administrativo.</p>
+          <p class="operations-subtitle">Registra un departamento para fortalecer el orden administrativo. Las ubicaciones se asocian desde el formulario de ubicaciones.</p>
         </div>
       </section>
 
@@ -28,17 +28,6 @@
             <input type="text" class="form-control" placeholder="Ej. Tecnologia" th:field="*{nombre}" maxlength="100">
             <div class="text-danger small mt-1" th:if="${errorNombre}" th:text="${errorNombre}"></div>
           </div>
-          <div>
-            <label class="field-label">Ubicacion</label>
-            <div class="d-flex gap-2">
-              <select id="cbubicaciones" class="form-select" th:field="*{fkUbicacion.idUbicacion}">
-                <option value="0">Seleccione una ubicacion</option>
-                <option th:each="ubi : ${listaubicacion}" th:value="${ubi.idUbicacion}" th:text="${ubi.nombre}"></option>
-              </select>
-              <button type="button" class="btn btn-outline-primary btn-sm" title="Crear ubicacion" data-bs-toggle="modal" data-bs-target="#modalCrearUbicacion"><i class="feather-plus"></i></button>
-            </div>
-            <div class="text-danger small mt-1" th:if="${errorSeleccionUbicacion}" th:text="${errorSeleccionUbicacion}"></div>
-          </div>
         </div>
       </article>
 
@@ -51,64 +40,6 @@
       </div>
     </div>
   </form>
-
-  <!-- Modal Crear Ubicacion -->
-  <div class="modal fade" id="modalCrearUbicacion" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title">Nueva Ubicacion</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="modalUbiNombre" maxlength="100" /></div>
-          <div class="mb-3"><label class="form-label">Agencia <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="modalUbiAgencia" maxlength="100" /></div>
-          <div class="text-danger small" id="modalUbiError"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary btn-sm" id="btnCrearUbi">Crear</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-  (function () {
-    // Mover modales al body para evitar problemas de CSS containment
-    document.querySelectorAll('.modal').forEach(function(m) { document.body.appendChild(m); });
-
-    function ajaxCrear(url, body, errorElId, onOk, btnEl) {
-      var errorEl = document.getElementById(errorElId);
-      btnEl.disabled = true;
-      fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      .then(function (r) {
-        if (r.status === 409) return r.json().then(function (d) { throw new Error(d.error || 'Ya existe'); });
-        if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Error'); });
-        return r.json();
-      })
-      .then(function (data) { onOk(data); })
-      .catch(function (e) { errorEl.textContent = e.message; })
-      .finally(function () { btnEl.disabled = false; });
-    }
-
-    document.getElementById('btnCrearUbi').addEventListener('click', function () {
-      var n = document.getElementById('modalUbiNombre').value.trim();
-      var a = document.getElementById('modalUbiAgencia').value.trim();
-      if (!n) { document.getElementById('modalUbiError').textContent = 'El nombre es obligatorio'; return; }
-      if (!a) { document.getElementById('modalUbiError').textContent = 'La agencia es obligatoria'; return; }
-      ajaxCrear('/api/relaciones/ubicaciones', { nombre: n, agencia: a }, 'modalUbiError', function (data) {
-        var sel = document.getElementById('cbubicaciones');
-        var opt = new Option(data.nombre, data.idUbicacion, true, true);
-        sel.appendChild(opt);
-        bootstrap.Modal.getInstance(document.getElementById('modalCrearUbicacion')).hide();
-        document.getElementById('modalUbiNombre').value = '';
-        document.getElementById('modalUbiAgencia').value = '';
-        document.getElementById('modalUbiError').textContent = '';
-      }, this);
-    });
-  })();
-  </script>
 </div>
 </body>
 </html>

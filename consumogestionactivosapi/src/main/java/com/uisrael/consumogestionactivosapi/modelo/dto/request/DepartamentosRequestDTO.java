@@ -11,6 +11,5 @@ public class DepartamentosRequestDTO {
 	private int idDepartamento;
 	private String nombre;
 	private boolean estado;
-	private UbicacionesRequestDTO fkUbicacion;
 
 }

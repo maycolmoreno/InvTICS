@@ -53,4 +53,11 @@ public class NotificacionJpa implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "referencia_mantenimiento_id", insertable = false, updatable = false)
     private MantenimientosJpa fkMantenimiento;
+
+    @Column(name = "referencia_actividad_id")
+    private Long referenciaActividadId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "referencia_actividad_id", insertable = false, updatable = false)
+    private ActividadPlanificadaJpa referenciaActividad;
 }

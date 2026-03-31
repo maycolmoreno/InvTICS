@@ -9,13 +9,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.UsuariosJpa;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUsuariosJpaRepositorio;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthControlador {
 
+	private final IUsuariosJpaRepositorio usuariosRepo;
+
+	public AuthControlador(IUsuariosJpaRepositorio usuariosRepo) {
+		this.usuariosRepo = usuariosRepo;
+	}
+
 	@GetMapping("/yo")
-	public Map<String, String> obtenerUsuarioActual(Authentication authentication) {
-		Map<String, String> respuesta = new HashMap<>();
+	public Map<String, Object> obtenerUsuarioActual(Authentication authentication) {
+		Map<String, Object> respuesta = new HashMap<>();
 
 		if (authentication != null && authentication.isAuthenticated()) {
 			// Obtener el correo/username
@@ -34,6 +43,10 @@ public class AuthControlador {
 
 			respuesta.put("rol", rol);
 			respuesta.put("nombreUsuario", authentication.getName().split("@")[0]);
+
+			// Incluir ID de usuario para operaciones que lo requieran
+			usuariosRepo.findByCorreo(authentication.getName())
+				.ifPresent(usuario -> respuesta.put("idUsuario", usuario.getIdUsuario()));
 		}
 
 		return respuesta;

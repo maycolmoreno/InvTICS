@@ -1,8 +1,8 @@
 package com.uisrael.consumogestionactivosapi.service.impl;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.OrdenCrearRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.OrdenGuardarRequestDTO;
@@ -14,9 +14,9 @@ import com.uisrael.consumogestionactivosapi.util.WebClientHelper;
 @Service
 public class OrdenTrabajoServicioImpl implements IOrdenTrabajoServicio {
 
-    private final WebClient clienteWeb;
+    private final RestClient clienteWeb;
 
-    public OrdenTrabajoServicioImpl(WebClient clienteWeb) {
+    public OrdenTrabajoServicioImpl(RestClient clienteWeb) {
         this.clienteWeb = clienteWeb;
     }
 
@@ -24,10 +24,9 @@ public class OrdenTrabajoServicioImpl implements IOrdenTrabajoServicio {
     public OrdenCrearResponseDTO crearOrden(OrdenCrearRequestDTO request) {
         return clienteWeb.post()
                 .uri("/orden/crear")
-                .bodyValue(request)
+                .body(request)
                 .retrieve()
-                .bodyToMono(OrdenCrearResponseDTO.class)
-                .block();
+                .body(OrdenCrearResponseDTO.class);
     }
 
     @Override
@@ -35,8 +34,7 @@ public class OrdenTrabajoServicioImpl implements IOrdenTrabajoServicio {
         return clienteWeb.get()
                 .uri(uriBuilder -> uriBuilder.path("/orden/{id}").build(id))
                 .retrieve()
-                .bodyToMono(OrdenTrabajoResponseDTO.class)
-                .block();
+                .body(OrdenTrabajoResponseDTO.class);
     }
 
     @Override
@@ -44,11 +42,10 @@ public class OrdenTrabajoServicioImpl implements IOrdenTrabajoServicio {
         try {
             clienteWeb.post()
                     .uri(uriBuilder -> uriBuilder.path("/orden/{id}/guardar").build(id))
-                    .bodyValue(request)
+                    .body(request)
                     .retrieve()
-                    .toBodilessEntity()
-                    .block();
-        } catch (WebClientResponseException ex) {
+                    .toBodilessEntity();
+        } catch (RestClientResponseException ex) {
             throw WebClientHelper.manejarError(ex);
         }
     }

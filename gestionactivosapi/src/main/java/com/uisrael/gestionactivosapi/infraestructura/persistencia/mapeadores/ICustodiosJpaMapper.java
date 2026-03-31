@@ -12,5 +12,10 @@ public interface ICustodiosJpaMapper {
     Custodios toDomain(CustodiosJpa entity);
 
     @Mapping(target = "fkCargo.fkDepartamento", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
     CustodiosJpa toEntity(Custodios custodio);
 }

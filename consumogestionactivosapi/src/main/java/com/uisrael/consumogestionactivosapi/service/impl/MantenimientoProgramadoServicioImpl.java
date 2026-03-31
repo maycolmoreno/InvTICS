@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.MantenimientoProgramadoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoProgramadoResponseDTO;
@@ -18,15 +18,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MantenimientoProgramadoServicioImpl implements IMantenimientoProgramadoServicio {
 
-    private final WebClient clienteWeb;
+    private final RestClient clienteWeb;
 
     @Override
     public List<MantenimientoProgramadoResponseDTO> listarTodos() {
         return clienteWeb.get()
                 .uri("/mantenimiento/programado")
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<MantenimientoProgramadoResponseDTO>>() {})
-                .block();
+                .body(new ParameterizedTypeReference<List<MantenimientoProgramadoResponseDTO>>() {});
     }
 
     @Override
@@ -34,8 +33,7 @@ public class MantenimientoProgramadoServicioImpl implements IMantenimientoProgra
         return clienteWeb.get()
                 .uri("/mantenimiento/programado/vencidos-proximos")
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<MantenimientoProgramadoResponseDTO>>() {})
-                .block();
+                .body(new ParameterizedTypeReference<List<MantenimientoProgramadoResponseDTO>>() {});
     }
 
     @Override
@@ -43,11 +41,10 @@ public class MantenimientoProgramadoServicioImpl implements IMantenimientoProgra
         try {
             return clienteWeb.post()
                     .uri("/mantenimiento/programado")
-                    .bodyValue(request)
+                    .body(request)
                     .retrieve()
-                    .bodyToMono(MantenimientoProgramadoResponseDTO.class)
-                    .block();
-        } catch (WebClientResponseException ex) {
+                    .body(MantenimientoProgramadoResponseDTO.class);
+        } catch (RestClientResponseException ex) {
             throw WebClientHelper.manejarError(ex);
         }
     }
@@ -58,9 +55,8 @@ public class MantenimientoProgramadoServicioImpl implements IMantenimientoProgra
             clienteWeb.post()
                     .uri("/mantenimiento/programado/desactivar/{id}", idProgramado)
                     .retrieve()
-                    .toBodilessEntity()
-                    .block();
-        } catch (WebClientResponseException ex) {
+                    .toBodilessEntity();
+        } catch (RestClientResponseException ex) {
             throw WebClientHelper.manejarError(ex);
         }
     }

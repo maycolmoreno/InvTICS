@@ -6,7 +6,7 @@ import com.uisrael.gestionactivosapi.dominio.entidades.Ubicaciones;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.UbicacionesRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.UbicacionesResponseDTO;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {IDepartamentosDtoMapper.class})
 public interface IUbicacionesDtoMapper {
 
 	Ubicaciones toDomain(UbicacionesRequestDTO dto);

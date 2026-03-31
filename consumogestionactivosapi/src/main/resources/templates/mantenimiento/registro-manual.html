@@ -135,18 +135,14 @@
                     </div>
                 </div>
                 <div class="form-grid">
-                    <div class="span-4" th:each="entry : ${actividadesAgrupadas}">
-                        <div class="check-category">
-                            <div class="check-category-header">
-                                <h6 th:text="${entry.key}"></h6>
-                                <span class="category-note-state" th:attr="data-category=${entry.key}">Sin observaciones</span>
-                            </div>
-                            <div class="form-check mb-2" th:each="actividad : ${entry.value}">
-                                <input class="form-check-input checklist-item" type="checkbox" name="actividadIds" th:value="${actividad.idActividad}" th:id="${'act-' + actividad.idActividad}">
-                                <label class="form-check-label" th:for="${'act-' + actividad.idActividad}" th:text="${actividad.nombreActividad}"></label>
-                            </div>
-                            <textarea class="form-control mt-2 checklist-note-input" rows="3" th:name="${'observacionCategoria[' + entry.key + ']'}" th:placeholder="${'Observaciones de ' + entry.key}"></textarea>
+                    <div class="span-4" th:each="actividad : ${actividades}">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input checklist-item" type="checkbox" name="actividadIds" th:value="${actividad.idActividad}" th:id="${'act-' + actividad.idActividad}">
+                            <label class="form-check-label" th:for="${'act-' + actividad.idActividad}" th:text="${actividad.nombreActividad}"></label>
                         </div>
+                    </div>
+                    <div class="span-12">
+                        <textarea class="form-control mt-2" rows="3" name="observacionChecklist" placeholder="Observaciones del checklist (opcional)"></textarea>
                     </div>
                 </div>
             </div>
@@ -239,7 +235,6 @@
                 const resumenCustodioMeta = document.getElementById('resumenCustodioMeta');
                 const formReadyBadge = document.getElementById('formReadyBadge');
                 const formReadyCopy = document.getElementById('formReadyCopy');
-                const checklistNoteInputs = Array.from(document.querySelectorAll('.checklist-note-input'));
 
                 function refreshEquipoOptions() {
                     const custodioId = custodioSelect.value;
@@ -309,18 +304,6 @@
                     const ubicacion = opt.getAttribute('data-ubicacion') || 'Sin ubicacion';
                     const cargo = opt.getAttribute('data-cargo') || 'Sin cargo';
                     resumenCustodioMeta.textContent = cargo + ' · ' + ubicacion;
-                }
-
-                function updateChecklistNotesState() {
-                    checklistNoteInputs.forEach(input => {
-                        const badge = input.closest('.check-category')?.querySelector('.category-note-state');
-                        if (!badge) {
-                            return;
-                        }
-                        const hasValue = !!input.value.trim();
-                        badge.textContent = hasValue ? 'Con observaciones' : 'Sin observaciones';
-                        badge.classList.toggle('has-content', hasValue);
-                    });
                 }
 
                 function updateSubmitState() {
@@ -471,7 +454,6 @@
                     document.getElementById(this.dataset.target).value = canvas.toDataURL('image/png');
                     updateSubmitState();
                 }));
-                checklistNoteInputs.forEach(input => input.addEventListener('input', updateChecklistNotesState));
 
                 imagenesInput.addEventListener('change', async function() {
                     const originales = Array.from(this.files || []).slice(0, 5);
@@ -519,7 +501,6 @@
                 }
                 updateCustodioSummary();
                 updateSelectedEquipmentChips();
-                updateChecklistNotesState();
                 updateSubmitState();
             })();
         </script>

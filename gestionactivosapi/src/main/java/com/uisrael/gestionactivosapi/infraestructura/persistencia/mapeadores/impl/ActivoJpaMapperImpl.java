@@ -23,7 +23,7 @@ public class ActivoJpaMapperImpl implements IActivoJpaMapper {
 		jpa.setFechaAdquisicion(dominio.getFechaAdquisicion());
 		jpa.setValorActual(dominio.getValorActual());
 		jpa.setEstado(dominio.getEstado());
-		jpa.setUbicacion(dominio.getUbicacion());
+		// ubicacion (String en dominio) ya no existe como tal en JPA; ahora es fkUbicacion (Integer)
 		jpa.setFkDepartamento(dominio.getFkDepartamento());
 		jpa.setFkCategoria(dominio.getFkCategoria());
 		
@@ -45,7 +45,8 @@ public class ActivoJpaMapperImpl implements IActivoJpaMapper {
 		dominio.setFechaAdquisicion(persistencia.getFechaAdquisicion());
 		dominio.setValorActual(persistencia.getValorActual());
 		dominio.setEstado(persistencia.getEstado());
-		dominio.setUbicacion(persistencia.getUbicacion());
+		// Resolver nombre de ubicación vía relación JPA si está disponible
+		dominio.setUbicacion(persistencia.getUbicacionRel() != null ? persistencia.getUbicacionRel().getNombre() : null);
 		dominio.setFkDepartamento(persistencia.getFkDepartamento() != null ? persistencia.getFkDepartamento() : 0);
 		dominio.setFkCategoria(persistencia.getFkCategoria() != null ? persistencia.getFkCategoria() : 0);
 		

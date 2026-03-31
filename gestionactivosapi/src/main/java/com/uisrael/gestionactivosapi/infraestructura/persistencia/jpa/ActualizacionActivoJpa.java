@@ -20,14 +20,11 @@ public class ActualizacionActivoJpa {
 	@Column(columnDefinition = "TEXT")
 	private String descripcion;
 
-	@Column(name = "usuario_actualizacion", length = 100)
-	private String usuarioActualizacion;
-
-	@Column(name = "fk_usuario_actualizacion")
+	@Column(name = "actualizado_por_id")
 	private Integer fkUsuarioActualizacion;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "fk_usuario_actualizacion", insertable = false, updatable = false)
+	@JoinColumn(name = "actualizado_por_id", insertable = false, updatable = false)
 	private UsuariosJpa usuarioRel;
 
 	public ActualizacionActivoJpa() {
@@ -64,14 +61,6 @@ public class ActualizacionActivoJpa {
 
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
-	}
-
-	public String getUsuarioActualizacion() {
-		return usuarioActualizacion;
-	}
-
-	public void setUsuarioActualizacion(String usuarioActualizacion) {
-		this.usuarioActualizacion = usuarioActualizacion;
 	}
 
 	public Integer getFkUsuarioActualizacion() {

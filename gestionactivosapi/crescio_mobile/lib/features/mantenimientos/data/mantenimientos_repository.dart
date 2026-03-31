@@ -20,7 +20,8 @@ class MantenimientosRepository {
       if (createdCompare != 0) {
         return createdCompare;
       }
-      return _asInt(b['idMantenimiento']).compareTo(_asInt(a['idMantenimiento']));
+      return _asInt(b['idMantenimiento'])
+          .compareTo(_asInt(a['idMantenimiento']));
     });
     return items;
   }
@@ -52,7 +53,8 @@ class MantenimientosRepository {
         .map((item) => Map<String, dynamic>.from(item as Map))
         .toList();
     items.sort((a, b) {
-      final categoryCompare = _text(a['categoria']).compareTo(_text(b['categoria']));
+      final categoryCompare =
+          _primeraCategoria(a).compareTo(_primeraCategoria(b));
       if (categoryCompare != 0) {
         return categoryCompare;
       }
@@ -215,7 +217,8 @@ class MantenimientosRepository {
   Future<void> reenviarCorreo({
     required int mantenimientoId,
   }) async {
-    await _apiClient.post('/mantenimiento/$mantenimientoId/reenviar-correo', const {});
+    await _apiClient
+        .post('/mantenimiento/$mantenimientoId/reenviar-correo', const {});
   }
 
   Future<List<int>> descargarPdf({
@@ -253,7 +256,8 @@ class MantenimientosRepository {
         .where((item) => item > 0)
         .toList();
     if (equipoIds.isEmpty) {
-      throw const ServerException('No hay equipos pendientes para sincronizar.');
+      throw const ServerException(
+          'No hay equipos pendientes para sincronizar.');
     }
     final actividades = (payload['actividades'] as List? ?? const [])
         .map((item) => Map<String, dynamic>.from(item as Map))
@@ -298,6 +302,15 @@ class MantenimientosRepository {
 String _text(dynamic value, {String fallback = ''}) {
   final text = value?.toString().trim() ?? '';
   return text.isEmpty ? fallback : text;
+}
+
+/// Extrae la primera categoría de la lista `categorias` del JSON del backend.
+String _primeraCategoria(Map<String, dynamic> item, {String fallback = ''}) {
+  final categorias = item['categorias'];
+  if (categorias is List && categorias.isNotEmpty) {
+    return _text(categorias.first, fallback: fallback);
+  }
+  return _text(item['categoria'], fallback: fallback);
 }
 
 int _asInt(dynamic value) {

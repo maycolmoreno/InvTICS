@@ -37,11 +37,12 @@ import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.Mantenimie
 import com.uisrael.gestionactivosapi.presentacion.dto.response.ActividadManualResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.ImagenMantenimientoResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.MantenimientoManualResponseDTO;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IMantenimientoManualUseCase;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class MantenimientoManualService {
+public class MantenimientoManualService implements IMantenimientoManualUseCase {
 
     private static final String TRABAJO_REALIZADO_LABEL = "Trabajo realizado:";
 
@@ -154,7 +155,7 @@ public class MantenimientoManualService {
         Integer idCategoria = mantenimiento.getFkEquipo() != null && mantenimiento.getFkEquipo().getFkCategoria() != null
                 ? mantenimiento.getFkEquipo().getFkCategoria().getIdCategoria()
                 : null;
-        List<ActividadChecklistJpa> checklistActivo = actividadChecklistRepo.findAllByEstadoTrueOrderByCategoriaAscOrdenAsc();
+        List<ActividadChecklistJpa> checklistActivo = actividadChecklistRepo.findAllByEstadoTrueOrderByOrdenAsc();
         if (idCategoria != null) {
             List<ActividadChecklistJpa> checklistFiltrado = actividadChecklistRepo.findActivasPorCategoria(idCategoria);
             if (!checklistFiltrado.isEmpty()) {
@@ -220,22 +221,21 @@ public class MantenimientoManualService {
                 ? mantenimiento.getFkEquipo().getFkCategoria().getIdCategoria()
                 : null;
         List<ActividadChecklistJpa> checklist = idCategoria == null
-                ? actividadChecklistRepo.findAllByEstadoTrueOrderByCategoriaAscOrdenAsc()
+                ? actividadChecklistRepo.findAllByEstadoTrueOrderByOrdenAsc()
                 : actividadChecklistRepo.findActivasPorCategoria(idCategoria);
         if (checklist.isEmpty()) {
-            checklist = actividadChecklistRepo.findAllByEstadoTrueOrderByCategoriaAscOrdenAsc();
+            checklist = actividadChecklistRepo.findAllByEstadoTrueOrderByOrdenAsc();
         }
         Map<Integer, Boolean> realizadas = actividadRealizadaRepo.findAllByIdMantenimiento(mantenimiento.getIdMantenimiento())
                 .stream()
                 .collect(Collectors.toMap(ActividadRealizadaJpa::getIdActividad, ar -> Boolean.TRUE.equals(ar.getRealizada())));
         List<ActividadManualResponseDTO> actividades = incluirDetalle
                 ? checklist.stream()
-                        .sorted(Comparator.comparing(ActividadChecklistJpa::getCategoria)
-                                .thenComparing(ActividadChecklistJpa::getOrden, Comparator.nullsLast(Integer::compareTo)))
+                        .sorted(Comparator.comparing(ActividadChecklistJpa::getOrden, Comparator.nullsLast(Integer::compareTo)))
                         .map(act -> ActividadManualResponseDTO.builder()
                                 .idActividad(act.getIdActividad())
                                 .nombreActividad(act.getNombre())
-                                .categoriaActividad(act.getCategoria())
+                                .categoriaActividad(null)
                                 .realizada(Boolean.TRUE.equals(realizadas.get(act.getIdActividad())))
                                 .build())
                         .toList()

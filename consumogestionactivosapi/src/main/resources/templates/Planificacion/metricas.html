@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Métricas de Cumplimiento</title>
+<style>
+    :root {
+        --mk-card: #ffffff;
+        --mk-line: #e3e7ef;
+        --mk-text: #152238;
+        --mk-muted: #6d7a92;
+        --mk-primary: #4e4acb;
+        --mk-ok: #1f7a3f;
+        --mk-warning: #9a5d00;
+        --mk-danger: #b22222;
+        --mk-shadow: 0 10px 26px rgba(16,24,40,.06);
+    }
+    .mk-page { display: grid; gap: 16px; }
+    .mk-shell { background: var(--mk-card); border: 1px solid var(--mk-line); border-radius: 16px; box-shadow: var(--mk-shadow); overflow: hidden; }
+    .mk-top { padding: 14px 18px; border-bottom: 1px solid var(--mk-line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .mk-title { margin: 0; font-size: 24px; font-weight: 800; color: var(--mk-text); }
+    .mk-filters { display: flex; gap: 8px; align-items: center; }
+    .mk-filters select { padding: 6px 10px; border: 1px solid var(--mk-line); border-radius: 8px; font-size: 14px; }
+    .mk-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; border: none; cursor: pointer; }
+    .mk-btn-outline { background: transparent; border: 1px solid var(--mk-line); color: var(--mk-text); }
+
+    .mk-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; padding: 18px; }
+    .mk-card { background: var(--mk-card); border: 1px solid var(--mk-line); border-radius: 12px; padding: 18px; box-shadow: var(--mk-shadow); }
+    .mk-card-name { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--mk-text); }
+    .mk-stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f1f5; font-size: 14px; }
+    .mk-stat:last-child { border-bottom: none; }
+    .mk-stat-label { color: var(--mk-muted); }
+    .mk-stat-value { font-weight: 700; color: var(--mk-text); }
+
+    .mk-progress { width: 100%; height: 8px; background: #f0f1f5; border-radius: 4px; margin: 8px 0; overflow: hidden; }
+    .mk-progress-bar { height: 100%; border-radius: 4px; transition: width .5s; }
+    .mk-progress-ok { background: var(--mk-ok); }
+    .mk-progress-warning { background: var(--mk-warning); }
+    .mk-progress-danger { background: var(--mk-danger); }
+
+    .mk-big-number { font-size: 32px; font-weight: 800; line-height: 1; }
+    .mk-big-label { font-size: 13px; color: var(--mk-muted); margin-top: 4px; }
+
+    .mk-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; padding: 18px; }
+    .mk-summary-item { text-align: center; background: #f8f9fc; border-radius: 10px; padding: 16px; }
+    .mk-empty { padding: 40px; text-align: center; color: var(--mk-muted); }
+</style>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+    <div class="mk-page">
+        <div class="mk-shell">
+            <div class="mk-top">
+                <h1 class="mk-title">📊 Métricas de Cumplimiento</h1>
+                <div class="mk-filters">
+                    <form method="get" action="/planificacion/metricas" style="display:flex;gap:8px;align-items:center">
+                        <select name="periodo" onchange="this.form.submit()">
+                            <option value="SEMANAL" th:selected="${periodoSeleccionado == 'SEMANAL'}">Semanal</option>
+                            <option value="MENSUAL" th:selected="${periodoSeleccionado == 'MENSUAL'}">Mensual</option>
+                            <option value="GLOBAL" th:selected="${periodoSeleccionado == 'GLOBAL'}">Global</option>
+                        </select>
+                    </form>
+                    <a href="/planificacion" class="mk-btn mk-btn-outline">← Volver</a>
+                </div>
+            </div>
+
+            <!-- Resumen global -->
+            <div th:if="${!#lists.isEmpty(metricas)}" class="mk-summary">
+                <div class="mk-summary-item">
+                    <div class="mk-big-number" th:text="${#numbers.formatDecimal(metricas.![completadas].stream().mapToLong(T(Long)::longValue).sum(), 1, 0)}">0</div>
+                    <div class="mk-big-label">Completadas</div>
+                </div>
+                <div class="mk-summary-item">
+                    <div class="mk-big-number" th:text="${#numbers.formatDecimal(metricas.![pendientes].stream().mapToLong(T(Long)::longValue).sum(), 1, 0)}">0</div>
+                    <div class="mk-big-label">Pendientes</div>
+                </div>
+                <div class="mk-summary-item">
+                    <div class="mk-big-number" th:text="${#numbers.formatDecimal(metricas.![vencidas].stream().mapToLong(T(Long)::longValue).sum(), 1, 0)}">0</div>
+                    <div class="mk-big-label">Vencidas</div>
+                </div>
+                <div class="mk-summary-item">
+                    <div class="mk-big-number" th:text="${#numbers.formatDecimal(metricas.![totalActividades].stream().mapToLong(T(Long)::longValue).sum(), 1, 0)}">0</div>
+                    <div class="mk-big-label">Total</div>
+                </div>
+            </div>
+
+            <!-- Tarjetas por técnico -->
+            <div class="mk-cards">
+                <div th:each="m : ${metricas}" class="mk-card">
+                    <div class="mk-card-name" th:text="${m.tecnicoNombre}">Técnico</div>
+
+                    <div style="margin-bottom:10px">
+                        <div style="display:flex;justify-content:space-between;font-size:13px">
+                            <span>% completadas</span>
+                            <span th:text="${m.porcentajeCompletadas + '%'}" style="font-weight:700"></span>
+                        </div>
+                        <div class="mk-progress">
+                            <div class="mk-progress-bar"
+                                th:classappend="${m.porcentajeCompletadas >= 80} ? 'mk-progress-ok' : (${m.porcentajeCompletadas >= 50} ? 'mk-progress-warning' : 'mk-progress-danger')"
+                                th:style="'width:' + ${m.porcentajeCompletadas} + '%'"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:10px">
+                        <div style="display:flex;justify-content:space-between;font-size:13px">
+                            <span>Cumplimiento a tiempo</span>
+                            <span th:text="${m.porcentajeCumplimientoATiempo + '%'}" style="font-weight:700"></span>
+                        </div>
+                        <div class="mk-progress">
+                            <div class="mk-progress-bar"
+                                th:classappend="${m.porcentajeCumplimientoATiempo >= 80} ? 'mk-progress-ok' : (${m.porcentajeCumplimientoATiempo >= 50} ? 'mk-progress-warning' : 'mk-progress-danger')"
+                                th:style="'width:' + ${m.porcentajeCumplimientoATiempo} + '%'"></div>
+                        </div>
+                    </div>
+
+                    <div class="mk-stat">
+                        <span class="mk-stat-label">Total actividades</span>
+                        <span class="mk-stat-value" th:text="${m.totalActividades}"></span>
+                    </div>
+                    <div class="mk-stat">
+                        <span class="mk-stat-label">Completadas</span>
+                        <span class="mk-stat-value" th:text="${m.completadas}"></span>
+                    </div>
+                    <div class="mk-stat">
+                        <span class="mk-stat-label">A tiempo / Tarde</span>
+                        <span class="mk-stat-value" th:text="${m.completadasATiempo + ' / ' + m.completadasTarde}"></span>
+                    </div>
+                    <div class="mk-stat">
+                        <span class="mk-stat-label">Pendientes</span>
+                        <span class="mk-stat-value" th:text="${m.pendientes}"></span>
+                    </div>
+                    <div class="mk-stat">
+                        <span class="mk-stat-label">En progreso</span>
+                        <span class="mk-stat-value" th:text="${m.enProgreso}"></span>
+                    </div>
+                    <div class="mk-stat">
+                        <span class="mk-stat-label">Vencidas</span>
+                        <span class="mk-stat-value" style="color:var(--mk-danger)" th:text="${m.vencidas}"></span>
+                    </div>
+                    <div class="mk-stat">
+                        <span class="mk-stat-label">Tiempo promedio</span>
+                        <span class="mk-stat-value" th:text="${m.tiempoPromedioMinutos + ' min'}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(metricas)}" class="mk-empty">
+                No hay datos de métricas disponibles para el periodo seleccionado.
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

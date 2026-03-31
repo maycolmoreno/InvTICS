@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.DepartamentosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.DepartamentosResponseDTO;
@@ -14,32 +15,31 @@ import com.uisrael.consumogestionactivosapi.service.IDepartamentosServicio;
 @Service
 public class DepartamentosServicioImpl implements IDepartamentosServicio {
 
-	private final WebClient clienteWeb;
+	private final RestClient clienteWeb;
 
-	public DepartamentosServicioImpl(WebClient clienteWeb) {
+	public DepartamentosServicioImpl(RestClient clienteWeb) {
 		this.clienteWeb = clienteWeb;
 	}
 
 	@Override
 	public List<DepartamentosResponseDTO> listarDepartamentos() {
 
-		return clienteWeb.get().uri("/departamentos").retrieve().bodyToFlux(DepartamentosResponseDTO.class)
-				.collectList().block();
+		return clienteWeb.get().uri("/departamentos").retrieve().body(new ParameterizedTypeReference<List<DepartamentosResponseDTO>>() {});
 	}
 
 	@Override
 	public void crearDepartamento(DepartamentosRequestDTO dto) {
 
-		clienteWeb.post().uri("/departamentos").bodyValue(dto).retrieve().toBodilessEntity().block();
+		clienteWeb.post().uri("/departamentos").body(dto).retrieve().toBodilessEntity();
 	}
 
 	@Override
 	public DepartamentosResponseDTO obtenerPorId(Integer idDepartamento) {
 		try {
 			return clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/departamentos/{id}").build(idDepartamento))
-					.retrieve().bodyToMono(DepartamentosResponseDTO.class).block();
+					.retrieve().body(DepartamentosResponseDTO.class);
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
 				throw new RuntimeException("Departamento no encontrado con id: " + idDepartamento);
 			}
@@ -49,8 +49,8 @@ public class DepartamentosServicioImpl implements IDepartamentosServicio {
 
 	@Override
 	public void actualizarDepartamento(Integer idDepartamento, DepartamentosRequestDTO dto) {
-		clienteWeb.put().uri(uriBuilder -> uriBuilder.path("/departamentos/{id}").build(idDepartamento)).bodyValue(dto)
-				.retrieve().toBodilessEntity().block();
+		clienteWeb.put().uri(uriBuilder -> uriBuilder.path("/departamentos/{id}").build(idDepartamento)).body(dto)
+				.retrieve().toBodilessEntity();
 
 	}
 
@@ -60,7 +60,7 @@ public class DepartamentosServicioImpl implements IDepartamentosServicio {
 		dto.setEstado(estado);
 
 		clienteWeb.put().uri("/departamentos/estado/{id}", idDepartamento) // ✅ si tu baseUrl ya incluye /api
-				.bodyValue(dto).retrieve().toBodilessEntity().block();
+				.body(dto).retrieve().toBodilessEntity();
 
 	}
 
@@ -73,12 +73,11 @@ public class DepartamentosServicioImpl implements IDepartamentosServicio {
 	                        .queryParam("nombre", nombre)
 	                        .build())
 	                .retrieve()
-	                .bodyToMono(Boolean.class)
-	                .block();
+	                .body(Boolean.class);
 
 	        return resp != null && resp;
 
-	    } catch (WebClientResponseException e) {
+	    } catch (RestClientResponseException e) {
 	        // si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
 	        return false;
 	    }
@@ -94,12 +93,11 @@ public class DepartamentosServicioImpl implements IDepartamentosServicio {
 	                        .queryParam("id", idDepartamento)
 	                        .build())
 	                .retrieve()
-	                .bodyToMono(Boolean.class)
-	                .block();
+	                .body(Boolean.class);
 
 	        return resp != null && resp;
 
-	    } catch (WebClientResponseException e) {
+	    } catch (RestClientResponseException e) {
 	        return false;
 	    }
 	}

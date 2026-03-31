@@ -18,15 +18,13 @@ class AuthRepository {
     final basicToken = base64Encode(
       utf8.encode('${request.username}:${request.password}'),
     );
-    final response = await http
-        .get(
-          Uri.parse('${AppConfig.baseUrl}/auth/yo'),
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': 'Basic $basicToken',
-          },
-        )
-        .timeout(const Duration(seconds: 15));
+    final response = await http.get(
+      Uri.parse('${AppConfig.baseUrl}/auth/yo'),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Basic $basicToken',
+      },
+    ).timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 401) {
       throw const AuthException('Credenciales incorrectas.');
@@ -39,17 +37,23 @@ class AuthRepository {
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final rawUserId = data['idUsuario'];
+    final userId = rawUserId is int
+        ? rawUserId
+        : int.tryParse(rawUserId?.toString() ?? '');
     final session = AuthSession(
       token: basicToken,
       username: data['correo']?.toString() ?? request.username,
       displayName: data['nombreUsuario']?.toString() ?? request.username,
       role: data['rol']?.toString() ?? '',
+      userId: userId,
     );
     await _secureStorage.saveSession(
       token: session.token,
       username: session.username,
       displayName: session.displayName,
       role: session.role,
+      userId: userId?.toString(),
     );
     return session;
   }
@@ -64,11 +68,14 @@ class AuthRepository {
     final username = await _secureStorage.readUsername() ?? '';
     final displayName = await _secureStorage.readDisplayName() ?? username;
     final role = await _secureStorage.readRole() ?? '';
+    final userIdStr = await _secureStorage.readUserId();
+    final userId = userIdStr != null ? int.tryParse(userIdStr) : null;
     return AuthSession(
       token: token,
       username: username,
       displayName: displayName,
       role: role,
+      userId: userId,
     );
   }
 }

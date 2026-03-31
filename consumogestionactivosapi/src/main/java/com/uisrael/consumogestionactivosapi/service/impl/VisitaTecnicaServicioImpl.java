@@ -2,8 +2,9 @@ package com.uisrael.consumogestionactivosapi.service.impl;
 
 import java.util.List;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.VisitaCustodioResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.VisitaEquipoResponseDTO;
@@ -12,9 +13,9 @@ import com.uisrael.consumogestionactivosapi.service.IVisitaTecnicaServicio;
 @Service
 public class VisitaTecnicaServicioImpl implements IVisitaTecnicaServicio {
 
-    private final WebClient clienteWeb;
+    private final RestClient clienteWeb;
 
-    public VisitaTecnicaServicioImpl(WebClient clienteWeb) {
+    public VisitaTecnicaServicioImpl(RestClient clienteWeb) {
         this.clienteWeb = clienteWeb;
     }
 
@@ -29,9 +30,7 @@ public class VisitaTecnicaServicioImpl implements IVisitaTecnicaServicio {
                     return uriBuilder.build();
                 })
                 .retrieve()
-                .bodyToFlux(VisitaEquipoResponseDTO.class)
-                .collectList()
-                .block();
+                .body(new ParameterizedTypeReference<List<VisitaEquipoResponseDTO>>() {});
     }
 
     @Override
@@ -41,8 +40,6 @@ public class VisitaTecnicaServicioImpl implements IVisitaTecnicaServicio {
                         .queryParam("ubicacionId", ubicacionId)
                         .build())
                 .retrieve()
-                .bodyToFlux(VisitaCustodioResponseDTO.class)
-                .collectList()
-                .block();
+                .body(new ParameterizedTypeReference<List<VisitaCustodioResponseDTO>>() {});
     }
 }

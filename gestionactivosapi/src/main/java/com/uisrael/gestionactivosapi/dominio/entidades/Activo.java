@@ -1,7 +1,7 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Activo implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -11,7 +11,7 @@ public class Activo implements Serializable {
 	private String descripcion;
 	private String serie;
 	private String modelo;
-	private Date fechaAdquisicion;
+	private LocalDate fechaAdquisicion;
 	private Double valorActual;
 	private String estado;
 	private String ubicacion;
@@ -22,7 +22,7 @@ public class Activo implements Serializable {
 	}
 
 	public Activo(int idActivo, String nombre, String descripcion, String serie, String modelo,
-			Date fechaAdquisicion, Double valorActual, String estado, String ubicacion,
+			LocalDate fechaAdquisicion, Double valorActual, String estado, String ubicacion,
 			int fkDepartamento, int fkCategoria) {
 		this.idActivo = idActivo;
 		this.nombre = nombre;
@@ -77,11 +77,11 @@ public class Activo implements Serializable {
 		this.modelo = modelo;
 	}
 
-	public Date getFechaAdquisicion() {
+	public LocalDate getFechaAdquisicion() {
 		return fechaAdquisicion;
 	}
 
-	public void setFechaAdquisicion(Date fechaAdquisicion) {
+	public void setFechaAdquisicion(LocalDate fechaAdquisicion) {
 		this.fechaAdquisicion = fechaAdquisicion;
 	}
 

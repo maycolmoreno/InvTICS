@@ -20,7 +20,7 @@ public class ActualizacionActivoJpaMapperImpl implements IActualizacionActivoJpa
 		jpa.setActivoId(dominio.getActivoId());
 		jpa.setFechaActualizacion(dominio.getFechaActualizacion());
 		jpa.setDescripcion(dominio.getDescripcion());
-		jpa.setUsuarioActualizacion(dominio.getUsuarioActualizacion());
+		// usuarioActualizacion (String en dominio) ya no existe en JPA; ahora es fkUsuarioActualizacion (Integer)
 		return jpa;
 	}
 
@@ -35,7 +35,8 @@ public class ActualizacionActivoJpaMapperImpl implements IActualizacionActivoJpa
 		dominio.setActivoId(persistencia.getActivoId() != null ? persistencia.getActivoId() : 0);
 		dominio.setFechaActualizacion(persistencia.getFechaActualizacion());
 		dominio.setDescripcion(persistencia.getDescripcion());
-		dominio.setUsuarioActualizacion(persistencia.getUsuarioActualizacion());
+		// Resolver nombre del usuario vía relación JPA si está disponible
+		dominio.setUsuarioActualizacion(persistencia.getUsuarioRel() != null ? persistencia.getUsuarioRel().getNombre() : null);
 		return dominio;
 	}
 }

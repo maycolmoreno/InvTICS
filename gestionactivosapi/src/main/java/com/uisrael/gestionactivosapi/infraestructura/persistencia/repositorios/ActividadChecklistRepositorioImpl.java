@@ -30,7 +30,7 @@ public class ActividadChecklistRepositorioImpl implements ActividadChecklistRepo
 
 	@Override
 	public List<ActividadChecklist> listarActivas() {
-		return jpaRepositorio.findAllByEstadoTrueOrderByCategoriaAscOrdenAsc().stream().map(this::toDomain)
+		return jpaRepositorio.findAllByEstadoTrueOrderByOrdenAsc().stream().map(this::toDomain)
 				.collect(Collectors.toList());
 	}
 
@@ -49,7 +49,7 @@ public class ActividadChecklistRepositorioImpl implements ActividadChecklistRepo
 		ActividadChecklist actividad = new ActividadChecklist();
 		actividad.setIdActividad(entity.getIdActividad());
 		actividad.setNombre(entity.getNombre());
-		actividad.setCategoria(entity.getCategoria());
+		actividad.setCategoria(null);
 		actividad.setOrden(entity.getOrden());
 		actividad.setEstado(Boolean.TRUE.equals(entity.getEstado()));
 		return actividad;
@@ -59,7 +59,6 @@ public class ActividadChecklistRepositorioImpl implements ActividadChecklistRepo
 		ActividadChecklistJpa entity = new ActividadChecklistJpa();
 		entity.setIdActividad(actividad.getIdActividad());
 		entity.setNombre(actividad.getNombre());
-		entity.setCategoria(actividad.getCategoria());
 		entity.setOrden(actividad.getOrden());
 		entity.setEstado(actividad.isEstado());
 		return entity;

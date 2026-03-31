@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.UbicacionesRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO;
@@ -14,22 +15,21 @@ import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 @Service
 public class UbicacionesServicioImpl implements IUbicacionesServicio {
 
-	private final WebClient clienteWeb;
+	private final RestClient clienteWeb;
 
-	public UbicacionesServicioImpl(WebClient clienteWeb) {
+	public UbicacionesServicioImpl(RestClient clienteWeb) {
 		this.clienteWeb = clienteWeb;
 	}
 
 	@Override
 	public List<UbicacionesResponseDTO> listarUbicaciones() {
 
-		return clienteWeb.get().uri("/ubicaciones").retrieve().bodyToFlux(UbicacionesResponseDTO.class).collectList()
-				.block();
+		return clienteWeb.get().uri("/ubicaciones").retrieve().body(new ParameterizedTypeReference<List<UbicacionesResponseDTO>>() {});
 	}
 
 	@Override
 	public void crearUbicacion(UbicacionesRequestDTO dto) {
-		clienteWeb.post().uri("/ubicaciones").bodyValue(dto).retrieve().toBodilessEntity().block();
+		clienteWeb.post().uri("/ubicaciones").body(dto).retrieve().toBodilessEntity();
 
 	}
 
@@ -37,9 +37,9 @@ public class UbicacionesServicioImpl implements IUbicacionesServicio {
 	public UbicacionesResponseDTO obtenerPorId(Integer idUbicacion) {
 		try {
 			return clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/ubicaciones/{id}").build(idUbicacion))
-					.retrieve().bodyToMono(UbicacionesResponseDTO.class).block();
+					.retrieve().body(UbicacionesResponseDTO.class);
 
-		} catch (WebClientResponseException e) {
+		} catch (RestClientResponseException e) {
 			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
 				throw new RuntimeException("Ubicación no encontrada con id: " + idUbicacion);
 			}
@@ -49,8 +49,8 @@ public class UbicacionesServicioImpl implements IUbicacionesServicio {
 
 	@Override
 	public void actualizarUbicacion(Integer idUbicacion, UbicacionesRequestDTO dto) {
-		clienteWeb.put().uri(uriBuilder -> uriBuilder.path("/ubicaciones/{id}").build(idUbicacion)).bodyValue(dto)
-				.retrieve().toBodilessEntity().block();
+		clienteWeb.put().uri(uriBuilder -> uriBuilder.path("/ubicaciones/{id}").build(idUbicacion)).body(dto)
+				.retrieve().toBodilessEntity();
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class UbicacionesServicioImpl implements IUbicacionesServicio {
 		dto.setEstado(estado);
 
 		clienteWeb.put().uri("/ubicaciones/estado/{id}", idUbicacion) // ✅ si tu baseUrl ya incluye /api
-				.bodyValue(dto).retrieve().toBodilessEntity().block();
+				.body(dto).retrieve().toBodilessEntity();
 
 	}
 
@@ -72,12 +72,11 @@ public class UbicacionesServicioImpl implements IUbicacionesServicio {
 	                        .queryParam("nombre", nombre)
 	                        .build())
 	                .retrieve()
-	                .bodyToMono(Boolean.class)
-	                .block();
+	                .body(Boolean.class);
 
 	        return resp != null && resp;
 
-	    } catch (WebClientResponseException e) {
+	    } catch (RestClientResponseException e) {
 	        // si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
 	        return false;
 	    }
@@ -93,12 +92,11 @@ public class UbicacionesServicioImpl implements IUbicacionesServicio {
 	                        .queryParam("id", idUbicacion)
 	                        .build())
 	                .retrieve()
-	                .bodyToMono(Boolean.class)
-	                .block();
+	                .body(Boolean.class);
 
 	        return resp != null && resp;
 
-	    } catch (WebClientResponseException e) {
+	    } catch (RestClientResponseException e) {
 	        return false;
 	    }
 	}

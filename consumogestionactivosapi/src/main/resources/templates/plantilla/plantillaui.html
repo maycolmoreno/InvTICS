@@ -77,6 +77,12 @@
 						</a>
 					</li>
 					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
+						<a th:href="@{/departamentos}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-home"></i></span>
+							<span class="nxl-mtext">Departamentos</span>
+						</a>
+					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
 						<a th:href="@{/usuarios}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-users"></i></span>
 							<span class="nxl-mtext">Usuarios</span>
@@ -99,6 +105,24 @@
 						<a th:href="@{/checklist}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-check-square"></i></span>
 							<span class="nxl-mtext">Checklist</span>
+						</a>
+					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+						<a th:href="@{/planificacion}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-calendar"></i></span>
+							<span class="nxl-mtext">Planificación</span>
+						</a>
+					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.rol == 'TECNICO'}">
+						<a th:href="@{/ubicaciones-tecnicos/consentimiento}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-navigation"></i></span>
+							<span class="nxl-mtext">Monitoreo GPS</span>
+						</a>
+					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
+						<a th:href="@{/ubicaciones-tecnicos/tiempo-real}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-radio"></i></span>
+							<span class="nxl-mtext">GPS Tiempo Real</span>
 						</a>
 					</li>
 					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">

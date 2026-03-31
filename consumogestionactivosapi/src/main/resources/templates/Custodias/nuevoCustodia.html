@@ -139,18 +139,19 @@
                       >Responsable / Custodio
                       <span class="text-danger">*</span></label
                     >
-                    <div class="autocomplete-wrapper" id="wrapperCustodio">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="custodioInput"
-                        placeholder="Buscar custodio por nombre o cedula..."
-                        autocomplete="off"
-                      />
-                      <input type="hidden" th:field="*{fkCustodio.idCustodio}" id="custodioIdHidden" />
-                      <button type="button" class="autocomplete-clear" id="clearCustodio">&times;</button>
-                      <div class="autocomplete-dropdown" id="dropdownCustodio"></div>
-                    </div>
+                    <select class="form-select" id="selCustodio" th:field="*{fkCustodio.idCustodio}">
+                      <option value="0">Seleccione un custodio</option>
+                      <option th:each="c : ${listacustodios}" th:if="${c.estado}"
+                              th:value="${c.idCustodio}"
+                              th:text="${c.nombre + ' - ' + c.cedula}"
+                              th:data-cargo="${c.fkCargo != null ? c.fkCargo.nombre : ''}"
+                              th:data-cargo-id="${c.fkCargo != null ? c.fkCargo.idCargo : 0}"
+                              th:data-departamento="${c.fkDepartamento != null ? c.fkDepartamento.nombre : ''}"
+                              th:data-departamento-id="${c.fkDepartamento != null ? c.fkDepartamento.idDepartamento : 0}"
+                              th:data-ubicacion="${c.fkUbicacion != null ? c.fkUbicacion.nombre : ''}"
+                              th:data-ubicacion-id="${c.fkUbicacion != null ? c.fkUbicacion.idUbicacion : 0}">
+                      </option>
+                    </select>
                   </div>
 
                   <!-- Custodio Origen (solo visible en TRASLADO) -->
@@ -158,69 +159,28 @@
                     <label class="form-label"
                       >Custodio Origen <span class="text-danger">*</span></label
                     >
-                    <div class="autocomplete-wrapper" id="wrapperCustodioOrigenAc">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="custodioOrigenInput"
-                        placeholder="Buscar custodio origen..."
-                        autocomplete="off"
-                      />
-                      <input type="hidden" id="custodioOrigenIdHidden" name="custodioOrigenId" value="0" />
-                      <button type="button" class="autocomplete-clear" id="clearCustodioOrigen">&times;</button>
-                      <div class="autocomplete-dropdown" id="dropdownCustodioOrigen"></div>
-                    </div>
+                    <select class="form-select" id="selCustodioOrigen" name="custodioOrigenId">
+                      <option value="0">Seleccione custodio origen</option>
+                      <option th:each="c : ${listacustodios}" th:if="${c.estado}"
+                              th:value="${c.idCustodio}"
+                              th:text="${c.nombre + ' - ' + c.cedula}">
+                      </option>
+                    </select>
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col-md-4 mb-3">
                     <label class="form-label">Cargo</label>
-                    <div class="autocomplete-wrapper" id="wrapperCargo">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="cargoUi"
-                        name="cargoUi"
-                        placeholder="Buscar o crear cargo..."
-                        autocomplete="off"
-                      />
-                      <input type="hidden" id="cargoIdHidden" name="cargoIdUi" value="0" />
-                      <button type="button" class="autocomplete-clear" id="clearCargo">&times;</button>
-                      <div class="autocomplete-dropdown" id="dropdownCargo"></div>
-                    </div>
+                    <input type="text" class="form-control" id="infoCargo" readonly placeholder="Se llena al seleccionar custodio" />
                   </div>
                   <div class="col-md-4 mb-3">
                     <label class="form-label">Area / Departamento</label>
-                    <div class="autocomplete-wrapper" id="wrapperDepartamento">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="departamentoUi"
-                        name="departamentoUi"
-                        placeholder="Buscar o crear departamento..."
-                        autocomplete="off"
-                      />
-                      <input type="hidden" id="departamentoIdHidden" name="departamentoIdUi" value="0" />
-                      <button type="button" class="autocomplete-clear" id="clearDepartamento">&times;</button>
-                      <div class="autocomplete-dropdown" id="dropdownDepartamento"></div>
-                    </div>
+                    <input type="text" class="form-control" id="infoDepartamento" readonly placeholder="Se llena al seleccionar custodio" />
                   </div>
                   <div class="col-md-4 mb-3">
                     <label class="form-label">Ubicacion</label>
-                    <div class="autocomplete-wrapper" id="wrapperUbicacion">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="ubicacionUi"
-                        name="ubicacionUi"
-                        placeholder="Buscar o crear ubicacion..."
-                        autocomplete="off"
-                      />
-                      <input type="hidden" id="ubicacionIdHidden" name="ubicacionIdUi" value="0" />
-                      <button type="button" class="autocomplete-clear" id="clearUbicacion">&times;</button>
-                      <div class="autocomplete-dropdown" id="dropdownUbicacion"></div>
-                    </div>
+                    <input type="text" class="form-control" id="infoUbicacion" readonly placeholder="Se llena al seleccionar custodio" />
                   </div>
                 </div>
 
@@ -403,88 +363,8 @@
         </div>
       </form>
 
-      <!-- Modal Crear Cargo -->
-      <div class="modal fade" id="modalCrearCargo" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-sm modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Nuevo Cargo</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Nombre del cargo <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="modalCargoNombre" maxlength="100" />
-              </div>
-              <div class="text-danger small" id="modalCargoError"></div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-              <button type="button" class="btn btn-primary btn-sm" id="btnGuardarCargo">Crear Cargo</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Crear Departamento -->
-      <div class="modal fade" id="modalCrearDepartamento" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-sm modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Nuevo Departamento</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Nombre del departamento <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="modalDepartamentoNombre" maxlength="100" />
-              </div>
-              <div class="text-danger small" id="modalDepartamentoError"></div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-              <button type="button" class="btn btn-primary btn-sm" id="btnGuardarDepartamento">Crear Departamento</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Crear Ubicacion -->
-      <div class="modal fade" id="modalCrearUbicacion" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Nueva Ubicacion</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Nombre <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="modalUbicacionNombre" maxlength="100" />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Agencia <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="modalUbicacionAgencia" maxlength="100" />
-              </div>
-              <div class="text-danger small" id="modalUbicacionError"></div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-              <button type="button" class="btn btn-primary btn-sm" id="btnGuardarUbicacion">Crear Ubicacion</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <script th:inline="javascript">
         (function () {
-          /* ==========================================
-             DATOS INICIALES (inyectados por Thymeleaf)
-             ========================================== */
-          var dataCargos = /*[[${listacargos}]]*/ [];
-          var dataDepartamentos = /*[[${listadepartamentos}]]*/ [];
-          var dataUbicaciones = /*[[${listaubicaciones}]]*/ [];
-          var dataCustodios = /*[[${listacustodios}]]*/ [];
           var equipoCustodioMap = /*[[${equipoCustodioMap}]]*/ {};
 
           /* ==========================================
@@ -500,9 +380,11 @@
           var buscarEquipo = document.getElementById("buscarEquipo");
           var tipoActaUi = document.getElementById("tipoActaUi");
           var textoAyudaEquipos = document.getElementById("textoAyudaEquipos");
-          var cargoUi = document.getElementById("cargoUi");
-          var departamentoUi = document.getElementById("departamentoUi");
-          var ubicacionUi = document.getElementById("ubicacionUi");
+          var selCustodio = document.getElementById("selCustodio");
+          var selCustodioOrigen = document.getElementById("selCustodioOrigen");
+          var infoCargo = document.getElementById("infoCargo");
+          var infoDepartamento = document.getElementById("infoDepartamento");
+          var infoUbicacion = document.getElementById("infoUbicacion");
 
           function showStep(step) {
             for (var i = 1; i <= maxStep; i++) {
@@ -524,12 +406,11 @@
           function validarPaso1() {
             var tipoActa = tipoActaUi ? tipoActaUi.value : "ASIGNACION";
             var noRequiereCustodio = tipoActa === "BAJA";
-            var custodio = form.querySelector('[name="fkCustodio.idCustodio"]');
-            var fechaInicio = form.querySelector('[name="fechaInicio"]');
-            if (!noRequiereCustodio && (!custodio || Number(custodio.value) <= 0)) {
+            if (!noRequiereCustodio && Number(selCustodio.value) <= 0) {
               alert("Debe seleccionar un custodio.");
               return false;
             }
+            var fechaInicio = form.querySelector('[name="fechaInicio"]');
             if (!fechaInicio || !fechaInicio.value) {
               alert("Debe ingresar fecha de inicio.");
               return false;
@@ -560,6 +441,25 @@
             return true;
           }
 
+          /* ==========================================
+             AUTO-FILL CARGO/DEPTO/UBICACION DESDE CUSTODIO
+             ========================================== */
+          selCustodio.addEventListener("change", function () {
+            var opt = selCustodio.selectedOptions[0];
+            if (!opt || Number(selCustodio.value) <= 0) {
+              infoCargo.value = "";
+              infoDepartamento.value = "";
+              infoUbicacion.value = "";
+              return;
+            }
+            infoCargo.value = opt.getAttribute("data-cargo") || "";
+            infoDepartamento.value = opt.getAttribute("data-departamento") || "";
+            infoUbicacion.value = opt.getAttribute("data-ubicacion") || "";
+          });
+
+          /* ==========================================
+             TIPO ACTA: MOSTRAR/OCULTAR CUSTODIO ORIGEN
+             ========================================== */
           var selectedCustodioOrigenId = 0;
 
           function actualizarModoTipoActa() {
@@ -567,7 +467,6 @@
             var requiereOcupados = tipoActa === "TRASLADO";
             var esBaja = tipoActa === "BAJA";
 
-            // Mostrar/ocultar campo Custodio Origen y cambiar label
             var wrapperOrigen = document.getElementById("wrapperCustodioOrigen");
             var labelCustodio = document.getElementById("labelCustodio");
             if (wrapperOrigen) wrapperOrigen.style.display = requiereOcupados ? "" : "none";
@@ -585,7 +484,6 @@
 
               var habilitado;
               if (requiereOcupados) {
-                // Traslado: solo ocupados Y del custodio origen seleccionado
                 habilitado = ocupado;
                 if (habilitado && selectedCustodioOrigenId > 0) {
                   var custodioDelEquipo = equipoCustodioMap[equipoId];
@@ -599,20 +497,25 @@
               if (!habilitado) check.checked = false;
               check.disabled = !habilitado;
             });
+
             if (textoAyudaEquipos) {
               if (tipoActa === "TRASLADO") {
                 textoAyudaEquipos.textContent = selectedCustodioOrigenId > 0
                   ? "Equipos asignados al custodio origen. Seleccione los que desea trasladar."
                   : "Primero seleccione el custodio origen en el paso anterior.";
               } else if (tipoActa === "BAJA") {
-                textoAyudaEquipos.textContent = "Busca y selecciona equipos para darlos de baja. Si estan ocupados, se cerrara su custodia activa.";
+                textoAyudaEquipos.textContent = "Busca y selecciona equipos para darlos de baja.";
               } else {
                 textoAyudaEquipos.textContent = "Busca y selecciona equipos disponibles para asignacion.";
               }
             }
-            // Re-aplicar filtros/paginacion tras cambiar tipo acta
             if (typeof applyFiltersGlobal === "function") applyFiltersGlobal();
           }
+
+          selCustodioOrigen.addEventListener("change", function () {
+            selectedCustodioOrigenId = Number(selCustodioOrigen.value) || 0;
+            actualizarModoTipoActa();
+          });
 
           btnAnterior.addEventListener("click", function () {
             if (currentStep > 1) { currentStep--; showStep(currentStep); }
@@ -625,10 +528,10 @@
             if (!validarPaso1() || !validarPaso3()) event.preventDefault();
           });
 
+          /* ==============================================
+             PAGINACION + FILTROS tabla de equipos
+             ============================================== */
           if (buscarEquipo) {
-            /* ==============================================
-               PAGINACION + FILTROS tabla de equipos
-               ============================================== */
             var allRows = Array.from(document.querySelectorAll("#tbodyEquipos .fila-equipo"));
             var filtroTipo = document.getElementById("filtroTipo");
             var filtroDisp = document.getElementById("filtroDisponibilidad");
@@ -639,7 +542,6 @@
             var currentPage = 1;
             var filtered = allRows.slice();
 
-            // Poblar filtro Tipo con valores unicos
             var tipos = [];
             allRows.forEach(function (r) {
               var t = (r.getAttribute("data-tipo") || "").trim();
@@ -662,8 +564,6 @@
                 if (term && row.textContent.toLowerCase().indexOf(term) < 0) return false;
                 if (tipo && (row.getAttribute("data-tipo") || "") !== tipo) return false;
                 if (disp && (row.getAttribute("data-disponibilidad") || "") !== disp) return false;
-
-                // En traslado: solo mostrar equipos del custodio origen seleccionado
                 if (esTraslado) {
                   var eqId = parseInt(row.getAttribute("data-equipo-id")) || 0;
                   var ocupado = (row.getAttribute("data-disponibilidad") || "") === "Ocupado";
@@ -673,7 +573,6 @@
                     if (custodioDelEquipo !== selectedCustodioOrigenId) return false;
                   }
                 }
-
                 return true;
               });
               currentPage = 1;
@@ -688,20 +587,17 @@
               var start = (currentPage - 1) * size;
               var end = start + size;
 
-              // Ocultar todas, mostrar solo las de la pagina actual filtrada
               allRows.forEach(function (r) { r.style.display = "none"; });
               for (var i = start; i < end && i < total; i++) {
                 filtered[i].style.display = "";
               }
 
-              // Info
               if (total === 0) {
                 pagInfo.textContent = "Sin resultados";
               } else {
                 pagInfo.textContent = "Mostrando " + (start + 1) + "-" + Math.min(end, total) + " de " + total;
               }
 
-              // Botones paginacion
               pagBtns.innerHTML = "";
               function addBtn(label, page, active, disabled) {
                 var li = document.createElement("li");
@@ -713,8 +609,6 @@
                 pagBtns.appendChild(li);
               }
               addBtn("\u00AB", currentPage - 1, false, currentPage === 1);
-
-              // Mostrar max 5 paginas centradas
               var pStart = Math.max(1, currentPage - 2);
               var pEnd = Math.min(totalPages, pStart + 4);
               if (pEnd - pStart < 4) pStart = Math.max(1, pEnd - 4);
@@ -723,7 +617,6 @@
               }
               addBtn("\u00BB", currentPage + 1, false, currentPage === totalPages);
 
-              // Actualizar seleccionar-todos de la pagina
               if (selAllPage) updateSelAllState();
             }
 
@@ -761,255 +654,9 @@
             filtroDisp.addEventListener("change", applyFilters);
             pagSizeEl.addEventListener("change", function () { currentPage = 1; renderPage(); });
 
-            // Render inicial
             applyFilters();
-            // Exponer para que actualizarModoTipoActa pueda re-paginar
             window.applyFiltersGlobal = applyFilters;
           }
-
-          /* ==========================================
-             AUTOCOMPLETE GENERICO
-             ========================================== */
-          function initAutocomplete(config) {
-            var input = document.getElementById(config.inputId);
-            var hidden = document.getElementById(config.hiddenId);
-            var dropdown = document.getElementById(config.dropdownId);
-            var clearBtn = document.getElementById(config.clearId);
-            var items = config.items || [];
-            var labelFn = config.labelFn;
-            var idFn = config.idFn;
-            var onCreateNew = config.onCreateNew;
-            var onSelect = config.onSelect;
-
-            function setSelected(item) {
-              input.value = labelFn(item);
-              hidden.value = idFn(item);
-              clearBtn.classList.add("visible");
-              dropdown.classList.remove("show");
-              if (onSelect) onSelect(item);
-            }
-
-            function clearSelection() {
-              input.value = "";
-              hidden.value = "0";
-              clearBtn.classList.remove("visible");
-            }
-
-            function render(filtered, term) {
-              dropdown.innerHTML = "";
-              filtered.forEach(function (item) {
-                var div = document.createElement("div");
-                div.className = "autocomplete-item";
-                var label = labelFn(item);
-                if (term) {
-                  var idx = label.toLowerCase().indexOf(term.toLowerCase());
-                  if (idx >= 0) {
-                    label = label.substring(0, idx) + "<strong>" + label.substring(idx, idx + term.length) + "</strong>" + label.substring(idx + term.length);
-                  }
-                }
-                div.innerHTML = label;
-                div.addEventListener("mousedown", function (e) {
-                  e.preventDefault();
-                  setSelected(item);
-                });
-                dropdown.appendChild(div);
-              });
-
-              if (onCreateNew && term && term.trim().length > 0) {
-                var createDiv = document.createElement("div");
-                createDiv.className = "autocomplete-item create-new";
-                createDiv.innerHTML = '<i class="feather-plus-circle"></i>Crear: "<strong>' +
-                  term.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</strong>"';
-                createDiv.addEventListener("mousedown", function (e) {
-                  e.preventDefault();
-                  dropdown.classList.remove("show");
-                  onCreateNew(term.trim());
-                });
-                dropdown.appendChild(createDiv);
-              }
-
-              dropdown.classList.toggle("show", dropdown.children.length > 0);
-            }
-
-            input.addEventListener("input", function () {
-              var term = input.value.trim();
-              hidden.value = "0";
-              clearBtn.classList.toggle("visible", term.length > 0);
-              if (term.length === 0) {
-                render(items.slice(0, 10), "");
-                return;
-              }
-              var filtered = items.filter(function (item) {
-                return labelFn(item).toLowerCase().indexOf(term.toLowerCase()) >= 0;
-              });
-              render(filtered.slice(0, 15), term);
-            });
-
-            input.addEventListener("focus", function () {
-              var term = input.value.trim();
-              if (term.length === 0) {
-                render(items.slice(0, 10), "");
-              } else {
-                var filtered = items.filter(function (item) {
-                  return labelFn(item).toLowerCase().indexOf(term.toLowerCase()) >= 0;
-                });
-                render(filtered.slice(0, 15), term);
-              }
-            });
-
-            input.addEventListener("blur", function () {
-              setTimeout(function () { dropdown.classList.remove("show"); }, 200);
-            });
-
-            clearBtn.addEventListener("click", function () {
-              clearSelection();
-              input.focus();
-            });
-
-            return {
-              setItems: function (newItems) { items = newItems; config.items = newItems; },
-              setSelected: setSelected,
-              clearSelection: clearSelection,
-              getItems: function () { return items; }
-            };
-          }
-
-          /* ==========================================
-             INICIALIZAR AUTOCOMPLETES
-             ========================================== */
-          var custodioItems = dataCustodios.filter(function (c) { return c.estado; }).map(function (c) {
-            return {
-              id: c.idCustodio,
-              nombre: c.nombre + ' - ' + c.cedula,
-              cargo: c.fkCargo ? c.fkCargo.nombre : '',
-              area: c.fkDepartamento ? c.fkDepartamento.nombre : '',
-              ubicacion: c.fkUbicacion ? c.fkUbicacion.nombre : ''
-            };
-          });
-
-          var acCustodio = initAutocomplete({
-            inputId: "custodioInput",
-            hiddenId: "custodioIdHidden",
-            dropdownId: "dropdownCustodio",
-            clearId: "clearCustodio",
-            items: custodioItems,
-            labelFn: function (item) { return item.nombre; },
-            idFn: function (item) { return item.id; },
-            onCreateNew: null,
-            onSelect: function (item) { cargarCargoYAreaDesdeCustodio(item); }
-          });
-
-          var acCargo = initAutocomplete({
-            inputId: "cargoUi",
-            hiddenId: "cargoIdHidden",
-            dropdownId: "dropdownCargo",
-            clearId: "clearCargo",
-            items: dataCargos.map(function (c) { return { id: c.idCargo, nombre: c.nombre }; }),
-            labelFn: function (item) { return item.nombre; },
-            idFn: function (item) { return item.id; },
-            onCreateNew: function (term) {
-              document.getElementById("modalCargoNombre").value = term;
-              document.getElementById("modalCargoError").textContent = "";
-              new bootstrap.Modal(document.getElementById("modalCrearCargo")).show();
-            }
-          });
-
-          var acDepartamento = initAutocomplete({
-            inputId: "departamentoUi",
-            hiddenId: "departamentoIdHidden",
-            dropdownId: "dropdownDepartamento",
-            clearId: "clearDepartamento",
-            items: dataDepartamentos.map(function (d) { return { id: d.idDepartamento, nombre: d.nombre }; }),
-            labelFn: function (item) { return item.nombre; },
-            idFn: function (item) { return item.id; },
-            onCreateNew: function (term) {
-              document.getElementById("modalDepartamentoNombre").value = term;
-              document.getElementById("modalDepartamentoError").textContent = "";
-              new bootstrap.Modal(document.getElementById("modalCrearDepartamento")).show();
-            }
-          });
-
-          var acUbicacion = initAutocomplete({
-            inputId: "ubicacionUi",
-            hiddenId: "ubicacionIdHidden",
-            dropdownId: "dropdownUbicacion",
-            clearId: "clearUbicacion",
-            items: dataUbicaciones.map(function (u) { return { id: u.idUbicacion, nombre: u.nombre + (u.agencia ? " - " + u.agencia : "") }; }),
-            labelFn: function (item) { return item.nombre; },
-            idFn: function (item) { return item.id; },
-            onCreateNew: function (term) {
-              document.getElementById("modalUbicacionNombre").value = term;
-              document.getElementById("modalUbicacionAgencia").value = "";
-              document.getElementById("modalUbicacionError").textContent = "";
-              new bootstrap.Modal(document.getElementById("modalCrearUbicacion")).show();
-            }
-          });
-
-          /* ==========================================
-             AUTOCOMPLETE: CUSTODIO ORIGEN (para traslado)
-             ========================================== */
-          // Solo custodios que tienen al menos 1 equipo asignado
-          var custodiosConEquipos = {};
-          Object.keys(equipoCustodioMap).forEach(function (eqId) {
-            custodiosConEquipos[equipoCustodioMap[eqId]] = true;
-          });
-          var custodioOrigenItems = dataCustodios
-            .filter(function (c) { return c.estado && custodiosConEquipos[c.idCustodio]; })
-            .map(function (c) {
-              return { id: c.idCustodio, nombre: c.nombre + ' - ' + c.cedula };
-            });
-
-          var acCustodioOrigen = initAutocomplete({
-            inputId: "custodioOrigenInput",
-            hiddenId: "custodioOrigenIdHidden",
-            dropdownId: "dropdownCustodioOrigen",
-            clearId: "clearCustodioOrigen",
-            items: custodioOrigenItems,
-            labelFn: function (item) { return item.nombre; },
-            idFn: function (item) { return item.id; },
-            onCreateNew: null,
-            onSelect: function (item) {
-              selectedCustodioOrigenId = item.id;
-              actualizarModoTipoActa();
-            }
-          });
-
-          // Cuando se limpia el custodio origen, resetear filtro
-          document.getElementById("clearCustodioOrigen").addEventListener("click", function () {
-            selectedCustodioOrigenId = 0;
-            actualizarModoTipoActa();
-          });
-
-          /* ==========================================
-             AUTO-FILL DESDE CUSTODIO (mantener comportamiento)
-             ========================================== */
-          function cargarCargoYAreaDesdeCustodio(selectedItem) {
-            if (!selectedItem) return;
-            var cargo = selectedItem.cargo || "";
-            var area = selectedItem.area || "";
-            var ubicacion = selectedItem.ubicacion || "";
-
-            if (cargo) {
-              cargoUi.value = cargo;
-              var match = acCargo.getItems().find(function (c) { return c.nombre.toLowerCase() === cargo.toLowerCase(); });
-              if (match) acCargo.setSelected(match);
-              else document.getElementById("clearCargo").classList.add("visible");
-            }
-            if (area) {
-              departamentoUi.value = area;
-              var match = acDepartamento.getItems().find(function (d) { return d.nombre.toLowerCase() === area.toLowerCase(); });
-              if (match) acDepartamento.setSelected(match);
-              else document.getElementById("clearDepartamento").classList.add("visible");
-            }
-            if (ubicacion) {
-              ubicacionUi.value = ubicacion;
-              var match = acUbicacion.getItems().find(function (u) { return u.nombre.toLowerCase().indexOf(ubicacion.toLowerCase()) >= 0; });
-              if (match) acUbicacion.setSelected(match);
-              else document.getElementById("clearUbicacion").classList.add("visible");
-            }
-          }
-
-
 
           if (tipoActaUi) {
             tipoActaUi.addEventListener("change", actualizarModoTipoActa);
@@ -1017,98 +664,6 @@
           }
 
           showStep(currentStep);
-
-          /* ==========================================
-             MODALS: CREAR NUEVAS ENTIDADES VIA AJAX
-             ========================================== */
-          document.getElementById("btnGuardarCargo").addEventListener("click", function () {
-            var nombre = document.getElementById("modalCargoNombre").value.trim();
-            var errorEl = document.getElementById("modalCargoError");
-            if (!nombre) { errorEl.textContent = "El nombre es obligatorio"; return; }
-            errorEl.textContent = "";
-            this.disabled = true;
-            var btn = this;
-            fetch("/api/relaciones/cargos", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ nombre: nombre })
-            })
-            .then(function (res) {
-              if (res.status === 409) return res.json().then(function (d) { throw new Error(d.error || "Ya existe"); });
-              if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || "Error al crear"); });
-              return res.json();
-            })
-            .then(function (data) {
-              var newItem = { id: data.idCargo, nombre: data.nombre };
-              var items = acCargo.getItems();
-              items.push(newItem);
-              acCargo.setItems(items);
-              acCargo.setSelected(newItem);
-              bootstrap.Modal.getInstance(document.getElementById("modalCrearCargo")).hide();
-            })
-            .catch(function (err) { errorEl.textContent = err.message; })
-            .finally(function () { btn.disabled = false; });
-          });
-
-          document.getElementById("btnGuardarDepartamento").addEventListener("click", function () {
-            var nombre = document.getElementById("modalDepartamentoNombre").value.trim();
-            var errorEl = document.getElementById("modalDepartamentoError");
-            if (!nombre) { errorEl.textContent = "El nombre es obligatorio"; return; }
-            errorEl.textContent = "";
-            this.disabled = true;
-            var btn = this;
-            fetch("/api/relaciones/departamentos", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ nombre: nombre })
-            })
-            .then(function (res) {
-              if (res.status === 409) return res.json().then(function (d) { throw new Error(d.error || "Ya existe"); });
-              if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || "Error al crear"); });
-              return res.json();
-            })
-            .then(function (data) {
-              var newItem = { id: data.idDepartamento, nombre: data.nombre };
-              var items = acDepartamento.getItems();
-              items.push(newItem);
-              acDepartamento.setItems(items);
-              acDepartamento.setSelected(newItem);
-              bootstrap.Modal.getInstance(document.getElementById("modalCrearDepartamento")).hide();
-            })
-            .catch(function (err) { errorEl.textContent = err.message; })
-            .finally(function () { btn.disabled = false; });
-          });
-
-          document.getElementById("btnGuardarUbicacion").addEventListener("click", function () {
-            var nombre = document.getElementById("modalUbicacionNombre").value.trim();
-            var agencia = document.getElementById("modalUbicacionAgencia").value.trim();
-            var errorEl = document.getElementById("modalUbicacionError");
-            if (!nombre) { errorEl.textContent = "El nombre es obligatorio"; return; }
-            if (!agencia) { errorEl.textContent = "La agencia es obligatoria"; return; }
-            errorEl.textContent = "";
-            this.disabled = true;
-            var btn = this;
-            fetch("/api/relaciones/ubicaciones", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ nombre: nombre, agencia: agencia })
-            })
-            .then(function (res) {
-              if (res.status === 409) return res.json().then(function (d) { throw new Error(d.error || "Ya existe"); });
-              if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || "Error al crear"); });
-              return res.json();
-            })
-            .then(function (data) {
-              var newItem = { id: data.idUbicacion, nombre: data.nombre + (data.agencia ? " - " + data.agencia : "") };
-              var items = acUbicacion.getItems();
-              items.push(newItem);
-              acUbicacion.setItems(items);
-              acUbicacion.setSelected(newItem);
-              bootstrap.Modal.getInstance(document.getElementById("modalCrearUbicacion")).hide();
-            })
-            .catch(function (err) { errorEl.textContent = err.message; })
-            .finally(function () { btn.disabled = false; });
-          });
 
         })();
       </script>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{plantilla/plantillaui}">
+<head>
+<meta charset="utf-8">
+<title>Nueva Actividad</title>
+<style>
+    .pf-shell { background: #fff; border: 1px solid #e3e7ef; border-radius: 16px; box-shadow: 0 10px 26px rgba(16,24,40,.06); max-width: 700px; margin: 0 auto; padding: 24px; }
+    .pf-title { font-size: 22px; font-weight: 800; margin-bottom: 20px; }
+    .pf-group { margin-bottom: 16px; }
+    .pf-group label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #152238; }
+    .pf-group input, .pf-group select, .pf-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #e3e7ef; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+    .pf-group textarea { resize: vertical; min-height: 80px; }
+    .pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pf-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: .2s; }
+    .pf-btn-primary { background: #4e4acb; color: #fff; }
+    .pf-btn-primary:hover { opacity: .85; }
+    .pf-btn-cancel { background: transparent; border: 1px solid #e3e7ef; color: #152238; text-decoration: none; }
+    .pf-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+    <div class="pf-shell">
+        <h1 class="pf-title">Nueva Actividad Planificada</h1>
+        <form th:action="@{/planificacion/guardar}" method="post" th:object="${actividad}">
+            <div class="pf-group">
+                <label>Título *</label>
+                <input type="text" th:field="*{titulo}" required maxlength="200" placeholder="Ej: Revisión equipos piso 3">
+            </div>
+            <div class="pf-group">
+                <label>Descripción</label>
+                <textarea th:field="*{descripcion}" placeholder="Detalle de la actividad..."></textarea>
+            </div>
+            <div class="pf-row">
+                <div class="pf-group">
+                    <label>Técnico asignado *</label>
+                    <select th:field="*{tecnicoId}" required>
+                        <option value="">Seleccionar...</option>
+                        <option th:each="t : ${tecnicos}" th:value="${t.idUsuario}" th:text="${t.nombre}"></option>
+                    </select>
+                </div>
+                <div class="pf-group">
+                    <label>Tipo de actividad *</label>
+                    <select th:field="*{tipoActividad}" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="TAREA_DIARIA">Tarea diaria</option>
+                        <option value="TAREA_SEMANAL">Tarea semanal</option>
+                        <option value="MANTENIMIENTO_PROGRAMADO">Mantenimiento programado</option>
+                        <option value="VISITA_TECNICA">Visita técnica</option>
+                        <option value="OBJETIVO_MENSUAL">Objetivo mensual</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pf-row">
+                <div class="pf-group">
+                    <label>Prioridad</label>
+                    <select th:field="*{prioridad}">
+                        <option value="BAJA">Baja</option>
+                        <option value="MEDIA" selected>Media</option>
+                        <option value="ALTA">Alta</option>
+                        <option value="URGENTE">Urgente</option>
+                    </select>
+                </div>
+                <div class="pf-group">
+                    <label>Tiempo estimado (min)</label>
+                    <input type="number" th:field="*{tiempoEstimadoMinutos}" min="0" placeholder="Ej: 60">
+                </div>
+            </div>
+            <div class="pf-row">
+                <div class="pf-group">
+                    <label>Fecha inicio *</label>
+                    <input type="date" th:field="*{fechaInicio}" required>
+                </div>
+                <div class="pf-group">
+                    <label>Fecha fin *</label>
+                    <input type="date" th:field="*{fechaFin}" required>
+                </div>
+            </div>
+            <div class="pf-group">
+                <label>Observaciones</label>
+                <textarea th:field="*{observaciones}" placeholder="Notas adicionales..."></textarea>
+            </div>
+            <div class="pf-actions">
+                <a href="/planificacion" class="pf-btn pf-btn-cancel">Cancelar</a>
+                <button type="submit" class="pf-btn pf-btn-primary">💾 Guardar Actividad</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

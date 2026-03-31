@@ -19,6 +19,8 @@ public class Ubicaciones implements Serializable {
 	private final String provincia;
 	private final String linkCoordenada;
 
+	private Departamentos fkDepartamento;
+
 	public Ubicaciones(int idUbicacion, String nombre, String agencia, boolean estado,
 			BigDecimal latitud, BigDecimal longitud, String direccion, String ciudad,
 			String parroquia, String provincia, String linkCoordenada) {
@@ -46,6 +48,9 @@ public class Ubicaciones implements Serializable {
 	public String getParroquia() { return parroquia; }
 	public String getProvincia() { return provincia; }
 	public String getLinkCoordenada() { return linkCoordenada; }
+
+	public Departamentos getFkDepartamento() { return fkDepartamento; }
+	public void setFkDepartamento(Departamentos fkDepartamento) { this.fkDepartamento = fkDepartamento; }
 
 	@Override
 	public String toString() {

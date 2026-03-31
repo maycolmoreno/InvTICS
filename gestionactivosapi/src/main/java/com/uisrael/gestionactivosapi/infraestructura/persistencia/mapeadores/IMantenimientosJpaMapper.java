@@ -18,7 +18,7 @@ public interface IMantenimientosJpaMapper {
         if (snapshot == null) {
             return null;
         }
-        return new EquipoSnapshot(snapshot.getSerieSnapshot(), snapshot.getSineSnapshot(), snapshot.getYearSnapshoted());
+        return new EquipoSnapshot(snapshot.getSerieSnapshot(), snapshot.getCodigoInternoSnapshot(), snapshot.getYearSnapshoted());
     }
 
     default EquipoSnapshotEmbeddable toEntity(EquipoSnapshot snapshot) {
@@ -27,7 +27,7 @@ public interface IMantenimientosJpaMapper {
         }
         EquipoSnapshotEmbeddable entity = new EquipoSnapshotEmbeddable();
         entity.setSerieSnapshot(snapshot.serieSnapshot());
-        entity.setSineSnapshot(snapshot.sineSnapshot());
+        entity.setCodigoInternoSnapshot(snapshot.sineSnapshot());
         entity.setYearSnapshoted(snapshot.yearSnapshoted());
         return entity;
     }

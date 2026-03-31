@@ -14,11 +14,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.base.AuditableEntity;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -36,10 +38,10 @@ public class UsuariosJpa extends AuditableEntity implements Serializable {
     @Column(name = "nombre", length = 100, nullable = false)
     private String nombre;
 
-    @Column(name = "cedula", length = 20)
+    @Column(name = "cedula", length = 20, unique = true)
     private String cedula;
 
-    @Column(name = "correo", length = 150, nullable = false)
+    @Column(name = "correo", length = 150, nullable = false, unique = true)
     private String correo;
 
     @Column(name = "contrasena", length = 255, nullable = false)

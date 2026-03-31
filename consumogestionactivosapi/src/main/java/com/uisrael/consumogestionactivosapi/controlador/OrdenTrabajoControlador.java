@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.OrdenCrearRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.OrdenGuardarRequestDTO;
@@ -40,7 +40,7 @@ public class OrdenTrabajoControlador {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header(HttpHeaders.LOCATION, location)
                     .build();
-        } catch (WebClientResponseException ex) {
+        } catch (RestClientResponseException ex) {
             return ResponseEntity.status(ex.getStatusCode())
                     .body(extraerMensaje(ex.getResponseBodyAsString()));
         } catch (RuntimeException ex) {
