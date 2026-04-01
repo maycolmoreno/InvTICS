@@ -30,6 +30,9 @@ public interface IMantenimientosJpaRepositorio extends JpaRepository<Mantenimien
 
     Optional<MantenimientosJpa> findTopByEquipoIdAndFecCierreNotNullOrderByFecCierreDesc(Integer equipoId);
 
+    boolean existsByEquipoIdAndEstadoInterno(Integer equipoId,
+            com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimiento estadoInterno);
+
     @EntityGraph(attributePaths = {"fkEquipo", "fkCliente", "fkUsuario"})
     List<MantenimientosJpa> findByEquipoIdOrderByCreadoEnDesc(Integer equipoId);
 

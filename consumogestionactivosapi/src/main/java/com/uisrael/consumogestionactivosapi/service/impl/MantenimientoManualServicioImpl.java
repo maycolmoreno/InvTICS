@@ -114,6 +114,21 @@ public class MantenimientoManualServicioImpl implements IMantenimientoManualServ
 	}
 
 	@Override
+	public byte[] obtenerImagen(Integer idMantenimiento, String filename) {
+		try {
+			return clienteWeb.get()
+					.uri("/mantenimiento/{id}/imagenes/{filename}", idMantenimiento, filename)
+					.retrieve()
+					.body(byte[].class);
+		} catch (RestClientResponseException ex) {
+			if (ex.getStatusCode().value() == 404) {
+				return null;
+			}
+			throw WebClientHelper.manejarError(ex);
+		}
+	}
+
+	@Override
 	public void reenviarCorreo(Integer id) {
 		try {
 			clienteWeb.post().uri("/mantenimiento/{id}/reenviar-correo", id).retrieve().toBodilessEntity();

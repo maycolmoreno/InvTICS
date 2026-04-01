@@ -83,10 +83,12 @@ class _DashboardShellState extends State<DashboardShell> {
           final currentIndex = _index >= tabs.length ? tabs.length - 1 : _index;
 
           return Scaffold(
-            body: RefreshIndicator(
-              onRefresh: dashboard.refresh,
-              child: tabs[currentIndex].page,
-            ),
+            body: currentIndex == 0
+                ? RefreshIndicator(
+                    onRefresh: dashboard.refresh,
+                    child: tabs[currentIndex].page,
+                  )
+                : tabs[currentIndex].page,
             bottomNavigationBar: Container(
               decoration: BoxDecoration(
                 color: Colors.white,

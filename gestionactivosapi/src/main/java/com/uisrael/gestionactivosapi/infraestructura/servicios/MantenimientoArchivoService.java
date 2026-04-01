@@ -81,6 +81,32 @@ public class MantenimientoArchivoService {
         return Files.exists(obtenerRutaPdf(idMantenimiento));
     }
 
+    public byte[] leerImagen(Integer idMantenimiento, String nombreArchivo) {
+        try {
+            Path imagen = basePath.resolve("imagenes")
+                    .resolve(String.valueOf(idMantenimiento))
+                    .resolve(nombreArchivo)
+                    .normalize();
+            if (!imagen.startsWith(basePath.resolve("imagenes").normalize())) {
+                throw new IllegalArgumentException("Ruta de imagen no valida");
+            }
+            if (!Files.exists(imagen)) {
+                return null;
+            }
+            return Files.readAllBytes(imagen);
+        } catch (IOException e) {
+            throw new RuntimeException("No se pudo leer la imagen", e);
+        }
+    }
+
+    public String detectarTipoMime(String nombreArchivo) {
+        String lower = nombreArchivo.toLowerCase();
+        if (lower.endsWith(".png")) return "image/png";
+        if (lower.endsWith(".gif")) return "image/gif";
+        if (lower.endsWith(".webp")) return "image/webp";
+        return "image/jpeg";
+    }
+
     private Path obtenerRutaPdf(Integer idMantenimiento) {
         return basePath.resolve("pdfs").resolve("mantenimiento_" + idMantenimiento + ".pdf");
     }

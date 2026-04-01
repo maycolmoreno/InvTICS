@@ -27,4 +27,6 @@ public interface IMantenimientoManualServicio {
     byte[] descargarPdf(Integer id);
 
     void reenviarCorreo(Integer id);
+
+    byte[] obtenerImagen(Integer idMantenimiento, String filename);
 }

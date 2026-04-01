@@ -47,6 +47,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   int? _custodioId;
   bool _loading = true;
   bool _saving = false;
+  bool _isDrawingSignature = false;
   String? _loadError;
   List<EquipoListItem> _equipos = const [];
   List<Map<String, dynamic>> _custodios = const [];
@@ -121,6 +122,45 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       return;
     }
     setState(() => _imagenes = [..._imagenes, ...images]);
+  }
+
+  Future<void> _takePhoto() async {
+    final photo = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+    );
+    if (photo == null) {
+      return;
+    }
+    setState(() => _imagenes = [..._imagenes, photo]);
+  }
+
+  void _showImageSourceSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Galeria'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImages();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Tomar foto'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _takePhoto();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _selectDate() async {
@@ -497,6 +537,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
       );
     }
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(title: const Text('Nuevo mantenimiento')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -531,227 +572,303 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                     ),
                   ),
                 )
-              : Form(
-                  key: _formKey,
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: _pickEquipos,
-                        icon: const Icon(Icons.devices_outlined),
-                        label: Text(
-                          _equipoIds.isEmpty
-                              ? 'Seleccionar equipos'
-                              : 'Equipos seleccionados: ${_equipoIds.length}',
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (_equipoIds.isNotEmpty)
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _equipos
-                              .where((item) {
-                                return item.id > 0 &&
-                                    _equipoIds.contains(item.id);
-                              })
-                              .map(
-                                (item) => InputChip(
-                                  label: Text(_equipoLabel(item)),
-                                  onDeleted: () {
-                                    setState(() {
-                                      if (item.id > 0) {
-                                        _equipoIds.remove(item.id);
-                                        final validos = _custodiosValidos();
-                                        if (_custodioId != null &&
-                                            !validos.contains(_custodioId)) {
-                                          _custodioId = null;
-                                        }
-                                      }
-                                    });
-                                  },
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      const SizedBox(height: 12),
-                      Builder(
-                        builder: (context) {
-                          final validos = _custodiosValidos();
-                          final custodiosFiltrados = _custodios.where((item) {
-                            final id = _asInt(item['idCustodio']) ??
-                                _asInt(item['id']);
-                            return id != null && validos.contains(id);
-                          }).toList();
-                          return DropdownButtonFormField<int>(
-                            initialValue: _custodioId,
-                            decoration:
-                                const InputDecoration(labelText: 'Custodio'),
-                            items: custodiosFiltrados
-                                .map(
-                                  (item) => DropdownMenuItem<int>(
-                                    value: _asInt(item['idCustodio']) ??
-                                        _asInt(item['id']),
-                                    child: Text(_text(item['nombre'],
-                                        fallback: 'Sin nombre')),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) =>
-                                setState(() => _custodioId = value),
-                            validator: (value) =>
-                                value == null ? 'Selecciona un custodio' : null,
-                          );
-                        },
-                      ),
-                      if (_equipoIds.isNotEmpty && _custodiosValidos().isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: Text(
-                            'No hay custodios en comun para los equipos seleccionados.',
-                            style: TextStyle(color: Colors.redAccent),
-                          ),
-                        ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        initialValue: _tipo,
-                        decoration: const InputDecoration(labelText: 'Tipo'),
-                        items: const [
-                          DropdownMenuItem(
-                              value: 'PREVENTIVO', child: Text('Preventivo')),
-                          DropdownMenuItem(
-                              value: 'CORRECTIVO', child: Text('Correctivo')),
-                        ],
-                        onChanged: (value) =>
-                            setState(() => _tipo = value ?? _tipo),
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        initialValue: _estadoGeneral,
-                        decoration:
-                            const InputDecoration(labelText: 'Estado general'),
-                        items: const [
-                          DropdownMenuItem(
-                              value: 'OPERATIVO', child: Text('Operativo')),
-                          DropdownMenuItem(
-                              value: 'REQUIERE_REVISION',
-                              child: Text('Requiere revision')),
-                          DropdownMenuItem(
-                              value: 'NO_OPERATIVO',
-                              child: Text('No operativo')),
-                        ],
-                        onChanged: (value) => setState(
-                            () => _estadoGeneral = value ?? _estadoGeneral),
-                      ),
-                      const SizedBox(height: 12),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Fecha de mantenimiento'),
-                        subtitle: Text(_formatDate(_fecha)),
-                        trailing: const Icon(Icons.calendar_today_outlined),
-                        onTap: _selectDate,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _detalleController,
-                        minLines: 3,
-                        maxLines: 5,
-                        decoration: const InputDecoration(
-                          labelText: 'Detalle',
-                          hintText: 'Describe el trabajo o hallazgo tecnico',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Ingresa el detalle del mantenimiento';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Checklist tecnico',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      if (_actividades.isEmpty)
-                        const Card(
-                          child: Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Text(
-                                'No hay actividades checklist configuradas.'),
-                          ),
-                        )
-                      else
-                        ..._buildChecklistWidgets(),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Observaciones por bloque',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      ..._buildObservacionesWidgets(),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Firmas',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      _SignatureCard(
-                        title: 'Firma del tecnico',
-                        controller: _firmaTecnicoController,
-                      ),
-                      const SizedBox(height: 12),
-                      _SignatureCard(
-                        title: 'Firma del custodio',
-                        controller: _firmaCustodioController,
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: _pickImages,
-                            icon: const Icon(Icons.photo_library_outlined),
-                            label: const Text('Agregar imagenes'),
-                          ),
-                          const SizedBox(width: 12),
-                          Text('${_imagenes.length} seleccionadas'),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      if (_imagenes.isNotEmpty)
-                        ..._imagenes.map(
-                          (image) => ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.image_outlined),
-                            title: Text(image.name),
-                            subtitle: Text(image.path),
-                            trailing: IconButton(
-                              onPressed: () {
-                                setState(
-                                  () => _imagenes = _imagenes
-                                      .where((item) => item.path != image.path)
+              : SafeArea(
+                  child: Form(
+                    key: _formKey,
+                    child: Builder(
+                      builder: (context) {
+                        final bottomPad =
+                            MediaQuery.viewInsetsOf(context).bottom;
+                        return ListView(
+                          padding:
+                              EdgeInsets.fromLTRB(16, 16, 16, 8 + bottomPad),
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          physics: _isDrawingSignature
+                              ? const NeverScrollableScrollPhysics()
+                              : const AlwaysScrollableScrollPhysics(),
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: _pickEquipos,
+                              icon: const Icon(Icons.devices_outlined),
+                              label: Text(
+                                _equipoIds.isEmpty
+                                    ? 'Seleccionar equipos'
+                                    : 'Equipos seleccionados: ${_equipoIds.length}',
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            if (_equipoIds.isNotEmpty)
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: _equipos
+                                    .where((item) {
+                                      return item.id > 0 &&
+                                          _equipoIds.contains(item.id);
+                                    })
+                                    .map(
+                                      (item) => InputChip(
+                                        label: Text(_equipoLabel(item)),
+                                        onDeleted: () {
+                                          setState(() {
+                                            if (item.id > 0) {
+                                              _equipoIds.remove(item.id);
+                                              final validos =
+                                                  _custodiosValidos();
+                                              if (_custodioId != null &&
+                                                  !validos
+                                                      .contains(_custodioId)) {
+                                                _custodioId = null;
+                                              }
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            const SizedBox(height: 12),
+                            Builder(
+                              builder: (context) {
+                                final validos = _custodiosValidos();
+                                final custodiosFiltrados =
+                                    _custodios.where((item) {
+                                  final id = _asInt(item['idCustodio']) ??
+                                      _asInt(item['id']);
+                                  return id != null && validos.contains(id);
+                                }).toList();
+                                return DropdownButtonFormField<int>(
+                                  initialValue: _custodioId,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Custodio'),
+                                  items: custodiosFiltrados
+                                      .map(
+                                        (item) => DropdownMenuItem<int>(
+                                          value: _asInt(item['idCustodio']) ??
+                                              _asInt(item['id']),
+                                          child: Text(_text(item['nombre'],
+                                              fallback: 'Sin nombre')),
+                                        ),
+                                      )
                                       .toList(),
+                                  onChanged: (value) =>
+                                      setState(() => _custodioId = value),
+                                  validator: (value) => value == null
+                                      ? 'Selecciona un custodio'
+                                      : null,
                                 );
                               },
-                              icon: const Icon(Icons.delete_outline),
                             ),
-                          ),
-                        ),
-                      const SizedBox(height: 20),
-                      FilledButton.icon(
-                        onPressed: _saving ? null : _save,
-                        icon: _saving
-                            ? const SizedBox(
-                                height: 16,
-                                width: 16,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
+                            if (_equipoIds.isNotEmpty &&
+                                _custodiosValidos().isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.only(top: 8),
+                                child: Text(
+                                  'No hay custodios en comun para los equipos seleccionados.',
+                                  style: TextStyle(color: Colors.redAccent),
+                                ),
+                              ),
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<String>(
+                              initialValue: _tipo,
+                              decoration:
+                                  const InputDecoration(labelText: 'Tipo'),
+                              items: const [
+                                DropdownMenuItem(
+                                    value: 'PREVENTIVO',
+                                    child: Text('Preventivo')),
+                                DropdownMenuItem(
+                                    value: 'CORRECTIVO',
+                                    child: Text('Correctivo')),
+                              ],
+                              onChanged: (value) =>
+                                  setState(() => _tipo = value ?? _tipo),
+                            ),
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<String>(
+                              initialValue: _estadoGeneral,
+                              decoration: const InputDecoration(
+                                  labelText: 'Estado general'),
+                              items: const [
+                                DropdownMenuItem(
+                                    value: 'OPERATIVO',
+                                    child: Text('Operativo')),
+                                DropdownMenuItem(
+                                    value: 'REQUIERE_REVISION',
+                                    child: Text('Requiere revision')),
+                                DropdownMenuItem(
+                                    value: 'NO_OPERATIVO',
+                                    child: Text('No operativo')),
+                              ],
+                              onChanged: (value) => setState(() =>
+                                  _estadoGeneral = value ?? _estadoGeneral),
+                            ),
+                            const SizedBox(height: 12),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('Fecha de mantenimiento'),
+                              subtitle: Text(_formatDate(_fecha)),
+                              trailing:
+                                  const Icon(Icons.calendar_today_outlined),
+                              onTap: _selectDate,
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _detalleController,
+                              minLines: 3,
+                              maxLines: 5,
+                              decoration: const InputDecoration(
+                                labelText: 'Detalle',
+                                hintText:
+                                    'Describe el trabajo o hallazgo tecnico',
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Ingresa el detalle del mantenimiento';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Checklist tecnico',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            if (_actividades.isEmpty)
+                              const Card(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Text(
+                                      'No hay actividades checklist configuradas.'),
+                                ),
                               )
-                            : const Icon(Icons.save_outlined),
-                        label: Text(
-                            _saving ? 'Guardando...' : 'Crear mantenimiento'),
-                      ),
-                    ],
+                            else
+                              ..._buildChecklistWidgets(),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Observaciones por bloque',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            ..._buildObservacionesWidgets(),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Firmas',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Listener(
+                              onPointerDown: (_) =>
+                                  setState(() => _isDrawingSignature = true),
+                              onPointerUp: (_) =>
+                                  setState(() => _isDrawingSignature = false),
+                              onPointerCancel: (_) =>
+                                  setState(() => _isDrawingSignature = false),
+                              child: _SignatureCard(
+                                title: 'Firma del tecnico',
+                                controller: _firmaTecnicoController,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Listener(
+                              onPointerDown: (_) =>
+                                  setState(() => _isDrawingSignature = true),
+                              onPointerUp: (_) =>
+                                  setState(() => _isDrawingSignature = false),
+                              onPointerCancel: (_) =>
+                                  setState(() => _isDrawingSignature = false),
+                              child: _SignatureCard(
+                                title: 'Firma del custodio',
+                                controller: _firmaCustodioController,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                OutlinedButton.icon(
+                                  onPressed: _showImageSourceSheet,
+                                  icon: const Icon(Icons.add_a_photo_outlined),
+                                  label: const Text('Agregar imagenes'),
+                                ),
+                                const SizedBox(width: 12),
+                                Text('${_imagenes.length} seleccionadas'),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            if (_imagenes.isNotEmpty)
+                              SizedBox(
+                                height: 120,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _imagenes.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(width: 8),
+                                  itemBuilder: (context, index) {
+                                    final image = _imagenes[index];
+                                    return Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Image.file(
+                                            File(image.path),
+                                            width: 120,
+                                            height: 120,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 4,
+                                          right: 4,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              setState(
+                                                () => _imagenes = _imagenes
+                                                    .where((item) =>
+                                                        item.path != image.path)
+                                                    .toList(),
+                                              );
+                                            },
+                                            child: Container(
+                                              decoration: const BoxDecoration(
+                                                color: Colors.black54,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              padding: const EdgeInsets.all(4),
+                                              child: const Icon(
+                                                Icons.close,
+                                                size: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            const SizedBox(height: 20),
+                            FilledButton.icon(
+                              onPressed: _saving ? null : _save,
+                              icon: _saving
+                                  ? const SizedBox(
+                                      height: 16,
+                                      width: 16,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
+                                    )
+                                  : const Icon(Icons.save_outlined),
+                              label: Text(_saving
+                                  ? 'Guardando...'
+                                  : 'Crear mantenimiento'),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
     );
@@ -788,16 +905,26 @@ class _SignatureCard extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
-            Container(
-              height: 160,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Signature(
-                controller: controller,
-                backgroundColor: Colors.white,
-              ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final w = constraints.maxWidth;
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: 160,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Signature(
+                      controller: controller,
+                      backgroundColor: Colors.white,
+                      width: w.isFinite ? w : 300,
+                      height: 160,
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 8),
             Align(

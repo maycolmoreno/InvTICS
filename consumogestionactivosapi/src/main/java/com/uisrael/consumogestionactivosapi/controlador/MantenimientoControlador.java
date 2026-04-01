@@ -149,7 +149,13 @@ public class MantenimientoControlador {
             request.setFirmaCustodio(firmaCustodio);
             request.setActividades(construirActividadesSeleccionadas(actividadIds));
 
-            MantenimientoManualResponseDTO creado = mantenimientoManualServicio.crear(request);
+            MantenimientoManualResponseDTO creado;
+            try {
+                creado = mantenimientoManualServicio.crear(request);
+            } catch (RuntimeException ex) {
+                redirectAttributes.addFlashAttribute("error", ex.getMessage());
+                return "redirect:/mantenimiento/nuevo";
+            }
             creado.setTipoMantenimiento(tipoMantenimiento);
             List<ImagenMantenimientoRequestDTO> metadata = mantenimientoManualServicio
                     .subirImagenes(creado.getIdMantenimiento(), imagenes);
@@ -164,7 +170,7 @@ public class MantenimientoControlador {
             }
         }
 
-        redirectAttributes.addFlashAttribute("exito", "Orden de mantenimiento guardada y reporte enviado");
+        redirectAttributes.addFlashAttribute("exito", "Orden de mantenimiento guardada correctamente");
         return "redirect:/mantenimiento";
     }
 
@@ -181,6 +187,19 @@ public class MantenimientoControlador {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"mantenimiento_" + id + ".pdf\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);
+    }
+
+    @GetMapping("/{id}/imagen/{filename:.+}")
+    public ResponseEntity<byte[]> servirImagen(@PathVariable Integer id, @PathVariable String filename) {
+        byte[] bytes = mantenimientoManualServicio.obtenerImagen(id, filename);
+        if (bytes == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String mime = filename.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, mime)
+                .header(HttpHeaders.CACHE_CONTROL, "max-age=86400")
+                .body(bytes);
     }
 
     @PostMapping("/{id}/reenviar-correo")

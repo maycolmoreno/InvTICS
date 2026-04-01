@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import '../../../core/errors/exceptions.dart';
@@ -172,7 +173,19 @@ class MantenimientosRepository {
     required int mantenimientoId,
     required List<Map<String, dynamic>> imagenes,
   }) async {
-    await _apiClient.post('/mantenimiento/$mantenimientoId/imagenes', imagenes);
+    final files = imagenes
+        .map((img) => img['rutaArchivo'] as String?)
+        .where((path) => path != null && path.isNotEmpty)
+        .map((path) => File(path!))
+        .where((file) => file.existsSync())
+        .toList();
+    if (files.isNotEmpty) {
+      await _apiClient.postMultipart(
+        '/mantenimiento/$mantenimientoId/imagenes/upload',
+        files,
+        <String, String>{},
+      );
+    }
   }
 
   Future<void> cerrar({

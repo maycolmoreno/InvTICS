@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -64,12 +65,6 @@ public class MantenimientoManualControlador {
     public MantenimientoManualResponseDTO crear(@Valid @RequestBody MantenimientoManualRequestDTO request,
             Principal principal) {
         MantenimientoManualResponseDTO creado = mantenimientoService.crear(toCommand(request), principal.getName());
-        try {
-            mantenimientoInformeService.generarGuardarYEnviar(creado);
-        } catch (Exception e) {
-            log.error("No se pudo generar/enviar el informe del mantenimiento {}: {}", creado.getIdMantenimiento(),
-                    e.getMessage(), e);
-        }
         return creado;
     }
 
@@ -86,6 +81,19 @@ public class MantenimientoManualControlador {
         List<ImagenMantenimientoRequestDTO> metadata = mantenimientoArchivoService.guardarImagenes(id, files);
         mantenimientoService.guardarImagenes(id, toImageCommands(metadata));
         return metadata;
+    }
+
+    @GetMapping("/{id}/imagenes/{filename:.+}")
+    public ResponseEntity<byte[]> servirImagen(@PathVariable Integer id, @PathVariable String filename) {
+        byte[] bytes = mantenimientoArchivoService.leerImagen(id, filename);
+        if (bytes == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String mime = mantenimientoArchivoService.detectarTipoMime(filename);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, mime)
+                .header(HttpHeaders.CACHE_CONTROL, "max-age=86400")
+                .body(bytes);
     }
 
     @PostMapping("/cerrar/{id}")

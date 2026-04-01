@@ -69,6 +69,11 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
         if (!custodio.isEstado()) {
             throw new IllegalArgumentException("El custodio no esta activo");
         }
+        if (mantenimientosRepo.existsByEquipoIdAndEstadoInterno(
+                equipo.getIdEquipo(), EstadoInternoMantenimiento.EN_PROCESO)) {
+            throw new IllegalArgumentException(
+                    "El equipo ya tiene un mantenimiento en proceso. Debe finalizarlo antes de crear uno nuevo.");
+        }
         UsuariosJpa tecnico = usuariosRepo.findByCorreo(correoAutenticado)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario autenticado no encontrado"));
 

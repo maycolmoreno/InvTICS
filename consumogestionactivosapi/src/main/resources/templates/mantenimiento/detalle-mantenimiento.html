@@ -146,7 +146,7 @@
 					</div>
 					<div class="evidence-grid">
 						<div class="evidence-tile" th:each="img : ${mantenimiento.imagenes}">
-							<img th:src="@{'/' + ${img.rutaArchivo}}" alt="evidencia">
+							<img th:src="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/imagen/' + ${img.nombreArchivo}}" alt="evidencia">
 						</div>
 						<div class="status-empty" th:if="${mantenimiento.imagenes == null or #lists.isEmpty(mantenimiento.imagenes)}" style="grid-column:1/-1;">
 							<i class="feather-image"></i>
