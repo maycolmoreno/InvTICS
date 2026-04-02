@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../auth/presentation/auth_provider.dart';
 import '../data/planificacion_models.dart';
 import 'planificacion_provider.dart';
 
@@ -64,9 +65,11 @@ class _PlanificacionFormScreenState extends State<PlanificacionFormScreen> {
 
     setState(() => _saving = true);
     final provider = context.read<PlanificacionProvider>();
+    final auth = context.read<AuthProvider>();
+    final currentUserId = auth.userId ?? 0;
     final actividad = ActividadPlanificada(
-      tecnicoId: 0, // Será asignado por el backend según el usuario logueado
-      creadoPorId: 0,
+      tecnicoId: currentUserId,
+      creadoPorId: currentUserId,
       titulo: _tituloCtrl.text.trim(),
       descripcion: _descripcionCtrl.text.trim(),
       tipoActividad: _tipoActividad,

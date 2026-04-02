@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -47,8 +48,9 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
   int? _custodioId;
   bool _loading = true;
   bool _saving = false;
-  bool _isDrawingSignature = false;
   String? _loadError;
+  Uint8List? _firmaTecnicoPreview;
+  Uint8List? _firmaCustodioPreview;
   List<EquipoListItem> _equipos = const [];
   List<Map<String, dynamic>> _custodios = const [];
   List<Map<String, dynamic>> _custodias = const [];
@@ -116,25 +118,6 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
     }
   }
 
-  Future<void> _pickImages() async {
-    final images = await _picker.pickMultiImage(imageQuality: 80);
-    if (images.isEmpty) {
-      return;
-    }
-    setState(() => _imagenes = [..._imagenes, ...images]);
-  }
-
-  Future<void> _takePhoto() async {
-    final photo = await _picker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 80,
-    );
-    if (photo == null) {
-      return;
-    }
-    setState(() => _imagenes = [..._imagenes, photo]);
-  }
-
   void _showImageSourceSheet() {
     showModalBottomSheet(
       context: context,
@@ -144,20 +127,138 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
               title: const Text('Galeria'),
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).pop();
-                _pickImages();
+                final images = await _picker.pickMultiImage(imageQuality: 80);
+                if (images.isNotEmpty) {
+                  setState(() => _imagenes = [..._imagenes, ...images]);
+                }
               },
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt_outlined),
               title: const Text('Tomar foto'),
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).pop();
-                _takePhoto();
+                final photo = await _picker.pickImage(
+                  source: ImageSource.camera,
+                  imageQuality: 80,
+                );
+                if (photo != null) {
+                  setState(() => _imagenes = [..._imagenes, photo]);
+                }
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openSignaturePad(
+    SignatureController controller, {
+    required bool isTecnico,
+  }) async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (_) => _SignatureBottomSheet(
+        title: isTecnico ? 'Firma del tecnico' : 'Firma del custodio',
+        controller: controller,
+      ),
+    );
+    if (!mounted) return;
+    if (confirmed == true && controller.isNotEmpty) {
+      final bytes = await controller.toPngBytes();
+      setState(() {
+        if (isTecnico) {
+          _firmaTecnicoPreview = bytes;
+        } else {
+          _firmaCustodioPreview = bytes;
+        }
+      });
+    } else if (controller.isEmpty) {
+      setState(() {
+        if (isTecnico) {
+          _firmaTecnicoPreview = null;
+        } else {
+          _firmaCustodioPreview = null;
+        }
+      });
+    }
+  }
+
+  Widget _buildSignatureTile({
+    required String title,
+    required SignatureController controller,
+    required Uint8List? preview,
+    required bool isTecnico,
+  }) {
+    return GestureDetector(
+      onTap: () => _openSignaturePad(controller, isTecnico: isTecnico),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  if (preview != null)
+                    TextButton.icon(
+                      onPressed: () {
+                        controller.clear();
+                        setState(() {
+                          if (isTecnico) {
+                            _firmaTecnicoPreview = null;
+                          } else {
+                            _firmaCustodioPreview = null;
+                          }
+                        });
+                      },
+                      icon: const Icon(Icons.refresh, size: 18),
+                      label: const Text('Limpiar'),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 120,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black12),
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                ),
+                child: preview != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.memory(preview, fit: BoxFit.contain),
+                      )
+                    : const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.draw_outlined,
+                                size: 32, color: Colors.grey),
+                            SizedBox(height: 8),
+                            Text(
+                              'Toca para firmar',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -584,9 +685,7 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                               EdgeInsets.fromLTRB(16, 16, 16, 8 + bottomPad),
                           keyboardDismissBehavior:
                               ScrollViewKeyboardDismissBehavior.onDrag,
-                          physics: _isDrawingSignature
-                              ? const NeverScrollableScrollPhysics()
-                              : const AlwaysScrollableScrollPhysics(),
+                          physics: const AlwaysScrollableScrollPhysics(),
                           children: [
                             OutlinedButton.icon(
                               onPressed: _pickEquipos,
@@ -759,40 +858,30 @@ class _MantenimientoFormScreenState extends State<MantenimientoFormScreen> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
-                            Listener(
-                              onPointerDown: (_) =>
-                                  setState(() => _isDrawingSignature = true),
-                              onPointerUp: (_) =>
-                                  setState(() => _isDrawingSignature = false),
-                              onPointerCancel: (_) =>
-                                  setState(() => _isDrawingSignature = false),
-                              child: _SignatureCard(
-                                title: 'Firma del tecnico',
-                                controller: _firmaTecnicoController,
-                              ),
+                            _buildSignatureTile(
+                              title: 'Firma del tecnico',
+                              controller: _firmaTecnicoController,
+                              preview: _firmaTecnicoPreview,
+                              isTecnico: true,
                             ),
                             const SizedBox(height: 12),
-                            Listener(
-                              onPointerDown: (_) =>
-                                  setState(() => _isDrawingSignature = true),
-                              onPointerUp: (_) =>
-                                  setState(() => _isDrawingSignature = false),
-                              onPointerCancel: (_) =>
-                                  setState(() => _isDrawingSignature = false),
-                              child: _SignatureCard(
-                                title: 'Firma del custodio',
-                                controller: _firmaCustodioController,
-                              ),
+                            _buildSignatureTile(
+                              title: 'Firma del custodio',
+                              controller: _firmaCustodioController,
+                              preview: _firmaCustodioPreview,
+                              isTecnico: false,
                             ),
                             const SizedBox(height: 16),
-                            Row(
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 12,
+                              runSpacing: 8,
                               children: [
                                 OutlinedButton.icon(
                                   onPressed: _showImageSourceSheet,
                                   icon: const Icon(Icons.add_a_photo_outlined),
                                   label: const Text('Agregar imagenes'),
                                 ),
-                                const SizedBox(width: 12),
                                 Text('${_imagenes.length} seleccionadas'),
                               ],
                             ),
@@ -883,8 +972,8 @@ Future<String> _signatureBase64(SignatureController controller) async {
   return base64Encode(bytes);
 }
 
-class _SignatureCard extends StatelessWidget {
-  const _SignatureCard({
+class _SignatureBottomSheet extends StatelessWidget {
+  const _SignatureBottomSheet({
     required this.title,
     required this.controller,
   });
@@ -894,46 +983,55 @@ class _SignatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final padWidth = screenWidth - 32; // 16 padding each side
+    return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          16 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final w = constraints.maxWidth;
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    height: 160,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Signature(
-                      controller: controller,
-                      backgroundColor: Colors.white,
-                      width: w.isFinite ? w : 300,
-                      height: 160,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: controller.clear,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Limpiar'),
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 16),
+            Container(
+              width: padWidth,
+              height: 200,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black12),
+                borderRadius: BorderRadius.circular(12),
               ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Signature(
+                  controller: controller,
+                  backgroundColor: Colors.white,
+                  width: padWidth,
+                  height: 200,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 12,
+              runSpacing: 8,
+              children: [
+                TextButton.icon(
+                  onPressed: controller.clear,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Limpiar'),
+                ),
+                FilledButton.icon(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  icon: const Icon(Icons.check),
+                  label: const Text('Confirmar'),
+                ),
+              ],
             ),
           ],
         ),

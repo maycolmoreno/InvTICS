@@ -142,6 +142,13 @@ class GpsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Envía la ubicación una sola vez al ingresar a la app (sin iniciar tracking).
+  Future<void> enviarUbicacionAlIngreso(int tecnicoId) async {
+    final ok = await _checkPermissions();
+    if (!ok) return;
+    await _enviarPosicion(tecnicoId);
+  }
+
   // — Consulta tiempo real (ADMIN) —
   List<UbicacionActivaResponse> _ubicacionesActivas = [];
   List<UbicacionActivaResponse> get ubicacionesActivas => _ubicacionesActivas;

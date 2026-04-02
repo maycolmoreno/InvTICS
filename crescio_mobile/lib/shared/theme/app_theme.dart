@@ -1,28 +1,32 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const _primary = Color(0xFF185FA5);
-  static const _secondary = Color(0xFF1D9E75);
+  // Paleta corporativa Cresio (cresio-theme-pro.css)
+  static const _primary = Color(0xFF47267F); // --cr-purple
+  static const _primaryDeep = Color(0xFF2F1857); // --cr-purple-deep
+  static const _primaryRich = Color(0xFF5C36A0); // --cr-purple-rich
+  static const _secondary = Color(0xFFE8412D); // --cr-accent
+  static const _secondaryWarm = Color(0xFFF05C2E); // --cr-accent-warm
   static const _error = Color(0xFFE24B4A);
-  static const _background = Color(0xFFF7F8FA);
+  static const _background = Color(0xFFF5F3FB); // --cr-bg
   static const _surface = Colors.white;
-  static const _onSurface = Color(0xFF1A1C1E);
-  static const _outline = Color(0xFFDDE1E6);
+  static const _onSurface = Color(0xFF1A1429); // --cr-ink
+  static const _outline = Color(0xFFD8D0E5); // ~--cr-border
 
   static ThemeData get light {
     const colorScheme = ColorScheme.light(
       primary: _primary,
       onPrimary: Colors.white,
-      primaryContainer: Color(0xFFD6E4F5),
+      primaryContainer: Color(0xFFEDE8F8), // --cr-purple-pale
       secondary: _secondary,
       onSecondary: Colors.white,
-      secondaryContainer: Color(0xFFD0F0E4),
+      secondaryContainer: Color(0xFFFDE8E4), // --cr-accent-soft
       error: _error,
       onError: Colors.white,
       surface: _surface,
       onSurface: _onSurface,
       outline: _outline,
-      surfaceContainerHighest: Color(0xFFF0F2F5),
+      surfaceContainerHighest: Color(0xFFF3F0FA), // --cr-surface-tint
     );
 
     return ThemeData(
@@ -151,8 +155,14 @@ class AppTheme {
   }
 
   // Colores semánticos reutilizables
-  static const success = _secondary;
+  static const success = Color(0xFF1D9E75);
   static const warning = Color(0xFFF5A623);
-  static const info = Color(0xFF2196F3);
+  static const info = _primaryRich;
   static const danger = _error;
+
+  // Acceso público a la paleta corporativa
+  static const purpleDeep = _primaryDeep;
+  static const purpleRich = _primaryRich;
+  static const accent = _secondary;
+  static const accentWarm = _secondaryWarm;
 }

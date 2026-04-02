@@ -17,7 +17,7 @@ class ConsentimientoGpsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          const Icon(Icons.location_on, size: 64, color: Color(0xFF185FA5)),
+          const Icon(Icons.location_on, size: 64, color: Color(0xFF47267F)),
           const SizedBox(height: 16),
           const Text(
             'Consentimiento de monitoreo',

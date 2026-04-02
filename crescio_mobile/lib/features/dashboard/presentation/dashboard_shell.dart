@@ -7,6 +7,7 @@ import '../../auth/data/auth_models.dart';
 import '../../auth/presentation/auth_provider.dart';
 import '../../configuracion/presentation/settings_screen.dart';
 import '../../equipos/presentation/equipos_screen.dart';
+import '../../gps/presentation/gps_provider.dart';
 import '../../gps/presentation/consentimiento_gps_screen.dart';
 import '../../gps/presentation/ubicaciones_realtime_screen.dart';
 import '../../mantenimientos/presentation/mantenimientos_screen.dart';
@@ -25,6 +26,21 @@ class DashboardShell extends StatefulWidget {
 
 class _DashboardShellState extends State<DashboardShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _enviarUbicacionInicial();
+  }
+
+  Future<void> _enviarUbicacionInicial() async {
+    final auth = context.read<AuthProvider>();
+    if (!auth.hasCapability(UserCapability.sendGpsLocation)) return;
+    final userId = auth.userId;
+    if (userId == null) return;
+    final gps = context.read<GpsProvider>();
+    await gps.enviarUbicacionAlIngreso(userId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,13 +199,13 @@ class _HomeTab extends StatelessWidget {
                 icon: Icons.build_circle,
                 label: 'Mant. abiertos',
                 value: '${dashboard.openMantenimientos}',
-                gradient: const [Color(0xFF185FA5), Color(0xFF2E86DE)],
+                gradient: const [Color(0xFF47267F), Color(0xFF5C36A0)],
               ),
               _MetricCard(
                 icon: Icons.devices,
                 label: 'Equipos activos',
                 value: '${dashboard.activeEquipos}',
-                gradient: const [Color(0xFF1D9E75), Color(0xFF27AE60)],
+                gradient: const [Color(0xFFE8412D), Color(0xFFF05C2E)],
               ),
               _MetricCard(
                 icon: Icons.notifications_active,
@@ -329,7 +345,7 @@ class _Header extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0D47A1), Color(0xFF185FA5)],
+          colors: [Color(0xFF2F1857), Color(0xFF47267F)],
         ),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
@@ -485,7 +501,7 @@ class _QuickAction extends StatelessWidget {
                     color: const Color(0xFFF0F4F8),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, size: 22, color: const Color(0xFF185FA5)),
+                  child: Icon(icon, size: 22, color: const Color(0xFF47267F)),
                 ),
               ),
               const SizedBox(height: 6),
@@ -668,7 +684,7 @@ class _MoreTab extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF0D47A1), Color(0xFF185FA5)],
+                colors: [Color(0xFF2F1857), Color(0xFF47267F)],
               ),
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
             ),
@@ -774,7 +790,7 @@ class _MoreTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = iconColor ?? const Color(0xFF185FA5);
+    final color = iconColor ?? const Color(0xFF47267F);
     return Card(
       child: ListTile(
         leading: Container(

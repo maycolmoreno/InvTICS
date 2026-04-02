@@ -15,7 +15,8 @@ class MantenimientoDetailScreen extends StatefulWidget {
   final int mantenimientoId;
 
   @override
-  State<MantenimientoDetailScreen> createState() => _MantenimientoDetailScreenState();
+  State<MantenimientoDetailScreen> createState() =>
+      _MantenimientoDetailScreenState();
 }
 
 class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
@@ -42,7 +43,9 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
 
   Future<void> _reload() async {
     final future = _load();
-    setState(() => _future = future);
+    setState(() {
+      _future = future;
+    });
     await future;
   }
 
@@ -50,7 +53,9 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
     final observaciones = _observacionesController.text.trim();
     if (observaciones.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa una descripcion para cerrar el mantenimiento.')),
+        const SnackBar(
+            content:
+                Text('Ingresa una descripcion para cerrar el mantenimiento.')),
       );
       return;
     }
@@ -58,7 +63,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
     setState(() => _closing = true);
     try {
       final queuedOffline =
-          await MantenimientosRepository(context.read<ApiClient>()).cerrarConFallback(
+          await MantenimientosRepository(context.read<ApiClient>())
+              .cerrarConFallback(
         mantenimientoId: widget.mantenimientoId,
         observaciones: observaciones,
       );
@@ -76,10 +82,12 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
       if (!queuedOffline) {
         await _reload();
       }
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No fue posible cerrar el mantenimiento.')),
+        SnackBar(
+            content: Text(
+                'Error al cerrar: ${e.toString().replaceAll('Exception: ', '')}')),
       );
     } finally {
       if (mounted) {
@@ -91,8 +99,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final canClose = context.watch<AuthProvider>().hasCapability(
-      UserCapability.closeMantenimiento,
-    );
+          UserCapability.closeMantenimiento,
+        );
     return Scaffold(
       appBar: AppBar(title: const Text('Detalle del mantenimiento')),
       body: FutureBuilder<Map<String, dynamic>>(
@@ -109,7 +117,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
           }
 
           final item = snapshot.data ?? const {};
-          final cerrado = _text(item['estadoInterno']).toUpperCase() == 'CERRADO';
+          final cerrado =
+              _text(item['estadoInterno']).toUpperCase() == 'CERRADO';
 
           return RefreshIndicator(
             onRefresh: _reload,
@@ -124,7 +133,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _text(item['equipoCodigoSap'], fallback: 'Sin codigo'),
+                          _text(item['equipoCodigoSap'],
+                              fallback: 'Sin codigo'),
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 12),
@@ -135,7 +145,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                         _line('SINE', item['sineSnapshoted']),
                         _line('Ticket', item['ticketId']),
                         _line('Descripcion', item['descripcion']),
-                        _line('Trabajo realizado', item['descripcionTrabajoRealizado']),
+                        _line('Trabajo realizado',
+                            item['descripcionTrabajoRealizado']),
                       ],
                     ),
                   ),
@@ -161,7 +172,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.check_circle_outline),
-                    label: Text(_closing ? 'Cerrando...' : 'Cerrar mantenimiento'),
+                    label:
+                        Text(_closing ? 'Cerrando...' : 'Cerrar mantenimiento'),
                   ),
                 ] else if (cerrado)
                   const Card(
@@ -174,7 +186,8 @@ class _MantenimientoDetailScreenState extends State<MantenimientoDetailScreen> {
                   const Card(
                     child: Padding(
                       padding: EdgeInsets.all(16),
-                      child: Text('Tu rol no puede cerrar mantenimientos desde la app.'),
+                      child: Text(
+                          'Tu rol no puede cerrar mantenimientos desde la app.'),
                     ),
                   ),
               ],
