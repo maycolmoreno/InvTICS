@@ -4,10 +4,13 @@ import java.util.List;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.EquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.PaginaResponse;
 
 public interface IEquiposServicio {
 
     List<EquiposResponseDTO> listarEquipos();
+
+    PaginaResponse<EquiposResponseDTO> listarEquiposPaginado(int page, int size);
 
     void crearEquipo(EquiposRequestDTO dto);
 

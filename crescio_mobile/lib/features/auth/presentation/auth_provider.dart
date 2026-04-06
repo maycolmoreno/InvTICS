@@ -51,13 +51,21 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> login(String username, String password) async {
+    final trimmedUsername = username.trim();
+    if (trimmedUsername.isEmpty || password.isEmpty) {
+      _errorMessage = 'El usuario y la contraseña son obligatorios.';
+      _status = AuthStatus.unauthenticated;
+      notifyListeners();
+      return false;
+    }
+
     _errorMessage = null;
     _status = AuthStatus.loading;
     notifyListeners();
 
     try {
       final session = await _repository.login(
-        LoginRequest(username: username.trim(), password: password),
+        LoginRequest(username: trimmedUsername, password: password),
       );
       _session = session;
       _status = AuthStatus.authenticated;

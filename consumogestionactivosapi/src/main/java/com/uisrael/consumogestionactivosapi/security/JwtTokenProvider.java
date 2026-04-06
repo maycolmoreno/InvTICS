@@ -19,7 +19,7 @@ public class JwtTokenProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-	@Value("${jwt.secret:tu-clave-secreta-super-larga-y-segura-minimo-256-bits-por-favor-cambiar}")
+	@Value("${jwt.secret}")
 	private String jwtSecret;
 
 	@Value("${jwt.expiration.access-token:900000}")

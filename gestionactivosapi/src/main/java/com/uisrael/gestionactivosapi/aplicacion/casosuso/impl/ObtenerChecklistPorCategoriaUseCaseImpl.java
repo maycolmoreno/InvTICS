@@ -3,7 +3,7 @@ package com.uisrael.gestionactivosapi.aplicacion.casosuso.impl;
 import java.util.List;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IObtenerChecklistPorCategoriaUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.ActividadChecklist;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.ActividadChecklistRepositorioPuerto;
 

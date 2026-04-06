@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IMantenimientosUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Mantenimientos;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoOrigenMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.MantenimientoRepositorioPuerto;

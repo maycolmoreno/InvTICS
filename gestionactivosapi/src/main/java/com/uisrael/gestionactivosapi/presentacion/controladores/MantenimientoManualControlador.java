@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -23,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoArchivoService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoInformeService;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IMantenimientoManualUseCase;
+import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.PaginaResponse;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.ActividadManualComando;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.ImagenMantenimientoComando;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.MantenimientoManualComando;
@@ -48,6 +51,22 @@ public class MantenimientoManualControlador {
     @GetMapping
     public List<MantenimientoManualResponseDTO> listarTodos() {
         return mantenimientoService.listarTodos();
+    }
+
+    @GetMapping("/paginado")
+    public PaginaResponse<MantenimientoManualResponseDTO> listarPaginado(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pagina<MantenimientoManualResponseDTO> pagina = mantenimientoService.listarTodosPaginado(page, size);
+        PaginaResponse<MantenimientoManualResponseDTO> resp = new PaginaResponse<>();
+        resp.setContenido(pagina.contenido());
+        resp.setPaginaActual(pagina.paginaActual());
+        resp.setTamanioPagina(pagina.tamanioPagina());
+        resp.setTotalElementos(pagina.totalElementos());
+        resp.setTotalPaginas(pagina.totalPaginas());
+        resp.setPrimera(pagina.paginaActual() == 0);
+        resp.setUltima(pagina.paginaActual() + 1 >= pagina.totalPaginas());
+        return resp;
     }
 
     @GetMapping("/{id}")
@@ -85,6 +104,9 @@ public class MantenimientoManualControlador {
 
     @GetMapping("/{id}/imagenes/{filename:.+}")
     public ResponseEntity<byte[]> servirImagen(@PathVariable Integer id, @PathVariable String filename) {
+        if (filename == null || !filename.matches("[a-zA-Z0-9._-]+")) {
+            return ResponseEntity.badRequest().build();
+        }
         byte[] bytes = mantenimientoArchivoService.leerImagen(id, filename);
         if (bytes == null) {
             return ResponseEntity.notFound().build();

@@ -1,14 +1,11 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * Entidad que representa un mantenimiento programado.
  */
-public class MantenimientoProgramado implements Serializable {
-    
-    private static final long serialVersionUID = 1L;
+public class MantenimientoProgramado {
     
     private Integer idProgramado;
     private Integer equipoId;

@@ -25,8 +25,10 @@ public class WebClientConfig {
 			.baseUrl(apiBaseUrl)
 			.requestInterceptor((request, body, execution) -> {
 				if (sesionUsuario.isAutenticado()) {
-					request.getHeaders().setBasicAuth(
-							sesionUsuario.getCorreo(), sesionUsuario.getContrasena());
+					String authHeader = sesionUsuario.getAuthorizationHeader();
+					if (authHeader != null) {
+						request.getHeaders().set("Authorization", authHeader);
+					}
 				}
 				return execution.execute(request, body);
 			})

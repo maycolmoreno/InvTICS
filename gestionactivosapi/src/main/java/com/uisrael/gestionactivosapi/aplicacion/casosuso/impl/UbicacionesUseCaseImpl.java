@@ -2,8 +2,11 @@ package com.uisrael.gestionactivosapi.aplicacion.casosuso.impl;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IUbicacionesUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Ubicaciones;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.UbicacionRepositorioPuerto;
 
@@ -16,6 +19,7 @@ public class UbicacionesUseCaseImpl implements IUbicacionesUseCase {
 	}
 
 	@Override
+	@CacheEvict(value = "ubicaciones", allEntries = true)
 	public Ubicaciones crear(Ubicaciones ubicacion) {
 		return ubicacionRepositorio.guardar(ubicacion);
 	}
@@ -26,11 +30,13 @@ public class UbicacionesUseCaseImpl implements IUbicacionesUseCase {
 	}
 
 	@Override
+	@Cacheable("ubicaciones")
 	public List<Ubicaciones> listar() {
 		return ubicacionRepositorio.listarTodos();
 	}
 
 	@Override
+	@CacheEvict(value = "ubicaciones", allEntries = true)
 	public Ubicaciones actualizar(int id, Ubicaciones ubicacion) {
 		ubicacionRepositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Ubicación no encontrada"));
 
@@ -44,6 +50,7 @@ public class UbicacionesUseCaseImpl implements IUbicacionesUseCase {
 	}
 
 	@Override
+	@CacheEvict(value = "ubicaciones", allEntries = true)
 	public Ubicaciones actualizarEstado(int id, boolean estado) {
 
 		Ubicaciones actual = ubicacionRepositorio.buscarPorId(id)

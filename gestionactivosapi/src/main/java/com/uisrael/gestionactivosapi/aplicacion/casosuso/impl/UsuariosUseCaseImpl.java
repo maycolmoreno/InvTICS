@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IUsuariosUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Departamentos;
 import com.uisrael.gestionactivosapi.dominio.entidades.Roles;
 import com.uisrael.gestionactivosapi.dominio.entidades.Usuarios;

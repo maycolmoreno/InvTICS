@@ -187,6 +187,24 @@ class LocalDatabase {
     );
   }
 
+  Future<void> marcarSyncFallido(String id) async {
+    final db = await database;
+    await db.update(
+      'sync_queue',
+      {'status': 'failed'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> contarSyncFallidos() async {
+    final db = await database;
+    final result = await db.rawQuery(
+      "SELECT COUNT(*) AS total FROM sync_queue WHERE status = 'failed'",
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
   dynamic _decodePayload(Object? raw) {
     final text = raw?.toString() ?? '{}';
     return jsonDecode(text);

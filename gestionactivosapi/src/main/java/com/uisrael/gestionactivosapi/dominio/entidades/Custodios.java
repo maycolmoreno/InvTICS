@@ -1,11 +1,8 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Custodios implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class Custodios {
 
 	private final int idCustodio;
 	private final String nombre;

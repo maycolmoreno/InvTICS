@@ -2,14 +2,17 @@ import 'dart:io';
 import 'dart:math';
 
 import '../../../core/errors/exceptions.dart';
+import '../../../core/models/pagina_response.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/local_database.dart';
+import '../domain/i_mantenimientos_repository.dart';
 
-class MantenimientosRepository {
+class MantenimientosRepository implements IMantenimientosRepository {
   const MantenimientosRepository(this._apiClient);
 
   final ApiClient _apiClient;
 
+  @override
   Future<List<Map<String, dynamic>>> listar() async {
     final data = await _apiClient.get('/mantenimiento');
     return (data as List)
@@ -17,11 +20,24 @@ class MantenimientosRepository {
         .toList();
   }
 
+  @override
+  Future<PaginaResponse<Map<String, dynamic>>> listarPaginado(
+      {int page = 0, int size = 20}) async {
+    final data =
+        await _apiClient.get('/mantenimiento/paginado?page=$page&size=$size');
+    return PaginaResponse.fromJson(
+      Map<String, dynamic>.from(data as Map),
+      (json) => json,
+    );
+  }
+
+  @override
   Future<Map<String, dynamic>> obtenerDetalle(int mantenimientoId) async {
     final data = await _apiClient.get('/mantenimiento/$mantenimientoId');
     return Map<String, dynamic>.from(data as Map);
   }
 
+  @override
   Future<List<Map<String, dynamic>>> listarCustodios() async {
     final data = await _apiClient.get('/custodios');
     final items = (data as List)
@@ -31,6 +47,7 @@ class MantenimientosRepository {
     return items;
   }
 
+  @override
   Future<List<Map<String, dynamic>>> listarCustodias() async {
     final data = await _apiClient.get('/custodias');
     return (data as List)
@@ -38,6 +55,7 @@ class MantenimientosRepository {
         .toList();
   }
 
+  @override
   Future<List<Map<String, dynamic>>> listarActividadesChecklist() async {
     final data = await _apiClient.get('/actividades-checklist');
     final items = (data as List)
@@ -54,6 +72,7 @@ class MantenimientosRepository {
     return items;
   }
 
+  @override
   Future<Map<String, dynamic>> crear({
     required int equipoId,
     required int custodioId,
@@ -80,6 +99,7 @@ class MantenimientosRepository {
     return Map<String, dynamic>.from(data as Map);
   }
 
+  @override
   Future<List<Map<String, dynamic>>> crearVarios({
     required List<int> equipoIds,
     required int custodioId,
@@ -110,6 +130,7 @@ class MantenimientosRepository {
     return created;
   }
 
+  @override
   Future<bool> crearVariosConFallback({
     required List<int> equipoIds,
     required int custodioId,
@@ -169,6 +190,7 @@ class MantenimientosRepository {
     }
   }
 
+  @override
   Future<void> guardarImagenes({
     required int mantenimientoId,
     required List<Map<String, dynamic>> imagenes,
@@ -188,6 +210,7 @@ class MantenimientosRepository {
     }
   }
 
+  @override
   Future<void> cerrar({
     required int mantenimientoId,
     required String observaciones,
@@ -197,6 +220,7 @@ class MantenimientosRepository {
     });
   }
 
+  @override
   Future<bool> cerrarConFallback({
     required int mantenimientoId,
     required String observaciones,
@@ -220,6 +244,7 @@ class MantenimientosRepository {
     }
   }
 
+  @override
   Future<void> syncQueuedCreate(Map<String, dynamic> payload) async {
     final equipoIds = (payload['equipoIds'] as List? ?? const [])
         .map((item) => _asInt(item))
@@ -261,6 +286,7 @@ class MantenimientosRepository {
     }
   }
 
+  @override
   Future<void> syncQueuedClose(Map<String, dynamic> payload) async {
     await cerrar(
       mantenimientoId: _asInt(payload['mantenimientoId']),

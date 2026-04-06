@@ -2,9 +2,12 @@ package com.uisrael.gestionactivosapi.aplicacion.casosuso.impl;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICargosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.DuplicidadException;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Cargos;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CargosRepositorioPuerto;
 
@@ -17,6 +20,7 @@ public class CargosUseCaseImpl implements ICargosUseCase {
 	}
 
 	@Override
+	@CacheEvict(value = "cargos", allEntries = true)
 	public Cargos crear(Cargos cargo) {
 		if (cargosRepositorio.existeNombre(cargo.getNombre().trim())) {
 			throw new DuplicidadException("Ya existe un cargo con ese nombre");
@@ -30,11 +34,13 @@ public class CargosUseCaseImpl implements ICargosUseCase {
 	}
 
 	@Override
+	@Cacheable("cargos")
 	public List<Cargos> listar() {
 		return cargosRepositorio.listarTodos();
 	}
 
 	@Override
+	@CacheEvict(value = "cargos", allEntries = true)
 	public Cargos actualizar(int id, Cargos cargo) {
 		cargosRepositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Cargo no encontrado"));
 
@@ -49,6 +55,7 @@ public class CargosUseCaseImpl implements ICargosUseCase {
 	}
 
 	@Override
+	@CacheEvict(value = "cargos", allEntries = true)
 	public Cargos actualizarEstado(int id, boolean estado) {
 		Cargos actual = cargosRepositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Cargo no encontrado"));
 

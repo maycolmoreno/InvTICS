@@ -4,7 +4,8 @@ import java.util.List;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IEquiposUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.DuplicidadException;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Equipos;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EquipoRepositorioPuerto;
 
@@ -62,6 +63,11 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 	@Override
 	public List<Equipos> listar() {
 		return equipoRepositorio.listarTodos();
+	}
+
+	@Override
+	public Pagina<Equipos> listarPaginado(int pagina, int tamanio) {
+		return equipoRepositorio.listarPaginado(pagina, tamanio);
 	}
 
 	@Override

@@ -4,7 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
 import com.uisrael.gestionactivosapi.dominio.entidades.Equipos;
+import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EquipoRepositorioPuerto;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.EquiposJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.IEquiposJpaMapper;
@@ -122,5 +127,16 @@ public class EquiposRepositorioImpl implements EquipoRepositorioPuerto {
 				.filter(equipo -> equipo.getFkCategoria() != null
 						&& equipo.getFkCategoria().getIdCategoria() == categoriaId)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public Pagina<Equipos> listarPaginado(int pagina, int tamanio) {
+		Page<EquiposJpa> page = jpaRepositorio.findAll(
+				PageRequest.of(pagina, tamanio, Sort.by("idEquipo").descending()));
+		List<Equipos> contenido = page.getContent().stream()
+				.map(mapper::toDomain)
+				.collect(Collectors.toList());
+		return new Pagina<>(contenido, page.getNumber(), page.getSize(),
+				page.getTotalElements(), page.getTotalPages());
 	}
 }

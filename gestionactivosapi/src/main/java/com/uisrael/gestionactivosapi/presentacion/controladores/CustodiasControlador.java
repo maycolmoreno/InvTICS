@@ -10,12 +10,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICustodiasUseCase;
+import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
+import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.CustodiasRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.CustodiasResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.PaginaResponse;
 import com.uisrael.gestionactivosapi.presentacion.mapeadores.ICustodiasDtoMapper;
 
 import jakarta.validation.Valid;
@@ -61,6 +65,22 @@ public class CustodiasControlador {
     @GetMapping
     public List<CustodiasResponseDTO> listar() {
         return custodiasUseCase.listar().stream().map(mapper::toResponseDto).toList();
+    }
+
+    @GetMapping("/paginado")
+    public PaginaResponse<CustodiasResponseDTO> listarPaginado(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pagina<Custodias> pagina = custodiasUseCase.listarPaginado(page, size);
+        PaginaResponse<CustodiasResponseDTO> resp = new PaginaResponse<>();
+        resp.setContenido(pagina.contenido().stream().map(mapper::toResponseDto).toList());
+        resp.setPaginaActual(pagina.paginaActual());
+        resp.setTamanioPagina(pagina.tamanioPagina());
+        resp.setTotalElementos(pagina.totalElementos());
+        resp.setTotalPaginas(pagina.totalPaginas());
+        resp.setPrimera(pagina.paginaActual() == 0);
+        resp.setUltima(pagina.paginaActual() + 1 >= pagina.totalPaginas());
+        return resp;
     }
 
     @GetMapping("/{id}")

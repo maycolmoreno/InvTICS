@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICrearMantenimientosUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
 import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.entidades.Mantenimientos;

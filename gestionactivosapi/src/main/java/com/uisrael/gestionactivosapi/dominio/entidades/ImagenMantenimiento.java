@@ -1,14 +1,11 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * Entidad que representa una imagen associated with a maintenance record.
  */
-public class ImagenMantenimiento implements Serializable {
-    
-    private static final long serialVersionUID = 1L;
+public class ImagenMantenimiento {
     
     private Integer idImagen;
     private Integer mantenimientoId;

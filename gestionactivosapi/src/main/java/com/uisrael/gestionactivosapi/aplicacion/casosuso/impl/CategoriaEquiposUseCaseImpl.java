@@ -2,8 +2,11 @@ package com.uisrael.gestionactivosapi.aplicacion.casosuso.impl;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICategoriaEquiposUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.CategoriaEquipos;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CategoriaRepositorioPuerto;
 
@@ -16,6 +19,7 @@ public class CategoriaEquiposUseCaseImpl implements ICategoriaEquiposUseCase {
 	}
 
 	@Override
+	@CacheEvict(value = "categorias", allEntries = true)
 	public CategoriaEquipos crear(CategoriaEquipos categoriaEquipo) {
 		String nombreNormalizado = categoriaEquipo.getNombre().trim().toLowerCase();
 
@@ -36,11 +40,13 @@ public class CategoriaEquiposUseCaseImpl implements ICategoriaEquiposUseCase {
 	}
 
 	@Override
+	@Cacheable("categorias")
 	public List<CategoriaEquipos> listar() {
 		return categoriaRepositorio.listarTodos();
 	}
 
 	@Override
+	@CacheEvict(value = "categorias", allEntries = true)
 	public CategoriaEquipos actualizar(CategoriaEquipos categoriaEquipo) {
 		if (categoriaRepositorio.buscarPorId(categoriaEquipo.getIdCategoria()).isEmpty()) {
 			throw new RecursoNoEncontradoException("Categoría no encontrada con ID: " + categoriaEquipo.getIdCategoria());

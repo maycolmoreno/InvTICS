@@ -8,6 +8,9 @@ class SyncService {
 
   final ApiClient _apiClient;
 
+  /// Máximo de intentos antes de marcar un item como fallido definitivamente.
+  static const int maxAttempts = 5;
+
   Future<int> syncPendingOperations() async {
     final pending = await LocalDatabase.instance.listarSyncPendientes();
     if (pending.isEmpty) {
@@ -20,7 +23,15 @@ class SyncService {
     for (final item in pending) {
       final id = item['id']?.toString() ?? '';
       final operation = item['operation']?.toString() ?? '';
-      final payload = Map<String, dynamic>.from(item['payload'] as Map? ?? const {});
+      final attempts = item['attempts'] as int? ?? 0;
+      final payload =
+          Map<String, dynamic>.from(item['payload'] as Map? ?? const {});
+
+      // Saltar items que excedieron el máximo de reintentos
+      if (attempts >= maxAttempts) {
+        await LocalDatabase.instance.marcarSyncFallido(id);
+        continue;
+      }
 
       try {
         switch (operation) {

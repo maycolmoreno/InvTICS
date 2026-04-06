@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IEquiposUseCase;
 import com.uisrael.gestionactivosapi.dominio.entidades.Equipos;
+import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.EquiposRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.EquiposResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.PaginaResponse;
 import com.uisrael.gestionactivosapi.presentacion.mapeadores.IEquiposDtoMapper;
 
 import jakarta.validation.Valid;
@@ -44,6 +46,17 @@ public class EquiposControlador {
 	@GetMapping
 	public List<EquiposResponseDTO> listar() {
 		return equiposUseCase.listar().stream().map(mapper::toResponseDto).toList();
+	}
+
+	@GetMapping("/paginado")
+	public PaginaResponse<EquiposResponseDTO> listarPaginado(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "20") int size) {
+		Pagina<Equipos> pagina = equiposUseCase.listarPaginado(page, size);
+		List<EquiposResponseDTO> contenido = pagina.contenido().stream()
+				.map(mapper::toResponseDto).toList();
+		return new PaginaResponse<>(contenido, pagina.paginaActual(),
+				pagina.tamanioPagina(), pagina.totalElementos(), pagina.totalPaginas());
 	}
 
 	@PutMapping("/{id}")

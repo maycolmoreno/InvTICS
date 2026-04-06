@@ -1,18 +1,22 @@
 package com.uisrael.consumogestionactivosapi.security;
 
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
 /**
- * Datos de autenticación del usuario almacenados en la sesión HTTP
+ * Datos de autenticación del usuario almacenados en la sesión HTTP.
+ * No almacena la contraseña en texto plano; usa un token Basic Auth codificado.
  */
 @Component
 @SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SesionUsuario {
 
 	private String correo;
-	private String contrasena;
+	private String basicAuthToken;
 	private String nombreUsuario;
 	private String rol;
 	private Integer idUsuario;
@@ -24,7 +28,7 @@ public class SesionUsuario {
 
 	public void iniciarSesion(String correo, String contrasena, String nombreUsuario, String rol) {
 		this.correo = correo;
-		this.contrasena = contrasena;
+		this.basicAuthToken = codificarBasicAuth(correo, contrasena);
 		this.nombreUsuario = nombreUsuario;
 		this.rol = rol;
 		this.autenticado = true;
@@ -32,7 +36,7 @@ public class SesionUsuario {
 
 	public void iniciarSesion(String correo, String contrasena, String nombreUsuario, String rol, Integer idUsuario) {
 		this.correo = correo;
-		this.contrasena = contrasena;
+		this.basicAuthToken = codificarBasicAuth(correo, contrasena);
 		this.nombreUsuario = nombreUsuario;
 		this.rol = rol;
 		this.idUsuario = idUsuario;
@@ -41,7 +45,7 @@ public class SesionUsuario {
 
 	public void cerrarSesion() {
 		this.correo = null;
-		this.contrasena = null;
+		this.basicAuthToken = null;
 		this.nombreUsuario = null;
 		this.rol = null;
 		this.idUsuario = null;
@@ -52,8 +56,11 @@ public class SesionUsuario {
 		return correo;
 	}
 
-	public String getContrasena() {
-		return contrasena;
+	/**
+	 * Devuelve el valor del header Authorization (Basic xxxxx) para llamadas al backend.
+	 */
+	public String getAuthorizationHeader() {
+		return basicAuthToken != null ? "Basic " + basicAuthToken : null;
 	}
 
 	public String getNombreUsuario() {
@@ -86,5 +93,10 @@ public class SesionUsuario {
 			}
 		}
 		return false;
+	}
+
+	private String codificarBasicAuth(String correo, String contrasena) {
+		String credenciales = correo + ":" + contrasena;
+		return Base64.getEncoder().encodeToString(credenciales.getBytes(StandardCharsets.UTF_8));
 	}
 }

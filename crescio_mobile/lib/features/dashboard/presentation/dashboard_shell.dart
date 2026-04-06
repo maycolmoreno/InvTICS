@@ -10,7 +10,9 @@ import '../../equipos/presentation/equipos_screen.dart';
 import '../../gps/presentation/gps_provider.dart';
 import '../../gps/presentation/consentimiento_gps_screen.dart';
 import '../../gps/presentation/ubicaciones_realtime_screen.dart';
+import '../../mantenimientos/data/mantenimientos_repository.dart';
 import '../../mantenimientos/presentation/mantenimientos_screen.dart';
+import '../../notificaciones/data/notificaciones_repository.dart';
 import '../../notificaciones/presentation/notificaciones_screen.dart';
 import '../../planificacion/presentation/planificacion_screen.dart';
 import '../../ubicaciones/presentation/ubicaciones_screen.dart';
@@ -45,7 +47,14 @@ class _DashboardShellState extends State<DashboardShell> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DashboardProvider(context.read<ApiClient>()),
+      create: (context) {
+        final apiClient = context.read<ApiClient>();
+        return DashboardProvider(
+          apiClient,
+          mantenimientosRepository: MantenimientosRepository(apiClient),
+          notificacionesRepository: NotificacionesRepository(apiClient),
+        );
+      },
       child: Consumer<DashboardProvider>(
         builder: (context, dashboard, _) {
           final auth = context.watch<AuthProvider>();

@@ -132,10 +132,12 @@
 				</div>
 			</div>
 
+			<div th:replace="~{plantilla/paginacion :: paginacion(rutaBase='/equipos')}"></div>
+
 			<div class="compact-kpi-grid">
 				<div class="surface-card compact-kpi">
 					<div class="metric-label">Total equipos</div>
-					<div class="compact-kpi-value" th:text="${#lists.size(listarequipos)}">0</div>
+					<div class="compact-kpi-value" th:text="${totalElementos != null ? totalElementos : #lists.size(listarequipos)}">0</div>
 				</div>
 				<div class="surface-card compact-kpi">
 					<div class="metric-label">Activos</div>

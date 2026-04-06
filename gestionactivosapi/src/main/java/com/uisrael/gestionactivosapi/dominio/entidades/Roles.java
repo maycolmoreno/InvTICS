@@ -1,10 +1,7 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 
-public class Roles implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class Roles {
 
 	private final int idRol;
 	private final String nombre;

@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.ImagenMantenimientoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.MantenimientoManualRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoManualResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.PaginaResponse;
 
 public interface IMantenimientoManualServicio {
 
@@ -17,6 +18,8 @@ public interface IMantenimientoManualServicio {
     List<ImagenMantenimientoRequestDTO> subirImagenes(Integer idMantenimiento, List<MultipartFile> imagenes);
 
     List<MantenimientoManualResponseDTO> listarTodos();
+
+    PaginaResponse<MantenimientoManualResponseDTO> listarTodosPaginado(int page, int size);
 
     MantenimientoManualResponseDTO obtenerDetalle(Integer id);
 

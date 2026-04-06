@@ -32,7 +32,32 @@ import com.uisrael.gestionactivosapi.dominio.entidades.Equipos;
 import com.uisrael.gestionactivosapi.dominio.entidades.Usuarios;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.MantenimientoManualResponseDTO;
 
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 public class PdfMantenimientoService {
+
+    /** Acceso seguro a propiedades anidadas: safe(equipo, Equipos::getCodigoSap) */
+    private static <T, R> String safe(T obj, Function<T, R> getter) {
+        if (obj == null) return "-";
+        R val = getter.apply(obj);
+        if (val == null) return "-";
+        String s = val.toString();
+        return s.isBlank() ? "-" : s;
+    }
+
+    /** Encadena acceso seguro con fallback: safeOr(() -> equipo.getFkMarca().getNombre(), "N/A") */
+    private static String safeOr(Supplier<Object> getter, String fallback) {
+        try {
+            Object val = getter.get();
+            if (val == null) return fallback;
+            String s = val.toString();
+            return s.isBlank() ? fallback : s;
+        } catch (NullPointerException e) {
+            return fallback;
+        }
+    }
 
     private static final String PDF_BACKGROUND_CLASSPATH = "/pdf/caratula_cresio.png";
     private static final Font TITLE = new Font(Font.TIMES_ROMAN, 11, Font.BOLD);
@@ -122,14 +147,14 @@ public class PdfMantenimientoService {
         agregarEncabezadoTabla(table, "ESTADO");
 
         table.addCell(tableCell("1"));
-        table.addCell(tableCell(valor(equipo != null ? equipo.getCodigoSap() : mantenimiento.getEquipoCodigoSap())));
+        table.addCell(tableCell(equipo != null ? safe(equipo, Equipos::getCodigoSap) : valor(mantenimiento.getEquipoCodigoSap())));
         table.addCell(tableCell("1206.001"));
         table.addCell(tableCell("ACTIVO FIJO"));
         table.addCell(tableCell(descripcionEquipo(mantenimiento, equipo)));
-        table.addCell(tableCell(valor(equipo != null && equipo.getFkMarca() != null ? equipo.getFkMarca().getNombre() : null)));
-        table.addCell(tableCell(valor(equipo != null ? equipo.getSerial() : null)));
-        table.addCell(tableCell(valor(equipo != null ? equipo.getModelo() : null)));
-        table.addCell(tableCell(valor(equipo != null ? equipo.getEstadoEquipo() : mantenimiento.getEstadoGeneral())));
+        table.addCell(tableCell(safeOr(() -> equipo.getFkMarca().getNombre(), "-")));
+        table.addCell(tableCell(safe(equipo, Equipos::getSerial)));
+        table.addCell(tableCell(safe(equipo, Equipos::getModelo)));
+        table.addCell(tableCell(equipo != null ? safe(equipo, Equipos::getEstadoEquipo) : valor(mantenimiento.getEstadoGeneral())));
 
         table.setSpacingAfter(8f);
         doc.add(table);
@@ -223,19 +248,17 @@ public class PdfMantenimientoService {
 
         firmas.addCell(firmaInfo(
                 "Responsable Mantenimiento",
-                valor(tecnico != null ? tecnico.getNombre() : mantenimiento.getTecnicoNombre()),
-                valor(tecnico != null ? tecnico.getCedula() : null),
+                tecnico != null ? safe(tecnico, Usuarios::getNombre) : valor(mantenimiento.getTecnicoNombre()),
+                safe(tecnico, Usuarios::getCedula),
                 "Asistente de Soporte Tecnico",
-                valor(tecnico != null && tecnico.getFkDepartamento() != null ? tecnico.getFkDepartamento().getNombre() : null),
+                safeOr(() -> tecnico.getFkDepartamento().getNombre(), "-"),
                 mantenimiento.getFirmaTecnico()));
         firmas.addCell(firmaInfo(
                 "Custodio Asignado",
                 valor(mantenimiento.getCustodioNombre()),
-                valor(custodio != null ? custodio.getCedula() : null),
-                valor(custodio != null && custodio.getFkCargo() != null ? custodio.getFkCargo().getNombre() : null),
-                valor(custodio != null && custodio.getFkCargo() != null && custodio.getFkCargo().getFkDepartamento() != null
-                        ? custodio.getFkCargo().getFkDepartamento().getNombre()
-                        : null),
+                safe(custodio, Custodios::getCedula),
+                safeOr(() -> custodio.getFkCargo().getNombre(), "-"),
+                safeOr(() -> custodio.getFkCargo().getFkDepartamento().getNombre(), "-"),
                 mantenimiento.getFirmaCustodio()));
 
         firmas.setSpacingAfter(6f);

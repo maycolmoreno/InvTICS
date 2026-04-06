@@ -1,14 +1,11 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * Entidad que representa una notificación en el sistema.
  */
-public class Notificacion implements Serializable {
-    
-    private static final long serialVersionUID = 1L;
+public class Notificacion {
     
     private Integer idNotificacion;
     private Integer usuarioId;

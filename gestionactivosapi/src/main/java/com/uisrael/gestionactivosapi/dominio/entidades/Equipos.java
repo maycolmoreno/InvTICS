@@ -1,12 +1,9 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class Equipos implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class Equipos {
 
 	private final int idEquipo;
 	private final String codigoSap;

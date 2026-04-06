@@ -1,10 +1,7 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 
-public class CategoriaEquipos implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class CategoriaEquipos {
 
 	private final int idCategoria;
 	private final String nombre;

@@ -94,12 +94,45 @@ public class AuthControlador {
 			return "redirect:/login";
 		}
 
+		if (nombre == null || nombre.isBlank()) {
+			model.addAttribute("error", "El nombre es obligatorio.");
+			model.addAttribute("cedula", cedula);
+			model.addAttribute("correo", correo);
+			return "auth/setup";
+		}
+
+		if (correo == null || !correo.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+			model.addAttribute("error", "Ingrese un correo electronico valido.");
+			model.addAttribute("nombre", nombre);
+			model.addAttribute("cedula", cedula);
+			model.addAttribute("correo", correo);
+			return "auth/setup";
+		}
+
+		if (contrasena == null || contrasena.length() < 8) {
+			model.addAttribute("error", "La contrasena debe tener al menos 8 caracteres.");
+			model.addAttribute("nombre", nombre);
+			model.addAttribute("cedula", cedula);
+			model.addAttribute("correo", correo);
+			return "auth/setup";
+		}
+
 		if (!contrasena.equals(confirmar)) {
 			model.addAttribute("error", "Las contrasenas no coinciden.");
 			model.addAttribute("nombre", nombre);
 			model.addAttribute("cedula", cedula);
 			model.addAttribute("correo", correo);
 			return "auth/setup";
+		}
+
+		if (cedula != null && !cedula.isBlank()) {
+			if (!com.uisrael.consumogestionactivosapi.util.CedulaEcuatorianaUtils.esValida(cedula)) {
+				model.addAttribute("error", "La cedula ingresada no es valida.");
+				model.addAttribute("nombre", nombre);
+				model.addAttribute("cedula", cedula);
+				model.addAttribute("correo", correo);
+				return "auth/setup";
+			}
 		}
 
 		try {
@@ -130,8 +163,13 @@ public class AuthControlador {
 			return "auth/setup";
 
 		} catch (RestClientResponseException ex) {
-			String body = ex.getResponseBodyAsString();
-			model.addAttribute("error", body.contains("error") ? "Error: " + body : "Error al crear administrador.");
+			if (ex.getStatusCode() == org.springframework.http.HttpStatus.CONFLICT) {
+				model.addAttribute("error", "Ya existe un administrador registrado con esos datos.");
+			} else if (ex.getStatusCode() == org.springframework.http.HttpStatus.BAD_REQUEST) {
+				model.addAttribute("error", "Datos invalidos. Verifique los campos e intente nuevamente.");
+			} else {
+				model.addAttribute("error", "Error al crear administrador. Intente nuevamente.");
+			}
 			model.addAttribute("nombre", nombre);
 			model.addAttribute("cedula", cedula);
 			model.addAttribute("correo", correo);

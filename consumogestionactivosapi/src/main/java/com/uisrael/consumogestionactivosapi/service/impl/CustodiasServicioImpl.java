@@ -1,12 +1,19 @@
 package com.uisrael.consumogestionactivosapi.service.impl;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiasRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.ActaResumenDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
 
@@ -29,7 +36,6 @@ public class CustodiasServicioImpl implements ICustodiasServicio {
 		clienteWeb.post().uri("/custodias").body(dto).retrieve().toBodilessEntity();
 	}
 
-	// ✅ NUEVO: si tu API responde lista (como en tu Postman: [ { ... } ])
 	@Override
 	public List<CustodiasResponseDTO> crearCustodiaActa(CustodiasRequestDTO dto) {
 		return clienteWeb.post().uri("/custodias").body(dto).retrieve().body(new ParameterizedTypeReference<List<CustodiasResponseDTO>>() {});
@@ -53,5 +59,66 @@ public class CustodiasServicioImpl implements ICustodiasServicio {
 		dto.setEstado(estado);
 
 		clienteWeb.put().uri("/custodias/estado/{id}", id).body(dto).retrieve().toBodilessEntity();
+	}
+
+	@Override
+	public ActasAgrupadas agruparPorActa() {
+		List<CustodiasResponseDTO> lista = listarCustodias();
+
+		Function<CustodiasResponseDTO, String> actaKeyFn = x -> {
+			int idC = (x != null && x.getFkCustodio() != null) ? x.getFkCustodio().getIdCustodio()
+					: (x != null ? x.getIdCustodio() : 0);
+			String tipo = (x != null && x.getTipoMovimiento() != null) ? x.getTipoMovimiento() : "ASIGNACION";
+			String fecha = (x != null && x.getFechaInicio() != null) ? x.getFechaInicio().toString() : "sin-fecha";
+			return idC + "_" + tipo + "_" + fecha;
+		};
+
+		Map<String, List<CustodiasResponseDTO>> actaDetalles = lista.stream()
+				.filter(x -> x != null)
+				.collect(Collectors.groupingBy(actaKeyFn));
+
+		List<ActaResumenDTO> actas = actaDetalles.entrySet().stream().map(entry -> {
+			List<CustodiasResponseDTO> items = entry.getValue();
+			CustodiasResponseDTO first = items.stream()
+					.min(Comparator.comparing(CustodiasResponseDTO::getIdCustodiaEquipo, Comparator.nullsLast(Integer::compareTo)))
+					.orElse(items.get(0));
+			int idC = first.getFkCustodio() != null ? first.getFkCustodio().getIdCustodio() : first.getIdCustodio();
+			String tipo = first.getTipoMovimiento() != null ? first.getTipoMovimiento() : "ASIGNACION";
+			String etiqueta = switch (tipo) {
+				case "ACTA_INICIAL" -> "Acta Inicial";
+				case "TRASLADO" -> "Traslado";
+				case "BAJA" -> "Baja";
+				default -> "Asignacion";
+			};
+			boolean activa = items.stream().anyMatch(CustodiasResponseDTO::isEstado);
+			LocalDate fechaFin = items.stream().map(CustodiasResponseDTO::getFechaFin)
+					.filter(f -> f != null)
+					.max(Comparator.naturalOrder()).orElse(null);
+			int minPk = items.stream().map(CustodiasResponseDTO::getIdCustodiaEquipo)
+					.filter(pk -> pk != null)
+					.min(Integer::compareTo).orElse(0);
+
+			ActaResumenDTO r = new ActaResumenDTO();
+			r.setKey(entry.getKey());
+			r.setIdCustodio(idC);
+			r.setCustodio(first.getFkCustodio());
+			r.setTipoMovimiento(tipo);
+			r.setEtiquetaTipo(etiqueta);
+			r.setFechaInicio(first.getFechaInicio());
+			r.setFechaFin(fechaFin);
+			r.setActiva(activa);
+			r.setCantidadEquipos(items.size());
+			r.setMinPk(minPk);
+			return r;
+		}).sorted(Comparator.comparingInt(ActaResumenDTO::getMinPk)).toList();
+
+		// Numerar secuencialmente y luego ordenar para recientes primero
+		List<ActaResumenDTO> actasNumeradas = new ArrayList<>(actas);
+		for (int i = 0; i < actasNumeradas.size(); i++) {
+			actasNumeradas.get(i).setNumeroActa(i + 1);
+		}
+		actasNumeradas.sort(Comparator.comparingInt(ActaResumenDTO::getMinPk).reversed());
+
+		return new ActasAgrupadas(actasNumeradas, actaDetalles);
 	}
 }

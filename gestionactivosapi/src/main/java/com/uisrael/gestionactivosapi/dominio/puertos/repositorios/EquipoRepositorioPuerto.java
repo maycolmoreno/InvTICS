@@ -1,6 +1,7 @@
 package com.uisrael.gestionactivosapi.dominio.puertos.repositorios;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.Equipos;
+import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import java.util.List;
 import java.util.Optional;
 
@@ -175,4 +176,6 @@ public interface EquipoRepositorioPuerto {
     boolean existeMACParaOtro(String mac, int idEquipo);
 
     Equipos actualizarEstado(int id, boolean estado);
+
+    Pagina<Equipos> listarPaginado(int pagina, int tamanio);
 }

@@ -4,7 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
+import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodiasRepositorioPuerto;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.ICustodiasJpaMapper;
@@ -58,6 +63,15 @@ public class CustodiasRepositorioImpl implements CustodiasRepositorioPuerto {
 	@Override
 	public List<Custodias> obtenerTodos() {
 		return jpaRepositorio.findAll().stream().map(mapper::toDomain).collect(Collectors.toList());
+	}
+
+	@Override
+	public Pagina<Custodias> listarPaginado(int pagina, int tamanio) {
+		Page<CustodiasJpa> page = jpaRepositorio.findAll(
+				PageRequest.of(pagina, tamanio, Sort.by("idCustodiaEquipo").descending()));
+		List<Custodias> contenido = page.getContent().stream().map(mapper::toDomain).collect(Collectors.toList());
+		return new Pagina<>(contenido, page.getNumber(), page.getSize(),
+				page.getTotalElements(), page.getTotalPages());
 	}
 
 	@Override

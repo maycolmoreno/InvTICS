@@ -17,6 +17,7 @@ import org.springframework.web.client.RestClientResponseException;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.ImagenMantenimientoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.MantenimientoManualRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoManualResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.PaginaResponse;
 import com.uisrael.consumogestionactivosapi.service.IMantenimientoManualServicio;
 import com.uisrael.consumogestionactivosapi.util.WebClientHelper;
 
@@ -83,6 +84,15 @@ public class MantenimientoManualServicioImpl implements IMantenimientoManualServ
 		return clienteWeb.get().uri("/mantenimiento").retrieve()
 				.body(new ParameterizedTypeReference<List<MantenimientoManualResponseDTO>>() {
 				});
+	}
+
+	@Override
+	public PaginaResponse<MantenimientoManualResponseDTO> listarTodosPaginado(int page, int size) {
+		return clienteWeb.get()
+				.uri(uriBuilder -> uriBuilder.path("/mantenimiento/paginado")
+						.queryParam("page", page).queryParam("size", size).build())
+				.retrieve()
+				.body(new ParameterizedTypeReference<PaginaResponse<MantenimientoManualResponseDTO>>() {});
 	}
 
 	@Override

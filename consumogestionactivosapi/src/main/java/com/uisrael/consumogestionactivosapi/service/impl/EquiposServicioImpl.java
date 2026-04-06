@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.EquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.PaginaResponse;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 
 @Service
@@ -27,6 +28,15 @@ public class EquiposServicioImpl implements IEquiposServicio {
 	@Override
 	public List<EquiposResponseDTO> listarEquipos() {
 		return clienteWeb.get().uri("/equipos").retrieve().body(new ParameterizedTypeReference<List<EquiposResponseDTO>>() {});
+	}
+
+	@Override
+	public PaginaResponse<EquiposResponseDTO> listarEquiposPaginado(int page, int size) {
+		return clienteWeb.get()
+				.uri(uriBuilder -> uriBuilder.path("/equipos/paginado")
+						.queryParam("page", page).queryParam("size", size).build())
+				.retrieve()
+				.body(new ParameterizedTypeReference<PaginaResponse<EquiposResponseDTO>>() {});
 	}
 
 	@Override
@@ -80,8 +90,10 @@ public class EquiposServicioImpl implements IEquiposServicio {
 			return resp != null && resp;
 
 		} catch (RestClientResponseException e) {
-			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
-			return false;
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return false;
+			}
+			throw e;
 		}
 	}
 
@@ -95,7 +107,10 @@ public class EquiposServicioImpl implements IEquiposServicio {
 			return resp != null && resp;
 
 		} catch (RestClientResponseException e) {
-			return false;
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return false;
+			}
+			throw e;
 		}
 	}
 
@@ -109,8 +124,10 @@ public class EquiposServicioImpl implements IEquiposServicio {
 			return resp != null && resp;
 
 		} catch (RestClientResponseException e) {
-			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
-			return false;
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return false;
+			}
+			throw e;
 		}
 	}
 
@@ -124,7 +141,10 @@ public class EquiposServicioImpl implements IEquiposServicio {
 			return resp != null && resp;
 
 		} catch (RestClientResponseException e) {
-			return false;
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return false;
+			}
+			throw e;
 		}
 	}
 
@@ -138,8 +158,10 @@ public class EquiposServicioImpl implements IEquiposServicio {
 			return resp != null && resp;
 
 		} catch (RestClientResponseException e) {
-			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
-			return false;
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return false;
+			}
+			throw e;
 		}
 	}
 
@@ -152,7 +174,10 @@ public class EquiposServicioImpl implements IEquiposServicio {
 			return resp != null && resp;
 
 		} catch (RestClientResponseException e) {
-			return false;
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return false;
+			}
+			throw e;
 		}
 	}
 
@@ -166,8 +191,10 @@ public class EquiposServicioImpl implements IEquiposServicio {
 			return resp != null && resp;
 
 		} catch (RestClientResponseException e) {
-			// si tu API responde 404 o algo raro, por seguridad asumimos "no existe"
-			return false;
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return false;
+			}
+			throw e;
 		}
 	}
 
@@ -180,7 +207,10 @@ public class EquiposServicioImpl implements IEquiposServicio {
 			return resp != null && resp;
 
 		} catch (RestClientResponseException e) {
-			return false;
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return false;
+			}
+			throw e;
 		}
 	}
 }

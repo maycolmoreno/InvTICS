@@ -3,6 +3,8 @@ package com.uisrael.gestionactivosapi.infraestructura.repositorios;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +20,9 @@ public interface IMantenimientosJpaRepositorio extends JpaRepository<Mantenimien
 
     @EntityGraph(attributePaths = {"fkEquipo", "fkCliente", "fkUsuario"})
     List<MantenimientosJpa> findAllByOrderByFechaProgramadaDescIdMantenimientoDesc();
+
+    @EntityGraph(attributePaths = {"fkEquipo", "fkCliente", "fkUsuario"})
+    Page<MantenimientosJpa> findAllByOrderByFechaProgramadaDescIdMantenimientoDesc(Pageable pageable);
 
     @Query("select max(m.equipoSnapshot.codigoInternoSnapshot) from MantenimientosJpa m where m.equipoSnapshot.yearSnapshoted = :year")
     String findMaxCodigoInternoSnapshotByYear(@Param("year") Integer year);

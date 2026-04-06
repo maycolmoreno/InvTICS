@@ -1,10 +1,8 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class ActualizacionActivo implements Serializable {
-	private static final long serialVersionUID = 1L;
+public class ActualizacionActivo {
 
 	private int id;
 	private int activoId;

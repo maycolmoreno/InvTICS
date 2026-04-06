@@ -3,16 +3,23 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/local_database.dart';
-import '../../mantenimientos/data/mantenimientos_repository.dart';
+import '../../mantenimientos/domain/i_mantenimientos_repository.dart';
 import '../../notificaciones/data/notificaciones_repository.dart';
 import '../../sync/sync_service.dart';
 
 class DashboardProvider extends ChangeNotifier {
-  DashboardProvider(this._apiClient) {
+  DashboardProvider(
+    this._apiClient, {
+    required IMantenimientosRepository mantenimientosRepository,
+    required NotificacionesRepository notificacionesRepository,
+  })  : _mantenimientosRepo = mantenimientosRepository,
+        _notificacionesRepo = notificacionesRepository {
     _init();
   }
 
   final ApiClient _apiClient;
+  final IMantenimientosRepository _mantenimientosRepo;
+  final NotificacionesRepository _notificacionesRepo;
 
   bool _offline = false;
   int _pendingOffline = 0;
@@ -53,15 +60,19 @@ class DashboardProvider extends ChangeNotifier {
       await SyncService(_apiClient).syncPendingOperations();
       _pendingOffline = await LocalDatabase.instance.contarPendientes();
 
-      final notificacionesRepository = NotificacionesRepository(_apiClient);
-      final mantenimientosRepository = MantenimientosRepository(_apiClient);
-      final equiposRaw = await _apiClient.get('/equipos');
-      final equipos = (equiposRaw as List)
+      // Llamadas paralelas: equipos, mantenimientos y notificaciones son independientes
+      final results = await Future.wait([
+        _apiClient.get('/equipos'),
+        _mantenimientosRepo.listar(),
+        _notificacionesRepo.obtenerConteo(),
+      ]);
+
+      final equipos = (results[0] as List)
           .map((item) => Map<String, dynamic>.from(item as Map))
           .toList();
-      final mantenimientos = await mantenimientosRepository.listar();
+      final mantenimientos = results[1] as List<Map<String, dynamic>>;
+      _pendingNotifications = results[2] as int;
 
-      _pendingNotifications = await notificacionesRepository.obtenerConteo();
       _openMantenimientos = mantenimientos
           .where(
               (item) => _text(item['estadoInterno']).toUpperCase() != 'CERRADO')

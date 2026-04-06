@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.dto.EstadisticasEquipoDTO;
 import com.uisrael.gestionactivosapi.dominio.dto.HistorialEquipoDTO;
 import com.uisrael.gestionactivosapi.dominio.dto.MantenimientoHistorialDTO;

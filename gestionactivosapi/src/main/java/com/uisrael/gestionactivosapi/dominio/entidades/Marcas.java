@@ -1,10 +1,7 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 
-public class Marcas implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class Marcas {
 
 	private final int idMarca;
 	private final String nombre;

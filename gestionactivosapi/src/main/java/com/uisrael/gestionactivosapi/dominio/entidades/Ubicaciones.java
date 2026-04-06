@@ -1,11 +1,8 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class Ubicaciones implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class Ubicaciones {
 
 	private final int idUbicacion;
 	private final String nombre;

@@ -3,6 +3,8 @@ package com.uisrael.gestionactivosapi.infraestructura.repositorios;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,6 +15,9 @@ public interface IEquiposJpaRepositorio extends JpaRepository<EquiposJpa, Intege
 	@Override
 	@EntityGraph(attributePaths = {"fkMarcas", "fkCategoria"})
 	List<EquiposJpa> findAll();
+
+	@EntityGraph(attributePaths = {"fkMarcas", "fkCategoria"})
+	Page<EquiposJpa> findAll(Pageable pageable);
 
 	@Override
 	@EntityGraph(attributePaths = {"fkMarcas", "fkCategoria"})

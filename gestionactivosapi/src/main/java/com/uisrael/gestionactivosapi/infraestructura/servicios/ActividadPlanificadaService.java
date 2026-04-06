@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ActividadPlanificadaJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.UsuariosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IActividadPlanificadaJpaRepositorio;

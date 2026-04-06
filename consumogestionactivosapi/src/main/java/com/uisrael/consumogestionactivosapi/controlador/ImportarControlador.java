@@ -25,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 public class ImportarControlador {
 
     private static final String SESSION_KEY = "filas_import";
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     private final IImportarServicio servicioImportar;
     private final ICategoriaEquiposServicio servicioCategorias;
@@ -48,6 +50,19 @@ public class ImportarControlador {
             return "redirect:/importar";
         }
 
+        if (archivo.getSize() > MAX_FILE_SIZE) {
+            ra.addFlashAttribute("error", "El archivo excede el tamaño máximo permitido (5MB).");
+            return "redirect:/importar";
+        }
+
+        String contentType = archivo.getContentType();
+        String originalFilename = archivo.getOriginalFilename();
+        if ((contentType == null || !contentType.equals(XLSX_MIME))
+                && (originalFilename == null || !originalFilename.toLowerCase().endsWith(".xlsx"))) {
+            ra.addFlashAttribute("error", "Solo se permiten archivos .xlsx (Excel).");
+            return "redirect:/importar";
+        }
+
         try {
             List<FilaImportDTO> filas = servicioImportar.parsearExcel(archivo, categoriaId);
             if (filas.isEmpty()) {
@@ -65,7 +80,7 @@ public class ImportarControlador {
             return "importar/importarEquipos";
 
         } catch (Exception e) {
-            ra.addFlashAttribute("error", "Error al procesar el archivo: " + e.getMessage());
+            ra.addFlashAttribute("error", "Error al procesar el archivo. Verifique que sea un Excel válido.");
             return "redirect:/importar";
         }
     }

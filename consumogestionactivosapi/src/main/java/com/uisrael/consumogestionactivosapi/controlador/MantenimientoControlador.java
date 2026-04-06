@@ -32,6 +32,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosRespons
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoManualResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoProgramadoResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.PaginaResponse;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.IActividadChecklistServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
@@ -59,8 +60,15 @@ public class MantenimientoControlador {
     private final IUbicacionesServicio ubicacionesServicio;
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("listamantenimientos", mantenimientoManualServicio.listarTodos());
+    public String listar(Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PaginaResponse<MantenimientoManualResponseDTO> pagina = mantenimientoManualServicio.listarTodosPaginado(page, size);
+        model.addAttribute("listamantenimientos", pagina.getContenido());
+        model.addAttribute("paginaActual", pagina.getPaginaActual());
+        model.addAttribute("totalPaginas", pagina.getTotalPaginas());
+        model.addAttribute("totalElementos", pagina.getTotalElementos());
+        model.addAttribute("tamanioPagina", pagina.getTamanioPagina());
         model.addAttribute("listaequipos", equiposServicio.listarEquipos());
         model.addAttribute("listacustodios", custodiosServicio.listarCustodios());
         model.addAttribute("listaubicaciones", ubicacionesServicio.listarUbicaciones());
@@ -191,6 +199,11 @@ public class MantenimientoControlador {
 
     @GetMapping("/{id}/imagen/{filename:.+}")
     public ResponseEntity<byte[]> servirImagen(@PathVariable Integer id, @PathVariable String filename) {
+        // Validar filename contra path traversal
+        if (filename == null || !filename.matches("[a-zA-Z0-9._-]+")) {
+            return ResponseEntity.badRequest().build();
+        }
+
         byte[] bytes = mantenimientoManualServicio.obtenerImagen(id, filename);
         if (bytes == null) {
             return ResponseEntity.notFound().build();

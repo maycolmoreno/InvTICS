@@ -2,9 +2,12 @@ package com.uisrael.gestionactivosapi.aplicacion.casosuso.impl;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IDepartamentosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.DuplicidadException;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Departamentos;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.DepartamentoRepositorioPuerto;
 
@@ -17,6 +20,7 @@ public class DepartamentosUseCaseImpl implements IDepartamentosUseCase {
 	}
 
 	@Override
+	@CacheEvict(value = "departamentos", allEntries = true)
 	public Departamentos crear(Departamentos departamento) {
 		if (departamentoRepositorio.existeNombre(departamento.getNombre().trim())) {
 			throw new DuplicidadException("Ya existe un departamento con ese nombre");
@@ -30,11 +34,13 @@ public class DepartamentosUseCaseImpl implements IDepartamentosUseCase {
 	}
 
 	@Override
+	@Cacheable("departamentos")
 	public List<Departamentos> listar() {
 		return departamentoRepositorio.listarTodos();
 	}
 
 	@Override
+	@CacheEvict(value = "departamentos", allEntries = true)
 	public Departamentos actualizar(int id, Departamentos departamento) {
 		departamentoRepositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Departamento no encontrado"));
 
@@ -48,6 +54,7 @@ public class DepartamentosUseCaseImpl implements IDepartamentosUseCase {
 	}
 
 	@Override
+	@CacheEvict(value = "departamentos", allEntries = true)
 	public Departamentos actualizarEstado(int id, boolean estado) {
 
 		Departamentos actual = departamentoRepositorio.buscarPorId(id)

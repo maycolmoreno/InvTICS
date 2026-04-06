@@ -46,7 +46,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ServerConfigProvider()),
         ChangeNotifierProvider(
           create: (_) => GpsProvider(
-            repository: GpsRepository(secureStorage: secureStorage),
+            repository: GpsRepository(apiClient: apiClient),
           ),
         ),
       ],

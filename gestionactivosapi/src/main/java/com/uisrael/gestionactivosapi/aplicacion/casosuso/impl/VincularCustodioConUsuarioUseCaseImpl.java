@@ -3,7 +3,7 @@ package com.uisrael.gestionactivosapi.aplicacion.casosuso.impl;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IVincularCustodioConUsuarioUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodios;
 import com.uisrael.gestionactivosapi.dominio.entidades.Usuarios;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodioRepositorioPuerto;

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.EquiposJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.MantenimientoProgramadoJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.UsuariosJpa;
@@ -74,7 +74,10 @@ public class MantenimientoProgramadoService {
     }
 
     public MantenimientoProgramadoResponseDTO obtenerPorEquipo(Integer equipoId) {
-        return programadoRepo.findByEquipoId(equipoId).map(this::toDto).orElse(null);
+        return programadoRepo.findByEquipoId(equipoId)
+                .map(this::toDto)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No hay programacion de mantenimiento para el equipo " + equipoId));
     }
 
     private MantenimientoProgramadoResponseDTO toDto(MantenimientoProgramadoJpa entity) {

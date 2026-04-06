@@ -1,15 +1,12 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
  * Entidad que representa una visita técnica a un equipo.
  */
-public class VisitaTecnica implements Serializable {
-    
-    private static final long serialVersionUID = 1L;
+public class VisitaTecnica {
     
     private Integer idVisita;
     private Integer equipoId;

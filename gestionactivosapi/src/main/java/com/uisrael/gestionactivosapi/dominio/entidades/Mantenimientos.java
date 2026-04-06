@@ -1,12 +1,9 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class Mantenimientos implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Mantenimientos {
 
     private Integer idMantenimiento;
     private Integer equipoId;

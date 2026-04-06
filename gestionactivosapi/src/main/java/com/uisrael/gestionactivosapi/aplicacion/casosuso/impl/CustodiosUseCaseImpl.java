@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICustodiosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.DuplicidadException;
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodios;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodioRepositorioPuerto;
 

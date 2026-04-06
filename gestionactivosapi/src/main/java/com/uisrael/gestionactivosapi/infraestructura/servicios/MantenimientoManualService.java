@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.uisrael.gestionactivosapi.aplicacion.excepciones.RecursoNoEncontradoException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.entidades.FirmaMantenimiento;
+import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoFirma;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoOrigenMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.FirmaMantenimientoRepositorioPuerto;
@@ -120,6 +123,16 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
         return mantenimientosRepo.findAllByOrderByFechaProgramadaDescIdMantenimientoDesc().stream()
                 .map(m -> toDto(m, false))
                 .toList();
+    }
+
+    public Pagina<MantenimientoManualResponseDTO> listarTodosPaginado(int pagina, int tamanio) {
+        Page<MantenimientosJpa> page = mantenimientosRepo
+                .findAllByOrderByFechaProgramadaDescIdMantenimientoDesc(PageRequest.of(pagina, tamanio));
+        List<MantenimientoManualResponseDTO> contenido = page.getContent().stream()
+                .map(m -> toDto(m, false))
+                .toList();
+        return new Pagina<>(contenido, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages());
     }
 
     public List<MantenimientoManualResponseDTO> obtenerHistorial(Integer equipoId) {

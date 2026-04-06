@@ -67,62 +67,10 @@ public class CustodiasControlador {
 	@GetMapping
 	public String listarCustodias(Model model) {
 
-		List<CustodiasResponseDTO> lista = servicioCustodias.listarCustodias();
+		ICustodiasServicio.ActasAgrupadas resultado = servicioCustodias.agruparPorActa();
 
-		// Key compuesta: idCustodio + tipo + fechaInicio -> cada grupo = 1 acta
-		java.util.function.Function<CustodiasResponseDTO, String> actaKeyFn = x -> {
-			int idC = (x != null && x.getFkCustodio() != null) ? x.getFkCustodio().getIdCustodio()
-					: (x != null ? x.getIdCustodio() : 0);
-			String tipo = (x != null && x.getTipoMovimiento() != null) ? x.getTipoMovimiento() : "ASIGNACION";
-			String fecha = (x != null && x.getFechaInicio() != null) ? x.getFechaInicio().toString() : "sin-fecha";
-			return idC + "_" + tipo + "_" + fecha;
-		};
-
-		Map<String, List<CustodiasResponseDTO>> actaDetalles = lista.stream().filter(x -> x != null)
-				.collect(Collectors.groupingBy(actaKeyFn));
-
-		List<ActaResumen> actas = actaDetalles.entrySet().stream().map(entry -> {
-			List<CustodiasResponseDTO> items = entry.getValue();
-			CustodiasResponseDTO first = items.stream().min(Comparator
-					.comparing(CustodiasResponseDTO::getIdCustodiaEquipo, Comparator.nullsLast(Integer::compareTo)))
-					.orElse(items.get(0));
-			int idC = first.getFkCustodio() != null ? first.getFkCustodio().getIdCustodio() : first.getIdCustodio();
-			String tipo = first.getTipoMovimiento() != null ? first.getTipoMovimiento() : "ASIGNACION";
-			String etiqueta = switch (tipo) {
-			case "ACTA_INICIAL" -> "Acta Inicial";
-			case "TRASLADO" -> "Traslado";
-			case "BAJA" -> "Baja";
-			default -> "Asignacion";
-			};
-			boolean activa = items.stream().anyMatch(CustodiasResponseDTO::isEstado);
-			LocalDate fechaFin = items.stream().map(CustodiasResponseDTO::getFechaFin).filter(f -> f != null)
-					.max(Comparator.naturalOrder()).orElse(null);
-			ActaResumen r = new ActaResumen();
-			r.setKey(entry.getKey());
-			r.setIdCustodio(idC);
-			r.setCustodio(first.getFkCustodio());
-			r.setTipoMovimiento(tipo);
-			r.setEtiquetaTipo(etiqueta);
-			r.setFechaInicio(first.getFechaInicio());
-			r.setFechaFin(fechaFin);
-			r.setActiva(activa);
-			r.setCantidadEquipos(items.size());
-			int minPk = items.stream().map(CustodiasResponseDTO::getIdCustodiaEquipo).filter(pk -> pk != null)
-					.min(Integer::compareTo).orElse(0);
-			r.setMinPk(minPk);
-			return r;
-		}).sorted(Comparator.comparingInt(ActaResumen::getMinPk)).toList();
-
-		// Asignar número secuencial 1, 2, 3... según orden de creación
-		java.util.List<ActaResumen> actasNumeradas = new java.util.ArrayList<>(actas);
-		for (int i = 0; i < actasNumeradas.size(); i++) {
-			actasNumeradas.get(i).setNumeroActa(i + 1);
-		}
-		// Ordenar para mostrar más recientes primero
-		actasNumeradas.sort(Comparator.comparingInt(ActaResumen::getMinPk).reversed());
-
-		model.addAttribute("actas", actasNumeradas);
-		model.addAttribute("actaDetalles", actaDetalles);
+		model.addAttribute("actas", resultado.actas());
+		model.addAttribute("actaDetalles", resultado.detalles());
 		return "Custodias/listarCustodias";
 	}
 
@@ -904,21 +852,6 @@ public class CustodiasControlador {
 					String xFecha = x.getFechaInicio() != null ? x.getFechaInicio().toString() : "sin-fecha";
 					return fecha == null || fecha.isBlank() || fecha.equals(xFecha);
 				}).sorted(Comparator.comparing(CustodiasResponseDTO::getIdCustodiaEquipo)).toList();
-	}
-
-	@lombok.Data
-	public static class ActaResumen {
-		private String key;
-		private int numeroActa;
-		private int idCustodio;
-		private int minPk;
-		private CustodiosResponseDTO custodio;
-		private String tipoMovimiento;
-		private String etiquetaTipo;
-		private LocalDate fechaInicio;
-		private LocalDate fechaFin;
-		private boolean activa;
-		private int cantidadEquipos;
 	}
 
 }

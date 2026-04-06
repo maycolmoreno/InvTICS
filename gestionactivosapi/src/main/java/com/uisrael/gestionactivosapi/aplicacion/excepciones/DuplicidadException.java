@@ -1,8 +1,8 @@
 package com.uisrael.gestionactivosapi.aplicacion.excepciones;
 
-public class DuplicidadException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
+import com.uisrael.gestionactivosapi.dominio.excepciones.ExcepcionDominio;
 
+public class DuplicidadException extends ExcepcionDominio {
 	public DuplicidadException(String message) {
 		super(message);
 	}

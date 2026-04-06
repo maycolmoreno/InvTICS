@@ -1,25 +1,42 @@
+import '../../../core/models/pagina_response.dart';
 import '../../../core/network/api_client.dart';
+import '../domain/i_equipos_repository.dart';
 import 'equipo_models.dart';
 
-class EquiposRepository {
+class EquiposRepository implements IEquiposRepository {
   const EquiposRepository(this._apiClient);
 
   final ApiClient _apiClient;
 
+  @override
   Future<List<EquipoListItem>> listar() async {
     final data = await _apiClient.get('/equipos');
     final items = (data as List)
-        .map((item) => EquipoListItem.fromJson(Map<String, dynamic>.from(item as Map)))
+        .map((item) =>
+            EquipoListItem.fromJson(Map<String, dynamic>.from(item as Map)))
         .toList();
     items.sort((a, b) => a.codigoSap.compareTo(b.codigoSap));
     return items;
   }
 
+  @override
+  Future<PaginaResponse<EquipoListItem>> listarPaginado(
+      {int page = 0, int size = 20}) async {
+    final data =
+        await _apiClient.get('/equipos/paginado?page=$page&size=$size');
+    return PaginaResponse.fromJson(
+      Map<String, dynamic>.from(data as Map),
+      (json) => EquipoListItem.fromJson(json),
+    );
+  }
+
+  @override
   Future<EquipoHistorial> obtenerDetalle(int equipoId) async {
     final data = await _apiClient.get('/historial/$equipoId');
     return EquipoHistorial.fromJson(Map<String, dynamic>.from(data as Map));
   }
 
+  @override
   Future<List<EquipoListItem>> listarConHistorial() async {
     final equipos = await listar();
     final enriched = <EquipoListItem>[];

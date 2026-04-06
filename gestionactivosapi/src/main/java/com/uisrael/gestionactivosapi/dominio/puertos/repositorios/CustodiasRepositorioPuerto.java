@@ -1,6 +1,7 @@
 package com.uisrael.gestionactivosapi.dominio.puertos.repositorios;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
+import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import java.util.List;
 import java.util.Optional;
 
@@ -104,4 +105,6 @@ public interface CustodiasRepositorioPuerto {
     default List<Custodias> listarTodos() {
         return obtenerTodos();
     }
+
+    Pagina<Custodias> listarPaginado(int pagina, int tamanio);
 }
