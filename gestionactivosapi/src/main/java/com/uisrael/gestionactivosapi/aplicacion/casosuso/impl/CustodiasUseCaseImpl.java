@@ -83,6 +83,23 @@ public class CustodiasUseCaseImpl implements ICustodiasUseCase {
         return custodiasRepositorio.contarPorTipoMovimiento(tipoMovimiento);
     }
 
+    @Override
+    @Transactional
+    public void registrarActaPdf(List<Integer> ids, String rutaPdf) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Debe proporcionar al menos un ID de custodia");
+        }
+        if (rutaPdf == null || rutaPdf.isBlank()) {
+            throw new IllegalArgumentException("La ruta del PDF es obligatoria");
+        }
+        for (Integer id : ids) {
+            Custodias c = custodiasRepositorio.buscarPorId(id)
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Custodia no encontrada: " + id));
+            c.setRutaActaPdf(rutaPdf);
+            custodiasRepositorio.actualizar(id, c);
+        }
+    }
+
     private void validarEquipoDisponibleParaCustodia(Custodias custodia) {
         if (custodia.getFkEquipo() == null || custodia.getFkEquipo().getIdEquipo() <= 0) {
             throw new IllegalArgumentException("Debe seleccionar un equipo");

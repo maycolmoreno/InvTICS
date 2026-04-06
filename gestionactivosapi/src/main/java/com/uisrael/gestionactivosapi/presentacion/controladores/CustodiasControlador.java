@@ -118,5 +118,23 @@ public class CustodiasControlador {
         return ResponseEntity.ok(Map.of("tipo", count));
     }
 
+    @PutMapping("/acta-pdf")
+    public ResponseEntity<Void> registrarActaPdf(
+            @RequestParam List<Integer> ids,
+            @RequestParam String rutaPdf) {
+        custodiasUseCase.registrarActaPdf(ids, rutaPdf);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/acta-pdf")
+    public ResponseEntity<Map<String, String>> obtenerRutaActaPdf(@PathVariable int id) {
+        Custodias c = custodiasUseCase.obtenerPorId(id);
+        String ruta = c.getRutaActaPdf();
+        if (ruta == null || ruta.isBlank()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(Map.of("rutaActaPdf", ruta));
+    }
+
 }
 

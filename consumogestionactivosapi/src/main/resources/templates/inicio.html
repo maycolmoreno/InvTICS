@@ -7,37 +7,42 @@
 </head>
 <body>
 	<section layout:fragment="contenidopaginas">
-		<div class="page-shell">
-			<div class="executive-banner">
-				<div class="executive-banner-grid">
-					<div>
-						<h1 class="view-title text-white mb-3">Inicio</h1>
-					</div>
-					<div class="executive-kpis">
-						<div class="executive-kpi">
-							<div class="executive-kpi-label">Equipos</div>
-							<div class="executive-kpi-value" th:text="${totalEquipos}">0</div>
-						</div>
-						<div class="executive-kpi">
-							<div class="executive-kpi-label">Mantenimientos</div>
-							<div class="executive-kpi-value" th:text="${mantenimientosActivos}">0</div>
-						</div>
-						<div class="executive-kpi">
-							<div class="executive-kpi-label">Ubicaciones</div>
-							<div class="executive-kpi-value" th:text="${totalUbicaciones}">0</div>
-						</div>
+		<div class="page-shell admin-shell">
+			<section class="operations-hero">
+				<div class="operations-hero-copy">
+					<div class="eyebrow">Panel De Control</div>
+					<h1>Inicio</h1>
+					<div class="info-chip-row mt-3">
+						<div class="info-chip"><i class="feather-box"></i><span>Equipos <strong th:text="${totalEquipos}">0</strong></span></div>
+						<div class="info-chip"><i class="feather-tool"></i><span>Mantenimientos <strong th:text="${mantenimientosActivos}">0</strong></span></div>
+						<div class="info-chip"><i class="feather-map-pin"></i><span>Ubicaciones <strong th:text="${totalUbicaciones}">0</strong></span></div>
 					</div>
 				</div>
-			</div>
+				<div class="operations-hero-actions">
+					<a th:href="@{/equipos/nuevo-equipo}" class="btn btn-primary px-4 py-3">
+						<i class="feather-plus me-2"></i>Agregar equipo
+					</a>
+				</div>
+			</section>
+
+			<section class="admin-summary-grid">
+				<article class="admin-summary-card">
+					<div class="admin-summary-label">Equipos</div>
+					<div class="admin-summary-value" th:text="${totalEquipos}">0</div>
+				</article>
+				<article class="admin-summary-card">
+					<div class="admin-summary-label">Mantenimientos</div>
+					<div class="admin-summary-value" th:text="${mantenimientosActivos}">0</div>
+				</article>
+				<article class="admin-summary-card">
+					<div class="admin-summary-label">Ubicaciones</div>
+					<div class="admin-summary-value" th:text="${totalUbicaciones}">0</div>
+				</article>
+			</section>
 
 			<div class="view-heading">
 				<div>
 					<h1 class="view-title">Resumen Operativo de Activos</h1>
-				</div>
-				<div class="d-flex gap-3 flex-wrap">
-					<a th:href="@{/equipos/nuevo-equipo}" class="btn btn-primary px-4 py-3">
-						<i class="feather-plus me-2"></i>Agregar equipo
-					</a>
 				</div>
 			</div>
 

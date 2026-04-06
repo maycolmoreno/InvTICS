@@ -76,6 +76,7 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       JWT_SECRET: ${JWT_SECRET:?Definir JWT_SECRET en .env}
+      ACTAS_STORAGE_PATH: /app/uploads/actas
     volumes:
       - web-uploads:/app/uploads
 

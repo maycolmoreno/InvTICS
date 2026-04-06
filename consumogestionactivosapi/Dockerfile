@@ -22,7 +22,7 @@ RUN groupadd --system appuser && useradd --system --gid appuser appuser
 
 COPY --from=build /app/target/*.jar app.jar
 
-RUN mkdir -p /app/uploads/mantenimientos /app/uploads/pdfs \
+RUN mkdir -p /app/uploads/mantenimientos /app/uploads/pdfs /app/uploads/actas \
     && chown -R appuser:appuser /app
 
 USER appuser

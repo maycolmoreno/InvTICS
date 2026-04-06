@@ -19,4 +19,5 @@ public class ActaResumenDTO {
 	private LocalDate fechaFin;
 	private boolean activa;
 	private int cantidadEquipos;
+	private String rutaActaPdf;
 }

@@ -98,7 +98,10 @@ body {
 
 a { text-decoration: none; }
 
-/* ─── SIDEBAR ─────────────────────────────────────────────── */
+/* ─── OVERRIDE THEME.MIN.CSS — layout base ───────────────── */
+/* Asegura que el sidebar, header y contenido se posicionen correctamente */
+
+/* El sidebar ya tiene width en theme.min.css — solo ajustamos colores */
 .nxl-navigation {
   background: var(--cr-surface) !important;
   border-right: 1px solid var(--cr-border) !important;
@@ -106,6 +109,20 @@ a { text-decoration: none; }
   width: var(--aa-sidebar-width) !important;
 }
 
+/* El header ya está posicionado por theme.min.css */
+.nxl-header {
+  background: linear-gradient(
+    135deg,
+    rgba(71, 38, 127, 0.97) 0%,
+    rgba(47, 24, 87, 0.98) 55%,
+    rgba(92, 54, 160, 0.96) 100%
+  ) !important;
+  border-bottom: none !important;
+  box-shadow: 0 4px 24px rgba(47, 24, 87, 0.22) !important;
+  backdrop-filter: none !important;
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────── */
 .nxl-navigation .navbar-wrapper,
 .nxl-navigation .navbar-content,
 .nxl-navigation .m-header {
@@ -388,18 +405,6 @@ a { text-decoration: none; }
 .minimenu .nxl-navigation .nxl-submenu { display: none !important; }
 
 /* ─── HEADER ──────────────────────────────────────────────── */
-.nxl-header {
-  background: linear-gradient(
-    135deg,
-    rgba(71, 38, 127, 0.97) 0%,
-    rgba(47, 24, 87, 0.98) 55%,
-    rgba(92, 54, 160, 0.96) 100%
-  ) !important;
-  border-bottom: none !important;
-  box-shadow: 0 4px 24px rgba(47, 24, 87, 0.22) !important;
-  backdrop-filter: none !important;
-}
-
 .nxl-header .header-wrapper {
   padding: 0 24px !important;
   min-height: 72px;
@@ -565,6 +570,58 @@ a { text-decoration: none; }
 
 .nxl-content { background: transparent !important; }
 
+/* ─── HEADER INTERNO — left / search / right ──────────────── */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header-search-shell {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Toggle de minimenu */
+.nxl-navigation-toggle a {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.80);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 18px;
+  transition: all 0.16s var(--cr-ease);
+}
+
+.nxl-navigation-toggle a:hover {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+}
+
+/* Items del header derecho */
+.nxl-h-item {
+  display: flex;
+  align-items: center;
+}
+
+
+
 /* ─── FOOTER ──────────────────────────────────────────────── */
 .footer {
   background: transparent !important;
@@ -671,6 +728,117 @@ a { text-decoration: none; }
   margin-top: 6px;
   font-size: 12px;
   color: rgba(255,255,255,0.72);
+}
+
+/* CRÍTICO — grid interno del banner: título a la izq, KPIs a la der */
+.executive-banner-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 28px;
+  align-items: center;
+}
+
+/* KPIs en fila horizontal */
+.executive-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* ─── DONUT — SALUD DEL INVENTARIO ───────────────────────── */
+.dashboard-donut {
+  width: 180px;
+  height: 180px;
+  margin: 16px auto 24px;
+  border-radius: 50%;
+  position: relative;
+  background: conic-gradient(
+    var(--cr-purple)  0deg  165deg,
+    var(--cr-accent) 165deg 231deg,
+    #f5a623          231deg 264deg,
+    var(--cr-border) 264deg 360deg
+  );
+}
+
+.dashboard-donut::after {
+  content: '';
+  position: absolute;
+  inset: 28px;
+  border-radius: 50%;
+  background: var(--cr-surface);
+}
+
+.dashboard-donut-center {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.dashboard-donut-number {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--cr-ink);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.dashboard-donut-label {
+  margin-top: 3px;
+  color: var(--cr-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+
+/* ─── LEGEND ──────────────────────────────────────────────── */
+.legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--cr-r-xs);
+  background: var(--cr-surface-soft);
+  border: 1px solid var(--cr-border);
+}
+
+.legend-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cr-ink-soft);
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.good        { background: var(--cr-purple); }
+.legend-dot.new         { background: #f5a623; }
+.legend-dot.maintenance { background: var(--cr-accent); }
+
+.legend-item strong {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--cr-ink);
 }
 
 /* ─── TARJETAS MÉTRICAS ───────────────────────────────────── */
@@ -1423,6 +1591,12 @@ a { text-decoration: none; }
 }
 
 /* ─── CHIP INFORMATIVO ────────────────────────────────────── */
+.info-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .info-chip {
   display: inline-flex;
   align-items: center;
@@ -2430,7 +2604,8 @@ a { text-decoration: none; }
   .nxl-container { padding: 22px 18px 18px !important; }
   .header-search-shell { flex-wrap: wrap; }
   .header-search { width: 100%; max-width: none; }
-  .executive-banner-grid, .content-grid, .operations-strip { grid-template-columns: 1fr; }
+  .executive-banner-grid { grid-template-columns: 1fr; }
+  .content-grid, .operations-strip { grid-template-columns: 1fr; }
   .quick-actions-grid { grid-template-columns: repeat(2, 1fr); }
   .timeline-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-summary-grid, .admin-form-grid { grid-template-columns: 1fr; }
@@ -2439,6 +2614,7 @@ a { text-decoration: none; }
 @media (max-width: 767px) {
   .nxl-container { padding: 16px 14px !important; }
   .header-search { width: 100%; }
+  .executive-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .executive-kpis, .quick-actions-grid, .timeline-grid { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
   .span-2, .span-3, .span-4, .span-6, .span-8, .span-9, .span-12 { grid-column: auto; }

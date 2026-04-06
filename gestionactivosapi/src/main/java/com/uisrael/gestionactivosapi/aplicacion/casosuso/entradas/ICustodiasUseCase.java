@@ -20,4 +20,6 @@ public interface ICustodiasUseCase {
     Custodias actualizarEstado(int id, Custodias custodia);
 
     long contarPorTipoMovimiento(String tipoMovimiento);
+
+    void registrarActaPdf(List<Integer> ids, String rutaPdf);
 }

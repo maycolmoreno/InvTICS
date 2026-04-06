@@ -109,6 +109,7 @@ public class CustodiasServicioImpl implements ICustodiasServicio {
 			r.setActiva(activa);
 			r.setCantidadEquipos(items.size());
 			r.setMinPk(minPk);
+			r.setRutaActaPdf(first.getRutaActaPdf());
 			return r;
 		}).sorted(Comparator.comparingInt(ActaResumenDTO::getMinPk)).toList();
 

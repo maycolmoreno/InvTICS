@@ -45,5 +45,9 @@ public class CustodiasResponseDTO {
     private String tipoMovimiento;
     public String getTipoMovimiento() { return tipoMovimiento; }
     public void setTipoMovimiento(String tipoMovimiento) { this.tipoMovimiento = tipoMovimiento; }
+
+    private String rutaActaPdf;
+    public String getRutaActaPdf() { return rutaActaPdf; }
+    public void setRutaActaPdf(String rutaActaPdf) { this.rutaActaPdf = rutaActaPdf; }
 }
 

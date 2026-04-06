@@ -56,4 +56,7 @@ public class CustodiasJpa implements Serializable {
 
     @Column(name = "tipo_movimiento")
     private String tipoMovimiento;
+
+    @Column(name = "ruta_acta_pdf")
+    private String rutaActaPdf;
 }

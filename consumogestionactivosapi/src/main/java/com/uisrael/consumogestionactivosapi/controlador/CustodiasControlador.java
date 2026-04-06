@@ -31,6 +31,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasRespons
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
+import com.uisrael.consumogestionactivosapi.service.ActaStorageService;
 import com.uisrael.consumogestionactivosapi.service.CorreoServicio;
 import com.uisrael.consumogestionactivosapi.service.CustodiasExcelService;
 import com.uisrael.consumogestionactivosapi.service.CustodiasPdfService;
@@ -60,6 +61,7 @@ public class CustodiasControlador {
 	private final CustodiasExcelService custodiasExcelService;
 	private final CorreoServicio correoServicio;
 	private final SesionUsuario sesionUsuario;
+	private final ActaStorageService actaStorageService;
 
 	// =========================================================
 	// LISTAR (POR ACTA: custodio + tipo + fecha = 1 acta)
@@ -546,6 +548,9 @@ public class CustodiasControlador {
 		}
 		byte[] pdfBytes = custodiasPdfService.generarActaEntregaPdfBytes(lista, nombreEntrega, deptoEntrega, tipoMov);
 
+		// Guardar PDF en disco y registrar ruta en BD
+		guardarYRegistrarActa(pdfBytes, tipoMov, lista);
+
 		String nombreArchivo = obtenerNombreArchivoPdf(tipoMov);
 		response.setContentType("application/pdf");
 		response.setHeader("Content-Disposition", "inline; filename=" + nombreArchivo);
@@ -566,6 +571,17 @@ public class CustodiasControlador {
 			return;
 		}
 
+		// Si ya tiene PDF guardado, servir desde disco
+		String rutaExistente = lista.get(0).getRutaActaPdf();
+		if (rutaExistente != null && !rutaExistente.isBlank() && actaStorageService.existeActa(rutaExistente)) {
+			byte[] pdfGuardado = actaStorageService.leerActaPdf(rutaExistente);
+			response.setContentType("application/pdf");
+			response.setHeader("Content-Disposition", "inline; filename=" + rutaExistente);
+			response.getOutputStream().write(pdfGuardado);
+			response.getOutputStream().flush();
+			return;
+		}
+
 		String tipoMov = lista.get(0).getTipoMovimiento();
 		if (tipoMov == null || tipoMov.isBlank())
 			tipoMov = "ASIGNACION";
@@ -580,6 +596,9 @@ public class CustodiasControlador {
 			}
 		}
 		byte[] pdfBytes = custodiasPdfService.generarActaEntregaPdfBytes(lista, nombreEntrega, deptoEntrega, tipoMov);
+
+		// Guardar PDF en disco y registrar ruta
+		guardarYRegistrarActa(pdfBytes, tipoMov, lista);
 
 		String nombreArchivo = obtenerNombreArchivoPdf(tipoMov);
 		response.setContentType("application/pdf");
@@ -852,6 +871,26 @@ public class CustodiasControlador {
 					String xFecha = x.getFechaInicio() != null ? x.getFechaInicio().toString() : "sin-fecha";
 					return fecha == null || fecha.isBlank() || fecha.equals(xFecha);
 				}).sorted(Comparator.comparing(CustodiasResponseDTO::getIdCustodiaEquipo)).toList();
+	}
+
+	private void guardarYRegistrarActa(byte[] pdfBytes, String tipoMov, List<CustodiasResponseDTO> lista) {
+		try {
+			CustodiasResponseDTO cab = lista.get(0);
+			int idCustodio = cab.getFkCustodio() != null ? cab.getFkCustodio().getIdCustodio() : cab.getIdCustodio();
+			LocalDate fecha = cab.getFechaInicio();
+
+			String nombreArchivo = actaStorageService.guardarActaPdf(pdfBytes, tipoMov, idCustodio, fecha);
+
+			List<Integer> ids = lista.stream()
+					.map(CustodiasResponseDTO::getIdCustodiaEquipo)
+					.filter(id -> id > 0)
+					.toList();
+
+			actaStorageService.registrarRutaEnCustodias(ids, nombreArchivo);
+		} catch (Exception e) {
+			org.slf4j.LoggerFactory.getLogger(getClass())
+					.error("Error al guardar acta PDF en disco: {}", e.getMessage());
+		}
 	}
 
 }

@@ -14,6 +14,7 @@ public class Custodias {
     private Custodios fkCustodio;
     private Ubicaciones fkUbicacion;
     private String tipoMovimiento;
+    private String rutaActaPdf;
 
     public Custodias() {}
 
@@ -56,6 +57,9 @@ public class Custodias {
 
     public String getTipoMovimiento() { return tipoMovimiento; }
     public void setTipoMovimiento(String tipoMovimiento) { this.tipoMovimiento = tipoMovimiento; }
+
+    public String getRutaActaPdf() { return rutaActaPdf; }
+    public void setRutaActaPdf(String rutaActaPdf) { this.rutaActaPdf = rutaActaPdf; }
 
     @Override
     public String toString() {

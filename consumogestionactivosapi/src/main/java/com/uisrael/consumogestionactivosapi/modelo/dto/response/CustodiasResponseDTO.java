@@ -26,4 +26,5 @@ public class CustodiasResponseDTO {
     private Boolean entregado;
     private String observacionDevolucion;
     private String tipoMovimiento;
+    private String rutaActaPdf;
 }
