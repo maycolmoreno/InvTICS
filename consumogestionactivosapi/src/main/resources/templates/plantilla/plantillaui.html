@@ -22,6 +22,7 @@
 <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/select2-theme.min.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/datepicker.min.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/dataTables.bs5.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme.min.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/css/cresio-theme-pro.css}">
 </head>
 
@@ -45,164 +46,170 @@
 							<span class="nxl-mtext">Inicio</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('EQUIPOS')}">
 						<a th:href="@{/equipos}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-box"></i></span>
 							<span class="nxl-mtext">Equipos</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
 						<a th:href="@{/mantenimiento}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-tool"></i></span>
 							<span class="nxl-mtext">Mantenimiento</span>
 							<span class="badge bg-danger ms-auto" th:if="${notificacionesPendientes > 0}" th:text="${notificacionesPendientes}">0</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('CUSTODIAS')}">
 						<a th:href="@{/custodias}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-clipboard"></i></span>
 							<span class="nxl-mtext">Custodias</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('CUSTODIOS')}">
 						<a th:href="@{/custodios}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-user-check"></i></span>
 							<span class="nxl-mtext">Custodios</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('UBICACIONES')}">
 						<a th:href="@{/ubicaciones}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-map-pin"></i></span>
 							<span class="nxl-mtext">Ubicaciones</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('DEPARTAMENTOS')}">
 						<a th:href="@{/departamentos}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-home"></i></span>
 							<span class="nxl-mtext">Departamentos</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('USUARIOS')}">
 						<a th:href="@{/usuarios}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-users"></i></span>
 							<span class="nxl-mtext">Usuarios</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO' || sesionUsuario.rol == 'AUDITOR'}">
-						<a th:href="@{/equipos/reporte-equipo}" class="nxl-link">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('REPORTES')}">
+						<a th:href="@{/reportes}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-bar-chart-2"></i></span>
 							<span class="nxl-mtext">Reportes</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('NOTIFICACIONES')}">
 						<a th:href="@{/notificaciones}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-bell"></i></span>
 							<span class="nxl-mtext">Notificaciones</span>
 							<span class="badge bg-danger ms-auto" th:if="${notificacionesPendientes > 0}" th:text="${notificacionesPendientes}">0</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('CHECKLIST')}">
 						<a th:href="@{/checklist}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-check-square"></i></span>
 							<span class="nxl-mtext">Checklist</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('PLANIFICACION')}">
 						<a th:href="@{/planificacion}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-calendar"></i></span>
 							<span class="nxl-mtext">Planificación</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'TECNICO'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('MONITOREO_GPS')}">
 						<a th:href="@{/ubicaciones-tecnicos/consentimiento}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-navigation"></i></span>
 							<span class="nxl-mtext">Monitoreo GPS</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('GPS_TIEMPO_REAL')}">
 						<a th:href="@{/ubicaciones-tecnicos/tiempo-real}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-radio"></i></span>
 							<span class="nxl-mtext">GPS Tiempo Real</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}">
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('GPS_HISTORIAL')}">
+						<a th:href="@{/ubicaciones-tecnicos/historial}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-clock"></i></span>
+							<span class="nxl-mtext">GPS Historial</span>
+						</a>
+					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('IMPORTAR')}">
 						<a th:href="@{/importar}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-upload-cloud"></i></span>
 							<span class="nxl-mtext">Importar</span>
 						</a>
 					</li>
 				</ul>
-				<div class="sidebar-secondary-nav" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+				<div class="sidebar-secondary-nav" th:if="${sesionUsuario.tieneModulo('EQUIPOS') || sesionUsuario.tieneModulo('MANTENIMIENTO')}">
 					<div class="sidebar-secondary-title">Accesos rapidos</div>
-					<a th:href="@{/equipos/nuevo-equipo}" class="sidebar-secondary-link">
+					<a th:if="${sesionUsuario.tieneModulo('EQUIPOS')}" th:href="@{/equipos/nuevo-equipo}" class="sidebar-secondary-link">
 						<i class="feather-plus-square"></i>
 						<span>Nuevo equipo</span>
 					</a>
-					<a th:href="@{/mantenimiento/programado}" class="sidebar-secondary-link">
+					<a th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}" th:href="@{/mantenimiento/programado}" class="sidebar-secondary-link">
 						<i class="feather-calendar"></i>
 						<span>Programado</span>
 					</a>
-					<a th:href="@{/importar}" class="sidebar-secondary-link">
+					<a th:if="${sesionUsuario.tieneModulo('IMPORTAR')}" th:href="@{/importar}" class="sidebar-secondary-link">
 						<i class="feather-upload-cloud"></i>
 						<span>Importar datos</span>
 					</a>
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}" th:href="@{/categorias-equipo}" class="sidebar-secondary-link">
+					<a th:if="${sesionUsuario.tieneModulo('CATEGORIAS')}" th:href="@{/categorias-equipo}" class="sidebar-secondary-link">
 						<i class="feather-layers"></i>
 						<span>Categorias</span>
 					</a>
-					<a th:href="@{/custodias}" class="sidebar-secondary-link">
+					<a th:if="${sesionUsuario.tieneModulo('CUSTODIAS')}" th:href="@{/custodias}" class="sidebar-secondary-link">
 						<i class="feather-clipboard"></i>
 						<span>Custodias</span>
 					</a>
-					<a th:href="@{/custodios}" class="sidebar-secondary-link">
+					<a th:if="${sesionUsuario.tieneModulo('CUSTODIOS')}" th:href="@{/custodios}" class="sidebar-secondary-link">
 						<i class="feather-user-check"></i>
 						<span>Custodios</span>
 					</a>
-					<a th:href="@{/visita}" class="sidebar-secondary-link">
+					<a th:if="${sesionUsuario.tieneModulo('VISITA_TECNICA')}" th:href="@{/visita}" class="sidebar-secondary-link">
 						<i class="feather-map"></i>
 						<span>Visita tecnica</span>
 					</a>
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO' || sesionUsuario.rol == 'AUDITOR'}" th:href="@{/custodias/reporte}" class="sidebar-secondary-link">
+					<a th:if="${sesionUsuario.tieneModulo('REPORTES')}" th:href="@{/custodias/reporte}" class="sidebar-secondary-link">
 						<i class="feather-file-text"></i>
 						<span>Reporte custodias</span>
 					</a>
 				</div>
 			</div>
 			<div class="sidebar-footer">
-				<a th:href="@{/mantenimiento/nuevo}" class="sidebar-cta" th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}">
+				<a th:href="@{/mantenimiento/nuevo}" class="sidebar-cta" th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
 					<i class="feather-plus"></i>
 					<span>Nuevo mantenimiento</span>
 				</a>
 				<div class="sidebar-utility-links">
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}" th:href="@{/roles}" class="sidebar-utility-link">
+					<a th:if="${sesionUsuario.tieneModulo('ROLES')}" th:href="@{/roles}" class="sidebar-utility-link">
 						<i class="feather-shield"></i>
 						<span>Roles</span>
 					</a>
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}" th:href="@{/cargos}" class="sidebar-utility-link">
+					<a th:if="${sesionUsuario.tieneModulo('CARGOS')}" th:href="@{/cargos}" class="sidebar-utility-link">
 						<i class="feather-briefcase"></i>
 						<span>Cargos</span>
 					</a>
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}" th:href="@{/custodios}" class="sidebar-utility-link">
+					<a th:if="${sesionUsuario.tieneModulo('CUSTODIOS')}" th:href="@{/custodios}" class="sidebar-utility-link">
 						<i class="feather-user-check"></i>
 						<span>Custodios</span>
 					</a>
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}" th:href="@{/notificaciones}" class="sidebar-utility-link">
+					<a th:if="${sesionUsuario.tieneModulo('NOTIFICACIONES')}" th:href="@{/notificaciones}" class="sidebar-utility-link">
 						<i class="feather-bell"></i>
 						<span>Notificaciones</span>
 					</a>
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}" th:href="@{/departamentos}" class="sidebar-utility-link">
+					<a th:if="${sesionUsuario.tieneModulo('DEPARTAMENTOS')}" th:href="@{/departamentos}" class="sidebar-utility-link">
 						<i class="feather-home"></i>
 						<span>Departamentos</span>
 					</a>
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}" th:href="@{/marcas}" class="sidebar-utility-link">
+					<a th:if="${sesionUsuario.tieneModulo('MARCAS')}" th:href="@{/marcas}" class="sidebar-utility-link">
 						<i class="feather-tag"></i>
 						<span>Marcas</span>
 					</a>
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}" th:href="@{/categorias-equipo}" class="sidebar-utility-link">
+					<a th:if="${sesionUsuario.tieneModulo('CATEGORIAS')}" th:href="@{/categorias-equipo}" class="sidebar-utility-link">
 						<i class="feather-layers"></i>
 						<span>Categorias</span>
 					</a>
-					<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR' || sesionUsuario.rol == 'TECNICO'}" th:href="@{/visita}" class="sidebar-utility-link">
+					<a th:if="${sesionUsuario.tieneModulo('VISITA_TECNICA')}" th:href="@{/visita}" class="sidebar-utility-link">
 						<i class="feather-map"></i>
 						<span>Visita tecnica</span>
 					</a>
@@ -266,11 +273,11 @@
 									</div>
 								</div>
 							</div>
-							<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}" th:href="@{/usuarios}" class="dropdown-item">
+							<a th:if="${sesionUsuario.tieneModulo('USUARIOS')}" th:href="@{/usuarios}" class="dropdown-item">
 								<i class="feather-users"></i>
 								<span>Usuarios</span>
 							</a>
-							<a th:if="${sesionUsuario.rol == 'ADMINISTRADOR'}" th:href="@{/ubicaciones}" class="dropdown-item">
+							<a th:if="${sesionUsuario.tieneModulo('UBICACIONES')}" th:href="@{/ubicaciones}" class="dropdown-item">
 								<i class="feather-map-pin"></i>
 								<span>Ubicaciones</span>
 							</a>

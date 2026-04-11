@@ -8,16 +8,13 @@ public class HistorialEquipoDTO {
     private String marca;
     private String modelo;
     private String serial;
-    private String tipoEquipo;
     private String codigoSap;
     private LocalDate fechaCompra;
     private String estadoEquipo;
-    private String sistemaOperativo;
     private String procesador;
     private Integer memoriaRamGb;
     private Integer capacidadAlmacenamientoGb;
     private Boolean licenciaWindowsActivada;
-    private Boolean unionDominio;
     private String categoriaNombre;
 
     private String custodioNombre;
@@ -58,14 +55,6 @@ public class HistorialEquipoDTO {
         this.serial = serial;
     }
 
-    public String getTipoEquipo() {
-        return tipoEquipo;
-    }
-
-    public void setTipoEquipo(String tipoEquipo) {
-        this.tipoEquipo = tipoEquipo;
-    }
-
     public String getCodigoSap() {
         return codigoSap;
     }
@@ -88,14 +77,6 @@ public class HistorialEquipoDTO {
 
     public void setEstadoEquipo(String estadoEquipo) {
         this.estadoEquipo = estadoEquipo;
-    }
-
-    public String getSistemaOperativo() {
-        return sistemaOperativo;
-    }
-
-    public void setSistemaOperativo(String sistemaOperativo) {
-        this.sistemaOperativo = sistemaOperativo;
     }
 
     public String getProcesador() {
@@ -128,14 +109,6 @@ public class HistorialEquipoDTO {
 
     public void setLicenciaWindowsActivada(Boolean licenciaWindowsActivada) {
         this.licenciaWindowsActivada = licenciaWindowsActivada;
-    }
-
-    public Boolean getUnionDominio() {
-        return unionDominio;
-    }
-
-    public void setUnionDominio(Boolean unionDominio) {
-        this.unionDominio = unionDominio;
     }
 
     public String getCategoriaNombre() {

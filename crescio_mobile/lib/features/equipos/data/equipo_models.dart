@@ -2,12 +2,10 @@ class EquipoListItem {
   const EquipoListItem({
     required this.id,
     required this.codigoSap,
-    required this.tipoEquipo,
     required this.modelo,
     required this.serial,
     required this.estadoEquipo,
     required this.procesador,
-    required this.ip,
     required this.mac,
     required this.custodioNombre,
     required this.ubicacionNombre,
@@ -17,12 +15,10 @@ class EquipoListItem {
 
   final int id;
   final String codigoSap;
-  final String tipoEquipo;
   final String modelo;
   final String serial;
   final String estadoEquipo;
   final String procesador;
-  final String ip;
   final String mac;
   final String custodioNombre;
   final String ubicacionNombre;
@@ -35,12 +31,10 @@ class EquipoListItem {
           ? _asInt(json['idEquipo'])
           : _asInt(json['id']),
       codigoSap: _text(json['codigoSap'], fallback: 'Sin codigo'),
-      tipoEquipo: _text(json['tipoEquipo'], fallback: '-'),
       modelo: _text(json['modelo'], fallback: '-'),
       serial: _text(json['serial'], fallback: '-'),
       estadoEquipo: _text(json['estadoEquipo'], fallback: '-'),
       procesador: _text(json['procesador'], fallback: ''),
-      ip: _text(json['ip'], fallback: ''),
       mac: _text(json['mac'], fallback: ''),
       custodioNombre: _text(json['custodioNombre'], fallback: ''),
       ubicacionNombre: json['fkUbicacion'] != null
@@ -86,20 +80,16 @@ class EquipoHistorial {
 class EquipoDetalle {
   const EquipoDetalle({
     required this.codigoSap,
-    required this.tipoEquipo,
     required this.marca,
     required this.modelo,
     required this.serial,
     required this.estadoEquipo,
     required this.categoriaNombre,
-    required this.sistemaOperativo,
     required this.procesador,
     required this.memoriaRamGb,
     required this.capacidadAlmacenamientoGb,
-    required this.ip,
     required this.mac,
     required this.licenciaWindowsActivada,
-    required this.unionDominio,
     required this.fechaCompra,
     required this.observacionEquipo,
     required this.custodioNombre,
@@ -110,20 +100,16 @@ class EquipoDetalle {
   });
 
   final String codigoSap;
-  final String tipoEquipo;
   final String marca;
   final String modelo;
   final String serial;
   final String estadoEquipo;
   final String categoriaNombre;
-  final String sistemaOperativo;
   final String procesador;
   final String memoriaRamGb;
   final String capacidadAlmacenamientoGb;
-  final String ip;
   final String mac;
   final bool? licenciaWindowsActivada;
-  final bool? unionDominio;
   final String fechaCompra;
   final String observacionEquipo;
   final String custodioNombre;
@@ -135,20 +121,16 @@ class EquipoDetalle {
   factory EquipoDetalle.fromJson(Map<String, dynamic> json) {
     return EquipoDetalle(
       codigoSap: _text(json['codigoSap'], fallback: 'Sin codigo'),
-      tipoEquipo: _text(json['tipoEquipo']),
       marca: _text(json['marca']),
       modelo: _text(json['modelo']),
       serial: _text(json['serial']),
       estadoEquipo: _text(json['estadoEquipo']),
       categoriaNombre: _text(json['categoriaNombre']),
-      sistemaOperativo: _text(json['sistemaOperativo']),
       procesador: _text(json['procesador']),
       memoriaRamGb: _text(json['memoriaRamGb']),
       capacidadAlmacenamientoGb: _text(json['capacidadAlmacenamientoGb']),
-      ip: _text(json['ip']),
       mac: _text(json['mac']),
       licenciaWindowsActivada: _asBool(json['licenciaWindowsActivada']),
-      unionDominio: _asBool(json['unionDominio']),
       fechaCompra: _text(json['fechaCompra']),
       observacionEquipo: _text(json['observacionEquipo']),
       custodioNombre: _text(json['custodioNombre']),

@@ -38,7 +38,6 @@ public class VisitaTecnicaControlador {
             dto.setSerial(e.getSerial());
             dto.setMarca(e.getMarca());
             dto.setModelo(e.getModelo());
-            dto.setTipoEquipo(e.getTipoEquipo());
             dto.setCodigoSap(e.getCodigoSap());
             dto.setCustodioNombre(e.getCustodioNombre());
             dto.setCustodioArea(e.getCustodioArea());

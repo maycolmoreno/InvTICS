@@ -19,7 +19,11 @@ public interface IMantenimientoManualServicio {
 
     List<MantenimientoManualResponseDTO> listarTodos();
 
+    List<MantenimientoManualResponseDTO> listarPorTecnico(Integer tecnicoId);
+
     PaginaResponse<MantenimientoManualResponseDTO> listarTodosPaginado(int page, int size);
+
+    PaginaResponse<MantenimientoManualResponseDTO> listarPorTecnicoPaginado(Integer tecnicoId, int page, int size);
 
     MantenimientoManualResponseDTO obtenerDetalle(Integer id);
 

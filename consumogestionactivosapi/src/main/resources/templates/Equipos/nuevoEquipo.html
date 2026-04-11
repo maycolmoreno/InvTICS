@@ -11,58 +11,11 @@
 <body>
     <div layout:fragment="contenidopaginas">
         <div class="page-shell">
-            <div class="operations-strip">
-                <div class="operations-hero">
-                    <div class="eyebrow text-white-50">Alta de inventario</div>
-                    <h2>Nuevo equipo</h2>
-                    <div class="operations-badges">
-                        <div class="operations-badge"><i class="feather-box"></i><span>Ficha tecnica centralizada</span></div>
-                        <div class="operations-badge"><i class="feather-cpu"></i><span>Hardware y red</span></div>
-                        <div class="operations-badge"><i class="feather-tag"></i><span>Marca y categoria</span></div>
-                    </div>
-                </div>
-                <div class="surface-card insight-panel">
-                    <div class="content-card-header mb-0">
-                        <div>
-                            <h2 class="content-card-title">Buenas practicas</h2>
-                        </div>
-                    </div>
-                    <div class="insight-list">
-                        <div class="insight-item">
-                            <i class="feather-check-circle"></i>
-                            <div>
-                                <div class="signal-title">Codigo y serial</div>
-                            </div>
-                            <div class="signal-tag">Obligatorio</div>
-                        </div>
-                        <div class="insight-item">
-                            <i class="feather-layers"></i>
-                            <div>
-                                <div class="signal-title">Marca y categoria</div>
-                            </div>
-                            <div class="signal-tag">Clasificacion</div>
-                        </div>
-                        <div class="insight-item">
-                            <i class="feather-wifi"></i>
-                            <div>
-                                <div class="signal-title">Datos de red</div>
-                            </div>
-                            <div class="signal-tag">Opcional</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="view-heading">
                 <div>
                     <div class="eyebrow">Registro de activos</div>
                     <h1 class="view-title">Nuevo Equipo</h1>
-                </div>
-                <div class="d-flex flex-wrap gap-2">
-                    <a th:href="@{/equipos}" class="btn btn-outline-secondary px-4 py-3">Atras</a>
-                    <button type="submit" form="frmEquipo" class="btn btn-primary px-4 py-3">
-                        <i class="feather-save me-2"></i>Guardar
-                    </button>
                 </div>
             </div>
 
@@ -75,28 +28,23 @@
                             <h2 class="content-card-title">Informacion principal</h2>
                         </div>
                     </div>
-                    <div class="form-grid">
-                        <div class="span-4 field-group">
+                    <div class="form-grid-12">
+                        <div class="span-3 field-group">
                             <label class="field-label">Codigo Activo Fijo</label>
                             <input maxlength="16" type="text" class="form-control" th:field="*{codigoSap}" placeholder="A_EC_00000000919" pattern="[A-Z]_EC_[0-9]{11}" title="Ingrese el Codigo Activo Fijo con formato A_EC_00000000919" style="text-transform: uppercase;" />
                             <div class="text-danger small" th:if="${errorCodigo}" th:text="${errorCodigo}"></div>
                         </div>
-                        <div class="span-4 field-group">
-                            <label class="field-label">Tipo de equipo</label>
-                            <input type="text" class="form-control" th:field="*{tipoEquipo}" maxlength="100" placeholder="Ej: Laptop" />
-                            <div class="text-danger small" th:if="${errorTipoEquipo}" th:text="${errorTipoEquipo}"></div>
-                        </div>
-                        <div class="span-4 field-group">
+                        <div class="span-3 field-group">
                             <label class="field-label">Modelo</label>
                             <input type="text" class="form-control" th:field="*{modelo}" maxlength="100" placeholder="Ej: ThinkPad" />
                             <div class="text-danger small" th:if="${errorModelo}" th:text="${errorModelo}"></div>
                         </div>
-                        <div class="span-4 field-group">
+                        <div class="span-3 field-group">
                             <label class="field-label">Serial</label>
                             <input type="text" class="form-control" th:field="*{serial}" maxlength="100" placeholder="Serial" />
                             <div class="text-danger small" th:if="${errorSerial}" th:text="${errorSerial}"></div>
                         </div>
-                        <div class="span-4 field-group">
+                        <div class="span-3 field-group">
                             <label class="field-label">Marca</label>
                             <div class="d-flex gap-2">
                                 <select class="form-select" id="selMarca" th:field="*{fkMarca.idMarca}">
@@ -107,7 +55,7 @@
                             </div>
                             <div class="text-danger small" th:if="${errorMarca}" th:text="${errorMarca}"></div>
                         </div>
-                        <div class="span-4 field-group">
+                        <div class="span-3 field-group">
                             <label class="field-label">Categoria</label>
                             <div class="d-flex gap-2">
                                 <select class="form-select" id="selCategoria" th:field="*{fkCategoria.idCategoria}">
@@ -118,7 +66,7 @@
                             </div>
                             <div class="text-danger small" th:if="${errorCategoria}" th:text="${errorCategoria}"></div>
                         </div>
-                        <div class="span-4 field-group">
+                        <div class="span-3 field-group">
                             <label class="field-label">Ubicacion</label>
                             <div class="d-flex gap-2">
                                 <select class="form-select" id="selUbicacion" th:field="*{fkUbicacion.idUbicacion}">
@@ -128,13 +76,13 @@
                                 <button type="button" class="btn btn-outline-primary btn-sm" title="Crear ubicacion" data-bs-toggle="modal" data-bs-target="#modalCrearUbicacion"><i class="feather-plus"></i></button>
                             </div>
                         </div>
-                        <div class="span-4 field-group">
+                        <div class="span-3 field-group">
                             <label class="field-label">Estado equipo</label>
                             <input type="text" class="form-control" th:field="*{estadoEquipo}" placeholder="Ej: Operativo" />
                         </div>
-                        <div class="span-8 field-group">
+                        <div class="span-6 field-group">
                             <label class="field-label">Observacion</label>
-                            <textarea class="form-control" rows="4" th:field="*{observacionEquipo}"></textarea>
+                            <textarea class="form-control" rows="3" th:field="*{observacionEquipo}"></textarea>
                         </div>
                     </div>
                 </div>
@@ -142,83 +90,48 @@
                 <div class="surface-card page-panel details-shell">
                     <details>
                         <summary>Campos avanzados</summary>
-                        <div class="form-grid mt-4">
-                            <div class="span-4 field-group">
-                                <label class="field-label">Procesador</label>
-                                <input type="text" class="form-control" th:field="*{procesador}" maxlength="100" placeholder="Procesador" />
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">RAM (GB)</label>
-                                <input type="number" class="form-control" th:field="*{memoriaRamGb}" placeholder="Ej: 16" />
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">Almacenamiento (GB)</label>
-                                <input type="number" class="form-control" th:field="*{capacidadAlmacenamientoGb}" placeholder="Ej: 512" />
-                            </div>
-                            <div class="span-2 field-group">
-                                <label class="field-label">SO</label>
-                                <input type="text" class="form-control" th:field="*{sistemaOperativo}" maxlength="100" placeholder="Windows 11" />
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">Licencia Windows</label>
-                                <select class="form-select" th:field="*{licenciaWindowsActivada}">
-                                    <option th:value="${null}">-- Seleccione --</option>
-                                    <option th:value="true">Si</option>
-                                    <option th:value="false">No</option>
-                                </select>
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">Etiqueta Activo Fijo</label>
-                                <select class="form-select" th:field="*{etiquetaActivoFijo}">
-                                    <option th:value="${null}">-- Seleccione --</option>
-                                    <option th:value="true">Si</option>
-                                    <option th:value="false">No</option>
-                                </select>
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">Tipo licencia Office</label>
-                                <input type="text" class="form-control" maxlength="50" th:field="*{tipoLicenciaOffice}" placeholder="Ej: 365 / 2019" />
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">Version Office</label>
-                                <input type="text" class="form-control" maxlength="150" th:field="*{versionOffice}" placeholder="Ej: ProPlus" />
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">Union a dominio</label>
-                                <select class="form-select" th:field="*{unionDominio}">
-                                    <option th:value="${null}">-- Seleccione --</option>
-                                    <option th:value="true">Si</option>
-                                    <option th:value="false">No</option>
-                                </select>
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">IP</label>
-                                <input type="text" class="form-control" th:field="*{ip}" placeholder="192.168.1.10" />
-                                <div class="text-danger small" th:if="${errorIp}" th:text="${errorIp}"></div>
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">MAC</label>
-                                <input type="text" class="form-control" th:field="*{mac}" placeholder="AA:BB:CC:DD:EE:FF" />
-                                <div class="text-danger small" th:if="${errorMac}" th:text="${errorMac}"></div>
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">Fecha compra</label>
-                                <input type="date" class="form-control" th:field="*{fechaCompra}" />
-                            </div>
-                            <div class="span-3 field-group">
-                                <label class="field-label">Precio compra</label>
-                                <input type="number" step="0.01" class="form-control" th:field="*{precioCompra}" placeholder="0.00" />
-                            </div>
+                    <div class="form-grid-12 mt-4">
+                        <div class="span-3 field-group">
+                            <label class="field-label">RAM (GB)</label>
+                            <input type="number" class="form-control" th:field="*{memoriaRamGb}" placeholder="en GB" />
+                        </div>
+                        <div class="span-3 field-group">
+                            <label class="field-label">Almacenamiento (GB)</label>
+                            <input type="number" class="form-control" th:field="*{capacidadAlmacenamientoGb}" placeholder="Ej: 512" />
+                        </div>
+                        <div class="span-3 field-group">
+                            <label class="field-label">Licencia Windows</label>
+                            <select class="form-select" th:field="*{licenciaWindowsActivada}">
+                                <option th:value="${null}">-- Seleccione --</option>
+                                <option th:value="true">Si</option>
+                                <option th:value="false">No</option>
+                            </select>
+                        </div>
+                        <div class="span-3 field-group">
+                            <label class="field-label">Procesador</label>
+                            <input type="text" class="form-control" th:field="*{procesador}" maxlength="100" placeholder="Procesador" />
+                        </div>
+                        <div class="span-3 field-group">
+                            <label class="field-label">MAC</label>
+                            <input type="text" class="form-control" th:field="*{mac}" placeholder="AA:BB:CC:DD:EE:FF" />
+                            <div class="text-danger small" th:if="${errorMac}" th:text="${errorMac}"></div>
+                        </div>
+                        <div class="span-3 field-group">
+                            <label class="field-label">Fecha compra</label>
+                            <input type="date" class="form-control" th:field="*{fechaCompra}" />
+                        </div>
+                        <div class="span-3 field-group">
+                            <label class="field-label">Precio compra</label>
+                            <input type="number" step="0.01" class="form-control" th:field="*{precioCompra}" placeholder="0.00" />
+                        </div>
                         </div>
                     </details>
                 </div>
 
                 <div class="action-footer">
                     <div class="d-flex flex-wrap gap-2">
-                        <a th:href="@{/equipos}" class="btn btn-outline-secondary px-4 py-2">Cancelar</a>
-                        <button type="submit" class="btn btn-primary px-4 py-2">
-                            <i class="feather-save me-2"></i>Registrar activo
-                        </button>
+                        <a th:href="@{/equipos}" class="btn btn-outline-secondary px-4 py-2">Regresar atras</a>
+                        <button type="submit" class="btn btn-primary px-4 py-2">Guardar</button>
                     </div>
                 </div>
             </form>

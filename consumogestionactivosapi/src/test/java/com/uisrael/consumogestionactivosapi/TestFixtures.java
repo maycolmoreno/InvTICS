@@ -24,15 +24,12 @@ public class TestFixtures {
         EquiposResponseDTO dto = new EquiposResponseDTO();
         dto.setIdEquipo(1);
         dto.setCodigoSap("SAP-001");
-        dto.setTipoEquipo("Laptop");
         dto.setModelo("ThinkPad X13");
         dto.setSerial("SN123456");
         dto.setProcesador("Intel Core i7");
         dto.setMemoriaRamGb(16);
         dto.setCapacidadAlmacenamientoGb(512);
-        dto.setSistemaOperativo("Windows 10");
         dto.setLicenciaWindowsActivada(true);
-        dto.setEtiquetaActivoFijo(true);
         dto.setEstadoEquipo("Activo");
         dto.setEstado(true);
         return dto;
@@ -44,15 +41,12 @@ public class TestFixtures {
     public static EquiposRequestDTO crearEquipoRequestDePrueba() {
         EquiposRequestDTO dto = new EquiposRequestDTO();
         dto.setCodigoSap("SAP-001");
-        dto.setTipoEquipo("Laptop");
         dto.setModelo("ThinkPad X13");
         dto.setSerial("SN123456");
         dto.setProcesador("Intel Core i7");
         dto.setMemoriaRamGb(16);
         dto.setCapacidadAlmacenamientoGb(512);
-        dto.setSistemaOperativo("Windows 10");
         dto.setLicenciaWindowsActivada(true);
-        dto.setEtiquetaActivoFijo(true);
         dto.setEstadoEquipo("Activo");
         dto.setEstado(true);
         dto.setFechaCompra(LocalDate.now());

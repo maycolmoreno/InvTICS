@@ -30,7 +30,8 @@ class _EquipoDetailScreenState extends State<EquipoDetailScreen> {
   }
 
   Future<EquipoHistorial> _load() {
-    return EquiposRepository(context.read<ApiClient>()).obtenerDetalle(widget.equipoId);
+    return EquiposRepository(context.read<ApiClient>())
+        .obtenerDetalle(widget.equipoId);
   }
 
   Future<void> _reload() async {
@@ -42,8 +43,8 @@ class _EquipoDetailScreenState extends State<EquipoDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final canCreateMantenimiento = context.watch<AuthProvider>().hasCapability(
-      UserCapability.createMantenimiento,
-    );
+          UserCapability.createMantenimiento,
+        );
     return Scaffold(
       appBar: AppBar(title: const Text('Detalle del equipo')),
       body: FutureBuilder<EquipoHistorial>(
@@ -80,20 +81,17 @@ class _EquipoDetailScreenState extends State<EquipoDetailScreen> {
                 _SectionCard(
                   title: equipo.codigoSap,
                   rows: [
-                    _row('Tipo', equipo.tipoEquipo),
                     _row('Marca', equipo.marca),
                     _row('Modelo', equipo.modelo),
                     _row('Serial', equipo.serial),
                     _row('Estado', equipo.estadoEquipo),
                     _row('Categoria', equipo.categoriaNombre),
-                    _row('Sistema', equipo.sistemaOperativo),
                     _row('Procesador', equipo.procesador),
                     _row('RAM', _gb(equipo.memoriaRamGb)),
                     _row('Disco', _gb(equipo.capacidadAlmacenamientoGb)),
-                    _row('IP', equipo.ip),
                     _row('MAC', equipo.mac),
-                    _row('Licencia Windows', _boolLabel(equipo.licenciaWindowsActivada)),
-                    _row('Dominio', _boolLabel(equipo.unionDominio)),
+                    _row('Licencia Windows',
+                        _boolLabel(equipo.licenciaWindowsActivada)),
                     _row('Fecha compra', equipo.fechaCompra),
                     _row('Observacion', equipo.observacionEquipo),
                   ],
@@ -112,7 +110,8 @@ class _EquipoDetailScreenState extends State<EquipoDetailScreen> {
                       if (result == true && context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Mantenimiento creado desde el equipo.'),
+                            content:
+                                Text('Mantenimiento creado desde el equipo.'),
                           ),
                         );
                         await _reload();
@@ -138,10 +137,12 @@ class _EquipoDetailScreenState extends State<EquipoDetailScreen> {
                   title: 'Estadisticas',
                   rows: [
                     _row('Estado mantenimiento', data.estadoMantenimiento),
-                    _row('Total mantenimientos', estadisticas.totalMantenimientos),
+                    _row('Total mantenimientos',
+                        estadisticas.totalMantenimientos),
                     _row('Cerrados', estadisticas.totalCerrados),
                     _row('En proceso', estadisticas.totalEnProceso),
-                    _row('Dias sin mantenimiento', estadisticas.diasSinMantenimiento),
+                    _row('Dias sin mantenimiento',
+                        estadisticas.diasSinMantenimiento),
                     _row(
                       'Promedio entre mantenimientos',
                       estadisticas.promedioDiasEntreMantenimientos,
@@ -266,7 +267,11 @@ String _gb(dynamic value) {
 }
 
 String _boolLabel(bool? value) {
-  return value == true ? 'Si' : value == false ? 'No' : '-';
+  return value == true
+      ? 'Si'
+      : value == false
+          ? 'No'
+          : '-';
 }
 
 String _text(dynamic value, {String fallback = '-'}) {

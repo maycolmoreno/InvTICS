@@ -84,11 +84,10 @@ public class CustodiasPdfService {
 		doc.add(new Paragraph("Observaci\u00f3n: " + nvl(cab.getObservacion()), NORMAL_FONT));
 		doc.add(new Paragraph(" ", NORMAL_FONT));
 
-		PdfPTable table = new PdfPTable(6);
+		PdfPTable table = new PdfPTable(5);
 		table.setWidthPercentage(100);
 		table.addCell(headerCell("ID Equipo"));
-		table.addCell(headerCell("C\u00f3digo"));
-		table.addCell(headerCell("Tipo"));
+		table.addCell(headerCell("Código"));
 		table.addCell(headerCell("Modelo"));
 		table.addCell(headerCell("Serial"));
 		table.addCell(headerCell("Ubicaci\u00f3n"));
@@ -101,7 +100,6 @@ public class CustodiasPdfService {
 
 			table.addCell(cell(String.valueOf(idEq)));
 			table.addCell(cell(nvl(it.getFkEquipo().getCodigoSap())));
-			table.addCell(cell(nvl(it.getFkEquipo().getTipoEquipo())));
 			table.addCell(cell(nvl(it.getFkEquipo().getModelo())));
 			table.addCell(cell(nvl(it.getFkEquipo().getSerial())));
 			String ubicacion = it.getFkEquipo().getFkUbicacion() != null
@@ -256,7 +254,9 @@ public class CustodiasPdfService {
 			table.addCell(tableCell(nvl(it.getFkEquipo().getCodigoSap())));
 			table.addCell(tableCell("1206.001"));
 			table.addCell(tableCell("ACTIVO FIJO"));
-			table.addCell(tableCell(nvl(it.getFkEquipo().getTipoEquipo())));
+			String descripcion = it.getFkEquipo().getFkCategoria() != null
+					? nvl(it.getFkEquipo().getFkCategoria().getNombre()) : "N/A";
+			table.addCell(tableCell(descripcion.isEmpty() ? "N/A" : descripcion));
 			String marca = it.getFkEquipo().getFkMarca() != null
 					? nvl(it.getFkEquipo().getFkMarca().getNombre()) : "N/A";
 			table.addCell(tableCell(marca.isEmpty() ? "N/A" : marca));
@@ -449,7 +449,9 @@ public class CustodiasPdfService {
 			table.addCell(tableCell(nvl(it.getFkEquipo().getCodigoSap())));
 			table.addCell(tableCell("1206.001"));
 			table.addCell(tableCell("ACTIVO FIJO"));
-			table.addCell(tableCell(nvl(it.getFkEquipo().getTipoEquipo())));
+			String descripcion = it.getFkEquipo().getFkCategoria() != null
+					? nvl(it.getFkEquipo().getFkCategoria().getNombre()) : "N/A";
+			table.addCell(tableCell(descripcion.isEmpty() ? "N/A" : descripcion));
 			String marca = it.getFkEquipo().getFkMarca() != null
 					? nvl(it.getFkEquipo().getFkMarca().getNombre()) : "N/A";
 			table.addCell(tableCell(marca.isEmpty() ? "N/A" : marca));
@@ -519,11 +521,10 @@ public class CustodiasPdfService {
 		doc.add(new Paragraph("Motivo / Observacion: " + obs, NORMAL_FONT));
 		doc.add(new Paragraph(" ", NORMAL_FONT));
 
-		PdfPTable table = new PdfPTable(7);
+		PdfPTable table = new PdfPTable(6);
 		table.setWidthPercentage(100);
 		table.addCell(headerCell("ID"));
 		table.addCell(headerCell("Codigo"));
-		table.addCell(headerCell("Tipo"));
 		table.addCell(headerCell("Modelo"));
 		table.addCell(headerCell("Serial"));
 		table.addCell(headerCell("Ubicaci\u00f3n"));
@@ -533,7 +534,6 @@ public class CustodiasPdfService {
 			if (e == null) continue;
 			table.addCell(cell(String.valueOf(e.getIdEquipo())));
 			table.addCell(cell(nvl(e.getCodigoSap())));
-			table.addCell(cell(nvl(e.getTipoEquipo())));
 			table.addCell(cell(nvl(e.getModelo())));
 			table.addCell(cell(nvl(e.getSerial())));
 			String ubicacion = e.getFkUbicacion() != null ? nvl(e.getFkUbicacion().getNombre()) : "";

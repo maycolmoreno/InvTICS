@@ -143,7 +143,7 @@ class _VisitasScreenState extends State<VisitasScreen> {
                     title:
                         Text(_text(item['codigoSap'], fallback: 'Sin codigo')),
                     subtitle: Text(
-                      '${_text(item['tipoEquipo'])} - ${_text(item['marca'])} ${_text(item['modelo'])}\n'
+                      '${_text(item['marca'])} ${_text(item['modelo'])}\n'
                       'Custodio: ${_text(item['custodioNombre'])}\n'
                       'Ubicacion: ${_text(item['ubicacionNombre'])}',
                     ),

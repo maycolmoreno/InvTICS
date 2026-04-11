@@ -34,15 +34,6 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 			throw new DuplicidadException("Ya existe un equipo con ese Serial");
 		}
 
-		if (equipo.getIp() != null && !equipo.getIp().isBlank()) {
-			String ip = equipo.getIp().trim();
-
-			if (equipoRepositorio.existeIP(ip)) {
-				throw new DuplicidadException("Ya existe un equipo con esa dirección IP");
-			}
-
-		}
-
 		if (equipo.getMac() != null && !equipo.getMac().isBlank()) {
 			String mac = equipo.getMac().trim().toUpperCase();
 
@@ -86,23 +77,16 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 			throw new DuplicidadException("Ya existe un equipo con ese Serial");
 		}
 
-		if (equipo.getIp() != null && !equipo.getIp().isBlank()) {
-			if (equipoRepositorio.existeIPParaOtro(equipo.getIp().trim(), id)) {
-				throw new DuplicidadException("Ya existe un equipo con esa dirección IP");
-			}
-		}
-
 		if (equipo.getMac() != null && !equipo.getMac().isBlank()) {
 			if (equipoRepositorio.existeMACParaOtro(equipo.getMac().trim(), id)) {
 				throw new DuplicidadException("Ya existe un equipo con esa dirección MAC");
 			}
 		}
 
-		Equipos actualizado = new Equipos(id, equipo.getCodigoSap(), equipo.getTipoEquipo(), equipo.getModelo(),
+		Equipos actualizado = new Equipos(id, equipo.getCodigoSap(), equipo.getModelo(),
 				equipo.getSerial(), equipo.getProcesador(), equipo.getMemoriaRamGb(),
-				equipo.getCapacidadAlmacenamientoGb(), equipo.getSistemaOperativo(),
-				equipo.getLicenciaWindowsActivada(), equipo.getEtiquetaActivoFijo(), equipo.getTipoLicenciaOffice(),
-				equipo.getVersionOffice(), equipo.getUnionDominio(), equipo.getIp(), equipo.getMac(),
+				equipo.getCapacidadAlmacenamientoGb(),
+				equipo.getLicenciaWindowsActivada(), equipo.getMac(),
 				equipo.getFechaCompra(), equipo.getPrecioCompra(), equipo.getEstadoEquipo(),
 				equipo.getObservacionEquipo(), equipo.isEstado(), equipo.getFkMarca(), equipo.getFkCategoria(), equipo.getFkUbicacion());
 
@@ -114,11 +98,10 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 
 		Equipos equipo = equipoRepositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Equipo no encontrado"));
 
-		Equipos actualizado = new Equipos(id, equipo.getCodigoSap(), equipo.getTipoEquipo(), equipo.getModelo(),
+		Equipos actualizado = new Equipos(id, equipo.getCodigoSap(), equipo.getModelo(),
 				equipo.getSerial(), equipo.getProcesador(), equipo.getMemoriaRamGb(),
-				equipo.getCapacidadAlmacenamientoGb(), equipo.getSistemaOperativo(),
-				equipo.getLicenciaWindowsActivada(), equipo.getEtiquetaActivoFijo(), equipo.getTipoLicenciaOffice(),
-				equipo.getVersionOffice(), equipo.getUnionDominio(), equipo.getIp(), equipo.getMac(),
+				equipo.getCapacidadAlmacenamientoGb(),
+				equipo.getLicenciaWindowsActivada(), equipo.getMac(),
 				equipo.getFechaCompra(), equipo.getPrecioCompra(), equipo.getEstadoEquipo(),
 				equipo.getObservacionEquipo(), estado, equipo.getFkMarca(), equipo.getFkCategoria(), equipo.getFkUbicacion());
 
@@ -143,16 +126,6 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 	@Override
 	public boolean existeSerialParaOtro(String serial, int idEquipo) {
 		return equipoRepositorio.existeSerialParaOtro(serial.trim(), idEquipo);
-	}
-
-	@Override
-	public boolean existeIP(String ip) {
-		return equipoRepositorio.existeIP(ip.trim());
-	}
-
-	@Override
-	public boolean existeIPParaOtro(String ip, int idEquipo) {
-		return equipoRepositorio.existeIPParaOtro(ip.trim(), idEquipo);
 	}
 
 	@Override

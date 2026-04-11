@@ -52,16 +52,13 @@ public class HistorialEquipoRepositoryImpl implements HistorialEquipoRepositorio
 		dto.setMarca(equipo.getFkMarca() != null ? equipo.getFkMarca().getNombre() : null);
 		dto.setModelo(equipo.getModelo());
 		dto.setSerial(equipo.getSerial());
-		dto.setTipoEquipo(equipo.getTipoEquipo());
 		dto.setCodigoSap(equipo.getCodigoSap());
 		dto.setFechaCompra(equipo.getFechaCompra());
 		dto.setEstadoEquipo(equipo.getEstadoEquipo());
-		dto.setSistemaOperativo(equipo.getSistemaOperativo());
 		dto.setProcesador(equipo.getProcesador());
 		dto.setMemoriaRamGb(equipo.getMemoriaRamGb());
 		dto.setCapacidadAlmacenamientoGb(equipo.getCapacidadAlmacenamientoGb());
 		dto.setLicenciaWindowsActivada(equipo.getLicenciaWindowsActivada());
-		dto.setUnionDominio(equipo.getUnionDominio());
 		dto.setCategoriaNombre(equipo.getFkCategoria() != null ? equipo.getFkCategoria().getNombre() : null);
 
 		if (custodia != null) {

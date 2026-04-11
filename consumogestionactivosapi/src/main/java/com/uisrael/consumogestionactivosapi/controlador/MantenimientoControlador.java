@@ -42,6 +42,7 @@ import com.uisrael.consumogestionactivosapi.service.IMantenimientoManualServicio
 import com.uisrael.consumogestionactivosapi.service.IMantenimientoProgramadoServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
+import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 
 import lombok.RequiredArgsConstructor;
 
@@ -58,12 +59,20 @@ public class MantenimientoControlador {
     private final ICustodiosServicio custodiosServicio;
     private final IUsuariosServicio usuariosServicio;
     private final IUbicacionesServicio ubicacionesServicio;
+    private final SesionUsuario sesionUsuario;
 
     @GetMapping
     public String listar(Model model,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        PaginaResponse<MantenimientoManualResponseDTO> pagina = mantenimientoManualServicio.listarTodosPaginado(page, size);
+        PaginaResponse<MantenimientoManualResponseDTO> pagina;
+
+        if (sesionUsuario.tieneRol("TECNICO") && sesionUsuario.getIdUsuario() != null) {
+            pagina = mantenimientoManualServicio.listarPorTecnicoPaginado(sesionUsuario.getIdUsuario(), page, size);
+        } else {
+            pagina = mantenimientoManualServicio.listarTodosPaginado(page, size);
+        }
+
         model.addAttribute("listamantenimientos", pagina.getContenido());
         model.addAttribute("paginaActual", pagina.getPaginaActual());
         model.addAttribute("totalPaginas", pagina.getTotalPaginas());

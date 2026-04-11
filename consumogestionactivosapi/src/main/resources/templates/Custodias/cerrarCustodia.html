@@ -97,7 +97,6 @@
                             <th style="width:90px">PK</th>
                             <th style="width:90px">ID Equipo</th>
                             <th>Código</th>
-                            <th>Tipo</th>
                             <th>Modelo</th>
                             <th>Serial</th>
                         </tr>
@@ -119,7 +118,6 @@
                             <!-- ✅ EQUIPO -->
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.idEquipo : ''}"></td>
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.codigoSap : ''}"></td>
-                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.tipoEquipo : ''}"></td>
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></td>
 

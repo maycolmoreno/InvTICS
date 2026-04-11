@@ -7,6 +7,7 @@ public class DepartamentosResponseDTO {
 
 	private int idDepartamento;
 	private String nombre;
+	private String tipo;
 	private boolean estado;
 
 

@@ -249,6 +249,12 @@
 				filterCargo.appendChild(o);
 			});
 
+			/* ── Select2: búsqueda en dropdowns ───────────────────── */
+			if (typeof $ !== 'undefined' && $.fn.select2) {
+				$('#filterDepartamento').select2({ width: '100%' });
+				$('#filterCargo').select2({ width: '100%' });
+			}
+
 			/* ── Filter logic ─────────────────────────────────────── */
 			function applyFilters() {
 				const term   = searchInput.value.trim().toLowerCase();
@@ -356,8 +362,8 @@
 			/* ── INIT ─────────────────────────────────────────────── */
 			applyFilters();
 			searchInput.addEventListener("input",   applyFilters);
-			filterDepto.addEventListener("change",  applyFilters);
-			filterCargo.addEventListener("change",  applyFilters);
+			$('#filterDepartamento').on('change', applyFilters);
+			$('#filterCargo').on('change', applyFilters);
 			filterEstado.addEventListener("change", applyFilters);
 		});
 		</script>

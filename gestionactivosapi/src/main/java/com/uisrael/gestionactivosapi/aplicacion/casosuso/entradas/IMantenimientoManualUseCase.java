@@ -20,6 +20,10 @@ public interface IMantenimientoManualUseCase {
 
     List<MantenimientoManualResponseDTO> obtenerHistorial(Integer equipoId);
 
+    List<MantenimientoManualResponseDTO> listarPorTecnico(Integer tecnicoId);
+
+    Pagina<MantenimientoManualResponseDTO> listarPorTecnicoPaginado(Integer tecnicoId, int pagina, int tamanio);
+
     MantenimientoManualResponseDTO obtenerDetalle(Integer idMantenimiento);
 
     MantenimientoManualResponseDTO cerrar(Integer idMantenimiento, String descripcionTrabajoRealizado);

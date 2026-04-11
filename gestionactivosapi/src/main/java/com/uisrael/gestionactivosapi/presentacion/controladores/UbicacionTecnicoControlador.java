@@ -2,9 +2,11 @@ package com.uisrael.gestionactivosapi.presentacion.controladores;
 
 import java.security.Principal;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,8 +14,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IConsultarHistorialGpsUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IConsultarUbicacionesTiempoRealUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IRegistrarConsentimientoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IRegistrarUbicacionTecnicoUseCase;
@@ -22,6 +26,7 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.UsuariosJp
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUsuariosJpaRepositorio;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.ConsentimientoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.UbicacionTecnicoRequestDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.HistorialGpsDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.UbicacionActivaDTO;
 
 import jakarta.validation.Valid;
@@ -33,15 +38,18 @@ public class UbicacionTecnicoControlador {
     private final IRegistrarUbicacionTecnicoUseCase registrarUbicacionUseCase;
     private final IRegistrarConsentimientoUseCase registrarConsentimientoUseCase;
     private final IConsultarUbicacionesTiempoRealUseCase consultarUbicacionesUseCase;
+    private final IConsultarHistorialGpsUseCase consultarHistorialGpsUseCase;
     private final IUsuariosJpaRepositorio usuariosJpaRepositorio;
 
     public UbicacionTecnicoControlador(IRegistrarUbicacionTecnicoUseCase registrarUbicacionUseCase,
                                         IRegistrarConsentimientoUseCase registrarConsentimientoUseCase,
                                         IConsultarUbicacionesTiempoRealUseCase consultarUbicacionesUseCase,
+                                        IConsultarHistorialGpsUseCase consultarHistorialGpsUseCase,
                                         IUsuariosJpaRepositorio usuariosJpaRepositorio) {
         this.registrarUbicacionUseCase = registrarUbicacionUseCase;
         this.registrarConsentimientoUseCase = registrarConsentimientoUseCase;
         this.consultarUbicacionesUseCase = consultarUbicacionesUseCase;
+        this.consultarHistorialGpsUseCase = consultarHistorialGpsUseCase;
         this.usuariosJpaRepositorio = usuariosJpaRepositorio;
     }
 
@@ -102,6 +110,30 @@ public class UbicacionTecnicoControlador {
                         u.getLongitud(),
                         u.getPrecisionMetros(),
                         Duration.between(u.getTimestampCaptura(), LocalDateTime.now()).toMinutes()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(resultado);
+    }
+
+    @GetMapping("/historial")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<List<HistorialGpsDTO>> consultarHistorial(
+            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+
+        List<UbicacionTecnicoJpa> ubicaciones = consultarHistorialGpsUseCase.ejecutar(fecha);
+
+        List<HistorialGpsDTO> resultado = ubicaciones.stream()
+                .map(u -> new HistorialGpsDTO(
+                        u.getIdUbicacionTecnico(),
+                        u.getUsuarioId(),
+                        u.getUsuario() != null ? u.getUsuario().getNombre() : null,
+                        u.getUsuario() != null && u.getUsuario().getFkDepartamento() != null
+                                ? u.getUsuario().getFkDepartamento().getNombre() : null,
+                        u.getLatitud(),
+                        u.getLongitud(),
+                        u.getPrecisionMetros(),
+                        u.getTimestampCaptura()
                 ))
                 .toList();
 

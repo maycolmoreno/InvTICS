@@ -193,7 +193,7 @@ public class CustodiasExcelService {
 		if (x.getFkEquipo() == null) return "-";
 		return switch (campo) {
 			case "codigoSap" -> val(x.getFkEquipo().getCodigoSap());
-			case "tipo" -> val(x.getFkEquipo().getTipoEquipo());
+			case "tipo" -> val(x.getFkEquipo().getFkCategoria() != null ? x.getFkEquipo().getFkCategoria().getNombre() : null);
 			case "modelo" -> val(x.getFkEquipo().getModelo());
 			case "serial" -> val(x.getFkEquipo().getSerial());
 			default -> "-";

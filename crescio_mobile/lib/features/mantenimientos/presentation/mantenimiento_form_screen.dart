@@ -1041,7 +1041,7 @@ class _SignatureBottomSheet extends StatelessWidget {
 }
 
 String _equipoLabel(EquipoListItem item) {
-  return '${_text(item.codigoSap, fallback: 'Sin codigo')} - ${_text(item.tipoEquipo, fallback: 'Equipo')}';
+  return '${_text(item.codigoSap, fallback: 'Sin codigo')} - ${_text(item.modelo, fallback: 'Equipo')}';
 }
 
 int? _asInt(dynamic value) {

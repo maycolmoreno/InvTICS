@@ -18,6 +18,8 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.IEquiposJpaRep
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICustodiosJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUbicacionesJpaRepositorio;
 
+import jakarta.persistence.EntityManager;
+
 public class CustodiasRepositorioImpl implements CustodiasRepositorioPuerto {
 
 	private final ICustodiasJpaRepositorio jpaRepositorio;
@@ -25,34 +27,49 @@ public class CustodiasRepositorioImpl implements CustodiasRepositorioPuerto {
 	private final IEquiposJpaRepositorio equiposRepo;
 	private final ICustodiosJpaRepositorio custodiosRepo;
 	private final IUbicacionesJpaRepositorio ubicacionesRepo;
+	private final EntityManager entityManager;
 
 	public CustodiasRepositorioImpl(ICustodiasJpaRepositorio jpaRepositorio, 
 			ICustodiasJpaMapper mapper,
 			IEquiposJpaRepositorio equiposRepo,
 			ICustodiosJpaRepositorio custodiosRepo,
-			IUbicacionesJpaRepositorio ubicacionesRepo) {
+			IUbicacionesJpaRepositorio ubicacionesRepo,
+			EntityManager entityManager) {
 		this.jpaRepositorio = jpaRepositorio;
 		this.mapper = mapper;
 		this.equiposRepo = equiposRepo;
 		this.custodiosRepo = custodiosRepo;
 		this.ubicacionesRepo = ubicacionesRepo;
+		this.entityManager = entityManager;
 	}
 
 	@Override
 	public Custodias guardar(Custodias custodia) {
 		CustodiasJpa jpa = mapper.toEntity(custodia);
 		CustodiasJpa saved = jpaRepositorio.save(jpa);
-		return mapper.toDomain(saved);
+		// Limpiar caché L1 para que findById recargue las relaciones completas
+		jpaRepositorio.flush();
+		entityManager.clear();
+		CustodiasJpa completo = jpaRepositorio.findById(saved.getIdCustodiaEquipo()).orElse(saved);
+		return mapper.toDomain(completo);
 	}
 
 	@Override
 	public Custodias actualizar(int id, Custodias custodia) {
-		return mapper.toDomain(jpaRepositorio.save(mapper.toEntity(custodia)));
+		CustodiasJpa saved = jpaRepositorio.save(mapper.toEntity(custodia));
+		jpaRepositorio.flush();
+		entityManager.clear();
+		CustodiasJpa completo = jpaRepositorio.findById(saved.getIdCustodiaEquipo()).orElse(saved);
+		return mapper.toDomain(completo);
 	}
 
 	@Override
 	public Custodias actualizarEstado(int id, Custodias custodia) {
-		return mapper.toDomain(jpaRepositorio.save(mapper.toEntity(custodia)));
+		CustodiasJpa saved = jpaRepositorio.save(mapper.toEntity(custodia));
+		jpaRepositorio.flush();
+		entityManager.clear();
+		CustodiasJpa completo = jpaRepositorio.findById(saved.getIdCustodiaEquipo()).orElse(saved);
+		return mapper.toDomain(completo);
 	}
 
 	@Override

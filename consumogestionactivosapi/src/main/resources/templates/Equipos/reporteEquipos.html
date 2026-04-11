@@ -29,7 +29,7 @@
 						class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
 
 						<a class="btn btn-success d-flex align-items-center gap-2"
-							th:href="@{/equipos/reporte-equipo/excel(tipo=${tipoSeleccionado})}">
+							th:href="@{/equipos/reporte-equipo/excel}">
 							<i class="bi bi-filetype-xlsx"></i> <span>Descargar Excel</span>
 						</a>
 
@@ -44,21 +44,6 @@
 				<div class="col-lg-12">
 					<div class="card stretch stretch-full">
 
-						<form th:action="@{/equipos/reporte-equipo}" method="get"
-							class="d-inline-flex gap-2 align-items-center ms-4 mt-4 mb-3 px-3 py-2 rounded bg-light">
-							<label class="form-label m-0 fw-semibold">Filtrar por
-								Tipo:</label> <select class="form-control" name="tipo"
-								onchange="this.form.submit()">
-								<option value=""
-									th:selected="${tipoSeleccionado == null || tipoSeleccionado == ''}">
-									Todos</option>
-								<option th:each="t : ${listaTipos}" th:value="${t}"
-									th:text="${t}"
-									th:selected="${tipoSeleccionado != null && tipoSeleccionado.equalsIgnoreCase(t)}">
-								</option>
-							</select>
-						</form>
-
 						<div class="card-body p-0">
 
 							<div class="table-responsive">
@@ -68,21 +53,14 @@
 										<tr>
 											<th>ID</th>
 											<th>Cod. Interno</th>
-											<th>TIPO</th>
 											<th>MODELO</th>
 											<th>SERIAL</th>
 											<th>PROCESADOR</th>
 											<th>RAM (GB)</th>
 											<th>ALMACENAMIENTO (GB)</th>
-											<th>SISTEMA OPERATIVO</th>
 
 											<th>LIC. WINDOWS</th>
-											<th>ETIQ. ACTIVO FIJO</th>
-											<th>TIPO LIC. OFFICE</th>
-											<th>VERSIÓN OFFICE</th>
-											<th>UNIÓN DOMINIO</th>
 
-											<th>IP</th>
 											<th>MAC</th>
 											<th>FECHA COMPRA</th>
 											<th>PRECIO COMPRA</th>
@@ -103,7 +81,6 @@
 											<td th:text="${equipo.idEquipo}"></td>
 
 											<td th:text="${equipo.codigoSap} ?: '-'"></td>
-											<td th:text="${equipo.tipoEquipo} ?: '-'"></td>
 											<td th:text="${equipo.modelo} ?: '-'"></td>
 											<td th:text="${equipo.serial} ?: '-'"></td>
 											<td th:text="${equipo.procesador} ?: '-'"></td>
@@ -113,14 +90,7 @@
 
 											<td
 												th:text="${equipo.licenciaWindowsActivada != null && equipo.licenciaWindowsActivada} ? 'Sí' : 'No'"></td>
-											<td
-												th:text="${equipo.etiquetaActivoFijo != null && equipo.etiquetaActivoFijo} ? 'Sí' : 'No'"></td>
-											<td th:text="${equipo.tipoLicenciaOffice} ?: '-'"></td>
-											<td th:text="${equipo.versionOffice} ?: '-'"></td>
-											<td
-												th:text="${equipo.unionDominio != null && equipo.unionDominio} ? 'Sí' : 'No'"></td>
 
-											<td th:text="${equipo.ip} ?: '-'"></td>
 											<td th:text="${equipo.mac} ?: '-'"></td>
 											<td th:text="${equipo.fechaCompra} ?: '-'"></td>
 											<td th:text="${equipo.precioCompra} ?: '-'"></td>

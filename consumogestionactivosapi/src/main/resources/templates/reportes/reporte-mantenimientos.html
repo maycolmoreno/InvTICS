@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+<head>
+<title>Reporte de Mantenimientos - Cresio</title>
+</head>
+<body>
+	<div layout:fragment="contenidopaginas">
+
+		<!-- HEADER -->
+		<div class="page-header">
+			<div class="page-header-left d-flex align-items-center">
+				<div class="page-header-title">
+					<h5 class="m-b-10">Reporte de Mantenimientos</h5>
+				</div>
+				<ul class="breadcrumb">
+					<li class="breadcrumb-item"><a th:href="@{/reportes}">Reportes</a></li>
+					<li class="breadcrumb-item">Mantenimientos</li>
+				</ul>
+			</div>
+			<div class="page-header-right ms-auto">
+				<div class="page-header-right-items">
+					<div class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
+						<a class="btn btn-outline-secondary d-flex align-items-center gap-2"
+							th:href="@{/reportes}">
+							<i class="feather-arrow-left"></i> <span>Volver</span>
+						</a>
+						<a class="btn btn-success d-flex align-items-center gap-2"
+							id="btnExcel"
+							th:href="@{/reportes/mantenimientos/excel(estado=${estadoSeleccionado}, tipo=${tipoSeleccionado}, tecnicoId=${tecnicoSeleccionado})}">
+							<i class="bi bi-filetype-xlsx"></i> <span>Descargar Excel</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="main-content">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="card stretch stretch-full">
+
+						<!-- FILTROS -->
+						<form th:action="@{/reportes/mantenimientos}" method="get"
+							class="d-flex flex-wrap gap-3 align-items-end ms-4 mt-4 mb-3 px-3 py-2 rounded bg-light">
+
+							<div>
+								<label class="form-label m-0 fw-semibold small">Estado:</label>
+								<select class="form-control form-control-sm" name="estado" onchange="this.form.submit()">
+									<option value=""
+										th:selected="${estadoSeleccionado == null || estadoSeleccionado == ''}">
+										Todos
+									</option>
+									<option th:each="e : ${listaEstados}" th:value="${e}" th:text="${e}"
+										th:selected="${estadoSeleccionado != null && estadoSeleccionado.equalsIgnoreCase(e)}">
+									</option>
+								</select>
+							</div>
+
+							<div>
+								<label class="form-label m-0 fw-semibold small">Tipo:</label>
+								<select class="form-control form-control-sm" name="tipo" onchange="this.form.submit()">
+									<option value=""
+										th:selected="${tipoSeleccionado == null || tipoSeleccionado == ''}">
+										Todos
+									</option>
+									<option th:each="t : ${listaTipos}" th:value="${t}" th:text="${t}"
+										th:selected="${tipoSeleccionado != null && tipoSeleccionado.equalsIgnoreCase(t)}">
+									</option>
+								</select>
+							</div>
+
+							<div>
+								<label class="form-label m-0 fw-semibold small">Técnico:</label>
+								<select class="form-control form-control-sm" name="tecnicoId" onchange="this.form.submit()">
+									<option value=""
+										th:selected="${tecnicoSeleccionado == null}">
+										Todos
+									</option>
+									<option th:each="u : ${listaUsuarios}" th:value="${u.idUsuario}" th:text="${u.nombre}"
+										th:selected="${tecnicoSeleccionado != null && tecnicoSeleccionado == u.idUsuario}">
+									</option>
+								</select>
+							</div>
+
+							<div>
+								<a th:href="@{/reportes/mantenimientos}" class="btn btn-sm btn-outline-secondary">
+									<i class="feather-x"></i> Limpiar
+								</a>
+							</div>
+						</form>
+
+						<!-- RESUMEN -->
+						<div class="d-flex gap-4 px-4 pb-3">
+							<span class="badge bg-primary fs-6" th:text="'Total: ' + ${#lists.size(listaMantenimientos)}">0</span>
+						</div>
+
+						<!-- TABLA -->
+						<div class="card-body custom-card-action p-0">
+							<div class="table-responsive">
+								<table class="table table-hover mb-0" id="tablaMantenimientos">
+									<thead>
+										<tr>
+											<th>ID</th>
+											<th>Equipo</th>
+											<th>Cód. Interno</th>
+											<th>Custodio</th>
+											<th>Técnico</th>
+											<th>Tipo</th>
+											<th>Fecha</th>
+											<th>Estado General</th>
+											<th>Estado Interno</th>
+											<th>Próxima Fecha</th>
+											<th>Detalle</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="m : ${listaMantenimientos}">
+											<td th:text="${m.idMantenimiento}">-</td>
+											<td th:text="${m.equipoDescripcion}">-</td>
+											<td th:text="${m.equipoCodigoSap}">-</td>
+											<td th:text="${m.custodioNombre}">-</td>
+											<td th:text="${m.tecnicoNombre}">-</td>
+											<td>
+												<span class="badge"
+													th:classappend="${m.tipoMantenimiento == 'PREVENTIVO' ? 'bg-info' : (m.tipoMantenimiento == 'CORRECTIVO' ? 'bg-warning' : 'bg-secondary')}"
+													th:text="${m.tipoMantenimiento}">-</span>
+											</td>
+											<td th:text="${m.fechaMantenimiento != null ? #temporals.format(m.fechaMantenimiento, 'dd/MM/yyyy') : '-'}">-</td>
+											<td th:text="${m.estadoGeneral}">-</td>
+											<td>
+												<span class="badge"
+													th:classappend="${m.estadoInterno != null && m.estadoInterno.contains('COMPLET') ? 'bg-success' :
+														(m.estadoInterno != null && m.estadoInterno.contains('PENDIENT') ? 'bg-warning' :
+														(m.estadoInterno != null && m.estadoInterno.contains('CERRAD') ? 'bg-secondary' : 'bg-primary'))}"
+													th:text="${m.estadoInterno}">-</span>
+											</td>
+											<td th:text="${m.proximaFecha != null ? #temporals.format(m.proximaFecha, 'dd/MM/yyyy') : '-'}">-</td>
+											<td>
+												<span class="d-inline-block text-truncate" style="max-width:200px"
+													th:text="${m.detalle}" th:title="${m.detalle}">-</span>
+											</td>
+										</tr>
+										<tr th:if="${#lists.isEmpty(listaMantenimientos)}">
+											<td colspan="11" class="text-center text-muted py-4">
+												No se encontraron mantenimientos con los filtros seleccionados.
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				if (typeof $.fn.DataTable !== 'undefined') {
+					$('#tablaMantenimientos').DataTable({
+						pageLength: 25,
+						language: {
+							search: "Buscar:",
+							lengthMenu: "Mostrar _MENU_ registros",
+							info: "Mostrando _START_ a _END_ de _TOTAL_",
+							paginate: { first: "Primero", last: "Último", next: "Sig.", previous: "Ant." },
+							emptyTable: "Sin datos disponibles",
+							zeroRecords: "No se encontraron coincidencias"
+						},
+						order: [[0, 'desc']]
+					});
+				}
+			});
+		</script>
+
+	</div>
+</body>
+</html>

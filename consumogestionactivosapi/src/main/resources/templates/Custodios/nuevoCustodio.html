@@ -76,7 +76,7 @@
                                 <div class="d-flex gap-2">
                                     <select class="form-select" id="selDepartamento" th:field="*{fkDepartamento.idDepartamento}">
                                         <option value="0">Seleccione un departamento</option>
-                                        <option th:each="d : ${listadepartamento}" th:value="${d.idDepartamento}" th:text="${d.nombre}"></option>
+                                        <option th:each="d : ${listadepartamento}" th:value="${d.idDepartamento}" th:text="${d.nombre}" th:data-tipo="${d.tipo != null ? d.tipo : 'ADMINISTRATIVO'}"></option>
                                     </select>
                                     <button type="button" class="btn btn-outline-primary btn-sm" title="Crear departamento" data-bs-toggle="modal" data-bs-target="#modalCrearDepartamento"><i class="feather-plus"></i></button>
                                 </div>
@@ -103,7 +103,8 @@
                                 <div class="d-flex gap-2">
                                     <select class="form-select" id="selUbicacion" th:field="*{fkUbicacion.idUbicacion}">
                                         <option value="0">Seleccione una ubicacion</option>
-                                        <option th:each="u : ${listaubicacion}" th:value="${u.idUbicacion}" th:text="${u.nombre + ' - ' + u.agencia}"></option>
+                                        <option th:each="u : ${listaubicacion}" th:value="${u.idUbicacion}" th:text="${u.nombre + ' - ' + u.agencia}"
+                                                th:data-dep-tipo="${u.fkDepartamento != null and u.fkDepartamento.tipo != null ? u.fkDepartamento.tipo : 'ADMINISTRATIVO'}"></option>
                                     </select>
                                     <button type="button" class="btn btn-outline-primary btn-sm" title="Crear ubicacion" data-bs-toggle="modal" data-bs-target="#modalCrearUbicacion"><i class="feather-plus"></i></button>
                                 </div>
@@ -203,6 +204,14 @@
                 }
             });
 
+            // Guardar todas las opciones de ubicacion para filtrar por tipo de departamento
+            var allUbiOptions = [];
+            Array.from(selUbi.options).forEach(function (opt) {
+                if (opt.value !== '0') {
+                    allUbiOptions.push({ value: opt.value, text: opt.text, depTipo: opt.dataset.depTipo || 'ADMINISTRATIVO' });
+                }
+            });
+
             // Filtrar cargos cuando cambia departamento
             function filterCargos() {
                 var depId = selDep.value;
@@ -217,8 +226,29 @@
                     }
                 });
             }
-            selDep.addEventListener('change', function () { filterCargos(); selCar.value = '0'; });
+
+            // Filtrar ubicaciones por tipo de departamento seleccionado
+            function filterUbicaciones() {
+                var selectedOpt = selDep.options[selDep.selectedIndex];
+                var depTipo = (selectedOpt && selectedOpt.dataset.tipo) || '';
+                selUbi.innerHTML = '<option value="0">Seleccione una ubicacion</option>';
+                allUbiOptions.forEach(function (u) {
+                    if (!depTipo || u.depTipo === depTipo) {
+                        var opt = document.createElement('option');
+                        opt.value = u.value;
+                        opt.textContent = u.text;
+                        opt.dataset.depTipo = u.depTipo;
+                        selUbi.appendChild(opt);
+                    }
+                });
+            }
+
+            selDep.addEventListener('change', function () {
+                filterCargos(); selCar.value = '0';
+                filterUbicaciones(); selUbi.value = '0';
+            });
             filterCargos();
+            filterUbicaciones();
 
             /* --- Crear via AJAX --- */
             function ajaxCrear(url, body, errorElId, onOk, btnEl) {

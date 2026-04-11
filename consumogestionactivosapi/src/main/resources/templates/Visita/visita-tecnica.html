@@ -535,8 +535,7 @@
             function getEquipoNombre(item) {
                 const marca = toText(item.marca);
                 const modelo = toText(item.modelo);
-                const tipo = toText(item.tipoEquipo);
-                return [marca, modelo].join(" ").trim() || tipo || "Equipo";
+                return [marca, modelo].join(" ").trim() || "Equipo";
             }
 
             function buildSearchBlob(item) {
@@ -545,8 +544,7 @@
                     item.serial,
                     item.codigoSap,
                     item.custodioNombre,
-                    item.custodioArea,
-                    item.tipoEquipo
+                    item.custodioArea
                 ].join(" "));
             }
 
@@ -619,7 +617,7 @@
 
                                     return "<div class='mt-row'>" +
                                         "<div><input type='checkbox' class='mt-check' data-id='" + item.idEquipo + "' " + checked + "></div>" +
-                                        "<div class='mt-equipo'><strong>" + equipoNombre + "</strong><small>" + (toText(item.tipoEquipo) || "N/A") + "</small></div>" +
+                                        "<div class='mt-equipo'><strong>" + equipoNombre + "</strong><small>" + (toText(item.marca) || "N/A") + "</small></div>" +
                                         "<div><strong>" + serial + "</strong><br><small class='text-muted'>" + sap + "</small></div>" +
                                         "<div>" + (toText(item.custodioNombre) || "-") + "</div>" +
                                         "<div>" + area + "</div>" +

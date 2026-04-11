@@ -23,14 +23,12 @@ public interface IEquiposJpaMapper {
 	@Mapping(target = "updatedAt", ignore = true)
 	@Mapping(target = "updatedBy", ignore = true)
 	@Mapping(target = "deletedAt", ignore = true)
-	@Mapping(target = "activoFijo", ignore = true)
 	EquiposJpa toEntity(Equipos equipo);
 
 
 
 	@Mapping(source = "fkMarcas", target = "fkMarca")
 	@Mapping(source = "fkCategoria", target = "fkCategoria")
-	@Mapping(target = "fkUbicacion", ignore = true)
 	Equipos toDomain(EquiposJpa entity);
 
 

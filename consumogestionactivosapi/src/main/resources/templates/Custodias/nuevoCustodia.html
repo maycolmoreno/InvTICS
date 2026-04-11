@@ -254,16 +254,14 @@
                           <input class="form-check-input" type="checkbox" id="seleccionarTodosPage" title="Seleccionar todos en esta pagina" />
                         </th>
                         <th>Codigo</th>
-                        <th>Tipo</th>
                         <th>Modelo</th>
                         <th>Serial</th>
-                        <th>IP</th>
                         <th>Disponibilidad</th>
                       </tr>
                     </thead>
                     <tbody id="tbodyEquipos">
                       <tr th:each="e : ${listaequipos}" class="fila-equipo"
-                          th:attr="data-tipo=${e.tipoEquipo},data-disponibilidad=${(equiposNoDisponiblesIds != null and #sets.contains(equiposNoDisponiblesIds, e.idEquipo)) ? 'Ocupado' : 'Disponible'},data-equipo-id=${e.idEquipo}">
+                          th:attr="data-disponibilidad=${(equiposNoDisponiblesIds != null and #sets.contains(equiposNoDisponiblesIds, e.idEquipo)) ? 'Ocupado' : 'Disponible'},data-equipo-id=${e.idEquipo}">
                         <td>
                           <input
                             class="form-check-input equipo-checkbox"
@@ -275,10 +273,8 @@
                           />
                         </td>
                         <td th:text="${e.codigoSap}"></td>
-                        <td th:text="${e.tipoEquipo}"></td>
                         <td th:text="${e.modelo}"></td>
                         <td th:text="${e.serial}"></td>
-                        <td th:text="${e.ip}"></td>
                         <td>
                           <span
                             class="badge bg-soft-success text-success"
@@ -293,7 +289,7 @@
                         </td>
                       </tr>
                       <tr th:if="${#lists.isEmpty(listaequipos)}">
-                        <td colspan="7" class="text-center text-muted">
+                        <td colspan="5" class="text-center text-muted">
                           No hay equipos disponibles para asignar.
                         </td>
                       </tr>

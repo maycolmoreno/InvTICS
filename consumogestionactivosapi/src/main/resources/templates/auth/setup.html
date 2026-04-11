@@ -48,7 +48,9 @@
                         <label for="cedula" class="form-label">Cedula</label>
                         <input type="text" class="form-control" id="cedula" name="cedula"
                                th:value="${cedula}" placeholder="Ej: 1234567890"
-                               maxlength="20">
+                               required minlength="10" maxlength="10" inputmode="numeric"
+                               pattern="\d{10}" title="Ingrese una cedula valida de 10 digitos.">
+                        <div class="invalid-feedback" id="cedulaError">Ingrese una cedula ecuatoriana valida de 10 digitos.</div>
                     </div>
 
                     <div class="mb-3">
@@ -62,7 +64,10 @@
                         <label for="contrasena" class="form-label">Contrasena</label>
                         <input type="password" class="form-control" id="contrasena" name="contrasena"
                                placeholder="Minimo 8 caracteres"
-                               required minlength="8">
+                               required minlength="8"
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$"
+                               title="Debe incluir mayusculas, minusculas y numeros.">
+                        <div class="invalid-feedback" id="contrasenaError">Minimo 8 caracteres. Debe incluir mayusculas, minusculas y numeros.</div>
                     </div>
 
                     <div class="mb-3">
@@ -70,6 +75,7 @@
                         <input type="password" class="form-control" id="confirmar" name="confirmar"
                                placeholder="Repite la contrasena"
                                required minlength="8">
+                        <div class="invalid-feedback" id="confirmarError">Las contrasenas no coinciden.</div>
                     </div>
 
                     <button type="submit" class="btn btn-auth" id="btnSetup">
@@ -89,12 +95,111 @@
     <script th:src="@{/assets/vendors/js/vendors.min.js}"></script>
     <script th:src="@{/assets/js/common-init.min.js}"></script>
     <script>
+        function validarCedulaEcuatoriana(cedula) {
+            if (!cedula || !/^\d{10}$/.test(cedula)) return false;
+            var provincia = parseInt(cedula.substring(0, 2));
+            if (provincia < 1 || provincia > 24) return false;
+            var tercerDigito = parseInt(cedula.charAt(2));
+            if (tercerDigito > 5) return false;
+            var suma = 0;
+            for (var i = 0; i < 9; i++) {
+                var digito = parseInt(cedula.charAt(i));
+                if (i % 2 === 0) {
+                    digito *= 2;
+                    if (digito > 9) digito -= 9;
+                }
+                suma += digito;
+            }
+            var verificador = (10 - (suma % 10)) % 10;
+            return verificador === parseInt(cedula.charAt(9));
+        }
+
+        function mostrarError(input, errorDiv, mensaje) {
+            input.classList.add("is-invalid");
+            input.classList.remove("is-valid");
+            if (errorDiv) errorDiv.textContent = mensaje;
+        }
+
+        function mostrarValido(input) {
+            input.classList.remove("is-invalid");
+            input.classList.add("is-valid");
+        }
+
+        function limpiarEstado(input) {
+            input.classList.remove("is-invalid", "is-valid");
+        }
+
+        var cedulaInput = document.getElementById("cedula");
+        var contrasenaInput = document.getElementById("contrasena");
+        var confirmarInput = document.getElementById("confirmar");
+
+        cedulaInput.addEventListener("input", function () {
+            var val = this.value.replace(/\D/g, "");
+            this.value = val;
+            if (val.length === 0) {
+                limpiarEstado(this);
+            } else if (val.length < 10) {
+                mostrarError(this, document.getElementById("cedulaError"), "La cedula debe tener 10 digitos.");
+            } else if (!validarCedulaEcuatoriana(val)) {
+                mostrarError(this, document.getElementById("cedulaError"), "La cedula ingresada no es valida.");
+            } else {
+                mostrarValido(this);
+            }
+        });
+
+        contrasenaInput.addEventListener("input", function () {
+            var val = this.value;
+            if (val.length === 0) {
+                limpiarEstado(this);
+            } else if (val.length < 8) {
+                mostrarError(this, document.getElementById("contrasenaError"), "Minimo 8 caracteres.");
+            } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(val)) {
+                mostrarError(this, document.getElementById("contrasenaError"), "Debe incluir mayusculas, minusculas y numeros.");
+            } else {
+                mostrarValido(this);
+            }
+            // Revalidar confirmación si ya tiene valor
+            if (confirmarInput.value.length > 0) {
+                confirmarInput.dispatchEvent(new Event("input"));
+            }
+        });
+
+        confirmarInput.addEventListener("input", function () {
+            var val = this.value;
+            if (val.length === 0) {
+                limpiarEstado(this);
+            } else if (val !== contrasenaInput.value) {
+                mostrarError(this, document.getElementById("confirmarError"), "Las contrasenas no coinciden.");
+            } else {
+                mostrarValido(this);
+            }
+        });
+
         document.querySelector("form").addEventListener("submit", function (e) {
-            var pass = document.getElementById("contrasena").value;
-            var confirmar = document.getElementById("confirmar").value;
-            if (pass !== confirmar) {
+            var valido = true;
+
+            // Validar cédula
+            var cedula = cedulaInput.value;
+            if (!validarCedulaEcuatoriana(cedula)) {
+                mostrarError(cedulaInput, document.getElementById("cedulaError"), "La cedula ingresada no es valida.");
+                valido = false;
+            }
+
+            // Validar contraseña
+            var pass = contrasenaInput.value;
+            if (pass.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(pass)) {
+                mostrarError(contrasenaInput, document.getElementById("contrasenaError"), "Minimo 8 caracteres. Debe incluir mayusculas, minusculas y numeros.");
+                valido = false;
+            }
+
+            // Validar confirmación
+            if (pass !== confirmarInput.value) {
+                mostrarError(confirmarInput, document.getElementById("confirmarError"), "Las contrasenas no coinciden.");
+                valido = false;
+            }
+
+            if (!valido) {
                 e.preventDefault();
-                alert("Las contrasenas no coinciden.");
             }
         });
     </script>

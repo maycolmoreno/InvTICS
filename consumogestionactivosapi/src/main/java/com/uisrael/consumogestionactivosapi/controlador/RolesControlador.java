@@ -10,9 +10,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.RolesRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.ModuloResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.RolesResponseDTO;
+import com.uisrael.consumogestionactivosapi.service.IModulosServicio;
 import com.uisrael.consumogestionactivosapi.service.IRolesServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class RolesControlador {
 
 	private final IRolesServicio servicioRoles;
+	private final IModulosServicio servicioModulos;
 
 	@GetMapping
 	public String listarRoles(Model model) {
@@ -73,5 +78,27 @@ public class RolesControlador {
 			model.addAttribute("errorEliminar", e.getMessage());
 			return "roles/listarRoles";
 		}
+	}
+
+	@GetMapping("/permisos/{id}")
+	public String verPermisos(@PathVariable Integer id, Model model) {
+		RolesResponseDTO rol = servicioRoles.obtenerRol(id);
+		List<ModuloResponseDTO> modulos = servicioModulos.listarModulosPorRol(id);
+		model.addAttribute("rol", rol);
+		model.addAttribute("modulos", modulos);
+		return "roles/permisos";
+	}
+
+	@PostMapping("/permisos/{id}")
+	public String guardarPermisos(@PathVariable Integer id,
+								  @RequestParam(value = "moduloIds", required = false) List<Integer> moduloIds,
+								  RedirectAttributes redirectAttributes) {
+		try {
+			servicioModulos.actualizarModulosRol(id, moduloIds != null ? moduloIds : List.of());
+			redirectAttributes.addFlashAttribute("exito", "Permisos actualizados correctamente.");
+		} catch (RuntimeException e) {
+			redirectAttributes.addFlashAttribute("error", "Error al actualizar permisos: " + e.getMessage());
+		}
+		return "redirect:/roles/permisos/" + id;
 	}
 }

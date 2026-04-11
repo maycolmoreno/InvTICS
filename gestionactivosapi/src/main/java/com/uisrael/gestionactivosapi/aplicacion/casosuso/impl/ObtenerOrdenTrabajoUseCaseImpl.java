@@ -91,7 +91,6 @@ public class ObtenerOrdenTrabajoUseCaseImpl implements IObtenerOrdenTrabajoUseCa
         resp.setSerial(equipo.getSerial());
         resp.setMarca(equipo.getFkMarca() != null ? equipo.getFkMarca().getNombre() : "");
         resp.setModelo(equipo.getModelo());
-        resp.setTipoEquipo(equipo.getTipoEquipo());
         resp.setCodigoSap(equipo.getCodigoSap());
 
         if (custodia != null && custodia.getFkCustodio() != null) {

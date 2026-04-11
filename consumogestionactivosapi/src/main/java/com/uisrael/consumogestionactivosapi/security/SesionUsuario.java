@@ -1,6 +1,9 @@
 package com.uisrael.consumogestionactivosapi.security;
 
 import java.util.Base64;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -18,12 +21,16 @@ public class SesionUsuario {
 	private String correo;
 	private String basicAuthToken;
 	private String nombreUsuario;
+	private String nombre;
+	private String departamento;
 	private String rol;
 	private Integer idUsuario;
 	private boolean autenticado;
+	private Set<String> modulosPermitidos;
 
 	public SesionUsuario() {
 		this.autenticado = false;
+		this.modulosPermitidos = Collections.emptySet();
 	}
 
 	public void iniciarSesion(String correo, String contrasena, String nombreUsuario, String rol) {
@@ -47,9 +54,12 @@ public class SesionUsuario {
 		this.correo = null;
 		this.basicAuthToken = null;
 		this.nombreUsuario = null;
+		this.nombre = null;
+		this.departamento = null;
 		this.rol = null;
 		this.idUsuario = null;
 		this.autenticado = false;
+		this.modulosPermitidos = Collections.emptySet();
 	}
 
 	public String getCorreo() {
@@ -65,6 +75,22 @@ public class SesionUsuario {
 
 	public String getNombreUsuario() {
 		return nombreUsuario;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public String getDepartamento() {
+		return departamento;
+	}
+
+	public void setDepartamento(String departamento) {
+		this.departamento = departamento;
 	}
 
 	public String getRol() {
@@ -98,5 +124,17 @@ public class SesionUsuario {
 	private String codificarBasicAuth(String correo, String contrasena) {
 		String credenciales = correo + ":" + contrasena;
 		return Base64.getEncoder().encodeToString(credenciales.getBytes(StandardCharsets.UTF_8));
+	}
+
+	public Set<String> getModulosPermitidos() {
+		return modulosPermitidos;
+	}
+
+	public void setModulosPermitidos(Set<String> modulosPermitidos) {
+		this.modulosPermitidos = modulosPermitidos != null ? modulosPermitidos : Collections.emptySet();
+	}
+
+	public boolean tieneModulo(String codigoModulo) {
+		return this.modulosPermitidos != null && this.modulosPermitidos.contains(codigoModulo);
 	}
 }

@@ -40,7 +40,7 @@ class CargosUseCaseImplTest {
     }
 
     private Cargos cargoDePrueba(int id, String nombre) {
-        return new Cargos(id, nombre, true, new Departamentos(1, "TI", true));
+        return new Cargos(id, nombre, true, new Departamentos(1, "TI", "ADMINISTRATIVO", true));
     }
 
     @Nested

@@ -4,6 +4,7 @@ public class DepartamentosResponseDTO {
 
 	private int idDepartamento;
 	private String nombre;
+	private String tipo;
 	private boolean estado;
 
 	public int getIdDepartamento() {
@@ -20,6 +21,14 @@ public class DepartamentosResponseDTO {
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
 	}
 
 	public boolean isEstado() {

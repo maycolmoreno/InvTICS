@@ -92,16 +92,6 @@ public class EquiposRepositorioImpl implements EquipoRepositorioPuerto {
 	}
 
 	@Override
-	public boolean existeIP(String ip) {
-		return jpaRepositorio.existsByIpIgnoreCase(ip);
-	}
-
-	@Override
-	public boolean existeIPParaOtro(String ip, int idEquipo) {
-		return jpaRepositorio.existsByIpIgnoreCaseAndIdEquipoNot(ip, idEquipo);
-	}
-
-	@Override
 	public boolean existeMAC(String mac) {
 		return jpaRepositorio.existsByMacIgnoreCase(mac);
 	}

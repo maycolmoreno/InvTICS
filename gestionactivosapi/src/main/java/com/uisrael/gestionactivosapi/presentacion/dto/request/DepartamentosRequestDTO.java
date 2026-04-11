@@ -7,7 +7,7 @@ public class DepartamentosRequestDTO {
 
 	private int idDepartamento;
 	private String nombre;
-
+	private String tipo;
 	private boolean estado;
 
 }

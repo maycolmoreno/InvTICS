@@ -377,14 +377,7 @@ public class PdfMantenimientoService {
 
     private String descripcionEquipo(MantenimientoManualResponseDTO mantenimiento, Equipos equipo) {
         if (equipo != null) {
-            String tipo = valor(equipo.getTipoEquipo());
             String modelo = valor(equipo.getModelo());
-            if (!"-".equals(tipo) && !"-".equals(modelo)) {
-                return tipo + " " + modelo;
-            }
-            if (!"-".equals(tipo)) {
-                return tipo;
-            }
             if (!"-".equals(modelo)) {
                 return modelo;
             }

@@ -11,16 +11,13 @@ public class HistorialEquipoDTO {
     private String marca;
     private String modelo;
     private String serial;
-    private String tipoEquipo;
     private String codigoSap;
     private LocalDate fechaCompra;
     private String estadoEquipo;
-    private String sistemaOperativo;
     private String procesador;
     private Integer memoriaRamGb;
     private Integer capacidadAlmacenamientoGb;
     private Boolean licenciaWindowsActivada;
-    private Boolean unionDominio;
     private String categoriaNombre;
 
     private String custodioNombre;

@@ -89,7 +89,7 @@
 					<label class="filter-label">Equipo</label>
 					<select name="equipoId" class="form-select" required>
 						<option value="">Selecciona</option>
-						<option th:each="e : ${listaequipos}" th:value="${e.idEquipo}" th:text="${(e.codigoSap ?: 'Cod. Interno') + ' - ' + (e.modelo ?: e.tipoEquipo)}"></option>
+						<option th:each="e : ${listaequipos}" th:value="${e.idEquipo}" th:text="${(e.codigoSap ?: 'Cod. Interno') + ' - ' + (e.modelo ?: 'Equipo')}"></option>
 					</select>
 				</div>
 				<div class="col-lg-4">

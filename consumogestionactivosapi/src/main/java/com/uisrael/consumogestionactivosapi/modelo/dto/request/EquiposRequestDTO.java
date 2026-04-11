@@ -17,9 +17,6 @@ public class EquiposRequestDTO {
     @NotBlank(message = "El codigo SAP es requerido")
     private String codigoSap;
 
-    @NotBlank(message = "El tipo de equipo es requerido")
-    private String tipoEquipo;
-
     @NotBlank(message = "El modelo es requerido")
     private String modelo;
 
@@ -32,13 +29,7 @@ public class EquiposRequestDTO {
     @Positive(message = "La capacidad de almacenamiento debe ser positiva")
     private Integer capacidadAlmacenamientoGb;
 
-    private String sistemaOperativo;
     private Boolean licenciaWindowsActivada;
-    private Boolean etiquetaActivoFijo;
-    private String tipoLicenciaOffice;
-    private String versionOffice;
-    private Boolean unionDominio;
-    private String ip;
     private String mac;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

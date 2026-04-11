@@ -37,8 +37,7 @@ public interface ICustodiasDtoMapper {
 		}
 		return new Equipos(dto.getEquipos().get(0).getIdEquipo(),
 				null, null, null, null, null, null, null, null,
-				null, null, null, null, null, null, null, null,
-				null, null, null, false, null, null, null);
+				null, null, null, null, false, null, null, null);
 	}
 
 	default Custodios mapCustodioReq(CustodiasRequestDTO dto) {
@@ -54,19 +53,12 @@ public interface ICustodiasDtoMapper {
 		EquiposResponseDTO dto = new EquiposResponseDTO();
 		dto.setIdEquipo(e.getIdEquipo());
 		dto.setCodigoSap(e.getCodigoSap());
-		dto.setTipoEquipo(e.getTipoEquipo());
 		dto.setModelo(e.getModelo());
 		dto.setSerial(e.getSerial());
 		dto.setProcesador(e.getProcesador());
 		dto.setMemoriaRamGb(e.getMemoriaRamGb());
 		dto.setCapacidadAlmacenamientoGb(e.getCapacidadAlmacenamientoGb());
-		dto.setSistemaOperativo(e.getSistemaOperativo());
 		dto.setLicenciaWindowsActivada(e.getLicenciaWindowsActivada());
-		dto.setEtiquetaActivoFijo(e.getEtiquetaActivoFijo());
-		dto.setTipoLicenciaOffice(e.getTipoLicenciaOffice());
-		dto.setVersionOffice(e.getVersionOffice());
-		dto.setUnionDominio(e.getUnionDominio());
-		dto.setIp(e.getIp());
 		dto.setMac(e.getMac());
 		dto.setFechaCompra(e.getFechaCompra());
 		dto.setPrecioCompra(e.getPrecioCompra());
@@ -99,6 +91,7 @@ public interface ICustodiasDtoMapper {
 		DepartamentosResponseDTO dto = new DepartamentosResponseDTO();
 		dto.setIdDepartamento(d.getIdDepartamento());
 		dto.setNombre(d.getNombre());
+		dto.setTipo(d.getTipo());
 		dto.setEstado(d.isEstado());
 		return dto;
 	}

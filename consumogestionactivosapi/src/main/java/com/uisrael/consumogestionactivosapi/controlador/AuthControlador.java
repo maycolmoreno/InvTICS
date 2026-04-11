@@ -84,7 +84,7 @@ public class AuthControlador {
 	@PostMapping("/setup")
 	public String procesarSetup(
 			@RequestParam String nombre,
-			@RequestParam(required = false) String cedula,
+			@RequestParam String cedula,
 			@RequestParam String correo,
 			@RequestParam String contrasena,
 			@RequestParam String confirmar,
@@ -109,8 +109,34 @@ public class AuthControlador {
 			return "auth/setup";
 		}
 
+		// Validar cédula obligatoria
+		if (cedula == null || cedula.isBlank()) {
+			model.addAttribute("error", "La cedula es obligatoria.");
+			model.addAttribute("nombre", nombre);
+			model.addAttribute("cedula", cedula);
+			model.addAttribute("correo", correo);
+			return "auth/setup";
+		}
+
+		if (!com.uisrael.consumogestionactivosapi.util.CedulaEcuatorianaUtils.esValida(cedula)) {
+			model.addAttribute("error", "La cedula ingresada no es valida.");
+			model.addAttribute("nombre", nombre);
+			model.addAttribute("cedula", cedula);
+			model.addAttribute("correo", correo);
+			return "auth/setup";
+		}
+
 		if (contrasena == null || contrasena.length() < 8) {
 			model.addAttribute("error", "La contrasena debe tener al menos 8 caracteres.");
+			model.addAttribute("nombre", nombre);
+			model.addAttribute("cedula", cedula);
+			model.addAttribute("correo", correo);
+			return "auth/setup";
+		}
+
+		// Validar complejidad de contraseña
+		if (!contrasena.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")) {
+			model.addAttribute("error", "La contrasena debe incluir mayusculas, minusculas y numeros.");
 			model.addAttribute("nombre", nombre);
 			model.addAttribute("cedula", cedula);
 			model.addAttribute("correo", correo);
@@ -125,24 +151,12 @@ public class AuthControlador {
 			return "auth/setup";
 		}
 
-		if (cedula != null && !cedula.isBlank()) {
-			if (!com.uisrael.consumogestionactivosapi.util.CedulaEcuatorianaUtils.esValida(cedula)) {
-				model.addAttribute("error", "La cedula ingresada no es valida.");
-				model.addAttribute("nombre", nombre);
-				model.addAttribute("cedula", cedula);
-				model.addAttribute("correo", correo);
-				return "auth/setup";
-			}
-		}
-
 		try {
 			Map<String, String> datos = new java.util.HashMap<>();
 			datos.put("nombre", nombre);
 			datos.put("correo", correo);
 			datos.put("contrasena", contrasena);
-			if (cedula != null && !cedula.isBlank()) {
-				datos.put("cedula", cedula);
-			}
+			datos.put("cedula", cedula);
 
 			Map<String, Object> resp = RestClient.create(apiBaseUrl)
 					.post()
@@ -213,6 +227,31 @@ public class AuthControlador {
 							? ((Number) respuestaUsuario.get("idUsuario")).intValue()
 							: null;
 					sesionUsuario.iniciarSesion(correo, contrasena, nombreUsuario, rol, idUsuario);
+
+					// Nombre completo y departamento del usuario (desde BD)
+					String nombre = (String) respuestaUsuario.get("nombre");
+					if (nombre != null && !nombre.isBlank()) {
+						sesionUsuario.setNombre(nombre);
+					} else {
+						sesionUsuario.setNombre(nombreUsuario);
+					}
+					String departamento = (String) respuestaUsuario.get("departamento");
+					if (departamento != null && !departamento.isBlank()) {
+						sesionUsuario.setDepartamento(departamento);
+					}
+
+					// Cargar módulos permitidos del rol
+					Object modulosObj = respuestaUsuario.get("modulos");
+					if (modulosObj instanceof java.util.List<?> listaModulos) {
+						java.util.Set<String> modulos = new java.util.HashSet<>();
+						for (Object m : listaModulos) {
+							if (m instanceof String s) {
+								modulos.add(s);
+							}
+						}
+						sesionUsuario.setModulosPermitidos(modulos);
+					}
+
 					return "redirect:/inicio";
 				}
 

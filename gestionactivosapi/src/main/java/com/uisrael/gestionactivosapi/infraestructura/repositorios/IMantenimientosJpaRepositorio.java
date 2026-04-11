@@ -43,4 +43,10 @@ public interface IMantenimientosJpaRepositorio extends JpaRepository<Mantenimien
 
     @EntityGraph(attributePaths = {"fkEquipo", "fkCliente", "fkUsuario"})
     List<MantenimientosJpa> findByIdClienteOrderByCreadoEnDesc(Integer idCliente);
+
+    @EntityGraph(attributePaths = {"fkEquipo", "fkCliente", "fkUsuario"})
+    List<MantenimientosJpa> findByIdUsuarioOrderByCreadoEnDesc(Integer idUsuario);
+
+    @EntityGraph(attributePaths = {"fkEquipo", "fkCliente", "fkUsuario"})
+    Page<MantenimientosJpa> findByIdUsuarioOrderByFechaProgramadaDescIdMantenimientoDesc(Integer idUsuario, Pageable pageable);
 }

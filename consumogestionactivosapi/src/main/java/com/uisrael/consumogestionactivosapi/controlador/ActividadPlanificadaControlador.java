@@ -32,9 +32,17 @@ public class ActividadPlanificadaControlador {
 
 	@GetMapping("/planificacion")
 	public String vistaPrincipal(Model model) {
-		List<ActividadPlanificadaResponseDTO> actividades = actividadServicio.listarTodas();
+		List<ActividadPlanificadaResponseDTO> actividades;
+
+		if (sesionUsuario.tieneRol("TECNICO") && sesionUsuario.getIdUsuario() != null) {
+			actividades = actividadServicio.listarPorTecnico(sesionUsuario.getIdUsuario());
+		} else {
+			actividades = actividadServicio.listarTodas();
+		}
+
 		model.addAttribute("actividades", actividades);
 		model.addAttribute("tecnicos", usuariosServicio.listarUsuario());
+		model.addAttribute("esTecnico", sesionUsuario.tieneRol("TECNICO"));
 		return "Planificacion/planificacion";
 	}
 
@@ -42,6 +50,8 @@ public class ActividadPlanificadaControlador {
 	public String formNueva(Model model) {
 		model.addAttribute("actividad", new ActividadPlanificadaRequestDTO());
 		model.addAttribute("tecnicos", usuariosServicio.listarUsuario());
+		model.addAttribute("esTecnico", sesionUsuario.tieneRol("TECNICO"));
+		model.addAttribute("idUsuarioActual", sesionUsuario.getIdUsuario());
 		return "Planificacion/planificacion-form";
 	}
 
@@ -50,9 +60,18 @@ public class ActividadPlanificadaControlador {
 			RedirectAttributes redirectAttributes) {
 		try {
 			// Asignar el ID del usuario logueado como creador
-			usuariosServicio.listarUsuario().stream()
-					.filter(u -> u.getCorreo().equalsIgnoreCase(sesionUsuario.getCorreo())).findFirst()
-					.ifPresent(u -> request.setCreadoPorId(u.getIdUsuario()));
+			if (sesionUsuario.getIdUsuario() != null) {
+				request.setCreadoPorId(sesionUsuario.getIdUsuario());
+			} else {
+				usuariosServicio.listarUsuario().stream()
+						.filter(u -> u.getCorreo().equalsIgnoreCase(sesionUsuario.getCorreo())).findFirst()
+						.ifPresent(u -> request.setCreadoPorId(u.getIdUsuario()));
+			}
+
+			// Si es TECNICO, auto-asignarse como técnico responsable
+			if (sesionUsuario.tieneRol("TECNICO") && sesionUsuario.getIdUsuario() != null) {
+				request.setTecnicoId(sesionUsuario.getIdUsuario());
+			}
 
 			actividadServicio.crear(request);
 			redirectAttributes.addFlashAttribute("mensaje", "Actividad creada exitosamente");

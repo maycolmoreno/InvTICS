@@ -89,7 +89,7 @@
 											   th:class="${#strings.contains(categoriaNormalizada, 'impres')} ? 'feather-printer' : (${#strings.contains(categoriaNormalizada, 'scanner')} ? 'feather-file-text' : (${#strings.contains(categoriaNormalizada, 'red')} ? 'feather-cpu' : 'feather-monitor'))"></i>
 										</div>
 										<div>
-											<div class="device-name" th:text="${equipo.tipoEquipo != null and !#strings.isEmpty(equipo.tipoEquipo) ? equipo.tipoEquipo : 'Equipo'}"></div>
+											<div class="device-name" th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Equipo'}"></div>
 											<div class="device-meta" th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Activo tecnologico'}"></div>
 										</div>
 									</div>
@@ -110,7 +110,7 @@
 								<td>
 									<div class="muted-stack">
 										<div class="device-name" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Cod. Interno'}"></div>
-										<div class="device-meta" th:text="${equipo.ip != null and !#strings.isEmpty(equipo.ip) ? equipo.ip : (equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : 'Sin referencia de red')}"></div>
+										<div class="device-meta" th:text="${equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : 'Sin referencia de red'}"></div>
 									</div>
 								</td>
 								<td>

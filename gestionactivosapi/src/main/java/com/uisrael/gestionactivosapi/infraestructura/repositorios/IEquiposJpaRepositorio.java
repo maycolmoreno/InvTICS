@@ -31,10 +31,6 @@ public interface IEquiposJpaRepositorio extends JpaRepository<EquiposJpa, Intege
 
 	boolean existsBySerialIgnoreCaseAndIdEquipoNot(String serial, Integer idEquipo);
 
-	boolean existsByIpIgnoreCase(String ip);
-
-	boolean existsByIpIgnoreCaseAndIdEquipoNot(String ip, Integer idEquipo);
-
 	boolean existsByMacIgnoreCase(String mac);
 
 	boolean existsByMacIgnoreCaseAndIdEquipoNot(String mac, Integer idEquipo);

@@ -32,5 +32,8 @@ public class DepartamentosJpa implements Serializable {
     @Column(name = "nombre", length = 100, nullable = false)
     private String nombre;
 
+    @Column(name = "tipo", length = 20, nullable = false)
+    private String tipo = "ADMINISTRATIVO";
+
     private boolean estado;
 }

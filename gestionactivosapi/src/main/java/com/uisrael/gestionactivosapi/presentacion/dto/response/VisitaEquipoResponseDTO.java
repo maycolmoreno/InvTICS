@@ -8,7 +8,6 @@ public class VisitaEquipoResponseDTO {
     private String serial;
     private String marca;
     private String modelo;
-    private String tipoEquipo;
     private String codigoSap;
     private String custodioNombre;
     private String custodioArea;
@@ -47,14 +46,6 @@ public class VisitaEquipoResponseDTO {
 
     public void setModelo(String modelo) {
         this.modelo = modelo;
-    }
-
-    public String getTipoEquipo() {
-        return tipoEquipo;
-    }
-
-    public void setTipoEquipo(String tipoEquipo) {
-        this.tipoEquipo = tipoEquipo;
     }
 
     public String getCodigoSap() {

@@ -79,6 +79,28 @@ public class MantenimientoManualControlador {
         return mantenimientoService.obtenerHistorial(equipoId);
     }
 
+    @GetMapping("/tecnico/{tecnicoId}")
+    public List<MantenimientoManualResponseDTO> listarPorTecnico(@PathVariable Integer tecnicoId) {
+        return mantenimientoService.listarPorTecnico(tecnicoId);
+    }
+
+    @GetMapping("/tecnico/{tecnicoId}/paginado")
+    public PaginaResponse<MantenimientoManualResponseDTO> listarPorTecnicoPaginado(
+            @PathVariable Integer tecnicoId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pagina<MantenimientoManualResponseDTO> pagina = mantenimientoService.listarPorTecnicoPaginado(tecnicoId, page, size);
+        PaginaResponse<MantenimientoManualResponseDTO> resp = new PaginaResponse<>();
+        resp.setContenido(pagina.contenido());
+        resp.setPaginaActual(pagina.paginaActual());
+        resp.setTamanioPagina(pagina.tamanioPagina());
+        resp.setTotalElementos(pagina.totalElementos());
+        resp.setTotalPaginas(pagina.totalPaginas());
+        resp.setPrimera(pagina.paginaActual() == 0);
+        resp.setUltima(pagina.paginaActual() + 1 >= pagina.totalPaginas());
+        return resp;
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public MantenimientoManualResponseDTO crear(@Valid @RequestBody MantenimientoManualRequestDTO request,

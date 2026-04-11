@@ -28,10 +28,6 @@ public interface IEquiposServicio {
 
 	boolean existeSerialParaOtro(String serial, int idEquipo);
 
-	boolean existeIP(String ip);
-
-	boolean existeIPParaOtro(String ip, int idEquipo);
-
 	boolean existeMAC(String mac);
 
 	boolean existeMACParaOtro(String mac, int idEquipo);

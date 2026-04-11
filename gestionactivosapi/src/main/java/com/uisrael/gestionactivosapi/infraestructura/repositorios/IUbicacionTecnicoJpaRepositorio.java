@@ -29,4 +29,15 @@ public interface IUbicacionTecnicoJpaRepositorio extends JpaRepository<Ubicacion
     @Modifying
     @Query("DELETE FROM UbicacionTecnicoJpa u WHERE u.timestampCaptura < :fecha")
     int deleteByTimestampCapturaBefore(@Param("fecha") LocalDateTime fecha);
+
+    @Query("""
+        SELECT u FROM UbicacionTecnicoJpa u
+        WHERE u.timestampCaptura >= :desde
+        AND u.timestampCaptura < :hasta
+        AND u.usuario.fkRol.nombre = 'TECNICO'
+        ORDER BY u.timestampCaptura DESC
+        """)
+    List<UbicacionTecnicoJpa> findHistorialPorFecha(
+            @Param("desde") LocalDateTime desde,
+            @Param("hasta") LocalDateTime hasta);
 }

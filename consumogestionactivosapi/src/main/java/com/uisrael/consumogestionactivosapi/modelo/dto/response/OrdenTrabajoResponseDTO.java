@@ -20,7 +20,6 @@ public class OrdenTrabajoResponseDTO {
     private String serial;
     private String marca;
     private String modelo;
-    private String tipoEquipo;
     private String codigoSap;
 
     private String custodioNombre;

@@ -77,7 +77,7 @@ public class SetupInicialUseCaseImpl implements ISetupInicialUseCase {
 				return existente;
 			}
 		}
-		return departamentosRepositorio.guardar(new Departamentos(0, DEPTO_DEFAULT, true));
+		return departamentosRepositorio.guardar(new Departamentos(0, DEPTO_DEFAULT, "ADMINISTRATIVO", true));
 	}
 
 	private String textoObligatorio(String valor, String mensaje) {

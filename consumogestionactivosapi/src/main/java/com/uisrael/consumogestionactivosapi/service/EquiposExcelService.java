@@ -31,9 +31,8 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseD
 @Service
 public class EquiposExcelService {
 
-	private static final String[] COLS = { "ID", "CÓDIGO SAP", "TIPO", "MODELO", "SERIAL", "PROCESADOR", "RAM (GB)",
-			"ALMACENAMIENTO (GB)", "SISTEMA OPERATIVO", "LIC. WINDOWS", "ETIQ. ACTIVO FIJO", "TIPO LIC. OFFICE",
-			"VERSIÓN OFFICE", "UNIÓN DOMINIO", "IP", "MAC", "FECHA COMPRA", "PRECIO COMPRA", "ESTADO EQUIPO",
+	private static final String[] COLS = { "ID", "CÓDIGO SAP", "MODELO", "SERIAL", "PROCESADOR", "RAM (GB)",
+			"ALMACENAMIENTO (GB)", "LIC. WINDOWS", "MAC", "FECHA COMPRA", "PRECIO COMPRA", "ESTADO EQUIPO",
 			"OBSERVACIÓN", "MARCA", "CATEGORÍA", "ESTADO" };
 
 	public byte[] generarReporteExcel(List<EquiposResponseDTO> data, String tipo) {
@@ -76,19 +75,12 @@ public class EquiposExcelService {
 				int c = 0;
 				row.createCell(c++).setCellValue(e.getIdEquipo());
 				row.createCell(c++).setCellValue(val(e.getCodigoSap()));
-				row.createCell(c++).setCellValue(val(e.getTipoEquipo()));
 				row.createCell(c++).setCellValue(val(e.getModelo()));
 				row.createCell(c++).setCellValue(val(e.getSerial()));
 				row.createCell(c++).setCellValue(val(e.getProcesador()));
 				row.createCell(c++).setCellValue(numOrText(e.getMemoriaRamGb()));
 				row.createCell(c++).setCellValue(numOrText(e.getCapacidadAlmacenamientoGb()));
-				row.createCell(c++).setCellValue(val(e.getSistemaOperativo()));
 				row.createCell(c++).setCellValue(boolSiNo(e.getLicenciaWindowsActivada()));
-				row.createCell(c++).setCellValue(boolSiNo(e.getEtiquetaActivoFijo()));
-				row.createCell(c++).setCellValue(val(e.getTipoLicenciaOffice()));
-				row.createCell(c++).setCellValue(val(e.getVersionOffice()));
-				row.createCell(c++).setCellValue(boolSiNo(e.getUnionDominio()));
-				row.createCell(c++).setCellValue(val(e.getIp()));
 				row.createCell(c++).setCellValue(val(e.getMac()));
 				row.createCell(c++).setCellValue(formatFecha(e.getFechaCompra()));
 				row.createCell(c++).setCellValue(val(e.getPrecioCompra()));

@@ -159,10 +159,8 @@ public class ImportarServicioImpl implements IImportarServicio {
     private EquiposRequestDTO buildEquipoDto(FilaImportDTO fila, int index, int total) {
         EquiposRequestDTO dto = new EquiposRequestDTO();
 
-        dto.setTipoEquipo(fila.getDescripcion());
-        dto.setModelo(fila.getModelo());
+        dto.setModelo(fila.getDescripcion() != null ? fila.getDescripcion() : fila.getModelo());
         dto.setEstadoEquipo(fila.getEstadoEquipo());
-        dto.setEtiquetaActivoFijo(fila.isEtiqueta());
         dto.setEstado(true);
 
         // Serial: si hay mas de 1 unidad, agregar sufijo para evitar duplicados

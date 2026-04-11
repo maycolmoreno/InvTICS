@@ -28,6 +28,11 @@ public class UbicacionTecnicoRepositorioImpl implements UbicacionTecnicoPort {
     }
 
     @Override
+    public List<UbicacionTecnicoJpa> historialPorFecha(LocalDateTime desde, LocalDateTime hasta) {
+        return jpaRepositorio.findHistorialPorFecha(desde, hasta);
+    }
+
+    @Override
     @Transactional
     public int eliminarAnterioresA(LocalDateTime fecha) {
         return jpaRepositorio.deleteByTimestampCapturaBefore(fecha);

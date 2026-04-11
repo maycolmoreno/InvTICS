@@ -3,6 +3,8 @@ package com.uisrael.gestionactivosapi.infraestructura.configuracion;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import jakarta.persistence.EntityManager;
+
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IActualizarActivoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IBuscarActivoPorIdUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICustodiasUseCase;
@@ -75,8 +77,8 @@ public class EquiposActivosConfig {
 	@Bean
 	public CustodiasRepositorioImpl custodiasRepositorio(ICustodiasJpaRepositorio jpaRepositorio,
 			ICustodiasJpaMapper mapper, IEquiposJpaRepositorio equiposRepo, ICustodiosJpaRepositorio custodiosRepo,
-			IUbicacionesJpaRepositorio ubicacionesRepo) {
-		return new CustodiasRepositorioImpl(jpaRepositorio, mapper, equiposRepo, custodiosRepo, ubicacionesRepo);
+			IUbicacionesJpaRepositorio ubicacionesRepo, EntityManager entityManager) {
+		return new CustodiasRepositorioImpl(jpaRepositorio, mapper, equiposRepo, custodiosRepo, ubicacionesRepo, entityManager);
 	}
 
 	@Bean

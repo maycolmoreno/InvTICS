@@ -11,5 +11,7 @@ public interface UbicacionTecnicoPort {
 
     List<UbicacionTecnicoJpa> ultimasPorTecnicosActivos(LocalDateTime desde);
 
+    List<UbicacionTecnicoJpa> historialPorFecha(LocalDateTime desde, LocalDateTime hasta);
+
     int eliminarAnterioresA(LocalDateTime fecha);
 }

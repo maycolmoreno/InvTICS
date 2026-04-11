@@ -87,10 +87,26 @@ public class MantenimientoManualServicioImpl implements IMantenimientoManualServ
 	}
 
 	@Override
+	public List<MantenimientoManualResponseDTO> listarPorTecnico(Integer tecnicoId) {
+		return clienteWeb.get().uri("/mantenimiento/tecnico/{tecnicoId}", tecnicoId).retrieve()
+				.body(new ParameterizedTypeReference<List<MantenimientoManualResponseDTO>>() {
+				});
+	}
+
+	@Override
 	public PaginaResponse<MantenimientoManualResponseDTO> listarTodosPaginado(int page, int size) {
 		return clienteWeb.get()
 				.uri(uriBuilder -> uriBuilder.path("/mantenimiento/paginado")
 						.queryParam("page", page).queryParam("size", size).build())
+				.retrieve()
+				.body(new ParameterizedTypeReference<PaginaResponse<MantenimientoManualResponseDTO>>() {});
+	}
+
+	@Override
+	public PaginaResponse<MantenimientoManualResponseDTO> listarPorTecnicoPaginado(Integer tecnicoId, int page, int size) {
+		return clienteWeb.get()
+				.uri(uriBuilder -> uriBuilder.path("/mantenimiento/tecnico/{tecnicoId}/paginado")
+						.queryParam("page", page).queryParam("size", size).build(tecnicoId))
 				.retrieve()
 				.body(new ParameterizedTypeReference<PaginaResponse<MantenimientoManualResponseDTO>>() {});
 	}

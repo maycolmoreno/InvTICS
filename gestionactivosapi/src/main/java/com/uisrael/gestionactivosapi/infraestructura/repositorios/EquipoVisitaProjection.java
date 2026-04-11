@@ -14,8 +14,6 @@ public interface EquipoVisitaProjection {
 
     String getModelo();
 
-    String getTipoEquipo();
-
     String getCodigoSap();
 
     String getCustodioNombre();

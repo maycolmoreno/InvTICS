@@ -7,7 +7,6 @@ public class EquiposResponseDTO {
 
 	private int idEquipo;
 	private String codigoSap;
-	private String tipoEquipo;
 	private String modelo;
 	private String serial;
 	private String procesador;
@@ -15,16 +14,8 @@ public class EquiposResponseDTO {
 	private Integer memoriaRamGb;
 	private Integer capacidadAlmacenamientoGb;
 
-	private String sistemaOperativo;
 	private Boolean licenciaWindowsActivada;
-	private Boolean etiquetaActivoFijo;
 
-	private String tipoLicenciaOffice;
-	private String versionOffice;
-
-	private Boolean unionDominio;
-
-	private String ip;
 	private String mac;
 
 	private LocalDate fechaCompra;
@@ -35,7 +26,6 @@ public class EquiposResponseDTO {
 
 	private boolean estado;
 
-	// âœ… FKs completas para que en el consumo se vea el NOMBRE
 	private MarcasResponseDTO fkMarca;
 	private CategoriaEquiposResponseDTO fkCategoria;
 	private UbicacionesResponseDTO fkUbicacion;
@@ -54,14 +44,6 @@ public class EquiposResponseDTO {
 
 	public void setCodigoSap(String codigoSap) {
 		this.codigoSap = codigoSap;
-	}
-
-	public String getTipoEquipo() {
-		return tipoEquipo;
-	}
-
-	public void setTipoEquipo(String tipoEquipo) {
-		this.tipoEquipo = tipoEquipo;
 	}
 
 	public String getModelo() {
@@ -104,60 +86,12 @@ public class EquiposResponseDTO {
 		this.capacidadAlmacenamientoGb = capacidadAlmacenamientoGb;
 	}
 
-	public String getSistemaOperativo() {
-		return sistemaOperativo;
-	}
-
-	public void setSistemaOperativo(String sistemaOperativo) {
-		this.sistemaOperativo = sistemaOperativo;
-	}
-
 	public Boolean getLicenciaWindowsActivada() {
 		return licenciaWindowsActivada;
 	}
 
 	public void setLicenciaWindowsActivada(Boolean licenciaWindowsActivada) {
 		this.licenciaWindowsActivada = licenciaWindowsActivada;
-	}
-
-	public Boolean getEtiquetaActivoFijo() {
-		return etiquetaActivoFijo;
-	}
-
-	public void setEtiquetaActivoFijo(Boolean etiquetaActivoFijo) {
-		this.etiquetaActivoFijo = etiquetaActivoFijo;
-	}
-
-	public String getTipoLicenciaOffice() {
-		return tipoLicenciaOffice;
-	}
-
-	public void setTipoLicenciaOffice(String tipoLicenciaOffice) {
-		this.tipoLicenciaOffice = tipoLicenciaOffice;
-	}
-
-	public String getVersionOffice() {
-		return versionOffice;
-	}
-
-	public void setVersionOffice(String versionOffice) {
-		this.versionOffice = versionOffice;
-	}
-
-	public Boolean getUnionDominio() {
-		return unionDominio;
-	}
-
-	public void setUnionDominio(Boolean unionDominio) {
-		this.unionDominio = unionDominio;
-	}
-
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
 	}
 
 	public String getMac() {
@@ -232,4 +166,3 @@ public class EquiposResponseDTO {
 		this.fkUbicacion = fkUbicacion;
 	}
 }
-

@@ -3,9 +3,11 @@ package com.uisrael.gestionactivosapi.infraestructura.configuracion;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IConsultarHistorialGpsUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IConsultarUbicacionesTiempoRealUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IRegistrarConsentimientoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IRegistrarUbicacionTecnicoUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ConsultarHistorialGpsUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ConsultarUbicacionesTiempoRealUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.RegistrarConsentimientoUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.RegistrarUbicacionTecnicoUseCaseImpl;
@@ -48,5 +50,10 @@ public class GpsUbicacionesConfig {
 	@Bean
 	IConsultarUbicacionesTiempoRealUseCase consultarUbicacionesTiempoRealUseCase(UbicacionTecnicoPort ubicacionPort) {
 		return new ConsultarUbicacionesTiempoRealUseCaseImpl(ubicacionPort);
+	}
+
+	@Bean
+	IConsultarHistorialGpsUseCase consultarHistorialGpsUseCase(UbicacionTecnicoPort ubicacionPort) {
+		return new ConsultarHistorialGpsUseCaseImpl(ubicacionPort);
 	}
 }

@@ -12,13 +12,6 @@
 		gap: 1.25rem;
 	}
 
-	.locations-toolbar {
-		display: grid;
-		grid-template-columns: minmax(220px, 340px) 1fr auto;
-		gap: 1rem;
-		align-items: end;
-	}
-
 	.locations-summary {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -129,10 +122,6 @@
 	}
 
 	@media (max-width: 992px) {
-		.locations-toolbar {
-			grid-template-columns: 1fr;
-		}
-
 		.locations-summary {
 			grid-template-columns: 1fr;
 		}
@@ -171,96 +160,126 @@
 					</div>
 				</div>
 
-				<div class="surface-card page-panel">
-					<div class="locations-toolbar">
-						<div>
-							<label class="filter-label">Filtrar por provincia</label>
-							<select id="provinceFilter" class="form-select">
-								<option value="">Todas las provincias</option>
-								<option th:each="ubicaciones : ${listaubicacion}" th:value="${ubicaciones.provincia}" th:text="${ubicaciones.provincia}"></option>
-							</select>
+				<!-- FILTER BAR -->
+				<div class="filter-bar">
+					<div class="flex-grow-1" style="min-width:200px; max-width:340px;">
+						<div class="input-group">
+							<span class="input-group-text bg-white border-end-0 pe-2" style="border-color:#e4e4e7;">
+								<i class="feather feather-search" style="font-size:14px; color:#a1a1aa;"></i>
+							</span>
+							<input type="text" id="searchInput"
+								   class="form-control border-start-0 ps-1"
+								   placeholder="Buscar por nombre, agencia, ciudad..."
+								   autocomplete="off">
 						</div>
-						<div>
-							<label class="filter-label">Buscar por nombre o agencia</label>
-							<input id="searchInput" type="text" class="form-control" placeholder="Ej. matriz, loja, mia...">
-						</div>
-						<div class="d-flex justify-content-end">
-							<button id="clearFilters" type="button" class="btn btn-light px-4 py-3">Limpiar filtros</button>
-						</div>
+					</div>
+					<div style="min-width:160px;">
+						<select id="filterProvincia" class="form-select">
+							<option value="">Todas las provincias</option>
+						</select>
+					</div>
+					<div style="min-width:140px;">
+						<select id="filterEstado" class="form-select">
+							<option value="">Todos los estados</option>
+							<option value="activo">En linea</option>
+							<option value="inactivo">Fuera de linea</option>
+						</select>
+					</div>
+					<div class="ms-auto row-counter">
+						Mostrando <strong id="rowCount">0</strong> ubicaciones
 					</div>
 				</div>
 
-				<div class="surface-card table-shell locations-table">
-					<div class="table-responsive">
-						<table class="table align-middle">
-							<thead>
-								<tr>
-									<th>Ubicacion</th>
-									<th>Provincia</th>
-									<th>Ciudad</th>
-									<th>Direccion</th>
-									<th>Coordenadas</th>
-									<th>Estado</th>
-									<th>Acciones</th>
-								</tr>
-							</thead>
-							<tbody id="locationsTableBody">
-								<tr th:each="ubicaciones : ${listaubicacion}"
-									th:attr="data-provincia=${ubicaciones.provincia != null ? ubicaciones.provincia : ''},
-										data-busqueda=${((ubicaciones.nombre != null ? ubicaciones.nombre : '') + ' ' + (ubicaciones.agencia != null ? ubicaciones.agencia : '') + ' ' + (ubicaciones.ciudad != null ? ubicaciones.ciudad : '') + ' ' + (ubicaciones.provincia != null ? ubicaciones.provincia : '')).toLowerCase()}">
-									<td>
-										<div class="location-name-cell">
-											<strong th:text="${ubicaciones.nombre}">Ubicacion</strong>
-											<span th:text="${ubicaciones.agencia != null and !#strings.isEmpty(ubicaciones.agencia) ? 'Agencia: ' + ubicaciones.agencia : 'Sin agencia'}">Agencia</span>
-										</div>
-									</td>
-									<td th:text="${ubicaciones.provincia != null and !#strings.isEmpty(ubicaciones.provincia) ? ubicaciones.provincia : 'Sin provincia'}">Provincia</td>
-									<td th:text="${ubicaciones.ciudad != null and !#strings.isEmpty(ubicaciones.ciudad) ? ubicaciones.ciudad : 'Sin ciudad'}">Ciudad</td>
-									<td th:text="${ubicaciones.direccion != null and !#strings.isEmpty(ubicaciones.direccion) ? ubicaciones.direccion : 'Sin direccion registrada'}">Direccion</td>
-									<td class="coordinates-cell"
-										th:classappend="${ubicaciones.latitud == null or #strings.isEmpty(ubicaciones.latitud) or ubicaciones.longitud == null or #strings.isEmpty(ubicaciones.longitud)} ? ' is-missing' : ''"
-										th:text="${ubicaciones.latitud != null and !#strings.isEmpty(ubicaciones.latitud) and ubicaciones.longitud != null and !#strings.isEmpty(ubicaciones.longitud) ? ubicaciones.latitud + ', ' + ubicaciones.longitud : 'Sin coordenadas'}">Coordenadas</td>
-									<td>
-										<span class="status-pill"
-											th:classappend="${ubicaciones.estado} ? ' is-online' : ' is-offline'">
-											<i class="feather-circle"></i>
-											<span th:text="${ubicaciones.estado} ? 'En linea' : 'Fuera de linea'">Estado</span>
-										</span>
-									</td>
-									<td>
-										<div class="actions-inline">
-											<a class="btn btn-light btn-sm btn-soft-light"
-												th:href="@{/ubicaciones/editar-ubicacion/{id}(id=${ubicaciones.idUbicacion})}">
-												<i class="feather-edit-2 me-1"></i>Editar
-											</a>
-											<a class="btn btn-outline-primary btn-sm btn-soft-light"
-												th:if="${ubicaciones.linkCoordenada != null and !#strings.isEmpty(ubicaciones.linkCoordenada)}"
-												th:href="${ubicaciones.linkCoordenada}"
-												target="_blank" rel="noopener noreferrer">
-												<i class="feather-navigation me-1"></i>Abrir
-											</a>
-											<a class="btn btn-outline-primary btn-sm btn-soft-light location-generated-link"
-												th:if="${(ubicaciones.linkCoordenada == null or #strings.isEmpty(ubicaciones.linkCoordenada)) and ubicaciones.latitud != null and !#strings.isEmpty(ubicaciones.latitud) and ubicaciones.longitud != null and !#strings.isEmpty(ubicaciones.longitud)}"
-												href="#"
-												th:attr="data-lat=${ubicaciones.latitud},data-lng=${ubicaciones.longitud}"
-												target="_blank" rel="noopener noreferrer">
-												<i class="feather-navigation me-1"></i>Abrir
-											</a>
-											<button type="button"
-												class="btn btn-outline-danger btn-sm btn-soft-light"
-												data-bs-toggle="modal"
-												data-bs-target="#modalEliminarUbicacion"
-												th:attr="data-id=${ubicaciones.idUbicacion}">
-												<i class="feather-trash-2 me-1"></i>Desactivar
-											</button>
-										</div>
-									</td>
-								</tr>
-								<tr id="emptyRow" style="display:none;">
-									<td colspan="7" class="text-center py-5 text-muted">No hay ubicaciones que coincidan con los filtros aplicados.</td>
-								</tr>
-							</tbody>
-						</table>
+				<!-- TABLE -->
+				<div class="card card-custodios">
+					<div class="card-body p-0">
+						<div class="surface-card table-shell locations-table">
+							<div class="table-responsive">
+								<table class="table align-middle mb-0" id="ubicacionesTable">
+									<thead>
+										<tr>
+											<th>Ubicacion</th>
+											<th>Provincia</th>
+											<th>Ciudad</th>
+											<th>Direccion</th>
+											<th>Coordenadas</th>
+											<th>Estado</th>
+											<th>Acciones</th>
+										</tr>
+									</thead>
+									<tbody id="locationsTableBody">
+										<tr th:each="ubicaciones : ${listaubicacion}"
+											class="fila-ubicacion"
+											th:attr="data-provincia=${ubicaciones.provincia != null ? ubicaciones.provincia : ''},
+												data-estado=${ubicaciones.estado ? 'activo' : 'inactivo'},
+												data-busqueda=${((ubicaciones.nombre != null ? ubicaciones.nombre : '') + ' ' + (ubicaciones.agencia != null ? ubicaciones.agencia : '') + ' ' + (ubicaciones.ciudad != null ? ubicaciones.ciudad : '') + ' ' + (ubicaciones.provincia != null ? ubicaciones.provincia : '')).toLowerCase()}">
+											<td>
+												<div class="location-name-cell">
+													<strong th:text="${ubicaciones.nombre}">Ubicacion</strong>
+													<span th:text="${ubicaciones.agencia != null and !#strings.isEmpty(ubicaciones.agencia) ? 'Agencia: ' + ubicaciones.agencia : 'Sin agencia'}">Agencia</span>
+												</div>
+											</td>
+											<td th:text="${ubicaciones.provincia != null and !#strings.isEmpty(ubicaciones.provincia) ? ubicaciones.provincia : 'Sin provincia'}">Provincia</td>
+											<td th:text="${ubicaciones.ciudad != null and !#strings.isEmpty(ubicaciones.ciudad) ? ubicaciones.ciudad : 'Sin ciudad'}">Ciudad</td>
+											<td th:text="${ubicaciones.direccion != null and !#strings.isEmpty(ubicaciones.direccion) ? ubicaciones.direccion : 'Sin direccion registrada'}">Direccion</td>
+											<td class="coordinates-cell"
+												th:classappend="${ubicaciones.latitud == null or #strings.isEmpty(ubicaciones.latitud) or ubicaciones.longitud == null or #strings.isEmpty(ubicaciones.longitud)} ? ' is-missing' : ''"
+												th:text="${ubicaciones.latitud != null and !#strings.isEmpty(ubicaciones.latitud) and ubicaciones.longitud != null and !#strings.isEmpty(ubicaciones.longitud) ? ubicaciones.latitud + ', ' + ubicaciones.longitud : 'Sin coordenadas'}">Coordenadas</td>
+											<td>
+												<span class="status-pill"
+													th:classappend="${ubicaciones.estado} ? ' is-online' : ' is-offline'">
+													<i class="feather-circle"></i>
+													<span th:text="${ubicaciones.estado} ? 'En linea' : 'Fuera de linea'">Estado</span>
+												</span>
+											</td>
+											<td>
+												<div class="actions-inline">
+													<a class="btn btn-light btn-sm btn-soft-light"
+														th:href="@{/ubicaciones/editar-ubicacion/{id}(id=${ubicaciones.idUbicacion})}">
+														<i class="feather-edit-2 me-1"></i>Editar
+													</a>
+													<a class="btn btn-outline-primary btn-sm btn-soft-light"
+														th:if="${ubicaciones.linkCoordenada != null and !#strings.isEmpty(ubicaciones.linkCoordenada)}"
+														th:href="${ubicaciones.linkCoordenada}"
+														target="_blank" rel="noopener noreferrer">
+														<i class="feather-navigation me-1"></i>Abrir
+													</a>
+													<a class="btn btn-outline-primary btn-sm btn-soft-light location-generated-link"
+														th:if="${(ubicaciones.linkCoordenada == null or #strings.isEmpty(ubicaciones.linkCoordenada)) and ubicaciones.latitud != null and !#strings.isEmpty(ubicaciones.latitud) and ubicaciones.longitud != null and !#strings.isEmpty(ubicaciones.longitud)}"
+														href="#"
+														th:attr="data-lat=${ubicaciones.latitud},data-lng=${ubicaciones.longitud}"
+														target="_blank" rel="noopener noreferrer">
+														<i class="feather-navigation me-1"></i>Abrir
+													</a>
+													<button type="button"
+														class="btn btn-outline-danger btn-sm btn-soft-light"
+														data-bs-toggle="modal"
+														data-bs-target="#modalEliminarUbicacion"
+														th:attr="data-id=${ubicaciones.idUbicacion}">
+														<i class="feather-trash-2 me-1"></i>Desactivar
+													</button>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+					<!-- PAGINATION BAR -->
+					<div class="pagination-bar" id="paginationBar">
+						<div class="page-size-wrap">
+							<span>Filas por pagina:</span>
+							<select id="pageSizeSelect">
+								<option value="5">5</option>
+								<option value="10" selected>10</option>
+								<option value="25">25</option>
+								<option value="50">50</option>
+							</select>
+						</div>
+						<div class="pagination-info" id="paginationInfo"></div>
+						<nav class="pagination-nav" id="paginationNav"></nav>
 					</div>
 				</div>
 			</div>
@@ -293,12 +312,8 @@
 			});
 
 			document.addEventListener("DOMContentLoaded", function() {
-				const filter = document.getElementById('provinceFilter');
-				const searchInput = document.getElementById('searchInput');
-				const clearFilters = document.getElementById('clearFilters');
-				const rows = Array.from(document.querySelectorAll('#locationsTableBody tr[data-provincia]'));
-				const emptyRow = document.getElementById('emptyRow');
 
+				/* ── Google Maps links ────────────────────────────── */
 				document.querySelectorAll('.location-generated-link').forEach(function(link) {
 					const lat = String(link.dataset.lat || '').replace(',', '.').trim();
 					const lng = String(link.dataset.lng || '').replace(',', '.').trim();
@@ -307,35 +322,144 @@
 					}
 				});
 
-				function applyFilters() {
-					const province = (filter.value || '').trim().toLowerCase();
-					const search = (searchInput.value || '').trim().toLowerCase();
-					let visibleCount = 0;
+				/* ── FILTROS + PAGINACION ─────────────────────────── */
+				const searchInput      = document.getElementById("searchInput");
+				const filterProvincia  = document.getElementById("filterProvincia");
+				const filterEstado     = document.getElementById("filterEstado");
+				const rowCountEl       = document.getElementById("rowCount");
+				const pageSizeSelect   = document.getElementById("pageSizeSelect");
+				const paginationInfo   = document.getElementById("paginationInfo");
+				const paginationNav    = document.getElementById("paginationNav");
 
-					rows.forEach(function(row) {
-						const rowProvince = (row.dataset.provincia || '').trim().toLowerCase();
-						const searchable = (row.dataset.busqueda || '').trim();
-						const matchesProvince = !province || rowProvince === province;
-						const matchesSearch = !search || searchable.includes(search);
-						const visible = matchesProvince && matchesSearch;
-						row.style.display = visible ? '' : 'none';
-						if (visible) {
-							visibleCount += 1;
+				const allRows = Array.from(document.querySelectorAll("#locationsTableBody .fila-ubicacion"));
+				let filteredRows = [];
+				let currentPage  = 1;
+				let pageSize     = parseInt(pageSizeSelect.value, 10);
+
+				/* Poblar filtro Provincia con valores unicos */
+				const provincias = new Set();
+				allRows.forEach(function (r) {
+					const p = (r.getAttribute("data-provincia") || "").trim();
+					if (p) provincias.add(p);
+				});
+				Array.from(provincias).sort().forEach(function (p) {
+					const o = document.createElement("option"); o.value = p; o.textContent = p;
+					filterProvincia.appendChild(o);
+				});
+
+				/* ── Select2: búsqueda en dropdown ────────────────── */
+				if (typeof $ !== 'undefined' && $.fn.select2) {
+					$('#filterProvincia').select2({ width: '100%' });
+				}
+
+				/* ── Filter logic ─────────────────────────────────── */
+				function applyFilters() {
+					const term      = searchInput.value.trim().toLowerCase();
+					const provincia = filterProvincia.value;
+					const estado    = filterEstado.value;
+
+					filteredRows = allRows.filter(function (row) {
+						const searchable = (row.getAttribute("data-busqueda") || "");
+						if (term && searchable.indexOf(term) < 0) return false;
+						if (provincia && (row.getAttribute("data-provincia") || "") !== provincia) return false;
+						if (estado && (row.getAttribute("data-estado") || "") !== estado) return false;
+						return true;
+					});
+
+					currentPage = 1;
+					renderPage();
+				}
+
+				/* ── Render current page ──────────────────────────── */
+				function renderPage() {
+					const total      = filteredRows.length;
+					const totalPages = Math.max(1, Math.ceil(total / pageSize));
+					if (currentPage > totalPages) currentPage = totalPages;
+
+					const start = (currentPage - 1) * pageSize;
+					const end   = Math.min(start + pageSize, total);
+					const pageSet = new Set(filteredRows.slice(start, end));
+
+					allRows.forEach(function (row) {
+						row.style.display = pageSet.has(row) ? "" : "none";
+					});
+
+					rowCountEl.textContent = total;
+
+					if (total === 0) {
+						paginationInfo.innerHTML = "Sin resultados";
+					} else {
+						paginationInfo.innerHTML =
+							"<strong>" + (start + 1) + "</strong> – <strong>" + end +
+							"</strong> de <strong>" + total + "</strong>";
+					}
+
+					renderPaginationNav(totalPages);
+				}
+
+				/* ── Build pagination nav ─────────────────────────── */
+				function renderPaginationNav(totalPages) {
+					let html = "";
+
+					html += '<button class="pg-btn" data-page="prev"' +
+							(currentPage <= 1 ? ' disabled' : '') + '>' +
+							'<i class="feather feather-chevron-left" style="font-size:14px;"></i></button>';
+
+					const pages = buildPageNumbers(currentPage, totalPages);
+					pages.forEach(function (p) {
+						if (p === '...') {
+							html += '<span class="pg-ellipsis">&hellip;</span>';
+						} else {
+							html += '<button class="pg-btn' +
+									(p === currentPage ? ' active' : '') +
+									'" data-page="' + p + '">' + p + '</button>';
 						}
 					});
 
-					emptyRow.style.display = visibleCount === 0 ? '' : 'none';
+					html += '<button class="pg-btn" data-page="next"' +
+							(currentPage >= totalPages ? ' disabled' : '') + '>' +
+							'<i class="feather feather-chevron-right" style="font-size:14px;"></i></button>';
+
+					paginationNav.innerHTML = html;
 				}
 
-				filter.addEventListener('change', applyFilters);
-				searchInput.addEventListener('input', applyFilters);
-				clearFilters.addEventListener('click', function() {
-					filter.value = '';
-					searchInput.value = '';
-					applyFilters();
+				function buildPageNumbers(current, total) {
+					if (total <= 7) return Array.from({length: total}, function (_, i) { return i + 1; });
+					const pages = [];
+					pages.push(1);
+					if (current > 3) pages.push('...');
+					for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+						pages.push(i);
+					}
+					if (current < total - 2) pages.push('...');
+					pages.push(total);
+					return pages;
+				}
+
+				/* ── Pagination click handler ─────────────────────── */
+				paginationNav.addEventListener("click", function (e) {
+					const btn = e.target.closest(".pg-btn");
+					if (!btn || btn.disabled) return;
+					const val = btn.dataset.page;
+					const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+					if (val === "prev")      currentPage = Math.max(1, currentPage - 1);
+					else if (val === "next") currentPage = Math.min(totalPages, currentPage + 1);
+					else                     currentPage = parseInt(val, 10);
+					renderPage();
 				});
 
+				/* ── Page-size change ─────────────────────────────── */
+				pageSizeSelect.addEventListener("change", function () {
+					pageSize    = parseInt(pageSizeSelect.value, 10);
+					currentPage = 1;
+					renderPage();
+				});
+
+				/* ── INIT ─────────────────────────────────────────── */
 				applyFilters();
+				searchInput.addEventListener("input",      applyFilters);
+				$('#filterProvincia').on('change', applyFilters);
+				filterEstado.addEventListener("change",    applyFilters);
 			});
 		</script>
 	</div>

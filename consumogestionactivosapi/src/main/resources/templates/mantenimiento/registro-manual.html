@@ -73,8 +73,8 @@
                             <option th:each="equipo : ${listaequipos}"
                                     th:value="${equipo.idEquipo}"
                                     th:selected="${#lists.contains(equiposPreseleccionados, equipo.idEquipo)}"
-                                    th:text="${(equipo.codigoSap ?: 'Cod. Interno') + ' - ' + (equipo.tipoEquipo ?: 'Equipo') + ' - ' + (equipo.modelo ?: '')}"
-                                    th:attr="data-label=${(equipo.codigoSap ?: '') + ' ' + (equipo.tipoEquipo ?: '') + ' ' + (equipo.modelo ?: '') + ' ' + (equipo.serial ?: '')},
+                                    th:text="${(equipo.codigoSap ?: 'Cod. Interno') + ' - ' + (equipo.modelo ?: '')}"
+                                    th:attr="data-label=${(equipo.codigoSap ?: '') + ' ' + (equipo.modelo ?: '') + ' ' + (equipo.serial ?: '')},
                                              data-custodios=${custodiosPorEquipo[equipo.idEquipo] ?: ''}">
                             </option>
                         </select>

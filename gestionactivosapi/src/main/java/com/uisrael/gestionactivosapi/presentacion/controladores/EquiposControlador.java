@@ -98,13 +98,6 @@ public class EquiposControlador {
 		return ResponseEntity.ok(existe);
 	}
 
-	@GetMapping("/existe-ip")
-	public ResponseEntity<Boolean> existeIP(@RequestParam String ip, @RequestParam(required = false) Integer id) {
-		boolean existe = (id == null) ? equiposUseCase.existeIP(ip) : equiposUseCase.existeIPParaOtro(ip, id);
-
-		return ResponseEntity.ok(existe);
-	}
-
 	@GetMapping("/existe-mac")
 	public ResponseEntity<Boolean> existeMAC(@RequestParam String mac, @RequestParam(required = false) Integer id) {
 		boolean existe = (id == null) ? equiposUseCase.existeMAC(mac) : equiposUseCase.existeMACParaOtro(mac, id);

@@ -66,11 +66,12 @@
             </div>
 
             <div class="pl-filters">
-                <select id="filtroTecnico" onchange="filtrarActividades()">
+                <input id="searchInput" type="text" placeholder="Buscar actividad..." style="max-width:200px">
+                <select id="filtroTecnico">
                     <option value="">Todos los técnicos</option>
                     <option th:each="t : ${tecnicos}" th:value="${t.idUsuario}" th:text="${t.nombre}"></option>
                 </select>
-                <select id="filtroEstado" onchange="filtrarTabla()">
+                <select id="filtroEstado">
                     <option value="">Todos los estados</option>
                     <option value="PENDIENTE">Pendiente</option>
                     <option value="EN_PROGRESO">En progreso</option>
@@ -78,7 +79,7 @@
                     <option value="VENCIDA">Vencida</option>
                     <option value="CANCELADA">Cancelada</option>
                 </select>
-                <select id="filtroTipo" onchange="filtrarTabla()">
+                <select id="filtroTipo">
                     <option value="">Todos los tipos</option>
                     <option value="TAREA_DIARIA">Tarea diaria</option>
                     <option value="TAREA_SEMANAL">Tarea semanal</option>
@@ -86,6 +87,7 @@
                     <option value="VISITA_TECNICA">Visita técnica</option>
                     <option value="OBJETIVO_MENSUAL">Objetivo mensual</option>
                 </select>
+                <span style="margin-left:auto;font-size:13px;color:var(--pl-muted)"><span id="rowCount">0</span> actividades</span>
             </div>
 
             <div class="pl-table-wrap">
@@ -103,8 +105,8 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr th:each="a : ${actividades}"
+                    <tbody id="actividadesTbody">
+                        <tr class="fila-actividad" th:each="a : ${actividades}"
                             th:data-tecnico="${a.tecnicoId}"
                             th:data-estado="${a.estado}"
                             th:data-tipo="${a.tipoActividad}">
@@ -149,24 +151,30 @@
             <div th:if="${#lists.isEmpty(actividades)}" class="pl-empty">
                 No hay actividades planificadas aún.
             </div>
+
+            <div class="pagination-bar" style="padding:10px 18px;border-top:1px solid var(--pl-line)">
+                <div class="page-size-wrap">Mostrar <select id="pageSizeSelect"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select> filas</div>
+                <div class="pagination-info" id="paginationInfo"></div>
+                <div class="pagination-nav" id="paginationNav"></div>
+            </div>
         </div>
     </div>
 </div>
 
 <th:block layout:fragment="scripts">
 <script>
-function filtrarTabla() {
-    const estado = document.getElementById('filtroEstado').value;
-    const tipo = document.getElementById('filtroTipo').value;
-    const tecnico = document.getElementById('filtroTecnico').value;
-    document.querySelectorAll('#tablaActividades tbody tr').forEach(row => {
-        const matchEstado = !estado || row.dataset.estado === estado;
-        const matchTipo = !tipo || row.dataset.tipo === tipo;
-        const matchTecnico = !tecnico || row.dataset.tecnico === tecnico;
-        row.style.display = (matchEstado && matchTipo && matchTecnico) ? '' : 'none';
-    });
-}
-function filtrarActividades() { filtrarTabla(); }
+document.addEventListener('DOMContentLoaded', function() {
+  var searchInput=document.getElementById("searchInput"),filtroTecnico=document.getElementById("filtroTecnico"),filtroEstado=document.getElementById("filtroEstado"),filtroTipo=document.getElementById("filtroTipo"),rowCountEl=document.getElementById("rowCount"),pageSizeSelect=document.getElementById("pageSizeSelect"),paginationInfo=document.getElementById("paginationInfo"),paginationNav=document.getElementById("paginationNav");
+  var allRows=Array.from(document.querySelectorAll("#actividadesTbody .fila-actividad")),filteredRows=[],currentPage=1,pageSize=parseInt(pageSizeSelect.value,10);
+  if(typeof $!=='undefined'&&$.fn.select2){$('#filtroTecnico').select2({width:'200px'})}
+  function applyFilters(){var t=searchInput.value.trim().toLowerCase(),tec=filtroTecnico.value,est=filtroEstado.value,tip=filtroTipo.value;filteredRows=allRows.filter(function(r){if(t&&r.textContent.toLowerCase().indexOf(t)<0)return false;if(tec&&r.getAttribute("data-tecnico")!==tec)return false;if(est&&r.getAttribute("data-estado")!==est)return false;if(tip&&r.getAttribute("data-tipo")!==tip)return false;return true});currentPage=1;renderPage()}
+  function renderPage(){var total=filteredRows.length,tp=Math.max(1,Math.ceil(total/pageSize));if(currentPage>tp)currentPage=tp;var s=(currentPage-1)*pageSize,e=Math.min(s+pageSize,total),ps=new Set(filteredRows.slice(s,e));allRows.forEach(function(r){r.style.display=ps.has(r)?"":"none"});rowCountEl.textContent=total;paginationInfo.innerHTML=total===0?"Sin resultados":"<strong>"+(s+1)+"</strong> \u2013 <strong>"+e+"</strong> de <strong>"+total+"</strong>";renderPaginationNav(tp)}
+  function renderPaginationNav(tp){var h='<button class="pg-btn" data-page="prev"'+(currentPage<=1?' disabled':'')+'>&#9664;</button>';buildPN(currentPage,tp).forEach(function(p){if(p==='...')h+='<span class="pg-ellipsis">&hellip;</span>';else h+='<button class="pg-btn'+(p===currentPage?' active':'')+'\" data-page="'+p+'">'+p+'</button>'});h+='<button class="pg-btn" data-page="next"'+(currentPage>=tp?' disabled':'')+'>&#9654;</button>';paginationNav.innerHTML=h}
+  function buildPN(c,t){if(t<=7)return Array.from({length:t},function(_,i){return i+1});var p=[1];if(c>3)p.push('...');for(var i=Math.max(2,c-1);i<=Math.min(t-1,c+1);i++)p.push(i);if(c<t-2)p.push('...');p.push(t);return p}
+  paginationNav.addEventListener("click",function(ev){var b=ev.target.closest(".pg-btn");if(!b||b.disabled)return;var v=b.dataset.page,tp=Math.max(1,Math.ceil(filteredRows.length/pageSize));if(v==="prev")currentPage=Math.max(1,currentPage-1);else if(v==="next")currentPage=Math.min(tp,currentPage+1);else currentPage=parseInt(v,10);renderPage()});
+  pageSizeSelect.addEventListener("change",function(){pageSize=parseInt(this.value,10);currentPage=1;renderPage()});
+  searchInput.addEventListener("input",applyFilters);$('#filtroTecnico').on('change',applyFilters);filtroEstado.addEventListener("change",applyFilters);filtroTipo.addEventListener("change",applyFilters);applyFilters();
+});
 </script>
 </th:block>
 </body>

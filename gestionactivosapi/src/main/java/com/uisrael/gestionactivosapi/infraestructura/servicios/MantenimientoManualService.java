@@ -141,6 +141,22 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
                 .toList();
     }
 
+    public List<MantenimientoManualResponseDTO> listarPorTecnico(Integer tecnicoId) {
+        return mantenimientosRepo.findByIdUsuarioOrderByCreadoEnDesc(tecnicoId).stream()
+                .map(m -> toDto(m, false))
+                .toList();
+    }
+
+    public Pagina<MantenimientoManualResponseDTO> listarPorTecnicoPaginado(Integer tecnicoId, int pagina, int tamanio) {
+        Page<MantenimientosJpa> page = mantenimientosRepo
+                .findByIdUsuarioOrderByFechaProgramadaDescIdMantenimientoDesc(tecnicoId, PageRequest.of(pagina, tamanio));
+        List<MantenimientoManualResponseDTO> contenido = page.getContent().stream()
+                .map(m -> toDto(m, false))
+                .toList();
+        return new Pagina<>(contenido, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages());
+    }
+
     public MantenimientoManualResponseDTO obtenerDetalle(Integer idMantenimiento) {
         MantenimientosJpa mantenimiento = mantenimientosRepo.findById(idMantenimiento)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mantenimiento no encontrado"));
@@ -284,7 +300,7 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
                 .equipoId(mantenimiento.getEquipoId())
                 .equipoCodigoSap(mantenimiento.getFkEquipo() != null ? mantenimiento.getFkEquipo().getCodigoSap() : null)
                 .equipoDescripcion(mantenimiento.getFkEquipo() != null
-                        ? (mantenimiento.getFkEquipo().getTipoEquipo() + " " + mantenimiento.getFkEquipo().getModelo())
+                        ? mantenimiento.getFkEquipo().getModelo()
                         : null)
                 .custodioId(mantenimiento.getIdCliente())
                 .custodioNombre(mantenimiento.getFkCliente() != null ? mantenimiento.getFkCliente().getNombre() : null)

@@ -128,11 +128,6 @@ public class EquiposControlador {
 
 		boolean hayErrores = false;
 
-		if (equipo.getTipoEquipo() == null || equipo.getTipoEquipo().trim().isEmpty()) {
-			model.addAttribute("errorTipoEquipo", "El tipo de equipo es obligatorio");
-			hayErrores = true;
-		}
-
 		if (equipo.getModelo() == null || equipo.getModelo().trim().isEmpty()) {
 			model.addAttribute("errorModelo", "El modelo es obligatorio");
 			hayErrores = true;
@@ -150,28 +145,6 @@ public class EquiposControlador {
 		if (equipo.getFkCategoria().getIdCategoria() <= 0) {
 			model.addAttribute("errorCategoria", "Debe seleccionar una categoría");
 			hayErrores = true;
-		}
-
-		boolean ipRepetida;
-		if (equipo.getIp() != null && !equipo.getIp().isBlank()) {
-
-			if (equipo.getIdEquipo() > 0) {
-				// edición
-				ipRepetida = servicioEquipos.existeIPParaOtro(equipo.getIp().trim(), equipo.getIdEquipo());
-			} else {
-				// creación
-				ipRepetida = servicioEquipos.existeIP(equipo.getIp().trim());
-			}
-
-			if (ipRepetida) {
-				model.addAttribute("errorIp", "Ya existe un equipo con esa dirección IP");
-				hayErrores = true;
-			}
-
-			if (!esIpValida(equipo.getIp())) {
-				model.addAttribute("errorIp", "La IP no tiene un formato válido");
-				hayErrores = true;
-			}
 		}
 
 		boolean serialRepetido;
@@ -283,16 +256,6 @@ public class EquiposControlador {
 				.filter(u -> u.isEstado()).collect(Collectors.toList()));
 	}
 
-	public static boolean esIpValida(String ip) {
-		if (ip == null || ip.isBlank()) {
-			return false;
-		}
-
-		String regexIp = "^((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}" + "(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$";
-
-		return ip.matches(regexIp);
-	}
-
 	public static boolean esMacValida(String mac) {
 		if (mac == null || mac.isBlank()) {
 			return false;
@@ -304,49 +267,26 @@ public class EquiposControlador {
 	}
 
 	@GetMapping("/reporte-equipo")
-	public String listarEquiposReporte(@RequestParam(required = false) String tipo, Model model) {
+	public String listarEquiposReporte(Model model) {
 
 		List<EquiposResponseDTO> contenidoBD = servicioEquipos.listarEquipos();
-
-		// lista de tipos únicos (antes de filtrar)
-		List<String> listaTipos = contenidoBD.stream().map(EquiposResponseDTO::getTipoEquipo)
-				.filter(t -> t != null && !t.trim().isEmpty()).map(String::trim).distinct()
-				.sorted(String.CASE_INSENSITIVE_ORDER).toList();
-
-		// filtrar si viene tipo
-		if (tipo != null && !tipo.trim().isEmpty()) {
-			String t = tipo.trim();
-			contenidoBD = contenidoBD.stream()
-					.filter(e -> e.getTipoEquipo() != null && e.getTipoEquipo().trim().equalsIgnoreCase(t)).toList();
-		}
 
 		contenidoBD = contenidoBD.stream().sorted(Comparator.comparing(EquiposResponseDTO::getIdEquipo)).toList();
 
 		model.addAttribute("listarequipos", contenidoBD);
-		model.addAttribute("listaTipos", listaTipos);
-		model.addAttribute("tipoSeleccionado", tipo);
 
 		return "Equipos/reporteEquipos";
 	}
 
 	@GetMapping("/reporte-equipo/excel")
-	public ResponseEntity<byte[]> descargarExcelEquipos(@RequestParam(required = false) String tipo) {
+	public ResponseEntity<byte[]> descargarExcelEquipos() {
 
 		List<EquiposResponseDTO> data = servicioEquipos.listarEquipos();
 
-		// Mismo filtro que en la vista
-		if (tipo != null && !tipo.trim().isEmpty()) {
-			String t = tipo.trim().toLowerCase();
-			data = data.stream()
-					.filter(e -> e.getTipoEquipo() != null && e.getTipoEquipo().trim().toLowerCase().equals(t))
-					.toList();
-		}
-
-		byte[] excelBytes = equiposExcelService.generarReporteExcel(data, tipo);
+		byte[] excelBytes = equiposExcelService.generarReporteExcel(data, null);
 
 		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-		String suf = (tipo != null && !tipo.isBlank()) ? "_" + tipo.trim().toLowerCase() : "";
-		String filename = "reporte_equipos" + suf + "_" + timestamp + ".xlsx";
+		String filename = "reporte_equipos_" + timestamp + ".xlsx";
 
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)

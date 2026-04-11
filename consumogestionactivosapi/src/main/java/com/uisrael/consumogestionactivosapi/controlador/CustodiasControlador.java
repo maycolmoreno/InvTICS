@@ -537,8 +537,8 @@ public class CustodiasControlador {
 		if (tipoMov == null || tipoMov.isBlank())
 			tipoMov = "ASIGNACION";
 
-		String nombreEntrega = sesionUsuario.getNombreUsuario();
-		String deptoEntrega = null;
+		String nombreEntrega = sesionUsuario.getNombre();
+		String deptoEntrega = sesionUsuario.getDepartamento();
 		if ("TRASLADO".equals(tipoMov)) {
 			CustodiosResponseDTO origen = buscarCustodioOrigenTraslado(lista);
 			if (origen != null) {
@@ -586,8 +586,8 @@ public class CustodiasControlador {
 		if (tipoMov == null || tipoMov.isBlank())
 			tipoMov = "ASIGNACION";
 
-		String nombreEntrega = sesionUsuario.getNombreUsuario();
-		String deptoEntrega = null;
+		String nombreEntrega = sesionUsuario.getNombre();
+		String deptoEntrega = sesionUsuario.getDepartamento();
 		if ("TRASLADO".equals(tipoMov)) {
 			CustodiosResponseDTO origen = buscarCustodioOrigenTraslado(lista);
 			if (origen != null) {
@@ -627,8 +627,8 @@ public class CustodiasControlador {
 			tipoMov = "ASIGNACION";
 
 		try {
-			String nombreEntrega = sesionUsuario.getNombreUsuario();
-			String deptoEntrega = null;
+			String nombreEntrega = sesionUsuario.getNombre();
+			String deptoEntrega = sesionUsuario.getDepartamento();
 			if ("TRASLADO".equals(tipoMov)) {
 				CustodiosResponseDTO origen = buscarCustodioOrigenTraslado(lista);
 				if (origen != null) {

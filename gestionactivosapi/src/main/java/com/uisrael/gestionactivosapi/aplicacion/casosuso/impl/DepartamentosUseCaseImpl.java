@@ -48,7 +48,7 @@ public class DepartamentosUseCaseImpl implements IDepartamentosUseCase {
 			throw new DuplicidadException("Ya existe otro departamento con ese nombre");
 		}
 
-		Departamentos actualizado = new Departamentos(id, departamento.getNombre(), departamento.isEstado());
+		Departamentos actualizado = new Departamentos(id, departamento.getNombre(), departamento.getTipo(), departamento.isEstado());
 
 		return departamentoRepositorio.actualizar(id, actualizado);
 	}
@@ -62,7 +62,7 @@ public class DepartamentosUseCaseImpl implements IDepartamentosUseCase {
 
 		// ✅ Solo cambia el estado, mantiene nombre/agencia
 		Departamentos actualizado = new Departamentos(actual.getIdDepartamento(),
-				actual.getNombre(), estado);
+				actual.getNombre(), actual.getTipo(), estado);
 
 		return departamentoRepositorio.actualizarEstado(id, actualizado);
 	}

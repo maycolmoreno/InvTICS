@@ -311,7 +311,6 @@ public class CorreoServicio {
 
 		String equipoId = equipo != null ? String.valueOf(equipo.getIdEquipo()) : "-";
 		String codigoSap = (equipo != null && equipo.getCodigoSap() != null) ? equipo.getCodigoSap() : "-";
-		String tipoEquipo = (equipo != null && equipo.getTipoEquipo() != null) ? equipo.getTipoEquipo() : "-";
 		String modelo = (equipo != null && equipo.getModelo() != null) ? equipo.getModelo() : "-";
 		String serial = (equipo != null && equipo.getSerial() != null) ? equipo.getSerial() : "-";
 		String marca = (equipo != null && equipo.getFkMarca() != null && equipo.getFkMarca().getNombre() != null)
@@ -333,10 +332,6 @@ public class CorreoServicio {
 				    </tr>
 				    <tr>
 				      <td style="padding: 6px 8px; border: 1px solid #e5e7eb;">Codigo SAP</td>
-				      <td style="padding: 6px 8px; border: 1px solid #e5e7eb;">%s</td>
-				    </tr>
-				    <tr>
-				      <td style="padding: 6px 8px; border: 1px solid #e5e7eb;">Tipo</td>
 				      <td style="padding: 6px 8px; border: 1px solid #e5e7eb;">%s</td>
 				    </tr>
 				    <tr>
@@ -378,7 +373,7 @@ public class CorreoServicio {
 				    No responda a este correo.
 				  </p>
 				</div>
-				""".formatted(equipoId, codigoSap, tipoEquipo, modelo, serial, marca, categoria,
+				""".formatted(equipoId, codigoSap, modelo, serial, marca, categoria,
 						estadoEquipo, fechaStr, tipoStr, detalleStr);
 
 		try {

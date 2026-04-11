@@ -16,7 +16,6 @@ class EquiposScreen extends StatefulWidget {
 class _EquiposScreenState extends State<EquiposScreen> {
   final _searchController = TextEditingController();
   String _estado = 'todos';
-  String _tipo = 'todos';
   String _custodio = 'todos';
   String _ubicacion = 'todos';
   late Future<List<EquipoListItem>> _future;
@@ -72,33 +71,6 @@ class _EquiposScreenState extends State<EquiposScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(
-              child: FutureBuilder<List<EquipoListItem>>(
-                future: _future,
-                builder: (context, snapshot) {
-                  final tipos = _tipos(snapshot.data ?? const []);
-                  return DropdownButtonFormField<String>(
-                    initialValue: _tipo,
-                    decoration: const InputDecoration(labelText: 'Tipo'),
-                    items: [
-                      const DropdownMenuItem(
-                          value: 'todos', child: Text('Todos')),
-                      ...tipos.map(
-                        (tipo) =>
-                            DropdownMenuItem(value: tipo, child: Text(tipo)),
-                      ),
-                    ],
-                    onChanged: (value) =>
-                        setState(() => _tipo = value ?? 'todos'),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
             Expanded(
               child: FutureBuilder<List<EquipoListItem>>(
                 future: _future,
@@ -204,7 +176,6 @@ class _EquiposScreenState extends State<EquiposScreen> {
                         title: Text(equipo.codigoSap),
                         subtitle: Text(
                           [
-                            _text(equipo.tipoEquipo),
                             _text(equipo.modelo),
                             'Serial: ${_text(equipo.serial)}',
                             'Custodio: ${_text(equipo.custodioNombre, fallback: 'Sin custodio')}',
@@ -258,8 +229,6 @@ class _EquiposScreenState extends State<EquiposScreen> {
     return items.where((item) {
       final estadoOk =
           _estado == 'todos' || item.estadoEquipo.toUpperCase() == _estado;
-      final tipoOk = _tipo == 'todos' ||
-          item.tipoEquipo.toUpperCase() == _tipo.toUpperCase();
       final custodioOk = _custodio == 'todos' ||
           item.custodioNombre.toUpperCase() == _custodio.toUpperCase();
       final ubicacionOk = _ubicacion == 'todos' ||
@@ -268,26 +237,14 @@ class _EquiposScreenState extends State<EquiposScreen> {
         _text(item.codigoSap),
         _text(item.serial),
         _text(item.modelo),
-        _text(item.tipoEquipo),
         _text(item.procesador),
-        _text(item.ip),
         _text(item.mac),
         _text(item.custodioNombre),
         _text(item.ubicacionNombre),
       ].join(' ').toLowerCase();
       final searchOk = query.isEmpty || haystack.contains(query);
-      return estadoOk && tipoOk && custodioOk && ubicacionOk && searchOk;
+      return estadoOk && custodioOk && ubicacionOk && searchOk;
     }).toList();
-  }
-
-  List<String> _tipos(List<EquipoListItem> items) {
-    final tipos = items
-        .map((item) => _text(item.tipoEquipo, fallback: ''))
-        .where((item) => item.isNotEmpty)
-        .toSet()
-        .toList();
-    tipos.sort();
-    return tipos;
   }
 
   List<String> _custodios(List<EquipoListItem> items) {

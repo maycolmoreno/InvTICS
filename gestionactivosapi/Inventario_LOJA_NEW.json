@@ -1,0 +1,5466 @@
+[
+  {
+    "ubicacion": "MALA1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16441621",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16422340",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16422342",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17421260",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2715AVHOM87BF00128",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2715AVHOM87BF00497",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2715AVHOM87BF00498",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2715AVHOM87BF00127",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2820CVHOM87BF02155",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "0EC7030057022400122",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "164U1170801050",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "X2P4218012",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ2109019K",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "71B106433F36",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRGB1A001753",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRH81A004744",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRH81A005057",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI11A002538",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL7232ZGX",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL7311YP2",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL7311YPY",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8351GTD",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU034478",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALA1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU032356",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800037",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "KXEH7BR800053",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "4ce315b22m",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR801015",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "L3210 MULTIFUNCION",
+    "serial": "XAGB431253",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU029786",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "GRANDSTREAM",
+    "categoria": "TELEFONO IP",
+    "modelo": "GRP2602 ",
+    "serial": "GRP2602",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "HD908BXWJAF/241/R3",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "Intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "BTTN24100Q5J",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "Intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA239002UQ",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA239003D9",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "9B2310A04730",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "9B2310A04847,",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "9B2310A04848,",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "9B2310A04850",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector 3NSTAR Lineal 2D",
+    "serial": "8532110050804723",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector 3NSTAR Lineal 2D",
+    "serial": "8532110050804727",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector 3NSTAR Lineal 2D",
+    "serial": "8532110050804728",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "mala2",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "222B0J8000078",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P15372",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P00903",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2020P27138",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P01050",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "GRANDSTREAM",
+    "categoria": "TELEFONO IP",
+    "modelo": "GRP2602P",
+    "serial": "9620010514A",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": "PRODESK HP 400 G5 I5-8500 8GB/1TB",
+    "serial": "MXL0513Z4R",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": "PRODESK HP 400 G5 I5-8500 8GB/1TB",
+    "serial": "MXL0513Z3N",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "L3110 MULTIFUNCION",
+    "serial": "X644566297",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "BYRQ195160183",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20302010557242",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20302010557262",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20219010550425",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL61A001553",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL71A001135",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL71A001007",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BE045000KY",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hEX",
+    "serial": "C55D0B57BA19",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "RouterBOARD cAP",
+    "serial": "8D5F0988D461",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": null,
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MALU1",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "244U2190900515",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ194708XV",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": "HP ProDesk 400 G4",
+    "serial": "MXL8161GP1",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": "PRODESK 400 G4 ",
+    "serial": "MXL7271T88",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL0513Z39",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "DELL",
+    "categoria": null,
+    "modelo": "VOSTRO  3470",
+    "serial": "5Q85SZ2",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL9216PP7",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "L3210 MULTIFUNCION",
+    "serial": "X8HJ009317",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "Z7AU024169",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D079595",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU002695",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU013103",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU015822",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector 3NSTAR Lineal 2D",
+    "serial": "8532110050871149",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector 3NSTAR Lineal 2D",
+    "serial": "8532110050622783",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector 3NSTAR Lineal 2D",
+    "serial": "8532110050622780",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": "C",
+    "serial": "A8JY174360065",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V15431090",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V15431064",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "JBUG61A000905",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRK51A000029",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "JBUG61A000914",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "JBUG61A000911",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRGB1A001206",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2823CVHOM87BF01961",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2828BPBOM87A800567",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2828BPBOM87A801835",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2915AVLOM87C900451",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "66178538CC54/530",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "2174488001918",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2139A06937",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B1940A00001",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC001",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2120A31085",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU022107",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800990",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800999",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "1CZ12005KS",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR801017",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU015700",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "L3110 MULTIFUNCION",
+    "serial": "X644802414",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050520611",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050520619",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050520622",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "22183E6000090",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "D3D90C4E0249/033/r2",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ1849036X",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": "LECTOR DE HUELLA DIGITAL ZKTECO",
+    "serial": "EC400ZKT02",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2120A30957",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2120A30993",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2120A31218",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2124A06416",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6FN138009LC",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6FN137000GR",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MC002",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6FN137001AQ",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CC0194708XV",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BN851000EA",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "0EC7030057022400006",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "DELL",
+    "categoria": "COMPUTADORA",
+    "modelo": "Computador I5 Dell",
+    "serial": "55BVCV2",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "CLON",
+    "categoria": null,
+    "modelo": "Computador I5 Clon",
+    "serial": "MCAR1-A",
+    "estado_equipo": "MALO"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "CLON",
+    "categoria": null,
+    "modelo": "Computador I5 Clon",
+    "serial": "MCAR1-B",
+    "estado_equipo": "MALO"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8502HZV",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8180W04",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801710000283",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU013118",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D042372",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D077050",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU023418",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU013118",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "X2P4022998",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16141879",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16143305",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V15431049",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351290",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V18380401",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRH81A004720",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRGA1A001029",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRGB1A001946",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRGA1A000741",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI11A005847",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2547CPBOM87A900422",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2651AVHOM879D03789",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2651AVHOM879D03760",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2805CVHOM87BF01796",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2828BPBOM87A801775",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2915AVLOM87C901139",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "71B10605CD30/649",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "DLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "S33Q3H1000271",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P15334",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P15423",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P15109",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P15332",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ2414030F",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": "PRODESK HP 400 G5 I5-8500 8GB/1TB",
+    "serial": "MXL0513Z3Q",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": "PRODESK HP 400 G5 I5-8500 8GB/1TB",
+    "serial": "MXL0513Z3W",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "L3110 MULTIFUNCION",
+    "serial": "X644602064",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "BYRQ194260034",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20302010557263",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20302010557269",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20302010557198",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL71A001506",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL71A001140",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL61A001368",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU002692",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU002711",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BE04500JEM",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "C55D0B42C7FE",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "RouterBOARD cAP",
+    "serial": "8D5F0932CAB7",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR2",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "244U2190900367",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ213701ZQ",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "DELL",
+    "categoria": null,
+    "modelo": null,
+    "serial": "DCRP8B3",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8071J2J",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8071J1W",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "DELL",
+    "categoria": null,
+    "modelo": null,
+    "serial": "B3X63Y2",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8071T0T",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "81200801710000668",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801710000666",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU025120",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "X2P4270569",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": "LECTOR DE HUELLA DIGITAL ZKTECO",
+    "serial": "A8JY174960065",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17180351",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16490960",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16490929",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": null,
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S21073010553888",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRLB1A000529",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRHB1A003274",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRHB1A001434",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYE91A0043006",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "71B10686611C",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": null,
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "164U1170801102",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2907AVLOM87C901213",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF01682",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF00972",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF00973",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF00933",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2052P19695",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAR1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2139A06462",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2052P20011",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "VR4230120628PARA",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "VIEWSONIC",
+    "categoria": "MONITOR",
+    "modelo": null,
+    "serial": "VR4230120675PARA",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "4CE307BRGX",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "VIEWSONIC",
+    "categoria": "MONITOR",
+    "modelo": null,
+    "serial": "VR4230120735",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU032319",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": null,
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "NSLECCODSC402",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "RB951UI-2HND",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "XAGB478059",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": " L3210 MULTIFUNCION",
+    "serial": null,
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA23900320",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MCAT2",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA239003AG",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2828DPB0M87A801772",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2449AY0OM879D00423",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "22044P9002408",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "665954D6564/613",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF21A001888",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYE91A004340",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYE91A004335",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14441107",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14232075",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14232182",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "EPSON L3210",
+    "serial": "X8HJ023817",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8110801612000410",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": null,
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ2043065Q",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6FN14900BG0",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL9216PNS",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU014560",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D079590",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL93929R9",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14441107",
+    "estado_equipo": "Usado"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRHB1A000903",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BN851005HC",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2828DPB0M87A801773",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2449AY0OM879D00424",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "22044P9002409",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "665954D6564/614",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF21A001889",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYE91A004330",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYE91A004325",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14441107",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14232075",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14232182",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "EPSON L3210",
+    "serial": "X8HJ023818",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8110801612000410",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": null,
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ2043065Q",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "1KVA",
+    "serial": "9B2139A06940",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "APC 1KVA",
+    "serial": "9B2139A06402",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "1KVA",
+    "serial": "9B2139A06941",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML001",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "APC 1KVA",
+    "serial": "9B2139A06403",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "2144531001236",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "6659056172AD/613",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF41A000898",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF41A000897",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF41A000895",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14441234",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14441102",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14441183",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "6422153300036",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ20433062F",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL7232XM3",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "DELL",
+    "categoria": "COMPUTADORA",
+    "modelo": "Computador I5 Dell",
+    "serial": "CDN0BZ2",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D042329",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2915AVLOM87C901140",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "EPSON L3110",
+    "serial": "X644391090",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D042329",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "1CZ110031B",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU014547",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2907AVL0M87C901226",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BN85100Z8J",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2052P19694",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML002",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "1KVA",
+    "serial": "9B2139A06412",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2709AVHOM879D01618",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2449AVHOM879D05180",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": null,
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14410806",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14441186",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V14441245",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16392769",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": null,
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "71B106D4ED32/649",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "JBUF21A002475",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF41A000894",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF41A000896",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRGB1A001164",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL9232JM",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL72721PK",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ2128080O",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D082821",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2915AVLOM87C901120",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "1CZ11002YM",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "EPSON L3110",
+    "serial": "X644664378",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU015008",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU002676",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39DO79356",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "DELL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "2L5KJ13",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BN85100073",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "9B2133A14696",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML003",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2052P19691",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2828BPBOM87A801833",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2820CVHOM87BF00056",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "0EC6090056090700097",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801511000550",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "HP",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "1CZ1230D68",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "CLON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "ML004-C",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16091050",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16091030",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16091066",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V18522559",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "MR164U1151100135",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "WBJK133924",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU030528",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D077048",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ204304U5",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "71B106C47F17/649",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF21A003433",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF21A001617",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "DTYF21A001608",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRIB1A000611",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL9152JWL",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "AVR750U",
+    "serial": "2915AVLOM87C901122",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "1CZ11002SC",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BN8510103W",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "4B1842P39429",
+    "estado_equipo": "NUEVO"
+  },
+  {
+    "ubicacion": "ML004",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "4B1842P39396",
+    "estado_equipo": "NUEVO"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF01674",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF00946",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF01702",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "164U1170801775",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "78A9062289CA/737",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRHB1A000921",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRHB1A002824",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351194",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351108",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "X4D9094117",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801709000180",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801710000600",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "A8JY174960075",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ214701HL",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8180W0J",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8162KKZ",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML005",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BN851005TP",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2738CVHOM87BF01026",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF01669",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2738CVHOM87BF01029",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF00885",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "164U1170801229",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "78A90712AD91",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR801027Z",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI11A005856",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI11A005888",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351267",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351282",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351283",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "EPSON L4150",
+    "serial": "X4D9125830",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801710000282",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU023496",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "A8JY181760038",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ214701F0",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL819289C",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8192898",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL819289D",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "UBIQUITI",
+    "categoria": "RED",
+    "modelo": "UniFi AP",
+    "serial": "7483C2966981",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BN851000B4",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "UBIQUITI",
+    "categoria": "RED",
+    "modelo": "UniFi AP",
+    "serial": "7483C2966981",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML006",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2139A06388",
+    "estado_equipo": "RACK"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2820CVHOM87BF02178",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2820CVHOM87BF02179",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2820CVHOM87BF02126",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2820CVHOM87BF02179",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "22044P9002367",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "78A908F98852/743",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI31A003023",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI31A002972",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI31A003043",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351088",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351093",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351050",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "X34N439095",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801709000285",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU013060",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "A8JY182560005",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ212807SJ",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8292GLG",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8331P6N",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8331P39",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML007",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BN806003LM",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20086010555743",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20086010555737",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "BYRQ195160238",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "164U1181201866",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "EPSON L3110",
+    "serial": "X644390623",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D070189",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D070190",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BE00200P6P",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ204304P3",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000995",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000810",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000630",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL9514ZK4",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL01929QY",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL0101TJ7",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "924B0ADC3D2C",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1842P39245",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1842P39207",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1944P06066",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML008",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1944P06067",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S19343010556932",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20086010555765",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S19343010556859",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "BYRQ195160251",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "221C2Y7001491",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "EPSON L3110",
+    "serial": "X644391063",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D070181",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D070186",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BE00200NKL",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ224702X2",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000641",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000987",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000985",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL09514Z6R",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL93929XY",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL0101TJK",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "924B0A0A6CA2",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1942P21193",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1942P21186",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1944P06134",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML009",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1944P06140",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20086010555775",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20086010555759",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20051010555016",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "BYRQ195160243",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "244U2180101753",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "EPSON L3110",
+    "serial": "X644391099",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D070185",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D070133",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BE015006M4",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ22470308",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "RouterBOARD cAP",
+    "serial": "8D5F0A20F591",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hEX",
+    "serial": "8B000ABA1AF7",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000211",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000143",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000133",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL9361WKZ",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL926478D",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL926475M",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1944P06782",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1944P06064",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1943P27761",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML010",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1933P21104",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": null,
+    "marca": null,
+    "categoria": null,
+    "modelo": null,
+    "serial": null,
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20219010552592",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20219010556349",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20220010554626",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "BYRQ195160236",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "244U2190900614",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "EPSON L3110",
+    "serial": "X644565363",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D042386",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU002680",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BE01200NG8",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ23291HLV",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "RouterBOARD cAP",
+    "serial": "8D5F0A16BE1F",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hEX",
+    "serial": "C55D0BAC32C3",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000028",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000662",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL31A000027",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL03431CX",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL03431DY",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL94920F1",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1906P01739",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1906P01743",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1906P01742",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML011",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B1906P01809",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800127",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800128",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "4CE301BKK7",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800631",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": " L3210 MULTIFUNCION",
+    "serial": "XAGB478114",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU032296",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050871151",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050871159",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050871162",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": null,
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "GRANDSTREAM",
+    "categoria": "TELEFONO IP",
+    "modelo": "GRP2602 ",
+    "serial": "20EZ4N9N60A4D6EB",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "HD9080Q2CJP/241/R3",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "BTTN2440048Y",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "BTTN244004UU",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "220742501345",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "220742501380",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "220842500514",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML013",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "220842500516",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800024",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800115",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "4CE301BKKT",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800608",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": " L3210 MULTIFUNCION",
+    "serial": "XAGB478209",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050871156",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050871160",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050871163",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "222B0J8000073",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "GRANDSTREAM",
+    "categoria": "TELEFONO IP",
+    "modelo": "GRP2602 ",
+    "serial": "HD9086ZQKQQ/241/R3",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "G6PA24500ABK",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "BTTN243002BN",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "BTTN244002X4",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "BTTN244003BP",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": ":X7AU032359",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "220742501324",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "220742501326",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "220742501378",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML014",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "220742501379",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "G6PA239002UH",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4CE307D2JN",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "4KXEH7BR801031",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "XAGB490207",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": " L3210 MULTIFUNCION",
+    "serial": "9B2310A04879",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050805140",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050805140",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "222A140001966",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "20EZ4N9N60A4D723",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "GRANDSTREAM",
+    "categoria": "TELEFONO IP",
+    "modelo": "GRP2602 ",
+    "serial": "20EZ4N9N60A4D723",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "HE208KZR2B8",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA24500ABK",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA239003DV",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA239002UH",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU034512",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "9B2310A04880",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML015",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "8532110050805140",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800016/",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800049",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "4CE315BM1T",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800825/",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": " L3210 MULTIFUNCION",
+    "serial": "XAGC270082",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2317A13163",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2317A13164",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2317A13165",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2317A13162",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050932508",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050932504",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050932598",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "222C3H5000395",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "GRANDSTREAM",
+    "categoria": "TELEFONO IP",
+    "modelo": "GRP2602 ",
+    "serial": "21FXQ1P30D1A790",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU032350",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "F5BDF438FAE/213/R3",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "BTTN301002EV",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA24000BWR",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "ML016",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA24000BWR",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ20480R1Q",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "0EC7030057022400014",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "DELL",
+    "categoria": "COMPUTADORA",
+    "modelo": "Computador I5 Dell",
+    "serial": "977JDF3",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "CLON",
+    "categoria": null,
+    "modelo": "Computador I5 Clon",
+    "serial": "MMAC1-B",
+    "estado_equipo": "MALO"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL727177W",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8502B9J",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "1CZ11002Y5",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL9216L2F",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": " L3210 MULTIFUNCION",
+    "serial": "XAGB431228",
+    "estado_equipo": "NUEVO"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "Impresora Térmica POS Bematech",
+    "serial": "8120801709000223",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU014563",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU002704",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X39D079594",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU034523",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16422422",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V19391517",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16101583",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V16150317",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17380193",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S21074010553773",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRGB1A001943",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRGA1A001075",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRGB1A001238",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI91A003292",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRH51A001807",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800117",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2907AVLOM87C901227",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2651AVHOM879D03762",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2709AVHOM879D01630",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2915AVLOM87C901121",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "71B10677939A/649",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2120A31176",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "BTTN227001KZ",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA23200HT5",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6PA23200HWP",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050716013",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050716014",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "3NSTAR",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "SC402 IMAGER 2D LECTUR",
+    "serial": "8532110050716016",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "9B2222A10633",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "9B2222A10634",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "9B2222A10635",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "FORZA",
+    "categoria": "UPS",
+    "modelo": "INTERACTIVO 1000VA",
+    "serial": "9B2222A10636",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH4TT300138",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH4TT300189",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU030533",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": " L3210 MULTIFUNCION",
+    "serial": "X8HJ009582",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": "LECTOR DE HUELLA DIGITAL ZKTECO",
+    "serial": "BYEL214760004",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "2215163002289",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": null,
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "B8770D1C41E04/045/R2",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "FCH25492AJP",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "4CE234C7Y5",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH4TT302126",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MMAC2",
+    "marca": "PANASONIC",
+    "categoria": "TELEFONO IP",
+    "modelo": null,
+    "serial": "1LCSE014522",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ241403M1",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "RouterBOARD cAP",
+    "serial": "8D5F09ACCDAB",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "BYRQ194260059",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": "PRODESK HP 400 G5 I5-8500 8GB/1TB",
+    "serial": "MXL0513Z4Y",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": "L3110 MULTIFUNCION",
+    "serial": "X644566188",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "INTEL",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6BE04500KC6",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20302010557267",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S20291010550665",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL71A001505",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRL61A001326",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "C55D0BE9E179",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "8244U2190900370",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P15365",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P15553",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MSOZ1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2021P15321",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ2147012W",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": null,
+    "serial": "A8JY181760141",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "DELL",
+    "categoria": "COMPUTADORA",
+    "modelo": "Computador I5 Dell",
+    "serial": "DDWN8B3",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8331P0S",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8331P75",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8292GL4",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801709000200",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "BEMATECH",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801709000260",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU012329",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "X4D9025348",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351262",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17161338",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351230",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S21073010553956",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI31A003113",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI31A003143",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI31A003110",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRLB1A000534",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2052P20038",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "78A90754AC79/708",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "164U1170300327",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2052P20038",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B1940A02180",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MYAN1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B1940A02179",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6FN14900JT5",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6FN14900BGH",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "intel",
+    "categoria": "COMPUTADORA",
+    "modelo": null,
+    "serial": "G6FN14900BQ6",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800789",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "4KXEH7BR800961",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "HP",
+    "categoria": "COMPUTADORA",
+    "modelo": "PRODESK I5 10500",
+    "serial": "1CZ12005N9",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "SAMSUNG",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR SAMSUNG 18.5 LED",
+    "serial": "KXEH7BR800976",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "EPSON",
+    "categoria": "IMPRESORA",
+    "modelo": "TERMICA TM-T20III-002 USB / RJ45-RJ11 ETHERNET",
+    "serial": "X7AU023512",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "X644802424",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S21074010553770",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S21074010553787",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "ZEBRA",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras Zebra",
+    "serial": "S21074010553792",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "9B2123A07241",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "9B2123A07242",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "9B2123A07243",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "9B2123A07244",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": "LECTOR DE HUELLA DIGITAL ZKTECO",
+    "serial": "BYEL214760028",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "TPLINK",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 24P",
+    "serial": "22160Q4002668",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "SFCH25422014",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAP1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "924B0A5CB95E/911",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 850AV APC",
+    "serial": "S4B2052P19089",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8180K9C",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8180W0Q",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "HP",
+    "categoria": null,
+    "modelo": null,
+    "serial": "MXL8180RZ5",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "CISCO",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "ATA CISCO",
+    "serial": "CCQ214801YD",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "ZKTECO",
+    "categoria": "BIOMETRICO",
+    "modelo": "LECTOR DE HUELLA DIGITAL ZKTECO",
+    "serial": "A8JY174960001",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "Bematech",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801710000622",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "Bematech",
+    "categoria": "IMPRESORA",
+    "modelo": "POS Bematech",
+    "serial": "8120801709000158",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "EPSON",
+    "categoria": null,
+    "modelo": null,
+    "serial": "X4D9098761",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351072",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351083",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "HONEYWELL",
+    "categoria": "LECTOR DE BARRAS",
+    "modelo": "Lector de Barras\nHoneywell Lineal",
+    "serial": "2V17351110",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI11A004517",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRI11A004981",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "AOC",
+    "categoria": "MONITOR",
+    "modelo": "MONITOR AOC 15.6\" E1660SWU LED ",
+    "serial": "ANRHB1A002217",
+    "estado_equipo": "Regular"
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "MIKROTIK",
+    "categoria": "RED",
+    "modelo": "Router hAP",
+    "serial": "78A90792AA49",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "NEXXT",
+    "categoria": "TELECOMUNICACION",
+    "modelo": "Switch 16P",
+    "serial": "164U1170800289",
+    "estado_equipo": "Nuevo"
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF00889",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF01711",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF01710",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "TRIPP LITE",
+    "categoria": "UPS",
+    "modelo": "Ups 750VA TL",
+    "serial": "2750CVHOM87BF00872",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2139A06942",
+    "estado_equipo": null
+  },
+  {
+    "ubicacion": "MZAM1",
+    "marca": "APC",
+    "categoria": "UPS",
+    "modelo": "Ups 1KVA APC",
+    "serial": "9B2207A20294",
+    "estado_equipo": null
+  }
+]

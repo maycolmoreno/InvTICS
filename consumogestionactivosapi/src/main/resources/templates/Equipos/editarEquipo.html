@@ -40,10 +40,6 @@
 							<div class="text-danger small" th:if="${errorCodigo}" th:text="${errorCodigo}"></div>
 						</div>
 						<div class="span-4 field-group">
-							<label class="field-label">Tipo de Equipo</label>
-							<input type="text" class="form-control" th:field="*{tipoEquipo}" maxlength="100">
-						</div>
-						<div class="span-4 field-group">
 							<label class="field-label">Modelo</label>
 							<input type="text" class="form-control" th:field="*{modelo}" maxlength="100">
 						</div>
@@ -51,10 +47,6 @@
 							<label class="field-label">Serial</label>
 							<input type="text" class="form-control" th:field="*{serial}" maxlength="100">
 							<div class="text-danger small" th:if="${errorSerial}" th:text="${errorSerial}"></div>
-						</div>
-						<div class="span-4 field-group">
-							<label class="field-label">Sistema Operativo</label>
-							<input type="text" class="form-control" th:field="*{sistemaOperativo}" maxlength="100">
 						</div>
 						<div class="span-4 field-group">
 							<label class="field-label">Estado del Equipo</label>
@@ -128,11 +120,6 @@
 							<input type="number" class="form-control" th:field="*{capacidadAlmacenamientoGb}">
 						</div>
 						<div class="span-6 field-group">
-							<label class="field-label">IP</label>
-							<input type="text" class="form-control" th:field="*{ip}">
-							<div class="text-danger small" th:if="${errorIp}" th:text="${errorIp}"></div>
-						</div>
-						<div class="span-6 field-group">
 							<label class="field-label">MAC</label>
 							<input type="text" class="form-control" th:field="*{mac}">
 							<div class="text-danger small" th:if="${errorMac}" th:text="${errorMac}"></div>
@@ -146,32 +133,8 @@
 							</select>
 						</div>
 						<div class="span-3 field-group">
-							<label class="field-label">Activo Fijo</label>
-							<select class="form-select" th:field="*{etiquetaActivoFijo}">
-								<option th:value="${null}">-- Seleccione --</option>
-								<option th:value="true">Si</option>
-								<option th:value="false">No</option>
-							</select>
-						</div>
-						<div class="span-3 field-group">
-							<label class="field-label">Unido a Dominio</label>
-							<select class="form-select" th:field="*{unionDominio}">
-								<option th:value="${null}">-- Seleccione --</option>
-								<option th:value="true">Si</option>
-								<option th:value="false">No</option>
-							</select>
-						</div>
-						<div class="span-3 field-group">
 							<label class="field-label">Fecha de Compra</label>
 							<input type="date" class="form-control" name="fechaCompra" th:value="${#temporals.format(equipo.fechaCompra, 'yyyy-MM-dd')}">
-						</div>
-						<div class="span-6 field-group">
-							<label class="field-label">Tipo Licencia Office</label>
-							<input type="text" class="form-control" th:field="*{tipoLicenciaOffice}" maxlength="50">
-						</div>
-						<div class="span-6 field-group">
-							<label class="field-label">Version Office</label>
-							<input type="text" class="form-control" th:field="*{versionOffice}" maxlength="150">
 						</div>
 						<div class="span-4 field-group">
 							<label class="field-label">Precio de Compra</label>

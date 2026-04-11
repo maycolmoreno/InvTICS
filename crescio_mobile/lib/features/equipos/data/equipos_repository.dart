@@ -52,12 +52,10 @@ class EquiposRepository implements IEquiposRepository {
           EquipoListItem(
             id: equipo.id,
             codigoSap: equipo.codigoSap,
-            tipoEquipo: equipo.tipoEquipo,
             modelo: equipo.modelo,
             serial: equipo.serial,
             estadoEquipo: equipo.estadoEquipo,
             procesador: equipo.procesador,
-            ip: equipo.ip,
             mac: equipo.mac,
             custodioNombre: historial.equipo.custodioNombre.isEmpty
                 ? equipo.custodioNombre

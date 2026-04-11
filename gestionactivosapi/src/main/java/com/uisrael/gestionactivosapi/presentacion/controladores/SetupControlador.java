@@ -12,15 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.comandos.CrearAdminSetupCommand;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ISetupInicialUseCase;
+import com.uisrael.gestionactivosapi.infraestructura.configuracion.ModulosDataInitializer;
 
 @RestController
 @RequestMapping("/api/setup")
 public class SetupControlador {
 
     private final ISetupInicialUseCase setupInicialUseCase;
+    private final ModulosDataInitializer modulosDataInitializer;
 
-    public SetupControlador(ISetupInicialUseCase setupInicialUseCase) {
+    public SetupControlador(ISetupInicialUseCase setupInicialUseCase,
+                            ModulosDataInitializer modulosDataInitializer) {
         this.setupInicialUseCase = setupInicialUseCase;
+        this.modulosDataInitializer = modulosDataInitializer;
     }
 
     @GetMapping("/necesario")
@@ -41,6 +45,8 @@ public class SetupControlador {
                     datos.get("correo"),
                     datos.get("contrasena"),
                     datos.get("cedula")));
+            // Asignar módulos a los roles recién creados
+            modulosDataInitializer.inicializarAsignacionesRoles();
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("mensaje", "Administrador creado exitosamente."));
         } catch (IllegalStateException ex) {

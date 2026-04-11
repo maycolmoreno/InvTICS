@@ -142,23 +142,6 @@ public interface EquipoRepositorioPuerto {
     boolean existeSerialParaOtro(String serial, int idEquipo);
     
     /**
-     * Verifica si existe un equipo con la dirección IP especificada.
-     * 
-     * @param ip la dirección IP
-     * @return true si existe, false en caso contrario
-     */
-    boolean existeIP(String ip);
-    
-    /**
-     * Verifica si existe otro equipo con la dirección IP especificada (excluyendo el actual).
-     * 
-     * @param ip la dirección IP
-     * @param idEquipo el ID del equipo actual a excluir
-     * @return true si existe otro, false en caso contrario
-     */
-    boolean existeIPParaOtro(String ip, int idEquipo);
-    
-    /**
      * Verifica si existe un equipo con la dirección MAC especificada.
      * 
      * @param mac la dirección MAC

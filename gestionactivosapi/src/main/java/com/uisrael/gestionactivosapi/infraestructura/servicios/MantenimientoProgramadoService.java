@@ -86,7 +86,7 @@ public class MantenimientoProgramadoService {
                 .equipoId(entity.getEquipoId())
                 .equipoCodigoSap(entity.getFkEquipo() != null ? entity.getFkEquipo().getCodigoSap() : null)
                 .equipoDescripcion(entity.getFkEquipo() != null
-                        ? (entity.getFkEquipo().getTipoEquipo() + " " + entity.getFkEquipo().getModelo())
+                        ? entity.getFkEquipo().getModelo()
                         : null)
                 .tecnicoId(entity.getTecnicoId())
                 .tecnicoNombre(entity.getFkTecnicoAsignado() != null ? entity.getFkTecnicoAsignado().getNombre() : null)

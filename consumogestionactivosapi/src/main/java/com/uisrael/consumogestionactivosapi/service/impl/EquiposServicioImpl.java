@@ -149,39 +149,6 @@ public class EquiposServicioImpl implements IEquiposServicio {
 	}
 
 	@Override
-	public boolean existeIP(String ip) {
-		try {
-			Boolean resp = clienteWeb.get()
-					.uri(uriBuilder -> uriBuilder.path("/equipos/existe-ip").queryParam("ip", ip).build()).retrieve()
-					.body(Boolean.class);
-
-			return resp != null && resp;
-
-		} catch (RestClientResponseException e) {
-			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-				return false;
-			}
-			throw e;
-		}
-	}
-
-	@Override
-	public boolean existeIPParaOtro(String ip, int idEquipo) {
-		try {
-			Boolean resp = clienteWeb.get().uri(uriBuilder -> uriBuilder.path("/equipos/existe-ip").queryParam("ip", ip)
-					.queryParam("id", idEquipo).build()).retrieve().body(Boolean.class);
-
-			return resp != null && resp;
-
-		} catch (RestClientResponseException e) {
-			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-				return false;
-			}
-			throw e;
-		}
-	}
-
-	@Override
 	public boolean existeMAC(String mac) {
 		try {
 			Boolean resp = clienteWeb.get()

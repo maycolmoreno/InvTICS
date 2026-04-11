@@ -105,7 +105,6 @@
                         <tr>
                             <th>ID</th>
                             <th>Codigo</th>
-                            <th>Tipo</th>
                             <th>Modelo</th>
                             <th>Serial</th>
                             <th>Ubicación</th>
@@ -123,7 +122,6 @@
                         <tr th:each="d : ${detalles}">
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.idEquipo : ''}"></td>
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.codigoSap : ''}"></td>
-                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.tipoEquipo : ''}"></td>
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
                             <td><code class="serial-code" th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></code></td>
                             <td th:text="${d.fkEquipo != null and d.fkEquipo.fkUbicacion != null ? d.fkEquipo.fkUbicacion.nombre : ''}"></td>

@@ -64,7 +64,7 @@
 									th:selected="${equipoSeleccionado == null || equipoSeleccionado == 0}">
 									Todos</option>
 								<option th:each="e : ${listaEquipos}" th:value="${e.idEquipo}"
-									th:text="${e.codigoSap + ' - ' + e.tipoEquipo + ' - ' + e.modelo}"
+									th:text="${e.codigoSap + ' - ' + e.modelo}"
 									th:selected="${equipoSeleccionado != null && equipoSeleccionado == e.idEquipo}">
 								</option>
 							</select>
@@ -112,8 +112,6 @@
 
 											<td
 												th:text="${c.fkEquipo != null ? c.fkEquipo.codigoSap : '-'}"></td>
-											<td
-												th:text="${c.fkEquipo != null ? c.fkEquipo.tipoEquipo : '-'}"></td>
 											<td th:text="${c.fkEquipo != null ? c.fkEquipo.modelo : '-'}"></td>
 											<td th:text="${c.fkEquipo != null ? c.fkEquipo.serial : '-'}"></td>
 

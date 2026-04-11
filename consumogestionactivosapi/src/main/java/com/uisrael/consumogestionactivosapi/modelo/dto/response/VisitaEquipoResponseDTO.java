@@ -11,7 +11,6 @@ public class VisitaEquipoResponseDTO {
     private String serial;
     private String marca;
     private String modelo;
-    private String tipoEquipo;
     private String codigoSap;
     private String custodioNombre;
     private String custodioArea;

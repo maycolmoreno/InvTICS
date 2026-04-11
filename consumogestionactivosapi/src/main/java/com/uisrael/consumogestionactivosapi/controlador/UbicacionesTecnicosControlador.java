@@ -1,15 +1,20 @@
 package com.uisrael.consumogestionactivosapi.controlador;
 
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.ConsentimientoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.HistorialGpsResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionActivaResponseDTO;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesTecnicosServicio;
@@ -62,5 +67,27 @@ public class UbicacionesTecnicosControlador {
 			model.addAttribute("error", "Error al cargar ubicaciones: " + e.getMessage());
 		}
 		return "ubicacionesTecnicos/tiempoReal";
+	}
+
+	/**
+	 * Pantalla de historial GPS por fecha (ADMINISTRADOR)
+	 */
+	@GetMapping("/historial")
+	public String verHistorial(
+			@RequestParam(value = "fecha", required = false)
+			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+			Model model) {
+		if (fecha == null) {
+			fecha = LocalDate.now();
+		}
+		model.addAttribute("fechaSeleccionada", fecha);
+		try {
+			List<HistorialGpsResponseDTO> historial = servicio.obtenerHistorialGps(fecha);
+			model.addAttribute("historial", historial);
+		} catch (Exception e) {
+			model.addAttribute("error", "Error al cargar historial GPS: " + e.getMessage());
+			model.addAttribute("historial", Collections.emptyList());
+		}
+		return "ubicacionesTecnicos/historial";
 	}
 }

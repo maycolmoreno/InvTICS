@@ -446,18 +446,15 @@
                     <div class="ht-field"><div class="k">Marca</div><div class="v" th:text="${historial.equipo.marca ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Modelo</div><div class="v" th:text="${historial.equipo.modelo ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Serial</div><div class="v" th:text="${historial.equipo.serial ?: '-'}">-</div></div>
-                    <div class="ht-field"><div class="k">Tipo equipo</div><div class="v" th:text="${historial.equipo.tipoEquipo ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Cod. Interno</div><div class="v" th:text="${historial.equipo.codigoSap ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Estado equipo</div><div class="v" th:text="${historial.equipo.estadoEquipo ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Custodio</div><div class="v" th:text="${historial.equipo.custodioNombre ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Departamento</div><div class="v" th:text="${historial.equipo.departamentoNombre ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Ubicacion</div><div class="v" th:text="${(historial.equipo.ubicacionNombre ?: '-') + ' - ' + (historial.equipo.ubicacionCiudad ?: '-')}">-</div></div>
-                    <div class="ht-field"><div class="k">Sistema operativo</div><div class="v" th:text="${historial.equipo.sistemaOperativo ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Procesador</div><div class="v" th:text="${historial.equipo.procesador ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">RAM</div><div class="v" th:text="${historial.equipo.memoriaRamGb != null ? historial.equipo.memoriaRamGb + ' GB' : '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Almacenamiento</div><div class="v" th:text="${historial.equipo.capacidadAlmacenamientoGb != null ? historial.equipo.capacidadAlmacenamientoGb + ' GB' : '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Licencia Windows</div><div class="v" th:text="${historial.equipo.licenciaWindowsActivada != null and historial.equipo.licenciaWindowsActivada} ? 'Si' : 'No'">-</div></div>
-                    <div class="ht-field"><div class="k">Union dominio</div><div class="v" th:text="${historial.equipo.unionDominio != null and historial.equipo.unionDominio} ? 'Si' : 'No'">-</div></div>
                     <div class="ht-field"><div class="k">Fecha compra</div><div class="v" th:text="${historial.equipo.fechaCompra ?: '-'}">-</div></div>
                     <div class="ht-field"><div class="k">Desde custodio</div><div class="v" th:text="${historial.equipo.fechaInicioCustodio ?: '-'}">-</div></div>
                 </div>

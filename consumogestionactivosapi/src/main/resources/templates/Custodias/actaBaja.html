@@ -35,7 +35,6 @@
                     <tr>
                         <th>ID</th>
                         <th>Codigo</th>
-                        <th>Tipo</th>
                         <th>Modelo</th>
                         <th>Serial</th>
                         <th>Ubicación</th>
@@ -46,7 +45,6 @@
                     <tr th:each="e : ${equiposBaja}">
                         <td th:text="${e.idEquipo}"></td>
                         <td th:text="${e.codigoSap}"></td>
-                        <td th:text="${e.tipoEquipo}"></td>
                         <td th:text="${e.modelo}"></td>
                         <td th:text="${e.serial}"></td>
                         <td th:text="${e.fkUbicacion != null ? e.fkUbicacion.nombre : ''}"></td>

@@ -11,14 +11,13 @@ public class EquipoVisita {
     private final String serial;
     private final String marca;
     private final String modelo;
-    private final String tipoEquipo;
     private final String codigoSap;
     private final String custodioNombre;
     private final String custodioArea;
     private final String ubicacionNombre;
     private final LocalDateTime fechaUltimoMantenimiento;
 
-    public EquipoVisita(int idEquipo, int idCustodio, String serial, String marca, String modelo, String tipoEquipo, String codigoSap,
+    public EquipoVisita(int idEquipo, int idCustodio, String serial, String marca, String modelo, String codigoSap,
             String custodioNombre, String custodioArea, String ubicacionNombre,
             LocalDateTime fechaUltimoMantenimiento) {
         this.idEquipo = idEquipo;
@@ -26,7 +25,6 @@ public class EquipoVisita {
         this.serial = serial;
         this.marca = marca;
         this.modelo = modelo;
-        this.tipoEquipo = tipoEquipo;
         this.codigoSap = codigoSap;
         this.custodioNombre = custodioNombre;
         this.custodioArea = custodioArea;
@@ -52,10 +50,6 @@ public class EquipoVisita {
 
     public String getModelo() {
         return modelo;
-    }
-
-    public String getTipoEquipo() {
-        return tipoEquipo;
     }
 
     public String getCodigoSap() {

@@ -74,7 +74,6 @@ class EquiposServiceTest {
 
         // Act & Assert
         assertThat(request.getCodigoSap()).isNotBlank();
-        assertThat(request.getTipoEquipo()).isNotBlank();
         assertThat(request.getMemoriaRamGb()).isPositive();
 
         verify(equiposServicio, times(0)).listarEquipos();

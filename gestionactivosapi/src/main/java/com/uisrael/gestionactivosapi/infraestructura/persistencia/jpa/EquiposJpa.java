@@ -41,9 +41,6 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @Column(name = "codigo_sap", length = 20)
     private String codigoSap;
 
-    @Column(name = "tipo_equipo", length = 100)
-    private String tipoEquipo;
-
     @Column(length = 100)
     private String modelo;
 
@@ -59,26 +56,8 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @Column(name = "capacidad_almacenamiento_gb")
     private Integer capacidadAlmacenamientoGb;
 
-    @Column(name = "sistema_operativo", length = 100)
-    private String sistemaOperativo;
-
     @Column(name = "licencia_windows_activada")
     private Boolean licenciaWindowsActivada;
-
-    @Column(name = "etiqueta_activo_fijo")
-    private Boolean etiquetaActivoFijo;
-
-    @Column(name = "tipo_licencia_office", length = 50)
-    private String tipoLicenciaOffice;
-
-    @Column(name = "version_office", length = 150)
-    private String versionOffice;
-
-    @Column(name = "union_dominio")
-    private Boolean unionDominio;
-
-    @Column(length = 100)
-    private String ip;
 
     @Column(length = 100)
     private String mac;
@@ -108,9 +87,5 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_ubicacion")
     private UbicacionesJpa fkUbicacion;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "activo_id")
-    private ActivoJpa activoFijo;
 
 }

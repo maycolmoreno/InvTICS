@@ -6,7 +6,9 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,9 +26,11 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.MarcasResponseDT
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.RolesResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICargosServicio;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.ModuloResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IDepartamentosServicio;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
+import com.uisrael.consumogestionactivosapi.service.IModulosServicio;
 import com.uisrael.consumogestionactivosapi.service.IRolesServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 
@@ -43,6 +47,7 @@ public class ApiRelacionesControlador {
     private final IMarcasServicio servicioMarca;
     private final ICategoriaEquiposServicio servicioCategoria;
     private final IRolesServicio servicioRol;
+    private final IModulosServicio servicioModulos;
 
     @GetMapping("/departamentos")
     public List<DepartamentosResponseDTO> listarDepartamentos() {
@@ -265,5 +270,23 @@ public class ApiRelacionesControlador {
             return ResponseEntity.status(HttpStatus.CREATED).body(lista.get(lista.size() - 1));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Rol creado"));
+    }
+
+    // ── MODULOS POR ROL ─────────────────────────────────────
+
+    @GetMapping("/modulos-por-rol/{rolId}")
+    public List<ModuloResponseDTO> listarModulosPorRol(@PathVariable Integer rolId) {
+        return servicioModulos.listarModulosPorRol(rolId);
+    }
+
+    @PutMapping("/modulos-por-rol/{rolId}")
+    public ResponseEntity<?> actualizarModulosRol(@PathVariable Integer rolId,
+                                                   @RequestBody List<Integer> moduloIds) {
+        try {
+            servicioModulos.actualizarModulosRol(rolId, moduloIds != null ? moduloIds : List.of());
+            return ResponseEntity.ok(Map.of("mensaje", "Permisos actualizados"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

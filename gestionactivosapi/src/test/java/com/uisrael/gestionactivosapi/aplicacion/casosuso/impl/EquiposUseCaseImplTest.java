@@ -42,9 +42,8 @@ class EquiposUseCaseImplTest {
     }
 
     private Equipos equipoDePrueba(int id, String serial, String codigoSap, String ip, String mac) {
-        return new Equipos(id, codigoSap, "Laptop", "ThinkPad T14", serial,
-                "Intel i7", 16, 512, "Windows 11", true, true,
-                "Microsoft 365", "2021", true, ip, mac,
+        return new Equipos(id, codigoSap, "ThinkPad T14", serial,
+                "Intel i7", 16, 512, true, mac,
                 LocalDate.of(2024, 1, 15), BigDecimal.valueOf(1200),
                 "ACTIVO", "Sin observaciones", true, null, null, null);
     }
@@ -113,18 +112,6 @@ class EquiposUseCaseImplTest {
             assertThatThrownBy(() -> sut.crear(equipo))
                     .isInstanceOf(DuplicidadException.class)
                     .hasMessageContaining("Código Activo Fijo");
-        }
-
-        @Test
-        @DisplayName("lanza DuplicidadException si IP ya existe")
-        void crearEquipoIpDuplicada() {
-            Equipos equipo = equipoDePrueba(0, "SN001", null, "192.168.1.100", null);
-            when(equipoRepositorio.existeSerial("SN001")).thenReturn(false);
-            when(equipoRepositorio.existeIP("192.168.1.100")).thenReturn(true);
-
-            assertThatThrownBy(() -> sut.crear(equipo))
-                    .isInstanceOf(DuplicidadException.class)
-                    .hasMessageContaining("IP");
         }
 
         @Test

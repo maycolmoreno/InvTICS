@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{plantilla/plantillaui}">
+<head>
+<title>Centro de Reportes - Cresio</title>
+</head>
+<body>
+	<section layout:fragment="contenidopaginas">
+
+		<!-- HEADER -->
+		<div class="page-header">
+			<div class="page-header-left d-flex align-items-center">
+				<div class="page-header-title">
+					<h5 class="m-b-10">Centro de Reportes</h5>
+				</div>
+				<ul class="breadcrumb">
+					<li class="breadcrumb-item"><a th:href="@{/inicio}">Inicio</a></li>
+					<li class="breadcrumb-item">Reportes</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="main-content">
+
+			<!-- KPIs -->
+			<div class="row g-3 mb-4">
+				<div class="col-sm-6 col-xl-2">
+					<div class="card stretch stretch-full">
+						<div class="card-body text-center py-4">
+							<i class="feather-box fs-1 text-primary mb-2"></i>
+							<h3 class="mb-1" th:text="${totalEquipos}">0</h3>
+							<small class="text-muted">Total Equipos</small>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 col-xl-2">
+					<div class="card stretch stretch-full">
+						<div class="card-body text-center py-4">
+							<i class="feather-check-circle fs-1 text-success mb-2"></i>
+							<h3 class="mb-1" th:text="${equiposActivos}">0</h3>
+							<small class="text-muted">Equipos Activos</small>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 col-xl-2">
+					<div class="card stretch stretch-full">
+						<div class="card-body text-center py-4">
+							<i class="feather-tool fs-1 text-warning mb-2"></i>
+							<h3 class="mb-1" th:text="${totalMantenimientos}">0</h3>
+							<small class="text-muted">Mantenimientos</small>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 col-xl-2">
+					<div class="card stretch stretch-full">
+						<div class="card-body text-center py-4">
+							<i class="feather-alert-circle fs-1 text-danger mb-2"></i>
+							<h3 class="mb-1" th:text="${mantenimientosAbiertos}">0</h3>
+							<small class="text-muted">Mnt. Abiertos</small>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 col-xl-2">
+					<div class="card stretch stretch-full">
+						<div class="card-body text-center py-4">
+							<i class="feather-clipboard fs-1 text-info mb-2"></i>
+							<h3 class="mb-1" th:text="${totalCustodias}">0</h3>
+							<small class="text-muted">Custodias</small>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6 col-xl-2">
+					<div class="card stretch stretch-full">
+						<div class="card-body text-center py-4">
+							<i class="feather-users fs-1 text-secondary mb-2"></i>
+							<h3 class="mb-1" th:text="${totalCustodios}">0</h3>
+							<small class="text-muted">Custodios</small>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- ACCESOS RÁPIDOS A REPORTES DETALLADOS -->
+			<div class="row g-3 mb-4">
+				<div class="col-md-4">
+					<a th:href="@{/equipos/reporte-equipo}" class="card stretch stretch-full text-decoration-none">
+						<div class="card-body d-flex align-items-center gap-3 py-3">
+							<div class="rounded-circle bg-primary bg-opacity-10 p-3">
+								<i class="feather-monitor fs-4 text-primary"></i>
+							</div>
+							<div>
+								<h6 class="mb-0">Reporte de Equipos</h6>
+								<small class="text-muted">Tabla detallada + Excel</small>
+							</div>
+							<i class="feather-chevron-right ms-auto text-muted"></i>
+						</div>
+					</a>
+				</div>
+				<div class="col-md-4">
+					<a th:href="@{/reportes/mantenimientos}" class="card stretch stretch-full text-decoration-none">
+						<div class="card-body d-flex align-items-center gap-3 py-3">
+							<div class="rounded-circle bg-warning bg-opacity-10 p-3">
+								<i class="feather-tool fs-4 text-warning"></i>
+							</div>
+							<div>
+								<h6 class="mb-0">Reporte de Mantenimientos</h6>
+								<small class="text-muted">Filtros + Excel</small>
+							</div>
+							<i class="feather-chevron-right ms-auto text-muted"></i>
+						</div>
+					</a>
+				</div>
+				<div class="col-md-4">
+					<a th:href="@{/custodias/reporte}" class="card stretch stretch-full text-decoration-none">
+						<div class="card-body d-flex align-items-center gap-3 py-3">
+							<div class="rounded-circle bg-info bg-opacity-10 p-3">
+								<i class="feather-clipboard fs-4 text-info"></i>
+							</div>
+							<div>
+								<h6 class="mb-0">Reporte de Custodias</h6>
+								<small class="text-muted">Tabla detallada + Excel</small>
+							</div>
+							<i class="feather-chevron-right ms-auto text-muted"></i>
+						</div>
+					</a>
+				</div>
+			</div>
+
+			<!-- GRÁFICOS DE EQUIPOS -->
+			<div class="row g-3 mb-4">
+				<div class="col-lg-4">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Equipos por Categoría</h5>
+						</div>
+						<div class="card-body">
+							<canvas id="chartCategoria" height="260"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Equipos por Marca (Top 10)</h5>
+						</div>
+						<div class="card-body">
+							<canvas id="chartMarca" height="260"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Equipos por Estado</h5>
+						</div>
+						<div class="card-body">
+							<canvas id="chartEstado" height="260"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- GRÁFICOS DE MANTENIMIENTOS -->
+			<div class="row g-3 mb-4">
+				<div class="col-lg-6">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Mantenimientos por Mes (Últimos 6 meses)</h5>
+						</div>
+						<div class="card-body">
+							<canvas id="chartMntMes" height="220"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-6">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Mantenimientos por Técnico</h5>
+						</div>
+						<div class="card-body">
+							<canvas id="chartMntTecnico" height="220"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row g-3 mb-4">
+				<div class="col-lg-4">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Mantenimientos por Tipo</h5>
+						</div>
+						<div class="card-body">
+							<canvas id="chartMntTipo" height="260"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Mantenimientos por Estado</h5>
+						</div>
+						<div class="card-body">
+							<canvas id="chartMntEstado" height="260"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<div class="card stretch stretch-full">
+						<div class="card-header d-flex align-items-center justify-content-between">
+							<h5 class="card-title mb-0">Resumen</h5>
+						</div>
+						<div class="card-body">
+							<ul class="list-group list-group-flush">
+								<li class="list-group-item d-flex justify-content-between">
+									<span>Total Equipos</span>
+									<strong th:text="${totalEquipos}">0</strong>
+								</li>
+								<li class="list-group-item d-flex justify-content-between">
+									<span>Equipos Activos</span>
+									<strong class="text-success" th:text="${equiposActivos}">0</strong>
+								</li>
+								<li class="list-group-item d-flex justify-content-between">
+									<span>Total Mantenimientos</span>
+									<strong th:text="${totalMantenimientos}">0</strong>
+								</li>
+								<li class="list-group-item d-flex justify-content-between">
+									<span>Mantenimientos Abiertos</span>
+									<strong class="text-danger" th:text="${mantenimientosAbiertos}">0</strong>
+								</li>
+								<li class="list-group-item d-flex justify-content-between">
+									<span>Total Custodias</span>
+									<strong th:text="${totalCustodias}">0</strong>
+								</li>
+								<li class="list-group-item d-flex justify-content-between">
+									<span>Total Custodios</span>
+									<strong th:text="${totalCustodios}">0</strong>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- MÉTRICAS DE CUMPLIMIENTO POR TÉCNICO -->
+			<div class="row g-3 mb-4" th:if="${metricasTecnicos != null && !metricasTecnicos.isEmpty()}">
+				<div class="col-12">
+					<div class="card stretch stretch-full">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Métricas de Cumplimiento por Técnico</h5>
+						</div>
+						<div class="card-body">
+							<div class="table-responsive">
+								<table class="table table-hover table-striped align-middle">
+									<thead class="table-dark">
+										<tr>
+											<th>Técnico</th>
+											<th class="text-center">Total</th>
+											<th class="text-center">Completadas</th>
+											<th class="text-center">Pendientes</th>
+											<th class="text-center">En Progreso</th>
+											<th class="text-center">Vencidas</th>
+											<th class="text-center">% Completadas</th>
+											<th class="text-center">% A Tiempo</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="m : ${metricasTecnicos}">
+											<td th:text="${m.tecnicoNombre}">-</td>
+											<td class="text-center" th:text="${m.totalActividades}">0</td>
+											<td class="text-center">
+												<span class="badge bg-success" th:text="${m.completadas}">0</span>
+											</td>
+											<td class="text-center">
+												<span class="badge bg-warning" th:text="${m.pendientes}">0</span>
+											</td>
+											<td class="text-center">
+												<span class="badge bg-info" th:text="${m.enProgreso}">0</span>
+											</td>
+											<td class="text-center">
+												<span class="badge bg-danger" th:text="${m.vencidas}">0</span>
+											</td>
+											<td class="text-center">
+												<div class="d-flex align-items-center justify-content-center gap-2">
+													<div class="progress" style="width:80px;height:8px">
+														<div class="progress-bar bg-success" role="progressbar"
+															th:style="'width:' + ${m.porcentajeCompletadas} + '%'"
+															th:attr="aria-valuenow=${m.porcentajeCompletadas}">
+														</div>
+													</div>
+													<small th:text="${#numbers.formatDecimal(m.porcentajeCompletadas,1,1)} + '%'">0%</small>
+												</div>
+											</td>
+											<td class="text-center">
+												<div class="d-flex align-items-center justify-content-center gap-2">
+													<div class="progress" style="width:80px;height:8px">
+														<div class="progress-bar bg-primary" role="progressbar"
+															th:style="'width:' + ${m.porcentajeCumplimientoATiempo} + '%'"
+															th:attr="aria-valuenow=${m.porcentajeCumplimientoATiempo}">
+														</div>
+													</div>
+													<small th:text="${#numbers.formatDecimal(m.porcentajeCumplimientoATiempo,1,1)} + '%'">0%</small>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Chart.js CDN -->
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+		<script th:inline="javascript">
+		/*<![CDATA[*/
+		(function() {
+			const PALETA = [
+				'#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b',
+				'#858796','#5a5c69','#2e59d9','#17a673','#2c9faf',
+				'#e06767','#6610f2','#fd7e14','#20c9a6','#6f42c1'
+			];
+
+			function colorPaleta(n) {
+				const c = [];
+				for (let i = 0; i < n; i++) c.push(PALETA[i % PALETA.length]);
+				return c;
+			}
+
+			// ── Equipos por Categoría (Pie) ──
+			const catLabels = /*[[${categoriasLabels}]]*/ [];
+			const catValues = /*[[${categoriasValores}]]*/ [];
+			new Chart(document.getElementById('chartCategoria'), {
+				type: 'pie',
+				data: {
+					labels: catLabels,
+					datasets: [{
+						data: catValues,
+						backgroundColor: colorPaleta(catLabels.length)
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
+				}
+			});
+
+			// ── Equipos por Marca (Bar horizontal) ──
+			const marcaLabels = /*[[${marcasLabels}]]*/ [];
+			const marcaValues = /*[[${marcasValores}]]*/ [];
+			new Chart(document.getElementById('chartMarca'), {
+				type: 'bar',
+				data: {
+					labels: marcaLabels,
+					datasets: [{
+						label: 'Equipos',
+						data: marcaValues,
+						backgroundColor: '#4e73df'
+					}]
+				},
+				options: {
+					indexAxis: 'y',
+					responsive: true,
+					plugins: { legend: { display: false } },
+					scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+				}
+			});
+
+			// ── Equipos por Estado (Doughnut) ──
+			const estLabels = /*[[${estadosLabels}]]*/ [];
+			const estValues = /*[[${estadosValores}]]*/ [];
+			new Chart(document.getElementById('chartEstado'), {
+				type: 'doughnut',
+				data: {
+					labels: estLabels,
+					datasets: [{
+						data: estValues,
+						backgroundColor: colorPaleta(estLabels.length)
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
+				}
+			});
+
+			// ── Mantenimientos por Mes (Line) ──
+			const mesLabels = /*[[${mntMesLabels}]]*/ [];
+			const mesValues = /*[[${mntMesValores}]]*/ [];
+			new Chart(document.getElementById('chartMntMes'), {
+				type: 'line',
+				data: {
+					labels: mesLabels,
+					datasets: [{
+						label: 'Mantenimientos',
+						data: mesValues,
+						borderColor: '#4e73df',
+						backgroundColor: 'rgba(78,115,223,0.15)',
+						fill: true,
+						tension: 0.3,
+						pointRadius: 5,
+						pointBackgroundColor: '#4e73df'
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: { legend: { display: false } },
+					scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+				}
+			});
+
+			// ── Mantenimientos por Técnico (Bar) ──
+			const tecLabels = /*[[${mntTecnicoLabels}]]*/ [];
+			const tecValues = /*[[${mntTecnicoValores}]]*/ [];
+			new Chart(document.getElementById('chartMntTecnico'), {
+				type: 'bar',
+				data: {
+					labels: tecLabels,
+					datasets: [{
+						label: 'Mantenimientos',
+						data: tecValues,
+						backgroundColor: colorPaleta(tecLabels.length)
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: { legend: { display: false } },
+					scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+				}
+			});
+
+			// ── Mantenimientos por Tipo (Pie) ──
+			const tipoLabels = /*[[${mntTipoLabels}]]*/ [];
+			const tipoValues = /*[[${mntTipoValores}]]*/ [];
+			new Chart(document.getElementById('chartMntTipo'), {
+				type: 'pie',
+				data: {
+					labels: tipoLabels,
+					datasets: [{
+						data: tipoValues,
+						backgroundColor: colorPaleta(tipoLabels.length)
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
+				}
+			});
+
+			// ── Mantenimientos por Estado (Doughnut) ──
+			const mntEstLabels = /*[[${mntEstadoLabels}]]*/ [];
+			const mntEstValues = /*[[${mntEstadoValores}]]*/ [];
+			new Chart(document.getElementById('chartMntEstado'), {
+				type: 'doughnut',
+				data: {
+					labels: mntEstLabels,
+					datasets: [{
+						data: mntEstValues,
+						backgroundColor: colorPaleta(mntEstLabels.length)
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
+				}
+			});
+		})();
+		/*]]>*/
+		</script>
+
+	</section>
+</body>
+</html>
