@@ -20,4 +20,5 @@ public class ActaResumenDTO {
 	private boolean activa;
 	private int cantidadEquipos;
 	private String rutaActaPdf;
+	private String rutaActaFirmada;
 }

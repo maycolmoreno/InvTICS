@@ -60,7 +60,11 @@ public class ModulosDataInitializer implements CommandLineRunner {
             crearModulo("MARCAS", "Marcas", "feather-tag", "/marcas", 18);
             crearModulo("CATEGORIAS", "Categorias", "feather-layers", "/categorias-equipo", 19);
             crearModulo("VISITA_TECNICA", "Visita Técnica", "feather-map", "/visita", 20);
+            crearModulo("INVENTARIO", "Inventario", "feather-archive", "/inventario/por-sucursal", 21);
             log.info("Modulos creados correctamente.");
+        } else {
+            // Crear módulos faltantes
+            crearModuloSiFalta("INVENTARIO", "Inventario", "feather-archive", "/inventario/por-sucursal", 21);
         }
 
         // Siempre verificar y completar asignaciones de módulos a roles
@@ -86,7 +90,7 @@ public class ModulosDataInitializer implements CommandLineRunner {
         );
 
         // Módulos para AUDITOR
-        Set<String> modulosAuditor = Set.of("REPORTES");
+        Set<String> modulosAuditor = Set.of("REPORTES", "INVENTARIO");
 
         Map<String, Set<String>> modulosPorRol = Map.of(
             "ADMINISTRADOR", Set.of(), // vacío = todos
@@ -130,6 +134,16 @@ public class ModulosDataInitializer implements CommandLineRunner {
         modulo.setOrden(orden);
         modulo.setEstado(true);
         return moduloRepo.save(modulo);
+    }
+
+    private void crearModuloSiFalta(String codigo, String nombre, String icono, String ruta, int orden) {
+        Optional<ModuloJpa> existente = moduloRepo.findAll().stream()
+                .filter(m -> codigo.equals(m.getCodigo()))
+                .findFirst();
+        if (existente.isEmpty()) {
+            log.info("Creando modulo faltante: {}", codigo);
+            crearModulo(codigo, nombre, icono, ruta, orden);
+        }
     }
 
     private void asignarModulo(RolesJpa rol, ModuloJpa modulo) {

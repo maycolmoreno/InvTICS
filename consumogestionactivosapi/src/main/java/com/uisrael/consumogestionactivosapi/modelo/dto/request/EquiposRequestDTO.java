@@ -38,8 +38,14 @@ public class EquiposRequestDTO {
     private BigDecimal precioCompra;
     private String estadoEquipo;
     private String observacionEquipo;
+
     private boolean estado;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate fechaAdquisicion;
+    private Double valorActual;
+    private String descripcion;
+
     private MarcasRequestDTO fkMarca;
     private CategoriaEquiposRequestDTO fkCategoria;
-    private UbicacionesRequestDTO fkUbicacion;
 }

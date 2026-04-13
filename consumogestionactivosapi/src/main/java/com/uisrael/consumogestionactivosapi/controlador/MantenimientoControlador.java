@@ -33,6 +33,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseD
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoManualResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoProgramadoResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.PaginaResponse;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.IActividadChecklistServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
@@ -113,6 +114,7 @@ public class MantenimientoControlador {
 
         model.addAttribute("listaequipos", equiposServicio.listarEquipos());
         model.addAttribute("listacustodios", custodiosServicio.listarCustodios().stream().filter(CustodiosResponseDTO::isEstado).toList());
+        model.addAttribute("listaubicaciones", ubicacionesServicio.listarUbicaciones().stream().filter(UbicacionesResponseDTO::isEstado).toList());
         model.addAttribute("actividades", actividades);
         model.addAttribute("totalActividades", actividades.size());
         model.addAttribute("equiposPreseleccionados", preseleccion);
@@ -125,13 +127,14 @@ public class MantenimientoControlador {
     public String guardar(
             @RequestParam List<Integer> equipoIds,
             @RequestParam Integer custodioId,
+            @RequestParam(defaultValue = "ADMINISTRATIVO") String modoSeleccion,
             @RequestParam String tipoMantenimiento,
             @RequestParam LocalDate fechaMantenimiento,
             @RequestParam(required = false) LocalDate proximaFecha,
             @RequestParam String estadoGeneral,
             @RequestParam String detalle,
-            @RequestParam String firmaTecnico,
-            @RequestParam String firmaCustodio,
+            @RequestParam(required = false) String firmaTecnico,
+            @RequestParam(required = false) String firmaCustodio,
             @RequestParam(name = "actividadIds") List<Integer> actividadIds,
 
             @RequestParam(name = "imagenes", required = false) List<MultipartFile> imagenes,
@@ -145,7 +148,8 @@ public class MantenimientoControlador {
         }
 
         List<Integer> ids = equipoIds.stream().distinct().toList();
-        if (!equiposPertenecenACustodio(ids, custodioId)) {
+        boolean modoAdministrativo = "ADMINISTRATIVO".equalsIgnoreCase(modoSeleccion);
+        if (modoAdministrativo && !equiposPertenecenACustodio(ids, custodioId)) {
             redirectAttributes.addFlashAttribute("error",
                     "Uno o mas equipos seleccionados no estan asignados al custodio indicado.");
             return "redirect:/mantenimiento/nuevo";

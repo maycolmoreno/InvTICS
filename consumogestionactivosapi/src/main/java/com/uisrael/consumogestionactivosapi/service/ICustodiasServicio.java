@@ -3,6 +3,8 @@ package com.uisrael.consumogestionactivosapi.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiasRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.ActaResumenDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
@@ -29,4 +31,8 @@ public interface ICustodiasServicio {
     record ActasAgrupadas(List<ActaResumenDTO> actas, Map<String, List<CustodiasResponseDTO>> detalles) {}
 
     ActasAgrupadas agruparPorActa();
+
+    void subirActaFirmada(int idCustodia, MultipartFile archivo);
+
+    byte[] descargarActaFirmada(int idCustodia);
 }

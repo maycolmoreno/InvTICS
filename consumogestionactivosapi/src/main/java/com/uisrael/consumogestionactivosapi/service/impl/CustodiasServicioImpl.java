@@ -9,8 +9,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiasRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.ActaResumenDTO;
@@ -110,6 +115,7 @@ public class CustodiasServicioImpl implements ICustodiasServicio {
 			r.setCantidadEquipos(items.size());
 			r.setMinPk(minPk);
 			r.setRutaActaPdf(first.getRutaActaPdf());
+			r.setRutaActaFirmada(first.getRutaActaFirmada());
 			return r;
 		}).sorted(Comparator.comparingInt(ActaResumenDTO::getMinPk)).toList();
 
@@ -121,5 +127,34 @@ public class CustodiasServicioImpl implements ICustodiasServicio {
 		actasNumeradas.sort(Comparator.comparingInt(ActaResumenDTO::getMinPk).reversed());
 
 		return new ActasAgrupadas(actasNumeradas, actaDetalles);
+	}
+
+	@Override
+	public void subirActaFirmada(int idCustodia, MultipartFile archivo) {
+		try {
+			MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+			body.add("archivo", new ByteArrayResource(archivo.getBytes()) {
+				@Override
+				public String getFilename() {
+					return archivo.getOriginalFilename();
+				}
+			});
+			clienteWeb.post()
+					.uri("/custodias/{id}/acta-firmada", idCustodia)
+					.contentType(MediaType.MULTIPART_FORM_DATA)
+					.body(body)
+					.retrieve()
+					.toBodilessEntity();
+		} catch (java.io.IOException e) {
+			throw new RuntimeException("Error al leer el archivo para subir", e);
+		}
+	}
+
+	@Override
+	public byte[] descargarActaFirmada(int idCustodia) {
+		return clienteWeb.get()
+				.uri("/custodias/{id}/acta-firmada", idCustodia)
+				.retrieve()
+				.body(byte[].class);
 	}
 }

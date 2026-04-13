@@ -12,6 +12,7 @@ import com.uisrael.gestionactivosapi.presentacion.dto.response.CustodiosResponse
 @Mapper(componentModel = "spring")
 public interface ICustodiosDtoMapper {
 
+    @Mapping(target = "fkUsuario", ignore = true)
     Custodios toDomain(CustodiosRequestDTO dto);
 
     @Mapping(target = "fkDepartamento", expression = "java(toDepartamentoResponse(custodio.getFkDepartamento()))")

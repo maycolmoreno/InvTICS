@@ -53,6 +53,7 @@ import com.uisrael.gestionactivosapi.infraestructura.servicios.ActividadPlanific
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoManualService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoProgramadoService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.NotificacionService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.PushNotificacionService;
 
 @Configuration
 public class MantenimientoConfig {
@@ -143,8 +144,9 @@ public class MantenimientoConfig {
 	@Bean
 	IActividadPlanificadaUseCase actividadPlanificadaService(
 			IActividadPlanificadaJpaRepositorio actividadRepo,
-			IUsuariosJpaRepositorio usuariosRepo) {
-		return new ActividadPlanificadaService(actividadRepo, usuariosRepo);
+			IUsuariosJpaRepositorio usuariosRepo,
+			ICrearMantenimientosUseCase crearMantenimientosUseCase) {
+		return new ActividadPlanificadaService(actividadRepo, usuariosRepo, crearMantenimientosUseCase);
 	}
 
 	@Bean
@@ -159,8 +161,9 @@ public class MantenimientoConfig {
 	NotificacionService notificacionService(
 			INotificacionJpaRepositorio notificacionRepo,
 			IUsuariosJpaRepositorio usuariosRepo,
-			IMantenimientosJpaRepositorio mantenimientosRepo) {
-		return new NotificacionService(notificacionRepo, usuariosRepo, mantenimientosRepo);
+			IMantenimientosJpaRepositorio mantenimientosRepo,
+			PushNotificacionService pushNotificacionService) {
+		return new NotificacionService(notificacionRepo, usuariosRepo, mantenimientosRepo, pushNotificacionService);
 	}
 
 	@Bean

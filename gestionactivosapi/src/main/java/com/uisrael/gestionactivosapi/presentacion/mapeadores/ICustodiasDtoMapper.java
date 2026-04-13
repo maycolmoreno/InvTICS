@@ -26,6 +26,8 @@ public interface ICustodiasDtoMapper {
 
 	@Mapping(target = "fkEquipo", expression = "java(mapEquipoReq(dto))")
 	@Mapping(target = "fkCustodio", expression = "java(mapCustodioReq(dto))")
+	@Mapping(target = "rutaActaPdf", ignore = true)
+	@Mapping(target = "rutaActaFirmada", ignore = true)
 	Custodias toDomain(CustodiasRequestDTO dto);
 
 	@Mapping(source = "fkCustodio.idCustodio", target = "idCustodio")
@@ -37,7 +39,7 @@ public interface ICustodiasDtoMapper {
 		}
 		return new Equipos(dto.getEquipos().get(0).getIdEquipo(),
 				null, null, null, null, null, null, null, null,
-				null, null, null, null, false, null, null, null);
+				null, null, null, null, false, null, null, null, null, null);
 	}
 
 	default Custodios mapCustodioReq(CustodiasRequestDTO dto) {
@@ -65,9 +67,11 @@ public interface ICustodiasDtoMapper {
 		dto.setEstadoEquipo(e.getEstadoEquipo());
 		dto.setObservacionEquipo(e.getObservacionEquipo());
 		dto.setEstado(e.isEstado());
+		dto.setFechaAdquisicion(e.getFechaAdquisicion());
+		dto.setValorActual(e.getValorActual());
+		dto.setDescripcion(e.getDescripcion());
 		dto.setFkMarca(map(e.getFkMarca()));
 		dto.setFkCategoria(map(e.getFkCategoria()));
-		dto.setFkUbicacion(map(e.getFkUbicacion()));
 		return dto;
 	}
 

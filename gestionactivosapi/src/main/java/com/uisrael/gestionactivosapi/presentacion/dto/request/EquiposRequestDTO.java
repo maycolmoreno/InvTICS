@@ -22,10 +22,12 @@ public class EquiposRequestDTO {
     private String estadoEquipo;
     private String observacionEquipo;
     private boolean estado;
+    private LocalDate fechaAdquisicion;
+    private Double valorActual;
+    private String descripcion;
 
     private MarcasRequestDTO fkMarca;
     private CategoriaEquiposRequestDTO fkCategoria;
-    private UbicacionesRequestDTO fkUbicacion;
 
 }
 

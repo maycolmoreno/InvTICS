@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 
 import 'core/config/app_config.dart';
@@ -13,20 +15,40 @@ import 'features/configuracion/presentation/server_config_screen.dart';
 import 'features/dashboard/presentation/dashboard_shell.dart';
 import 'features/gps/data/gps_repository.dart';
 import 'features/gps/presentation/gps_provider.dart';
+import 'features/notificaciones/data/push_notificacion_service.dart';
 import 'shared/theme/app_theme.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+/// Handler para mensajes en background (debe ser top-level).
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar Firebase
+  try {
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  } catch (_) {
+    // Firebase no configurado — push notifications deshabilitadas
+  }
+
   await AppConfig.load();
   await LocalDatabase.instance.database;
 
   final secureStorage = SecureStorageService();
   late final AuthProvider authProvider;
+  late final PushNotificacionService pushService;
   final apiClient = ApiClient(
     secureStorage: secureStorage,
     onUnauthorized: () async {
+      try {
+        await pushService.limpiarToken();
+      } catch (_) {}
       await authProvider.logout();
     },
   );
@@ -37,11 +59,14 @@ Future<void> main() async {
   );
   await authProvider.bootstrap(hasServerConfig: AppConfig.isConfigured);
 
+  pushService = PushNotificacionService(apiClient);
+
   runApp(
     MultiProvider(
       providers: [
         Provider.value(value: secureStorage),
         Provider.value(value: apiClient),
+        Provider.value(value: pushService),
         ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider(create: (_) => ServerConfigProvider()),
         ChangeNotifierProvider(

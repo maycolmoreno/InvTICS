@@ -10,20 +10,17 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJ
 public interface ICustodiasJpaRepositorio extends JpaRepository<CustodiasJpa, Integer> {
 
     @Override
-    @EntityGraph(attributePaths = {"fkEquipo", "fkEquipo.fkMarcas", "fkEquipo.fkCategoria", "fkEquipo.fkUbicacion",
-            "fkCustodio", "fkCustodio.fkCargo", "fkCustodio.fkCargo.fkDepartamento", "fkCustodio.fkUbicacion",
-            "fkUbicacion"})
+    @EntityGraph(attributePaths = {"fkEquipo", "fkEquipo.fkMarcas", "fkEquipo.fkCategoria",
+            "fkCustodio", "fkCustodio.fkCargo", "fkCustodio.fkCargo.fkDepartamento", "fkCustodio.fkUbicacion"})
     java.util.List<CustodiasJpa> findAll();
 
-    @EntityGraph(attributePaths = {"fkEquipo", "fkEquipo.fkMarcas", "fkEquipo.fkCategoria", "fkEquipo.fkUbicacion",
-            "fkCustodio", "fkCustodio.fkCargo", "fkCustodio.fkCargo.fkDepartamento", "fkCustodio.fkUbicacion",
-            "fkUbicacion"})
+    @EntityGraph(attributePaths = {"fkEquipo", "fkEquipo.fkMarcas", "fkEquipo.fkCategoria",
+            "fkCustodio", "fkCustodio.fkCargo", "fkCustodio.fkCargo.fkDepartamento", "fkCustodio.fkUbicacion"})
     Page<CustodiasJpa> findAll(Pageable pageable);
 
     @Override
-    @EntityGraph(attributePaths = {"fkEquipo", "fkEquipo.fkMarcas", "fkEquipo.fkCategoria", "fkEquipo.fkUbicacion",
-            "fkCustodio", "fkCustodio.fkCargo", "fkCustodio.fkCargo.fkDepartamento", "fkCustodio.fkUbicacion",
-            "fkUbicacion"})
+    @EntityGraph(attributePaths = {"fkEquipo", "fkEquipo.fkMarcas", "fkEquipo.fkCategoria",
+            "fkCustodio", "fkCustodio.fkCargo", "fkCustodio.fkCargo.fkDepartamento", "fkCustodio.fkUbicacion"})
     java.util.Optional<CustodiasJpa> findById(Integer id);
 
     boolean existsByFkEquipo_IdEquipoAndEstadoTrue(Integer idEquipo);
@@ -34,4 +31,7 @@ public interface ICustodiasJpaRepositorio extends JpaRepository<CustodiasJpa, In
 
     java.util.Optional<CustodiasJpa> findFirstByFkEquipo_IdEquipoAndEstadoTrueAndFechaFinIsNullOrderByIdCustodiaEquipoDesc(
             Integer idEquipo);
+
+    java.util.List<CustodiasJpa> findByFkCustodio_IdCustodioAndTipoMovimientoAndFechaInicio(
+            Integer idCustodio, String tipoMovimiento, java.time.LocalDate fechaInicio);
 }

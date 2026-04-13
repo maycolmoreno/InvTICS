@@ -102,8 +102,8 @@ public class CustodiasPdfService {
 			table.addCell(cell(nvl(it.getFkEquipo().getCodigoSap())));
 			table.addCell(cell(nvl(it.getFkEquipo().getModelo())));
 			table.addCell(cell(nvl(it.getFkEquipo().getSerial())));
-			String ubicacion = it.getFkEquipo().getFkUbicacion() != null
-					? nvl(it.getFkEquipo().getFkUbicacion().getNombre()) : "";
+			String ubicacion = it.getFkCustodio() != null && it.getFkCustodio().getFkUbicacion() != null
+					? nvl(it.getFkCustodio().getFkUbicacion().getNombre()) : "";
 			table.addCell(cell(ubicacion));
 		}
 
@@ -264,8 +264,8 @@ public class CustodiasPdfService {
 			table.addCell(tableCell(serie.isEmpty() ? "N/A" : serie));
 			String modelo = nvl(it.getFkEquipo().getModelo());
 			table.addCell(tableCell(modelo.isEmpty() ? "N/A" : modelo));
-			String ubicacion = it.getFkEquipo().getFkUbicacion() != null
-					? nvl(it.getFkEquipo().getFkUbicacion().getNombre()) : "N/A";
+			String ubicacion = it.getFkCustodio() != null && it.getFkCustodio().getFkUbicacion() != null
+					? nvl(it.getFkCustodio().getFkUbicacion().getNombre()) : "N/A";
 			table.addCell(tableCell(ubicacion.isEmpty() ? "N/A" : ubicacion));
 			table.addCell(tableCell(nvl(it.getFkEquipo().getEstadoEquipo()).isEmpty()
 					? "BUENO" : it.getFkEquipo().getEstadoEquipo()));
@@ -459,15 +459,14 @@ public class CustodiasPdfService {
 			table.addCell(tableCell(serie.isEmpty() ? "N/A" : serie));
 			String modelo = nvl(it.getFkEquipo().getModelo());
 			table.addCell(tableCell(modelo.isEmpty() ? "N/A" : modelo));
-			String ubicacion = it.getFkEquipo().getFkUbicacion() != null
-					? nvl(it.getFkEquipo().getFkUbicacion().getNombre()) : "N/A";
+			String ubicacion = it.getFkCustodio() != null && it.getFkCustodio().getFkUbicacion() != null
+					? nvl(it.getFkCustodio().getFkUbicacion().getNombre()) : "N/A";
 			table.addCell(tableCell(ubicacion.isEmpty() ? "N/A" : ubicacion));
 			table.addCell(tableCell(nvl(it.getFkEquipo().getEstadoEquipo()).isEmpty()
 					? "BUENO" : it.getFkEquipo().getEstadoEquipo()));
 		}
 
 		doc.add(table);
-		doc.add(new Paragraph(" ", new Font(Font.TIMES_ROMAN, 6)));
 
 		Paragraph obsHeader = new Paragraph(" Observaci\u00f3n de mantenimiento", ACTA_SUBTITLE);
 		obsHeader.setIndentationLeft(5);
@@ -536,7 +535,7 @@ public class CustodiasPdfService {
 			table.addCell(cell(nvl(e.getCodigoSap())));
 			table.addCell(cell(nvl(e.getModelo())));
 			table.addCell(cell(nvl(e.getSerial())));
-			String ubicacion = e.getFkUbicacion() != null ? nvl(e.getFkUbicacion().getNombre()) : "";
+			String ubicacion = "";
 			table.addCell(cell(ubicacion));
 			table.addCell(cell("BAJA"));
 		}

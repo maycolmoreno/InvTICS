@@ -12,7 +12,7 @@ public interface IEquiposUseCase {
     Equipos obtenerPorId(int id);
 
     Equipos actualizar(int id, Equipos equipo);
-    Equipos actualizarEstado(int id, boolean estado);
+    void actualizarEstado(int id, boolean estado);
 
 	boolean existeCodigo(String codigo);
 

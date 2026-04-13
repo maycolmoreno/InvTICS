@@ -12,17 +12,17 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ActividadP
 
 public interface IActividadPlanificadaJpaRepositorio extends JpaRepository<ActividadPlanificadaJpa, Long> {
 
-    @EntityGraph(attributePaths = {"fkTecnico", "fkCreadoPor"})
+    @EntityGraph(attributePaths = {"fkTecnico", "fkCreadoPor", "fkEquipo"})
     List<ActividadPlanificadaJpa> findByTecnicoIdOrderByFechaInicioDesc(Integer tecnicoId);
 
-    @EntityGraph(attributePaths = {"fkTecnico", "fkCreadoPor"})
+    @EntityGraph(attributePaths = {"fkTecnico", "fkCreadoPor", "fkEquipo"})
     List<ActividadPlanificadaJpa> findByTecnicoIdAndEstadoOrderByFechaInicioDesc(Integer tecnicoId, String estado);
 
-    @EntityGraph(attributePaths = {"fkTecnico", "fkCreadoPor"})
+    @EntityGraph(attributePaths = {"fkTecnico", "fkCreadoPor", "fkEquipo"})
     List<ActividadPlanificadaJpa> findByTecnicoIdAndFechaInicioBetweenOrderByFechaInicioAsc(
             Integer tecnicoId, LocalDate desde, LocalDate hasta);
 
-    @EntityGraph(attributePaths = {"fkTecnico", "fkCreadoPor"})
+    @EntityGraph(attributePaths = {"fkTecnico", "fkCreadoPor", "fkEquipo"})
     List<ActividadPlanificadaJpa> findAllByOrderByFechaInicioDesc();
 
     // Consultas para métricas

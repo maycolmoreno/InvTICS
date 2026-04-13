@@ -26,9 +26,12 @@ public class EquiposResponseDTO {
 
 	private boolean estado;
 
+	private LocalDate fechaAdquisicion;
+	private Double valorActual;
+	private String descripcion;
+
 	private MarcasResponseDTO fkMarca;
 	private CategoriaEquiposResponseDTO fkCategoria;
-	private UbicacionesResponseDTO fkUbicacion;
 
 	public int getIdEquipo() {
 		return idEquipo;
@@ -142,6 +145,30 @@ public class EquiposResponseDTO {
 		this.estado = estado;
 	}
 
+	public LocalDate getFechaAdquisicion() {
+		return fechaAdquisicion;
+	}
+
+	public void setFechaAdquisicion(LocalDate fechaAdquisicion) {
+		this.fechaAdquisicion = fechaAdquisicion;
+	}
+
+	public Double getValorActual() {
+		return valorActual;
+	}
+
+	public void setValorActual(Double valorActual) {
+		this.valorActual = valorActual;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+
 	public MarcasResponseDTO getFkMarca() {
 		return fkMarca;
 	}
@@ -156,13 +183,5 @@ public class EquiposResponseDTO {
 
 	public void setFkCategoria(CategoriaEquiposResponseDTO fkCategoria) {
 		this.fkCategoria = fkCategoria;
-	}
-
-	public UbicacionesResponseDTO getFkUbicacion() {
-		return fkUbicacion;
-	}
-
-	public void setFkUbicacion(UbicacionesResponseDTO fkUbicacion) {
-		this.fkUbicacion = fkUbicacion;
 	}
 }

@@ -77,16 +77,7 @@
 							</div>
 						</div>
 						<div class="span-4 field-group">
-							<label class="field-label">Ubicacion</label>
-							<div class="d-flex gap-2">
-								<select class="form-select" id="selUbicacion" th:field="*{fkUbicacion.idUbicacion}">
-									<option value="0">Seleccione una ubicacion</option>
-									<option th:each="u : ${listaubicaciones}" th:value="${u.idUbicacion}" th:text="${u.nombre + ' - ' + u.agencia}"></option>
-								</select>
-								<button type="button" class="btn btn-outline-primary btn-sm" title="Crear ubicacion" data-bs-toggle="modal" data-bs-target="#modalCrearUbicacion"><i class="feather-plus"></i></button>
-							</div>
-						</div>
-						<div class="span-4 field-group">
+
 							<label class="field-label">Activo</label>
 							<select class="form-select" th:field="*{estado}">
 								<option th:value="true">Si</option>
@@ -183,27 +174,6 @@
 			</div>
 		</div>
 
-		<!-- Modal Crear Ubicacion -->
-		<div class="modal fade" id="modalCrearUbicacion" tabindex="-1" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header"><h5 class="modal-title">Nueva Ubicacion</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-					<div class="modal-body">
-						<div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
-							<input type="text" class="form-control" id="modalUbiNombre" maxlength="100" /></div>
-						<div class="mb-3"><label class="form-label">Agencia <span class="text-danger">*</span></label>
-							<input type="text" class="form-control" id="modalUbiAgencia" maxlength="100" /></div>
-						<div class="text-danger small" id="modalUbiError"></div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-						<button type="button" class="btn btn-primary btn-sm" id="btnCrearUbi">Crear</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
 		<script>
 		(function () {
 			// Mover modales al body para evitar problemas de CSS containment
@@ -246,22 +216,6 @@
 					bootstrap.Modal.getInstance(document.getElementById('modalCrearCategoria')).hide();
 					document.getElementById('modalCategoriaNombre').value = '';
 					document.getElementById('modalCategoriaError').textContent = '';
-				}, this);
-			});
-
-			document.getElementById('btnCrearUbi').addEventListener('click', function () {
-				var n = document.getElementById('modalUbiNombre').value.trim();
-				var a = document.getElementById('modalUbiAgencia').value.trim();
-				if (!n) { document.getElementById('modalUbiError').textContent = 'El nombre es obligatorio'; return; }
-				if (!a) { document.getElementById('modalUbiError').textContent = 'La agencia es obligatoria'; return; }
-				ajaxCrear('/api/relaciones/ubicaciones', { nombre: n, agencia: a }, 'modalUbiError', function (data) {
-					var sel = document.getElementById('selUbicacion');
-					var opt = new Option(data.nombre + ' - ' + (data.agencia || ''), data.idUbicacion, true, true);
-					sel.appendChild(opt);
-					bootstrap.Modal.getInstance(document.getElementById('modalCrearUbicacion')).hide();
-					document.getElementById('modalUbiNombre').value = '';
-					document.getElementById('modalUbiAgencia').value = '';
-					document.getElementById('modalUbiError').textContent = '';
 				}, this);
 			});
 		})();

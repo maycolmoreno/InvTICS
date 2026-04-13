@@ -18,6 +18,7 @@ import com.uisrael.gestionactivosapi.presentacion.dto.request.CambiarEstadoActiv
 import com.uisrael.gestionactivosapi.presentacion.dto.response.ActividadPlanificadaResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.MetricasCumplimientoResponseDTO;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IActividadPlanificadaUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICrearMantenimientosUseCase;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,11 +33,16 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
 
     private final IActividadPlanificadaJpaRepositorio actividadRepo;
     private final IUsuariosJpaRepositorio usuariosRepo;
+    private final ICrearMantenimientosUseCase crearMantenimientosUseCase;
 
     @Transactional
     public ActividadPlanificadaResponseDTO crear(ActividadPlanificadaRequestDTO request) {
         validarTipoActividad(request.getTipoActividad());
         validarPrioridad(request.getPrioridad());
+
+        if ("MANTENIMIENTO_PROGRAMADO".equalsIgnoreCase(request.getTipoActividad()) && request.getFkEquipoId() == null) {
+            throw new IllegalArgumentException("El equipo es obligatorio para actividades de tipo Mantenimiento Programado");
+        }
 
         UsuariosJpa tecnico = usuariosRepo.findById(request.getTecnicoId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Técnico no encontrado"));
@@ -55,6 +61,7 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
         entity.setFechaFin(request.getFechaFin());
         entity.setTiempoEstimadoMinutos(request.getTiempoEstimadoMinutos());
         entity.setReferenciaMantenimientoId(request.getReferenciaMantenimientoId());
+        entity.setFkEquipoId(request.getFkEquipoId());
         entity.setObservaciones(request.getObservaciones());
 
         return toDto(actividadRepo.save(entity));
@@ -96,6 +103,24 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
             entity.setFechaCompletada(LocalDateTime.now());
             if (request.getTiempoRealMinutos() != null) {
                 entity.setTiempoRealMinutos(request.getTiempoRealMinutos());
+            }
+
+            // Auto-crear mantenimiento al completar actividad de tipo MANTENIMIENTO_PROGRAMADO
+            if ("MANTENIMIENTO_PROGRAMADO".equals(entity.getTipoActividad()) && entity.getFkEquipoId() != null) {
+                try {
+                    String prioridadMant = mapearPrioridadMantenimiento(entity.getPrioridad());
+                    Integer idMantenimiento = crearMantenimientosUseCase.crear(
+                            List.of(entity.getFkEquipoId()),
+                            "PREVENTIVO",
+                            prioridadMant,
+                            entity.getTecnicoId());
+                    entity.setReferenciaMantenimientoId(idMantenimiento);
+                } catch (Exception e) {
+                    // No bloquear el cambio de estado si falla la creación del mantenimiento
+                    entity.setObservaciones(
+                            (entity.getObservaciones() != null ? entity.getObservaciones() + " | " : "")
+                            + "No se pudo crear mantenimiento automático: " + e.getMessage());
+                }
             }
         }
         if (request.getObservaciones() != null) {
@@ -224,6 +249,15 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
         }
     }
 
+    private String mapearPrioridadMantenimiento(String prioridadActividad) {
+        if (prioridadActividad == null) return "NORMAL";
+        return switch (prioridadActividad.toUpperCase()) {
+            case "URGENTE" -> "URGENTE";
+            case "ALTA" -> "ALTA";
+            default -> "NORMAL";
+        };
+    }
+
     private ActividadPlanificadaResponseDTO toDto(ActividadPlanificadaJpa entity) {
         return ActividadPlanificadaResponseDTO.builder()
                 .idActividadPlanificada(entity.getIdActividadPlanificada())
@@ -242,6 +276,11 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
                 .tiempoEstimadoMinutos(entity.getTiempoEstimadoMinutos())
                 .tiempoRealMinutos(entity.getTiempoRealMinutos())
                 .referenciaMantenimientoId(entity.getReferenciaMantenimientoId())
+                .fkEquipoId(entity.getFkEquipoId())
+                .equipoNombre(entity.getFkEquipo() != null
+                        ? (entity.getFkEquipo().getCodigoSap() != null ? entity.getFkEquipo().getCodigoSap() + " - " : "")
+                          + (entity.getFkEquipo().getModelo() != null ? entity.getFkEquipo().getModelo() : "Equipo #" + entity.getFkEquipoId())
+                        : null)
                 .observaciones(entity.getObservaciones())
                 .creadoEn(entity.getCreatedAt())
                 .actualizadoEn(entity.getUpdatedAt())

@@ -56,4 +56,7 @@ public class UsuariosJpa extends AuditableEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "id_rol")
     private RolesJpa fkRol;
+
+    @Column(name = "fcm_token", length = 512)
+    private String fcmToken;
 }

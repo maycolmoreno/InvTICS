@@ -41,8 +41,8 @@ public class ObtenerUbicacionEquipoUseCase {
     }
 
     private UbicacionActiva toUbicacionActiva(CustodiasJpa custodia) {
-        var ubicacion = custodia.getFkUbicacion();
         var custodio = custodia.getFkCustodio();
+        var ubicacion = custodio != null ? custodio.getFkUbicacion() : null;
 
         return new UbicacionActiva(
             ubicacion != null ? ubicacion.getIdUbicacion() : null,

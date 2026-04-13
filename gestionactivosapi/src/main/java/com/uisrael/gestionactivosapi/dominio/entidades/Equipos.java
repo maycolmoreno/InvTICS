@@ -19,16 +19,19 @@ public class Equipos {
 	private final String estadoEquipo;
 	private final String observacionEquipo;
 	private final boolean estado;
+	private final LocalDate fechaAdquisicion;
+	private final Double valorActual;
+	private final String descripcion;
 
 	private Marcas fkMarca;
 	private CategoriaEquipos fkCategoria;
-	private Ubicaciones fkUbicacion;
 
 	public Equipos(int idEquipo, String codigoSap, String modelo, String serial, String procesador,
 			Integer memoriaRamGb, Integer capacidadAlmacenamientoGb,
 			Boolean licenciaWindowsActivada, String mac, LocalDate fechaCompra,
-			BigDecimal precioCompra, String estadoEquipo, String observacionEquipo, boolean estado, Marcas fkMarca,
-			CategoriaEquipos fkCategoria, Ubicaciones fkUbicacion) {
+			BigDecimal precioCompra, String estadoEquipo, String observacionEquipo,
+			boolean estado, LocalDate fechaAdquisicion, Double valorActual, String descripcion,
+			Marcas fkMarca, CategoriaEquipos fkCategoria) {
 		this.idEquipo = idEquipo;
 		this.codigoSap = codigoSap;
 		this.modelo = modelo;
@@ -43,9 +46,11 @@ public class Equipos {
 		this.estadoEquipo = estadoEquipo;
 		this.observacionEquipo = observacionEquipo;
 		this.estado = estado;
+		this.fechaAdquisicion = fechaAdquisicion;
+		this.valorActual = valorActual;
+		this.descripcion = descripcion;
 		this.fkMarca = fkMarca;
 		this.fkCategoria = fkCategoria;
-		this.fkUbicacion = fkUbicacion;
 	}
 
 	public int getIdEquipo() {
@@ -104,6 +109,18 @@ public class Equipos {
 		return estado;
 	}
 
+	public LocalDate getFechaAdquisicion() {
+		return fechaAdquisicion;
+	}
+
+	public Double getValorActual() {
+		return valorActual;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
 	public Marcas getFkMarca() {
 		return fkMarca;
 	}
@@ -120,14 +137,6 @@ public class Equipos {
 		this.fkCategoria = fkCategoria;
 	}
 
-	public Ubicaciones getFkUbicacion() {
-		return fkUbicacion;
-	}
-
-	public void setFkUbicacion(Ubicaciones fkUbicacion) {
-		this.fkUbicacion = fkUbicacion;
-	}
-
 	@Override
 	public String toString() {
 		return "Equipos [idEquipo=" + idEquipo + ", codigoSap=" + codigoSap + ", modelo="
@@ -136,7 +145,7 @@ public class Equipos {
 				+ ", licenciaWindowsActivada=" + licenciaWindowsActivada
 				+ ", mac=" + mac + ", fechaCompra=" + fechaCompra + ", precioCompra="
 				+ precioCompra + ", estadoEquipo=" + estadoEquipo + ", observacionEquipo=" + observacionEquipo
-				+ ", estado=" + estado + ", fkMarca=" + fkMarca + ", fkCategoria=" + fkCategoria + "]";
+				+ ", fkMarca=" + fkMarca + ", fkCategoria=" + fkCategoria + "]";
 	}
 
 }

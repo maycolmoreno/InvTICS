@@ -18,6 +18,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.ActividadPlanifi
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MetricasCumplimientoResponseDTO;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 import com.uisrael.consumogestionactivosapi.service.IActividadPlanificadaServicio;
+import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class ActividadPlanificadaControlador {
 
 	private final IActividadPlanificadaServicio actividadServicio;
 	private final IUsuariosServicio usuariosServicio;
+	private final IEquiposServicio equiposServicio;
 	private final SesionUsuario sesionUsuario;
 
 	@GetMapping("/planificacion")
@@ -50,6 +52,7 @@ public class ActividadPlanificadaControlador {
 	public String formNueva(Model model) {
 		model.addAttribute("actividad", new ActividadPlanificadaRequestDTO());
 		model.addAttribute("tecnicos", usuariosServicio.listarUsuario());
+		model.addAttribute("equipos", equiposServicio.listarEquipos());
 		model.addAttribute("esTecnico", sesionUsuario.tieneRol("TECNICO"));
 		model.addAttribute("idUsuarioActual", sesionUsuario.getIdUsuario());
 		return "Planificacion/planificacion-form";
@@ -95,9 +98,28 @@ public class ActividadPlanificadaControlador {
 
 	@GetMapping("/planificacion/metricas")
 	public String vistaMetricas(@RequestParam(defaultValue = "MENSUAL") String periodo, Model model) {
-		List<MetricasCumplimientoResponseDTO> metricas = actividadServicio.obtenerMetricasGlobales(periodo);
+		List<MetricasCumplimientoResponseDTO> metricas;
+		try {
+			metricas = actividadServicio.obtenerMetricasGlobales(periodo);
+		} catch (Exception e) {
+			metricas = List.of();
+			model.addAttribute("error", "No se pudieron cargar las métricas: " + e.getMessage());
+		}
+
+		// Calcular totales para el resumen global
+		long totalCompletadas = metricas.stream().mapToLong(MetricasCumplimientoResponseDTO::getCompletadas).sum();
+		long totalPendientes = metricas.stream().mapToLong(MetricasCumplimientoResponseDTO::getPendientes).sum();
+		long totalVencidas = metricas.stream().mapToLong(MetricasCumplimientoResponseDTO::getVencidas).sum();
+		long totalActividades = metricas.stream().mapToLong(MetricasCumplimientoResponseDTO::getTotalActividades).sum();
+		long totalEnProgreso = metricas.stream().mapToLong(MetricasCumplimientoResponseDTO::getEnProgreso).sum();
+
 		model.addAttribute("metricas", metricas);
 		model.addAttribute("periodoSeleccionado", periodo);
+		model.addAttribute("totalCompletadas", totalCompletadas);
+		model.addAttribute("totalPendientes", totalPendientes);
+		model.addAttribute("totalVencidas", totalVencidas);
+		model.addAttribute("totalActividades", totalActividades);
+		model.addAttribute("totalEnProgreso", totalEnProgreso);
 		return "Planificacion/metricas";
 	}
 

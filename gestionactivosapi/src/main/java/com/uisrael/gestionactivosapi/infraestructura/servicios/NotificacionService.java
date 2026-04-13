@@ -24,6 +24,7 @@ public class NotificacionService {
     private final INotificacionJpaRepositorio notificacionRepo;
     private final IUsuariosJpaRepositorio usuariosRepo;
     private final IMantenimientosJpaRepositorio mantenimientosRepo;
+    private final PushNotificacionService pushNotificacionService;
 
     public NotificacionResponseDTO crear(Integer usuarioId, String mensaje, String url, Integer mantenimientoId) {
         UsuariosJpa usuario = usuariosRepo.findById(usuarioId)
@@ -41,7 +42,12 @@ public class NotificacionService {
         if (mantenimientoId != null) {
             entity.setFkMantenimiento(mantenimientosRepo.findById(mantenimientoId).orElse(null));
         }
-        return toDto(notificacionRepo.save(entity));
+        NotificacionResponseDTO dto = toDto(notificacionRepo.save(entity));
+
+        // Enviar push notification al dispositivo del usuario
+        pushNotificacionService.enviar(usuarioId, "CRESIO", mensaje, url);
+
+        return dto;
     }
 
     public Integer obtenerUsuarioIdPorCorreo(String correo) {

@@ -3,22 +3,63 @@
 <head><title>Notificaciones</title></head>
 <body>
 <div layout:fragment="contenidopaginas" class="container-fluid py-4">
-    <h3 class="mb-3">Notificaciones</h3>
-    <div class="card"><div class="card-body">
-        <div th:if="${#lists.isEmpty(notificaciones)}" class="text-muted">No tienes notificaciones pendientes.</div>
-        <div class="border rounded p-3 mb-3" th:each="n : ${notificaciones}">
-            <div class="d-flex justify-content-between gap-3">
-                <div>
-                    <div class="fw-bold" th:text="${n.mensaje}"></div>
-                    <div class="text-muted" th:text="${n.creadoEn}"></div>
-                    <a th:if="${n.url}" th:href="@{${n.url}}" class="btn btn-sm btn-link px-0">Ir a la accion</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0"><i class="feather-bell me-2"></i>Notificaciones</h3>
+        <span class="badge bg-danger" th:if="${notificacionesPendientes > 0}"
+              th:text="${notificacionesPendientes + ' sin leer'}"></span>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <!-- Sin notificaciones -->
+            <div th:if="${#lists.isEmpty(notificaciones)}" class="text-center text-muted py-5">
+                <i class="feather-bell-off" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">No tienes notificaciones.</p>
+            </div>
+
+            <!-- Lista de notificaciones -->
+            <div class="list-group list-group-flush" th:if="${!#lists.isEmpty(notificaciones)}">
+                <div th:each="n : ${notificaciones}"
+                     class="list-group-item list-group-item-action py-3"
+                     th:classappend="${!n.leida} ? ' border-start border-primary border-3' : ''">
+                    <div class="d-flex align-items-start gap-3">
+                        <!-- Icono de estado -->
+                        <div class="flex-shrink-0 mt-1">
+                            <span th:if="${!n.leida}" class="badge rounded-pill bg-primary" title="Sin leer">
+                                <i class="feather-mail"></i>
+                            </span>
+                            <span th:if="${n.leida}" class="badge rounded-pill bg-light text-muted" title="Leida">
+                                <i class="feather-check"></i>
+                            </span>
+                        </div>
+
+                        <!-- Contenido -->
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <p class="mb-1" th:classappend="${!n.leida} ? ' fw-bold' : ' text-muted'"
+                                   th:text="${n.mensaje}"></p>
+                                <small class="text-nowrap ms-3 text-muted"
+                                       th:text="${#temporals.format(n.creadoEn, 'dd/MM/yyyy HH:mm')}"></small>
+                            </div>
+                            <div class="d-flex gap-2 mt-1">
+                                <a th:if="${n.url}" th:href="@{${n.url}}"
+                                   class="btn btn-sm btn-outline-secondary py-0 px-2">
+                                    <i class="feather-external-link me-1"></i>Ver detalle
+                                </a>
+                                <form th:if="${!n.leida}"
+                                      th:action="@{'/notificaciones/' + ${n.idNotificacion} + '/leer'}" method="post"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                        <i class="feather-check me-1"></i>Marcar leida
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <form th:if="${!(n.leida)}" th:action="@{'/notificaciones/' + ${n.idNotificacion} + '/leer'}" method="post">
-                    <button type="submit" class="btn btn-outline-primary btn-sm">Marcar leida</button>
-                </form>
             </div>
         </div>
-    </div></div>
+    </div>
 </div>
 </body>
 </html>

@@ -54,14 +54,6 @@ public interface EquipoRepositorioPuerto {
     void eliminar(Integer id);
     
     /**
-     * Obtiene equipos filtrados por estado.
-     * 
-     * @param estado true para activos, false para inactivos
-     * @return lista de equipos en el estado especificado
-     */
-    List<Equipos> obtenerPorEstado(boolean estado);
-    
-    /**
      * Obtiene equipos asignados a un Custodios específico.
      * 
      * @param custodioId el ID del Custodios
@@ -106,6 +98,11 @@ public interface EquipoRepositorioPuerto {
      * @return el equipo actualizado
      */
     Equipos actualizar(int id, Equipos equipo);
+    
+    /**
+     * Actualiza el estado (borrado lógico) de un equipo.
+     */
+    void actualizarEstado(int id, boolean estado);
     
     /**
      * Verifica si existe un equipo con el Código SAP (Activo Fijo) especificado.
@@ -157,8 +154,6 @@ public interface EquipoRepositorioPuerto {
      * @return true si existe otro, false en caso contrario
      */
     boolean existeMACParaOtro(String mac, int idEquipo);
-
-    Equipos actualizarEstado(int id, boolean estado);
 
     Pagina<Equipos> listarPaginado(int pagina, int tamanio);
 }

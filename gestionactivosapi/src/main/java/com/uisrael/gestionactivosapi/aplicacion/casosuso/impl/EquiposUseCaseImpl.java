@@ -88,24 +88,14 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 				equipo.getCapacidadAlmacenamientoGb(),
 				equipo.getLicenciaWindowsActivada(), equipo.getMac(),
 				equipo.getFechaCompra(), equipo.getPrecioCompra(), equipo.getEstadoEquipo(),
-				equipo.getObservacionEquipo(), equipo.isEstado(), equipo.getFkMarca(), equipo.getFkCategoria(), equipo.getFkUbicacion());
+				equipo.getObservacionEquipo(), equipo.isEstado(), equipo.getFechaAdquisicion(), equipo.getValorActual(), equipo.getDescripcion(), equipo.getFkMarca(), equipo.getFkCategoria());
 
 		return equipoRepositorio.actualizar(id, actualizado);
 	}
 
 	@Override
-	public Equipos actualizarEstado(int id, boolean estado) {
-
-		Equipos equipo = equipoRepositorio.buscarPorId(id).orElseThrow(() -> new RecursoNoEncontradoException("Equipo no encontrado"));
-
-		Equipos actualizado = new Equipos(id, equipo.getCodigoSap(), equipo.getModelo(),
-				equipo.getSerial(), equipo.getProcesador(), equipo.getMemoriaRamGb(),
-				equipo.getCapacidadAlmacenamientoGb(),
-				equipo.getLicenciaWindowsActivada(), equipo.getMac(),
-				equipo.getFechaCompra(), equipo.getPrecioCompra(), equipo.getEstadoEquipo(),
-				equipo.getObservacionEquipo(), estado, equipo.getFkMarca(), equipo.getFkCategoria(), equipo.getFkUbicacion());
-
-		return equipoRepositorio.actualizar(id, actualizado);
+	public void actualizarEstado(int id, boolean estado) {
+		equipoRepositorio.actualizarEstado(id, estado);
 	}
 
 	@Override

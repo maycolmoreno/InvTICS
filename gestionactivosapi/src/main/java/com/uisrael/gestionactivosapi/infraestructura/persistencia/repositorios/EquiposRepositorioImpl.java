@@ -60,15 +60,11 @@ public class EquiposRepositorioImpl implements EquipoRepositorioPuerto {
 	}
 
 	@Override
-	public Equipos actualizarEstado(int id, boolean estado) {
-		Optional<EquiposJpa> optional = jpaRepositorio.findById(id);
-		if (optional.isPresent()) {
-			EquiposJpa jpa = optional.get();
-			jpa.setEstado(estado);
-			EquiposJpa updated = jpaRepositorio.save(jpa);
-			return mapper.toDomain(updated);
-		}
-		return null;
+	public void actualizarEstado(int id, boolean estado) {
+		EquiposJpa jpa = jpaRepositorio.findById(id)
+				.orElseThrow(() -> new com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException("Equipo no encontrado"));
+		jpa.setEstado(estado);
+		jpaRepositorio.save(jpa);
 	}
 
 	@Override
@@ -99,11 +95,6 @@ public class EquiposRepositorioImpl implements EquipoRepositorioPuerto {
 	@Override
 	public boolean existeMACParaOtro(String mac, int idEquipo) {
 		return jpaRepositorio.existsByMacIgnoreCaseAndIdEquipoNot(mac, idEquipo);
-	}
-
-	@Override
-	public List<Equipos> obtenerPorEstado(boolean estado) {
-		return obtenerTodos().stream().filter(equipo -> equipo.isEstado() == estado).collect(Collectors.toList());
 	}
 
 	@Override

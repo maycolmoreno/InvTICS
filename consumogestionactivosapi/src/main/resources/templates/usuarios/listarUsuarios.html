@@ -8,35 +8,30 @@
 </head>
 <body>
 <div layout:fragment="contenidopaginas">
-  <div class="page-shell admin-shell">
-    <section class="operations-hero">
-      <div class="operations-hero-copy">
+  <div class="page-shell">
+    <div class="view-heading">
+      <div>
         <div class="eyebrow">Gobierno De Accesos</div>
-        <h1>Usuarios y autorizaciones operativas</h1>
-        <div class="info-chip-row mt-3">
-          <div class="info-chip"><i class="feather-users"></i><span>Total <strong th:text="${#lists.size(listarusuarios)}">0</strong></span></div>
-          <div class="info-chip"><i class="feather-check-circle"></i><span>Activos <strong th:text="${#lists.size(listarusuarios.?[estado])}">0</strong></span></div>
-          <div class="info-chip"><i class="feather-shield"></i><span>Roles asignados <strong th:text="${#aggregates.sum(listarusuarios.![fkRol != null ? 1 : 0])}">0</strong></span></div>
-        </div>
+        <h1 class="view-title">Usuarios</h1>
       </div>
-      <div class="operations-hero-actions">
+      <div class="d-flex gap-3 flex-wrap">
         <a th:href="@{/usuarios/nuevo-usuario}" class="btn btn-primary px-4 py-3">
           <i class="feather-plus-circle me-2"></i>Nuevo usuario
         </a>
       </div>
-    </section>
+    </div>
 
     <section class="admin-summary-grid">
       <article class="admin-summary-card">
-        <div class="admin-summary-label">Cobertura</div>
+        <div class="admin-summary-label">Total usuarios</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarusuarios)}">0</div>
       </article>
       <article class="admin-summary-card">
-        <div class="admin-summary-label">Usuarios activos</div>
+        <div class="admin-summary-label">Activos</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarusuarios.?[estado])}">0</div>
       </article>
       <article class="admin-summary-card">
-        <div class="admin-summary-label">Usuarios inactivos</div>
+        <div class="admin-summary-label">Inactivos</div>
         <div class="admin-summary-value" th:text="${#lists.size(listarusuarios.?[!estado])}">0</div>
       </article>
     </section>
@@ -46,107 +41,221 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <section class="surface-card page-panel">
+    <div class="surface-card page-panel">
       <div class="filter-bar">
-        <input id="searchInput" type="text" class="form-control form-control-sm" placeholder="Buscar usuario..." style="max-width:220px">
-        <select id="filterRol" class="form-select form-select-sm" style="max-width:160px">
-          <option value="">Todo rol</option>
-        </select>
-        <select id="filterDepartamento" class="form-select form-select-sm" style="max-width:180px">
-          <option value="">Todo departamento</option>
-        </select>
-        <select id="filterEstado" class="form-select form-select-sm" style="max-width:150px">
-          <option value="">Todo estado</option>
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
-        </select>
-        <span class="row-counter"><span id="rowCount">0</span> registros</span>
-      </div>
-
-      <div class="card card-custodios">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" id="usuariosTable">
-              <thead>
-              <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Identificacion</th>
-                <th>Rol</th>
-                <th>Departamento</th>
-                <th>Estado</th>
-                <th class="text-end">Acciones</th>
-              </tr>
-              </thead>
-              <tbody id="usuariosTbody">
-              <tr class="fila-usuario" th:each="usuario : ${listarusuarios}"
-                  th:data-rol="${usuario.fkRol != null ? usuario.fkRol.nombre : 'Sin rol'}"
-                  th:data-departamento="${usuario.fkDepartamento != null ? usuario.fkDepartamento.nombre : 'Sin departamento'}"
-                  th:data-estado="${usuario.estado ? 'Activo' : 'Inactivo'}">
-                <td><strong th:text="${usuario.idUsuario}">1</strong></td>
-                <td>
-                  <div class="fw-semibold" th:text="${usuario.nombre}">Nombre usuario</div>
-                  <div class="text-muted small" th:text="${usuario.correo}">correo@empresa.com</div>
-                </td>
-                <td th:text="${usuario.cedula}">0000000000</td>
-                <td th:text="${usuario.fkRol != null ? usuario.fkRol.nombre : 'Sin rol'}">Administrador</td>
-                <td th:text="${usuario.fkDepartamento != null ? usuario.fkDepartamento.nombre : 'Sin departamento'}">Sistemas</td>
-                <td>
-                  <span th:class="${usuario.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}"
-                        th:text="${usuario.estado ? 'Activo' : 'Inactivo'}">Activo</span>
-                </td>
-                <td>
-                  <div class="hstack gap-2 justify-content-end">
-                    <a th:href="@{/usuarios/editar-usuario/{id}(id=${usuario.idUsuario})}" class="btn btn-light btn-sm">
-                      <i class="feather-edit-2 me-1"></i>Editar
-                    </a>
-                    <form th:if="${usuario.estado}" th:action="@{/usuarios/eliminar/{id}(id=${usuario.idUsuario})}" method="post" style="display:inline;">
-                      <button type="submit" class="btn btn-outline-danger btn-sm"
-                              onclick="return confirm('¿Seguro que deseas desactivar este usuario?');">
-                        <i class="feather-user-minus me-1"></i>Desactivar
-                      </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-              <tr th:if="${#lists.isEmpty(listarusuarios)}">
-                <td colspan="7">
-                  <div class="table-empty-state">
-                    <i class="feather-users"></i>
-                    <div class="fw-semibold">No hay usuarios registrados</div>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
+        <div class="flex-grow-1" style="min-width:200px; max-width:340px;">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 pe-2" style="border-color:#e4e4e7;">
+              <i class="feather feather-search" style="font-size:14px; color:#a1a1aa;"></i>
+            </span>
+            <input type="text" id="searchInput" class="form-control border-start-0 ps-1"
+                   placeholder="Buscar usuario..." autocomplete="off">
           </div>
+        </div>
+        <div style="min-width:160px;">
+          <select id="filterRol" class="form-select">
+            <option value="">Todos los roles</option>
+          </select>
+        </div>
+        <div style="min-width:180px;">
+          <select id="filterDepartamento" class="form-select">
+            <option value="">Todos los departamentos</option>
+          </select>
+        </div>
+        <div style="min-width:140px;">
+          <select id="filterEstado" class="form-select">
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+        <div class="ms-auto row-counter">
+          Mostrando <strong id="rowCount">0</strong> usuarios
+        </div>
+      </div>
+    </div>
+
+    <div class="card-surface-strong table-shell">
+      <div class="content-card pt-0">
+        <div class="table-responsive">
+          <table class="table mb-0 align-middle" id="usuariosTable">
+            <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Identificacion</th>
+              <th>Rol</th>
+              <th>Departamento</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="usuariosTbody">
+            <tr class="fila-usuario" th:each="usuario : ${listarusuarios}"
+                th:data-rol="${usuario.fkRol != null ? usuario.fkRol.nombre : 'Sin rol'}"
+                th:data-departamento="${usuario.fkDepartamento != null ? usuario.fkDepartamento.nombre : 'Sin departamento'}"
+                th:data-estado="${usuario.estado ? 'Activo' : 'Inactivo'}">
+              <td>
+                <div class="cust-cell">
+                  <div class="cust-avatar" th:classappend="'av-' + ${usuario.idUsuario % 6}"
+                       th:text="${#strings.toUpperCase(usuario.nombre != null and usuario.nombre.length() >= 2 ? usuario.nombre.substring(0,2) : (usuario.nombre != null ? usuario.nombre : 'US'))}"></div>
+                  <div>
+                    <div class="cust-name" th:text="${usuario.nombre}">Nombre</div>
+                    <div class="cust-cedula" th:text="${usuario.correo}">correo@empresa.com</div>
+                  </div>
+                </div>
+              </td>
+              <td th:text="${usuario.cedula}">0000000000</td>
+              <td>
+                <span class="badge-tipo" th:text="${usuario.fkRol != null ? usuario.fkRol.nombre : 'Sin rol'}">Rol</span>
+              </td>
+              <td th:text="${usuario.fkDepartamento != null ? usuario.fkDepartamento.nombre : 'Sin departamento'}">Depto</td>
+              <td>
+                <span th:if="${usuario.estado}" class="badge-activa">
+                  <i class="feather feather-check-circle" style="font-size:11px;"></i> Activo
+                </span>
+                <span th:unless="${usuario.estado}" class="badge-cerrada">
+                  <i class="feather feather-lock" style="font-size:11px;"></i> Inactivo
+                </span>
+              </td>
+              <td>
+                <div class="d-flex gap-1 justify-content-end">
+                  <a th:href="@{/usuarios/editar-usuario/{id}(id=${usuario.idUsuario})}"
+                     class="act-btn" title="Editar">
+                    <i class="feather feather-edit-2"></i>
+                  </a>
+                  <form th:if="${usuario.estado}" th:action="@{/usuarios/eliminar/{id}(id=${usuario.idUsuario})}" method="post" style="display:inline;">
+                    <button type="submit" class="act-btn" title="Desactivar"
+                            style="border:none; background:none; cursor:pointer; padding:0;"
+                            onclick="return confirm('¿Seguro que deseas desactivar este usuario?');">
+                      <i class="feather feather-user-minus text-danger"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(listarusuarios)}">
+              <td colspan="6">
+                <div class="empty-state">
+                  <i class="feather feather-users"></i>
+                  <p>No hay usuarios registrados</p>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="pagination-bar">
-        <div class="page-size-wrap">Mostrar <select id="pageSizeSelect"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select> filas</div>
+      <div class="pagination-bar" id="paginationBar">
+        <div class="page-size-wrap">
+          <span>Filas por pagina:</span>
+          <select id="pageSizeSelect">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
         <div class="pagination-info" id="paginationInfo"></div>
-        <div class="pagination-nav" id="paginationNav"></div>
+        <nav class="pagination-nav" id="paginationNav"></nav>
       </div>
-    </section>
+    </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-      var searchInput=document.getElementById("searchInput"),filterRol=document.getElementById("filterRol"),filterDepartamento=document.getElementById("filterDepartamento"),filterEstado=document.getElementById("filterEstado"),rowCountEl=document.getElementById("rowCount"),pageSizeSelect=document.getElementById("pageSizeSelect"),paginationInfo=document.getElementById("paginationInfo"),paginationNav=document.getElementById("paginationNav");
-      var allRows=Array.from(document.querySelectorAll("#usuariosTbody .fila-usuario")),filteredRows=[],currentPage=1,pageSize=parseInt(pageSizeSelect.value,10);
-      // Populate dynamic dropdowns
-      var roles=new Set(),deptos=new Set();
-      allRows.forEach(function(r){var ro=r.getAttribute("data-rol");if(ro)roles.add(ro);var d=r.getAttribute("data-departamento");if(d)deptos.add(d)});
-      Array.from(roles).sort().forEach(function(v){var o=document.createElement("option");o.value=v;o.textContent=v;filterRol.appendChild(o)});
-      Array.from(deptos).sort().forEach(function(v){var o=document.createElement("option");o.value=v;o.textContent=v;filterDepartamento.appendChild(o)});
-      if(typeof $!=='undefined'&&$.fn.select2){$('#filterRol').select2({width:'180px'});$('#filterDepartamento').select2({width:'200px'})}
-      function applyFilters(){var t=searchInput.value.trim().toLowerCase(),rol=filterRol.value,dep=filterDepartamento.value,est=filterEstado.value;filteredRows=allRows.filter(function(r){if(t&&r.textContent.toLowerCase().indexOf(t)<0)return false;if(rol&&r.getAttribute("data-rol")!==rol)return false;if(dep&&r.getAttribute("data-departamento")!==dep)return false;if(est&&r.getAttribute("data-estado")!==est)return false;return true});currentPage=1;renderPage()}
-      function renderPage(){var total=filteredRows.length,tp=Math.max(1,Math.ceil(total/pageSize));if(currentPage>tp)currentPage=tp;var s=(currentPage-1)*pageSize,e=Math.min(s+pageSize,total),ps=new Set(filteredRows.slice(s,e));allRows.forEach(function(r){r.style.display=ps.has(r)?"":"none"});rowCountEl.textContent=total;paginationInfo.innerHTML=total===0?"Sin resultados":"<strong>"+(s+1)+"</strong> \u2013 <strong>"+e+"</strong> de <strong>"+total+"</strong>";renderPaginationNav(tp)}
-      function renderPaginationNav(tp){var h='<button class="pg-btn" data-page="prev"'+(currentPage<=1?' disabled':'')+'>&#9664;</button>';buildPN(currentPage,tp).forEach(function(p){if(p==='...')h+='<span class="pg-ellipsis">&hellip;</span>';else h+='<button class="pg-btn'+(p===currentPage?' active':'')+'\" data-page="'+p+'">'+p+'</button>'});h+='<button class="pg-btn" data-page="next"'+(currentPage>=tp?' disabled':'')+'>&#9654;</button>';paginationNav.innerHTML=h}
-      function buildPN(c,t){if(t<=7)return Array.from({length:t},function(_,i){return i+1});var p=[1];if(c>3)p.push('...');for(var i=Math.max(2,c-1);i<=Math.min(t-1,c+1);i++)p.push(i);if(c<t-2)p.push('...');p.push(t);return p}
-      paginationNav.addEventListener("click",function(ev){var b=ev.target.closest(".pg-btn");if(!b||b.disabled)return;var v=b.dataset.page,tp=Math.max(1,Math.ceil(filteredRows.length/pageSize));if(v==="prev")currentPage=Math.max(1,currentPage-1);else if(v==="next")currentPage=Math.min(tp,currentPage+1);else currentPage=parseInt(v,10);renderPage()});
-      pageSizeSelect.addEventListener("change",function(){pageSize=parseInt(this.value,10);currentPage=1;renderPage()});
-      searchInput.addEventListener("input",applyFilters);$('#filterRol').on('change',applyFilters);$('#filterDepartamento').on('change',applyFilters);filterEstado.addEventListener("change",applyFilters);applyFilters();
+      var searchInput = document.getElementById("searchInput");
+      var filterRol = document.getElementById("filterRol");
+      var filterDepartamento = document.getElementById("filterDepartamento");
+      var filterEstado = document.getElementById("filterEstado");
+      var rowCountEl = document.getElementById("rowCount");
+      var pageSizeSelect = document.getElementById("pageSizeSelect");
+      var paginationInfo = document.getElementById("paginationInfo");
+      var paginationNav = document.getElementById("paginationNav");
+
+      var allRows = Array.from(document.querySelectorAll("#usuariosTbody .fila-usuario"));
+      var filteredRows = [], currentPage = 1, pageSize = parseInt(pageSizeSelect.value, 10);
+
+      var roles = new Set(), deptos = new Set();
+      allRows.forEach(function(r) {
+        var ro = r.getAttribute("data-rol"); if (ro) roles.add(ro);
+        var d = r.getAttribute("data-departamento"); if (d) deptos.add(d);
+      });
+      Array.from(roles).sort().forEach(function(v) {
+        var o = document.createElement("option"); o.value = v; o.textContent = v; filterRol.appendChild(o);
+      });
+      Array.from(deptos).sort().forEach(function(v) {
+        var o = document.createElement("option"); o.value = v; o.textContent = v; filterDepartamento.appendChild(o);
+      });
+      if (typeof $ !== 'undefined' && $.fn.select2) {
+        $('#filterRol').select2({ width: '100%' });
+        $('#filterDepartamento').select2({ width: '100%' });
+      }
+
+      function applyFilters() {
+        var t = searchInput.value.trim().toLowerCase();
+        var rol = filterRol.value, dep = filterDepartamento.value, est = filterEstado.value;
+        filteredRows = allRows.filter(function(r) {
+          if (t && r.textContent.toLowerCase().indexOf(t) < 0) return false;
+          if (rol && r.getAttribute("data-rol") !== rol) return false;
+          if (dep && r.getAttribute("data-departamento") !== dep) return false;
+          if (est && r.getAttribute("data-estado") !== est) return false;
+          return true;
+        });
+        currentPage = 1;
+        renderPage();
+      }
+
+      function renderPage() {
+        var total = filteredRows.length;
+        var tp = Math.max(1, Math.ceil(total / pageSize));
+        if (currentPage > tp) currentPage = tp;
+        var s = (currentPage - 1) * pageSize;
+        var e = Math.min(s + pageSize, total);
+        var ps = new Set(filteredRows.slice(s, e));
+        allRows.forEach(function(r) { r.style.display = ps.has(r) ? "" : "none"; });
+        rowCountEl.textContent = total;
+        paginationInfo.innerHTML = total === 0 ? "Sin resultados" :
+          "<strong>" + (s + 1) + "</strong> \u2013 <strong>" + e + "</strong> de <strong>" + total + "</strong>";
+        renderPaginationNav(tp);
+      }
+
+      function renderPaginationNav(tp) {
+        var h = '<button class="pg-btn" data-page="prev"' + (currentPage <= 1 ? ' disabled' : '') +
+                '><i class="feather feather-chevron-left" style="font-size:14px;"></i></button>';
+        buildPN(currentPage, tp).forEach(function(p) {
+          if (p === '...') h += '<span class="pg-ellipsis">&hellip;</span>';
+          else h += '<button class="pg-btn' + (p === currentPage ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>';
+        });
+        h += '<button class="pg-btn" data-page="next"' + (currentPage >= tp ? ' disabled' : '') +
+             '><i class="feather feather-chevron-right" style="font-size:14px;"></i></button>';
+        paginationNav.innerHTML = h;
+      }
+
+      function buildPN(c, t) {
+        if (t <= 7) return Array.from({length: t}, function(_, i) { return i + 1; });
+        var p = [1]; if (c > 3) p.push('...');
+        for (var i = Math.max(2, c - 1); i <= Math.min(t - 1, c + 1); i++) p.push(i);
+        if (c < t - 2) p.push('...'); p.push(t); return p;
+      }
+
+      paginationNav.addEventListener("click", function(ev) {
+        var b = ev.target.closest(".pg-btn"); if (!b || b.disabled) return;
+        var v = b.dataset.page, tp = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+        if (v === "prev") currentPage = Math.max(1, currentPage - 1);
+        else if (v === "next") currentPage = Math.min(tp, currentPage + 1);
+        else currentPage = parseInt(v, 10);
+        renderPage();
+      });
+
+      pageSizeSelect.addEventListener("change", function() {
+        pageSize = parseInt(this.value, 10); currentPage = 1; renderPage();
+      });
+
+      searchInput.addEventListener("input", applyFilters);
+      $('#filterRol').on('change', applyFilters);
+      $('#filterDepartamento').on('change', applyFilters);
+      filterEstado.addEventListener("change", applyFilters);
+      applyFilters();
     });
     </script>
   </div>

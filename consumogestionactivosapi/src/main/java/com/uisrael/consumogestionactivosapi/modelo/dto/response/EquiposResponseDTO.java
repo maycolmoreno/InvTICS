@@ -34,8 +34,11 @@ public class EquiposResponseDTO {
 
     private boolean estado;
 
+    private LocalDate fechaAdquisicion;
+    private Double valorActual;
+    private String descripcion;
+
 
     private MarcasResponseDTO fkMarca;
     private CategoriaEquiposResponseDTO fkCategoria;
-    private UbicacionesResponseDTO fkUbicacion;
 }

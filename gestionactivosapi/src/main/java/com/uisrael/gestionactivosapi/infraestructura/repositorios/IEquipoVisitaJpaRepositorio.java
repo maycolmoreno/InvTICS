@@ -33,7 +33,7 @@ public interface IEquipoVisitaJpaRepositorio extends JpaRepository<CustodiasJpa,
                 join ce.fkCustodio c
                 left join c.fkCargo cargo
                 left join cargo.fkDepartamento d
-                join ce.fkUbicacion u
+                join c.fkUbicacion u
             where ce.estado = true
               and ce.fechaFin is null
               and u.idUbicacion = :ubicacionId

@@ -10,52 +10,10 @@
 <body>
 <div layout:fragment="contenidopaginas">
     <div class="page-shell">
-        <div class="operations-strip">
-            <div class="operations-hero">
-                <div class="eyebrow text-white-50">Control documental</div>
-                <h2>Custodias y actas</h2>
-                <div class="operations-badges">
-                    <div class="operations-badge"><i class="feather-file-text"></i><span th:text="${#lists.size(actas)} + ' actas'">0 actas</span></div>
-                    <div class="operations-badge"><i class="feather-user-check"></i><span th:text="${#lists.size(actas.?[activa == true])} + ' activas'">0 activas</span></div>
-                    <div class="operations-badge"><i class="feather-archive"></i><span th:text="${#lists.size(actas.?[activa == false])} + ' cerradas'">0 cerradas</span></div>
-                </div>
-            </div>
-            <div class="surface-card insight-panel">
-                <div class="content-card-header mb-0">
-                    <div>
-                        <h2 class="content-card-title">Lectura ejecutiva</h2>
-                    </div>
-                </div>
-                <div class="insight-list">
-                    <div class="insight-item">
-                        <i class="feather-check-circle"></i>
-                        <div>
-                            <div class="signal-title">Custodias activas</div>
-                        </div>
-                        <div class="insight-value" th:text="${#lists.size(actas.?[activa == true])}">0</div>
-                    </div>
-                    <div class="insight-item">
-                        <i class="feather-repeat"></i>
-                        <div>
-                            <div class="signal-title">Traslados y cambios</div>
-                        </div>
-                        <div class="insight-value" th:text="${#lists.size(actas.?[tipoMovimiento == 'TRASLADO'])}">0</div>
-                    </div>
-                    <div class="insight-item">
-                        <i class="feather-user"></i>
-                        <div>
-                            <div class="signal-title">Custodios identificados</div>
-                        </div>
-                        <div class="insight-value" th:text="${#lists.size(actas.?[custodio != null])}">0</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="view-heading">
             <div>
-                <div class="eyebrow">Gestion de Custodias</div>
-                <h1 class="view-title">Actas y responsables de activos</h1>
+                <div class="eyebrow">Control Documental</div>
+                <h1 class="view-title">Custodias y actas</h1>
             </div>
             <div class="d-flex gap-3 flex-wrap">
                 <a th:href="@{/custodias/nueva-custodia}" class="btn btn-primary px-4 py-3">
@@ -63,6 +21,21 @@
                 </a>
             </div>
         </div>
+
+        <section class="admin-summary-grid">
+            <article class="admin-summary-card">
+                <div class="admin-summary-label">Total actas</div>
+                <div class="admin-summary-value" th:text="${#lists.size(actas)}">0</div>
+            </article>
+            <article class="admin-summary-card">
+                <div class="admin-summary-label">Activas</div>
+                <div class="admin-summary-value" th:text="${#lists.size(actas.?[activa == true])}">0</div>
+            </article>
+            <article class="admin-summary-card">
+                <div class="admin-summary-label">Cerradas</div>
+                <div class="admin-summary-value" th:text="${#lists.size(actas.?[activa == false])}">0</div>
+            </article>
+        </section>
 
         <div th:if="${exito}" class="flash-banner success" th:text="${exito}"></div>
         <div th:if="${error}" class="flash-banner danger" th:text="${error}"></div>
@@ -101,16 +74,6 @@
         </div>
 
         <div class="card-surface-strong table-shell">
-            <div class="soft-header">
-                <div class="section-toolbar">
-                    <div class="toolbar-pills">
-                        <div class="toolbar-pill"><i class="feather-file"></i><span>Total <strong th:text="${#lists.size(actas)}">0</strong></span></div>
-                        <div class="toolbar-pill"><i class="feather-check-circle"></i><span>Activas <strong th:text="${#lists.size(actas.?[activa == true])}">0</strong></span></div>
-                        <div class="toolbar-pill"><i class="feather-lock"></i><span>Cerradas <strong th:text="${#lists.size(actas.?[activa == false])}">0</strong></span></div>
-                    </div>
-                </div>
-            </div>
-
             <div class="content-card pt-0">
                 <div class="table-responsive" style="overflow:visible;">
                     <table class="table mb-0" id="custodiasTable">
@@ -204,11 +167,6 @@
                                                class="act-btn" title="Descargar PDF">
                                                 <i class="feather feather-download"></i>
                                             </a>
-                                            <a th:if="${acta.activa}"
-                                               th:href="@{/custodias/cerrar/{id}(id=${acta.idCustodio}, tipo=${acta.tipoMovimiento}, fecha=${acta.fechaInicio})}"
-                                               class="act-btn" title="Cerrar custodia">
-                                                <i class="feather feather-log-out"></i>
-                                            </a>
                                             <form th:action="@{/custodias/reenviar-correo/acta/{id}(id=${acta.idCustodio})}" method="post" style="display:inline;">
                                                 <input type="hidden" name="tipo" th:value="${acta.tipoMovimiento}"/>
                                                 <input type="hidden" name="fecha" th:value="${acta.fechaInicio}"/>
@@ -216,6 +174,26 @@
                                                         style="border:none; background:none; cursor:pointer; padding:0;">
                                                     <i class="feather feather-mail"></i>
                                                 </button>
+                                            </form>
+                                            <!-- Acta firmada: ver si ya existe, o subir -->
+                                            <a th:if="${acta.rutaActaFirmada != null and !acta.rutaActaFirmada.isBlank()}"
+                                               th:href="@{/custodias/acta-firmada/{id}(id=${acta.minPk})}"
+                                               class="act-btn text-success" title="Ver acta firmada" target="_blank">
+                                                <i class="feather feather-check-circle"></i>
+                                            </a>
+                                            <a th:unless="${acta.rutaActaFirmada != null and !acta.rutaActaFirmada.isBlank()}"
+                                               href="javascript:void(0)"
+                                               class="act-btn" title="Subir acta firmada"
+                                               th:attr="data-id=${acta.minPk}"
+                                               onclick="document.getElementById('inputActaFirmada_' + this.getAttribute('data-id')).click()">
+                                                <i class="feather feather-upload"></i>
+                                            </a>
+                                            <form th:id="'formActaFirmada_' + ${acta.minPk}"
+                                                  th:action="@{/custodias/acta-firmada/{id}(id=${acta.minPk})}"
+                                                  method="post" enctype="multipart/form-data" style="display:none;">
+                                                <input type="file" th:id="'inputActaFirmada_' + ${acta.minPk}"
+                                                       name="archivo" accept="application/pdf"
+                                                       onchange="this.closest('form').submit()"/>
                                             </form>
                                         </div>
                                     </td>

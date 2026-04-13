@@ -37,5 +37,7 @@ public class ActividadPlanificadaRequestDTO {
 
     private Integer referenciaMantenimientoId;
 
+    private Integer fkEquipoId;
+
     private String observaciones;
 }

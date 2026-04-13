@@ -67,11 +67,9 @@ public class EquiposControlador {
 	}
 
 	@PutMapping("/estado/{id}")
-	public ResponseEntity<EquiposResponseDTO> actualizarEstado(@PathVariable int id,
-			@RequestBody java.util.Map<String, Boolean> body) {
-		boolean estado = Boolean.TRUE.equals(body.get("estado"));
-		Equipos actualizado = equiposUseCase.actualizarEstado(id, estado);
-		return ResponseEntity.ok(mapper.toResponseDto(actualizado));
+	public ResponseEntity<?> actualizarEstado(@PathVariable int id, @RequestParam boolean estado) {
+		equiposUseCase.actualizarEstado(id, estado);
+		return ResponseEntity.ok().build();
 	}
 
 	@GetMapping("/{id}")

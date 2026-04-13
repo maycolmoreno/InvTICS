@@ -33,7 +33,7 @@ public class EquiposExcelService {
 
 	private static final String[] COLS = { "ID", "CÓDIGO SAP", "MODELO", "SERIAL", "PROCESADOR", "RAM (GB)",
 			"ALMACENAMIENTO (GB)", "LIC. WINDOWS", "MAC", "FECHA COMPRA", "PRECIO COMPRA", "ESTADO EQUIPO",
-			"OBSERVACIÓN", "MARCA", "CATEGORÍA", "ESTADO" };
+			"OBSERVACIÓN", "ESTADO", "MARCA", "CATEGORÍA" };
 
 	public byte[] generarReporteExcel(List<EquiposResponseDTO> data, String tipo) {
 
@@ -86,9 +86,9 @@ public class EquiposExcelService {
 				row.createCell(c++).setCellValue(val(e.getPrecioCompra()));
 				row.createCell(c++).setCellValue(val(e.getEstadoEquipo()));
 				row.createCell(c++).setCellValue(val(e.getObservacionEquipo()));
+				row.createCell(c++).setCellValue(e.isEstado() ? "Activo" : "Inactivo");
 				row.createCell(c++).setCellValue(e.getFkMarca() != null ? val(e.getFkMarca().getNombre()) : "-");
 				row.createCell(c++).setCellValue(e.getFkCategoria() != null ? val(e.getFkCategoria().getNombre()) : "-");
-				row.createCell(c++).setCellValue(e.isEstado() ? "Activo" : "Inactivo");
 
 				for (int i = 0; i < COLS.length; i++) {
 					Cell cell = row.getCell(i);

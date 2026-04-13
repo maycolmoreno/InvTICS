@@ -25,6 +25,8 @@ public class ActividadPlanificadaResponseDTO {
     private Integer tiempoEstimadoMinutos;
     private Integer tiempoRealMinutos;
     private Integer referenciaMantenimientoId;
+    private Integer fkEquipoId;
+    private String equipoNombre;
     private String observaciones;
     private LocalDateTime creadoEn;
     private LocalDateTime actualizadoEn;

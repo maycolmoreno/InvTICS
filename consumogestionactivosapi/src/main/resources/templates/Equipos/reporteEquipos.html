@@ -104,15 +104,13 @@
 												th:text="${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'}"></td>
 											<td
 												th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : '-'}"></td>
-
-											<td>
+										<td>
 												<div th:if="${equipo.estado}"
 													class="badge bg-soft-success text-success">Activo</div>
 												<div th:unless="${equipo.estado}"
 													class="badge bg-soft-danger text-danger">Inactivo</div>
 											</td>
-
-										</tr>
+									</tr>
 									</tbody>
 
 								</table>

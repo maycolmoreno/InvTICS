@@ -12,9 +12,9 @@ public class Custodias {
 
     private Equipos fkEquipo;
     private Custodios fkCustodio;
-    private Ubicaciones fkUbicacion;
     private String tipoMovimiento;
     private String rutaActaPdf;
+    private String rutaActaFirmada;
 
     public Custodias() {}
 
@@ -52,14 +52,14 @@ public class Custodias {
     public Custodios getFkCustodio() { return fkCustodio; }
     public void setFkCustodio(Custodios fkCustodio) { this.fkCustodio = fkCustodio; }
 
-    public Ubicaciones getFkUbicacion() { return fkUbicacion; }
-    public void setFkUbicacion(Ubicaciones fkUbicacion) { this.fkUbicacion = fkUbicacion; }
-
     public String getTipoMovimiento() { return tipoMovimiento; }
     public void setTipoMovimiento(String tipoMovimiento) { this.tipoMovimiento = tipoMovimiento; }
 
     public String getRutaActaPdf() { return rutaActaPdf; }
     public void setRutaActaPdf(String rutaActaPdf) { this.rutaActaPdf = rutaActaPdf; }
+
+    public String getRutaActaFirmada() { return rutaActaFirmada; }
+    public void setRutaActaFirmada(String rutaActaFirmada) { this.rutaActaFirmada = rutaActaFirmada; }
 
     @Override
     public String toString() {

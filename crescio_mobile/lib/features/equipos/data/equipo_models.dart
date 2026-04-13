@@ -37,10 +37,7 @@ class EquipoListItem {
       procesador: _text(json['procesador'], fallback: ''),
       mac: _text(json['mac'], fallback: ''),
       custodioNombre: _text(json['custodioNombre'], fallback: ''),
-      ubicacionNombre: json['fkUbicacion'] != null
-          ? _text((json['fkUbicacion'] as Map<String, dynamic>)['nombre'],
-              fallback: '')
-          : _text(json['ubicacionNombre'], fallback: ''),
+      ubicacionNombre: _text(json['ubicacionNombre'], fallback: ''),
       estadoMantenimiento: _text(json['estadoMantenimiento'], fallback: ''),
       diasSinMantenimiento: _asInt(json['diasSinMantenimiento']),
     );

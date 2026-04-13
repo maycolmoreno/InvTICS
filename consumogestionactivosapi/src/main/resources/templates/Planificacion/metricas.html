@@ -66,22 +66,28 @@
                 </div>
             </div>
 
+            <div th:if="${error}" class="alert alert-danger mx-3 mt-3" th:text="${error}"></div>
+
             <!-- Resumen global -->
             <div th:if="${!#lists.isEmpty(metricas)}" class="mk-summary">
                 <div class="mk-summary-item">
-                    <div class="mk-big-number" th:text="${#numbers.formatDecimal(metricas.![completadas].stream().mapToLong(T(Long)::longValue).sum(), 1, 0)}">0</div>
+                    <div class="mk-big-number" th:text="${totalCompletadas}">0</div>
                     <div class="mk-big-label">Completadas</div>
                 </div>
                 <div class="mk-summary-item">
-                    <div class="mk-big-number" th:text="${#numbers.formatDecimal(metricas.![pendientes].stream().mapToLong(T(Long)::longValue).sum(), 1, 0)}">0</div>
+                    <div class="mk-big-number" th:text="${totalPendientes}">0</div>
                     <div class="mk-big-label">Pendientes</div>
                 </div>
                 <div class="mk-summary-item">
-                    <div class="mk-big-number" th:text="${#numbers.formatDecimal(metricas.![vencidas].stream().mapToLong(T(Long)::longValue).sum(), 1, 0)}">0</div>
+                    <div class="mk-big-number" th:text="${totalEnProgreso}">0</div>
+                    <div class="mk-big-label">En Progreso</div>
+                </div>
+                <div class="mk-summary-item">
+                    <div class="mk-big-number" th:text="${totalVencidas}">0</div>
                     <div class="mk-big-label">Vencidas</div>
                 </div>
                 <div class="mk-summary-item">
-                    <div class="mk-big-number" th:text="${#numbers.formatDecimal(metricas.![totalActividades].stream().mapToLong(T(Long)::longValue).sum(), 1, 0)}">0</div>
+                    <div class="mk-big-number" th:text="${totalActividades}">0</div>
                     <div class="mk-big-label">Total</div>
                 </div>
             </div>

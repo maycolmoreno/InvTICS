@@ -1,6 +1,7 @@
 package com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.EquipoSnapshot;
 import com.uisrael.gestionactivosapi.dominio.entidades.Mantenimientos;
@@ -10,8 +11,14 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.Mantenimie
 @Mapper(componentModel = "spring")
 public interface IMantenimientosJpaMapper {
 
+    @Mapping(target = "frecuenciaDias", ignore = true)
     Mantenimientos toDomain(MantenimientosJpa entity);
 
+    @Mapping(target = "codigoInternoSnapshot", ignore = true)
+    @Mapping(target = "fkEquipo", ignore = true)
+    @Mapping(target = "fkCliente", ignore = true)
+    @Mapping(target = "fkUsuario", ignore = true)
+    @Mapping(target = "programadoRel", ignore = true)
     MantenimientosJpa toEntity(Mantenimientos mantenimiento);
 
     default EquipoSnapshot toDomain(EquipoSnapshotEmbeddable snapshot) {

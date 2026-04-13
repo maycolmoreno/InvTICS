@@ -6,15 +6,19 @@ import org.slf4j.LoggerFactory;
 import com.uisrael.gestionactivosapi.dominio.entidades.Notificacion;
 import com.uisrael.gestionactivosapi.dominio.puertos.servicios.EnviadorCorreoPuerto;
 import com.uisrael.gestionactivosapi.dominio.puertos.servicios.ServicioNotificacionPuerto;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.PushNotificacionService;
 
 public class ServicioNotificacionAdaptador implements ServicioNotificacionPuerto {
 
 	private static final Logger log = LoggerFactory.getLogger(ServicioNotificacionAdaptador.class);
 
 	private final EnviadorCorreoPuerto enviadorCorreo;
+	private final PushNotificacionService pushNotificacionService;
 
-	public ServicioNotificacionAdaptador(EnviadorCorreoPuerto enviadorCorreo) {
+	public ServicioNotificacionAdaptador(EnviadorCorreoPuerto enviadorCorreo,
+			PushNotificacionService pushNotificacionService) {
 		this.enviadorCorreo = enviadorCorreo;
+		this.pushNotificacionService = pushNotificacionService;
 	}
 
 	@Override
@@ -25,6 +29,12 @@ public class ServicioNotificacionAdaptador implements ServicioNotificacionPuerto
 		String canal = notificacion.getCanal();
 		if ("EMAIL".equalsIgnoreCase(canal)) {
 			log.info("Notificacion por correo para usuario {}", notificacion.getUsuarioId());
+		} else if ("PUSH".equalsIgnoreCase(canal)) {
+			return pushNotificacionService.enviar(
+					notificacion.getUsuarioId(),
+					notificacion.getAsunto(),
+					notificacion.getCuerpo(),
+					null);
 		}
 		return true;
 	}
@@ -42,8 +52,7 @@ public class ServicioNotificacionAdaptador implements ServicioNotificacionPuerto
 
 	@Override
 	public boolean enviarPorPush(Integer usuarioId, String titulo, String cuerpo) {
-		log.warn("Envio por push no implementado. Usuario: {}", usuarioId);
-		return false;
+		return pushNotificacionService.enviar(usuarioId, titulo, cuerpo, null);
 	}
 
 	@Override

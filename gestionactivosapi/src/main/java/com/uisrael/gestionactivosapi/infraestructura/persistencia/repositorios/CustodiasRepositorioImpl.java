@@ -16,7 +16,6 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.ICu
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICustodiasJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IEquiposJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICustodiosJpaRepositorio;
-import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUbicacionesJpaRepositorio;
 
 import jakarta.persistence.EntityManager;
 
@@ -26,20 +25,17 @@ public class CustodiasRepositorioImpl implements CustodiasRepositorioPuerto {
 	private final ICustodiasJpaMapper mapper;
 	private final IEquiposJpaRepositorio equiposRepo;
 	private final ICustodiosJpaRepositorio custodiosRepo;
-	private final IUbicacionesJpaRepositorio ubicacionesRepo;
 	private final EntityManager entityManager;
 
 	public CustodiasRepositorioImpl(ICustodiasJpaRepositorio jpaRepositorio, 
 			ICustodiasJpaMapper mapper,
 			IEquiposJpaRepositorio equiposRepo,
 			ICustodiosJpaRepositorio custodiosRepo,
-			IUbicacionesJpaRepositorio ubicacionesRepo,
 			EntityManager entityManager) {
 		this.jpaRepositorio = jpaRepositorio;
 		this.mapper = mapper;
 		this.equiposRepo = equiposRepo;
 		this.custodiosRepo = custodiosRepo;
-		this.ubicacionesRepo = ubicacionesRepo;
 		this.entityManager = entityManager;
 	}
 
@@ -110,5 +106,12 @@ public class CustodiasRepositorioImpl implements CustodiasRepositorioPuerto {
 	public Optional<Custodias> buscarActivaPorEquipo(int idEquipo) {
 		return jpaRepositorio.findFirstByFkEquipo_IdEquipoAndEstadoTrueAndFechaFinIsNullOrderByIdCustodiaEquipoDesc(idEquipo)
 				.map(mapper::toDomain);
+	}
+
+	@Override
+	public List<Custodias> buscarPorGrupoActa(int idCustodio, String tipoMovimiento, java.time.LocalDate fechaInicio) {
+		return jpaRepositorio.findByFkCustodio_IdCustodioAndTipoMovimientoAndFechaInicio(
+				idCustodio, tipoMovimiento, fechaInicio)
+				.stream().map(mapper::toDomain).collect(Collectors.toList());
 	}
 }

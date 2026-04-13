@@ -23,6 +23,7 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.IEmpresaJpaRep
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.repositorios.EmpresaRepositorioAdaptador;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.CorreoMantenimientoService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.CorreoSchedulerService;
+import com.uisrael.gestionactivosapi.infraestructura.servicios.PushNotificacionService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoArchivoService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.MantenimientoInformeService;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.PdfMantenimientoService;
@@ -52,8 +53,9 @@ public class ServiciosAdaptadoresConfig {
 	}
 
 	@Bean
-	ServicioNotificacionPuerto servicioNotificacionPuerto(EnviadorCorreoPuerto enviadorCorreo) {
-		return new ServicioNotificacionAdaptador(enviadorCorreo);
+	ServicioNotificacionPuerto servicioNotificacionPuerto(EnviadorCorreoPuerto enviadorCorreo,
+			PushNotificacionService pushNotificacionService) {
+		return new ServicioNotificacionAdaptador(enviadorCorreo, pushNotificacionService);
 	}
 
 	@Bean

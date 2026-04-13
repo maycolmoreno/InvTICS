@@ -13,6 +13,7 @@ import '../../gps/presentation/ubicaciones_realtime_screen.dart';
 import '../../mantenimientos/data/mantenimientos_repository.dart';
 import '../../mantenimientos/presentation/mantenimientos_screen.dart';
 import '../../notificaciones/data/notificaciones_repository.dart';
+import '../../notificaciones/data/push_notificacion_service.dart';
 import '../../notificaciones/presentation/notificaciones_screen.dart';
 import '../../planificacion/presentation/planificacion_screen.dart';
 import '../../ubicaciones/presentation/ubicaciones_screen.dart';
@@ -33,6 +34,15 @@ class _DashboardShellState extends State<DashboardShell> {
   void initState() {
     super.initState();
     _enviarUbicacionInicial();
+    _inicializarPush();
+  }
+
+  Future<void> _inicializarPush() async {
+    try {
+      await context.read<PushNotificacionService>().inicializar();
+    } catch (e) {
+      debugPrint('Error inicializando push: $e');
+    }
   }
 
   Future<void> _enviarUbicacionInicial() async {
@@ -773,7 +783,14 @@ class _MoreTab extends StatelessWidget {
                 title: 'Cerrar sesion',
                 subtitle: auth.session?.username ?? '',
                 iconColor: AppTheme.danger,
-                onTap: () => context.read<AuthProvider>().logout(),
+                onTap: () async {
+                  try {
+                    await context
+                        .read<PushNotificacionService>()
+                        .limpiarToken();
+                  } catch (_) {}
+                  if (context.mounted) context.read<AuthProvider>().logout();
+                },
               ),
             ]),
           ),

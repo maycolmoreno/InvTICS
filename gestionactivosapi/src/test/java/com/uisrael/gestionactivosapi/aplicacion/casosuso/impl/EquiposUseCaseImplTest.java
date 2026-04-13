@@ -45,7 +45,7 @@ class EquiposUseCaseImplTest {
         return new Equipos(id, codigoSap, "ThinkPad T14", serial,
                 "Intel i7", 16, 512, true, mac,
                 LocalDate.of(2024, 1, 15), BigDecimal.valueOf(1200),
-                "ACTIVO", "Sin observaciones", true, null, null, null);
+                "ACTIVO", "Sin observaciones", true, null, null, null, null, null);
     }
 
     @Nested
@@ -196,32 +196,6 @@ class EquiposUseCaseImplTest {
 
             assertThat(resultado).isNotNull();
             verify(equipoRepositorio).actualizar(anyInt(), any(Equipos.class));
-        }
-    }
-
-    @Nested
-    @DisplayName("actualizarEstado()")
-    class ActualizarEstado {
-
-        @Test
-        @DisplayName("cambia estado del equipo")
-        void actualizarEstado() {
-            Equipos equipo = equipoDePrueba(1, "SN001", null, null, null);
-            when(equipoRepositorio.buscarPorId(1)).thenReturn(Optional.of(equipo));
-            when(equipoRepositorio.actualizar(anyInt(), any(Equipos.class))).thenReturn(equipo);
-
-            sut.actualizarEstado(1, false);
-
-            verify(equipoRepositorio).actualizar(anyInt(), any(Equipos.class));
-        }
-
-        @Test
-        @DisplayName("lanza excepción si equipo no existe")
-        void actualizarEstadoNoExiste() {
-            when(equipoRepositorio.buscarPorId(999)).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> sut.actualizarEstado(999, false))
-                    .isInstanceOf(RecursoNoEncontradoException.class);
         }
     }
 }

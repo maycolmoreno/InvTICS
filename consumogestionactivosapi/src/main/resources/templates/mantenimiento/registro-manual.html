@@ -30,9 +30,16 @@
                 </div>
                 <div class="form-grid">
                     <div class="span-12">
+                        <input type="hidden" id="modoSeleccion" name="modoSeleccion" value="ADMINISTRATIVO">
+                        <div class="d-flex gap-3 mb-3">
+                            <button type="button" id="btnModoAdmin" class="btn btn-primary px-4 py-2" onclick="cambiarModo('ADMINISTRATIVO')">Administrativo</button>
+                            <button type="button" id="btnModoFarmacia" class="btn btn-outline-secondary px-4 py-2" onclick="cambiarModo('FARMACIA')">Farmacia</button>
+                        </div>
+                    </div>
+                    <div class="span-12">
                         <div class="manual-summary-card">
                             <div class="manual-summary-block">
-                                <div class="metric-label">Custodio activo</div>
+                                <div class="metric-label" id="resumenLabel">Custodio activo</div>
                                 <div id="resumenCustodioNombre" class="manual-summary-title">Selecciona un custodio</div>
                                 <div id="resumenCustodioMeta" class="manual-summary-copy">Aqui veras sus datos y sus equipos asignados.</div>
                             </div>
@@ -49,7 +56,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="span-6 field-group">
+                    <div class="span-6 field-group" id="grupoSucursal" style="display:none;">
+                        <label class="field-label">Sucursal</label>
+                        <select id="ubicacionId" name="ubicacionId" class="form-select relation-select">
+                            <option value="">Selecciona una sucursal</option>
+                            <option th:each="ubi : ${listaubicaciones}"
+                                    th:value="${ubi.idUbicacion}"
+                                    th:text="${ubi.nombre + (ubi.ciudad != null ? ' - ' + ubi.ciudad : '')}">
+                            </option>
+                        </select>
+                        <div class="field-help">Selecciona una sucursal para cargar sus equipos y custodios.</div>
+                    </div>
+                    <div class="span-6 field-group" id="grupoCustodio">
                         <label class="field-label">Custodio</label>
                         <select id="custodioId" name="custodioId" class="form-select relation-select" required>
                             <option value="">Selecciona un custodio</option>
@@ -62,14 +80,16 @@
                                              data-telefono=${custodio.telefono},
                                              data-departamento=${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : ''},
                                              data-cargo=${custodio.fkCargo != null ? custodio.fkCargo.nombre : ''},
-                                             data-ubicacion=${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : ''}">
+                                             data-ubicacion=${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : ''},
+                                             data-ubicacion-id=${custodio.fkUbicacion != null ? custodio.fkUbicacion.idUbicacion : ''}">
                             </option>
                         </select>
                         <div class="field-help">Escribe dentro del selector para buscar por nombre o cedula.</div>
                     </div>
                     <div class="span-6 field-group">
-                        <label class="field-label">Equipo asignado</label>
-                        <select id="equipoIds" name="equipoIds" class="form-select relation-select" multiple required size="6">
+                        <label class="field-label">Equipos asignados</label>
+                        <!-- Hidden select que envía los IDs al backend -->
+                        <select id="equipoIds" name="equipoIds" multiple required style="display:none;">
                             <option th:each="equipo : ${listaequipos}"
                                     th:value="${equipo.idEquipo}"
                                     th:selected="${#lists.contains(equiposPreseleccionados, equipo.idEquipo)}"
@@ -78,29 +98,42 @@
                                              data-custodios=${custodiosPorEquipo[equipo.idEquipo] ?: ''}">
                             </option>
                         </select>
-                        <div id="equiposHint" class="field-help">Selecciona un custodio para ver sus equipos asignados. Puedes escribir dentro del selector para buscar coincidencias.</div>
+                        <!-- Panel visual de checkboxes -->
+                        <div id="equipoChecklistPanel" class="equipo-checklist-panel">
+                            <div class="equipo-checklist-header">
+                                <label class="form-check mb-0">
+                                    <input type="checkbox" id="selectAllEquipos" class="form-check-input">
+                                    <span class="form-check-label fw-semibold">Seleccionar todos</span>
+                                </label>
+                                <span id="equipoCountBadge" class="badge bg-secondary">0 seleccionados</span>
+                            </div>
+                            <div id="equipoChecklistBody" class="equipo-checklist-body">
+                                <div class="equipo-checklist-empty">Selecciona un custodio para ver sus equipos asignados.</div>
+                            </div>
+                        </div>
+                        <div id="equiposHint" class="field-help">Selecciona un custodio para ver sus equipos asignados.</div>
                     </div>
-                    <div class="span-3 field-group">
+                    <div class="span-3 field-group datosCustodioInfo">
                         <label class="field-label">Correo</label>
                         <div id="correoCustodio" class="readonly-panel"></div>
                     </div>
-                    <div class="span-3 field-group">
+                    <div class="span-3 field-group datosCustodioInfo">
                         <label class="field-label">Cedula</label>
                         <div id="cedulaCustodio" class="readonly-panel"></div>
                     </div>
-                    <div class="span-3 field-group">
+                    <div class="span-3 field-group datosCustodioInfo">
                         <label class="field-label">Telefono</label>
                         <div id="telefonoCustodio" class="readonly-panel"></div>
                     </div>
-                    <div class="span-3 field-group">
+                    <div class="span-3 field-group datosCustodioInfo">
                         <label class="field-label">Ubicacion</label>
                         <div id="ubicacionCustodio" class="readonly-panel"></div>
                     </div>
-                    <div class="span-3 field-group">
+                    <div class="span-3 field-group datosCustodioInfo">
                         <label class="field-label">Departamento</label>
                         <div id="departamentoCustodio" class="readonly-panel"></div>
                     </div>
-                    <div class="span-3 field-group">
+                    <div class="span-3 field-group datosCustodioInfo">
                         <label class="field-label">Cargo</label>
                         <div id="cargoCustodio" class="readonly-panel"></div>
                     </div>
@@ -177,7 +210,7 @@
                 </div>
                 <div class="field-group">
                     <input type="file" id="imagenes" name="imagenes" class="form-control" accept="image/*" multiple>
-                    <div class="field-help">Maximo 5 imagenes y 5MB por archivo.</div>
+                    <div class="field-help">Maximo 10 imagenes y 5MB por archivo.</div>
                 </div>
                 <div id="previewImagenes" class="preview-grid mt-3"></div>
             </div>
@@ -196,16 +229,16 @@
                             <button type="button" class="btn btn-light btn-sm" data-clear="canvasTecnico">Limpiar</button>
                             <button type="button" class="btn btn-outline-primary btn-sm" data-save="canvasTecnico" data-target="firmaTecnico">Confirmar</button>
                         </div>
-                        <input type="hidden" id="firmaTecnico" name="firmaTecnico" required>
+                        <input type="hidden" id="firmaTecnico" name="firmaTecnico">
                     </div>
-                    <div class="span-6 field-group">
+                    <div class="span-6 field-group" id="grupoFirmaCustodio">
                         <label class="field-label">Firma custodio</label>
                         <canvas id="canvasCustodio" width="400" height="150" class="signature-pad"></canvas>
                         <div class="d-flex gap-2 mt-2">
                             <button type="button" class="btn btn-light btn-sm" data-clear="canvasCustodio">Limpiar</button>
                             <button type="button" class="btn btn-outline-primary btn-sm" data-save="canvasCustodio" data-target="firmaCustodio">Confirmar</button>
                         </div>
-                        <input type="hidden" id="firmaCustodio" name="firmaCustodio" required>
+                        <input type="hidden" id="firmaCustodio" name="firmaCustodio">
                     </div>
                 </div>
             </div>
@@ -224,6 +257,12 @@
                 const checkProgress = document.getElementById('checkProgress');
                 const equipoSelect = document.getElementById('equipoIds');
                 const custodioSelect = document.getElementById('custodioId');
+                const ubicacionSelect = document.getElementById('ubicacionId');
+                const modoInput = document.getElementById('modoSeleccion');
+                const grupoCustodio = document.getElementById('grupoCustodio');
+                const grupoSucursal = document.getElementById('grupoSucursal');
+                const grupoFirmaCustodio = document.getElementById('grupoFirmaCustodio');
+                const resumenLabel = document.getElementById('resumenLabel');
                 const equiposHint = document.getElementById('equiposHint');
                 const preview = document.getElementById('previewImagenes');
                 const imagenesInput = document.getElementById('imagenes');
@@ -235,8 +274,124 @@
                 const resumenCustodioMeta = document.getElementById('resumenCustodioMeta');
                 const formReadyBadge = document.getElementById('formReadyBadge');
                 const formReadyCopy = document.getElementById('formReadyCopy');
+                const btnModoAdmin = document.getElementById('btnModoAdmin');
+                const btnModoFarmacia = document.getElementById('btnModoFarmacia');
 
-                function refreshEquipoOptions() {
+                let modoActual = 'ADMINISTRATIVO';
+
+                /* ============ MODO TOGGLE ============ */
+                window.cambiarModo = function(modo) {
+                    modoActual = modo;
+                    modoInput.value = modo;
+                    const datosCustodio = document.querySelectorAll('.datosCustodioInfo');
+
+                    // Reset selects
+                    custodioSelect.value = '';
+                    if (ubicacionSelect) ubicacionSelect.value = '';
+                    clearCustodioInfo();
+
+                    if (modo === 'ADMINISTRATIVO') {
+                        btnModoAdmin.className = 'btn btn-primary px-4 py-2';
+                        btnModoFarmacia.className = 'btn btn-outline-secondary px-4 py-2';
+                        grupoCustodio.style.display = '';
+                        grupoSucursal.style.display = 'none';
+                        grupoFirmaCustodio.style.display = '';
+                        custodioSelect.required = true;
+                        resumenLabel.textContent = 'Custodio activo';
+                        datosCustodio.forEach(el => el.style.display = '');
+                        equiposHint.textContent = 'Selecciona un custodio para ver sus equipos asignados.';
+                        refreshEquipoOptionsCustodio();
+                        // Restore all custodio options
+                        restoreAllCustodioOptions();
+                    } else {
+                        btnModoAdmin.className = 'btn btn-outline-secondary px-4 py-2';
+                        btnModoFarmacia.className = 'btn btn-primary px-4 py-2';
+                        grupoCustodio.style.display = '';
+                        grupoSucursal.style.display = '';
+                        grupoFirmaCustodio.style.display = '';
+                        custodioSelect.required = true;
+                        resumenLabel.textContent = 'Sucursal activa';
+                        datosCustodio.forEach(el => el.style.display = '');
+                        equiposHint.textContent = 'Selecciona una sucursal para ver sus equipos y custodios.';
+                        // Hide all equipos and custodios until sucursal is selected
+                        hideAllEquipoOptions();
+                        hideAllCustodioOptions();
+                    }
+                    updateResumen();
+                    updateSubmitState();
+                    updateSelectedEquipmentChips();
+                };
+
+                /* ============ EQUIPO CHECKLIST ============ */
+                const equipoChecklistBody = document.getElementById('equipoChecklistBody');
+                const selectAllEquipos = document.getElementById('selectAllEquipos');
+                const equipoCountBadge = document.getElementById('equipoCountBadge');
+
+                function buildEquipoChecklist() {
+                    const visibleOpts = Array.from(equipoSelect.options).filter(opt => !opt.disabled);
+                    if (visibleOpts.length === 0) {
+                        equipoChecklistBody.innerHTML = '<div class="equipo-checklist-empty">Selecciona un custodio para ver sus equipos asignados.</div>';
+                        selectAllEquipos.checked = false;
+                        selectAllEquipos.disabled = true;
+                        updateEquipoCountBadge();
+                        return;
+                    }
+                    selectAllEquipos.disabled = false;
+                    equipoChecklistBody.innerHTML = visibleOpts.map(opt => {
+                        const checked = opt.selected ? ' checked' : '';
+                        return '<label class="equipo-checklist-item">'
+                            + '<input type="checkbox" class="form-check-input equipo-check" value="' + opt.value + '"' + checked + '>'
+                            + '<span>' + opt.textContent.trim() + '</span>'
+                            + '</label>';
+                    }).join('');
+
+                    // Bind checkbox events
+                    equipoChecklistBody.querySelectorAll('.equipo-check').forEach(cb => {
+                        cb.addEventListener('change', function() {
+                            syncCheckboxToSelect(this.value, this.checked);
+                            updateSelectAllState();
+                            updateEquipoCountBadge();
+                            updateSubmitState();
+                            updateSelectedEquipmentChips();
+                        });
+                    });
+                    updateSelectAllState();
+                    updateEquipoCountBadge();
+                }
+
+                function syncCheckboxToSelect(value, checked) {
+                    const opt = Array.from(equipoSelect.options).find(o => o.value === value);
+                    if (opt) opt.selected = checked;
+                }
+
+                function updateSelectAllState() {
+                    const checks = equipoChecklistBody.querySelectorAll('.equipo-check');
+                    const allChecked = checks.length > 0 && Array.from(checks).every(c => c.checked);
+                    const someChecked = Array.from(checks).some(c => c.checked);
+                    selectAllEquipos.checked = allChecked;
+                    selectAllEquipos.indeterminate = someChecked && !allChecked;
+                }
+
+                function updateEquipoCountBadge() {
+                    const checks = equipoChecklistBody.querySelectorAll('.equipo-check:checked');
+                    const count = checks.length;
+                    equipoCountBadge.textContent = count + ' seleccionado' + (count !== 1 ? 's' : '');
+                    equipoCountBadge.className = 'badge ' + (count > 0 ? 'bg-primary' : 'bg-secondary');
+                }
+
+                selectAllEquipos.addEventListener('change', function() {
+                    const checks = equipoChecklistBody.querySelectorAll('.equipo-check');
+                    checks.forEach(cb => {
+                        cb.checked = selectAllEquipos.checked;
+                        syncCheckboxToSelect(cb.value, cb.checked);
+                    });
+                    updateEquipoCountBadge();
+                    updateSubmitState();
+                    updateSelectedEquipmentChips();
+                });
+
+                /* ============ EQUIPO FILTERING ============ */
+                function refreshEquipoOptionsCustodio() {
                     const custodioId = custodioSelect.value;
                     let visibles = 0;
 
@@ -247,6 +402,84 @@
                             .filter(Boolean);
                         const visible = !custodioId ? false : custodios.includes(custodioId);
                         opt.hidden = !visible;
+                        opt.disabled = !visible;
+                        if (!visible) {
+                            opt.selected = false;
+                        } else {
+                            visibles += 1;
+                        }
+                    });
+
+                    buildEquipoChecklist();
+
+                    if (!custodioId) {
+                        equiposHint.textContent = 'Selecciona un custodio para ver sus equipos asignados.';
+                    } else if (visibles === 0) {
+                        equiposHint.textContent = 'El custodio seleccionado no tiene equipos activos asignados.';
+                    } else {
+                        equiposHint.textContent = 'Se muestran ' + visibles + ' equipo(s) asignado(s) al custodio.';
+                    }
+
+                    updateSubmitState();
+                    updateSelectedEquipmentChips();
+                }
+
+                function refreshEquipoOptionsSucursal() {
+                    const ubiId = ubicacionSelect ? ubicacionSelect.value : '';
+
+                    const custodiosEnSucursal = new Set();
+                    Array.from(custodioSelect.options).forEach(opt => {
+                        if (!opt.value) return;
+                        const optUbiId = opt.getAttribute('data-ubicacion-id') || '';
+                        if (optUbiId === ubiId) custodiosEnSucursal.add(opt.value);
+                    });
+
+                    let visibles = 0;
+
+                    Array.from(equipoSelect.options).forEach(opt => {
+                        const custodios = (opt.getAttribute('data-custodios') || '')
+                            .split(',')
+                            .map(value => value.trim())
+                            .filter(Boolean);
+                        const visible = !ubiId ? false : custodios.some(c => custodiosEnSucursal.has(c));
+                        opt.hidden = !visible;
+                        opt.disabled = !visible;
+                        if (!visible) {
+                            opt.selected = false;
+                        } else {
+                            visibles += 1;
+                        }
+                    });
+
+                    buildEquipoChecklist();
+
+                    if (!ubiId) {
+                        equiposHint.textContent = 'Selecciona una sucursal para ver sus equipos y custodios.';
+                    } else if (visibles === 0) {
+                        equiposHint.textContent = 'La sucursal seleccionada no tiene equipos registrados.';
+                    } else {
+                        equiposHint.textContent = 'Se muestran ' + visibles + ' equipo(s) en la sucursal.';
+                    }
+
+                    updateSubmitState();
+                    updateSelectedEquipmentChips();
+                }
+
+                /* ============ CUSTODIO FILTERING BY SUCURSAL ============ */
+                function refreshCustodioOptionsSucursal() {
+                    const ubiId = ubicacionSelect ? ubicacionSelect.value : '';
+                    let visibles = 0;
+
+                    // Reset custodio selection
+                    custodioSelect.value = '';
+                    clearCustodioInfo();
+
+                    Array.from(custodioSelect.options).forEach(opt => {
+                        if (!opt.value) return; // skip placeholder
+                        const optUbiId = opt.getAttribute('data-ubicacion-id') || '';
+                        const visible = !ubiId ? false : optUbiId === ubiId;
+                        opt.hidden = !visible;
+                        opt.disabled = !visible;
                         if (!visible) {
                             opt.selected = false;
                         } else {
@@ -255,42 +488,67 @@
                     });
 
                     if (window.jQuery && window.jQuery.fn.select2) {
-                        window.jQuery(equipoSelect).trigger('change.select2');
+                        window.jQuery(custodioSelect).trigger('change.select2');
                     }
+                }
 
-                    if (!custodioId) {
-                        equiposHint.textContent = 'Selecciona un custodio para ver sus equipos asignados. Puedes escribir dentro del selector para buscar coincidencias.';
-                    } else if (visibles === 0) {
-                        equiposHint.textContent = 'El custodio seleccionado no tiene equipos activos asignados.';
+                function restoreAllCustodioOptions() {
+                    Array.from(custodioSelect.options).forEach(opt => {
+                        opt.hidden = false;
+                        opt.disabled = false;
+                    });
+                    if (window.jQuery && window.jQuery.fn.select2) {
+                        window.jQuery(custodioSelect).trigger('change.select2');
+                    }
+                }
+
+                function hideAllCustodioOptions() {
+                    Array.from(custodioSelect.options).forEach(opt => {
+                        if (!opt.value) return;
+                        opt.hidden = true;
+                        opt.disabled = true;
+                        opt.selected = false;
+                    });
+                    if (window.jQuery && window.jQuery.fn.select2) {
+                        window.jQuery(custodioSelect).trigger('change.select2');
+                    }
+                }
+
+                function hideAllEquipoOptions() {
+                    Array.from(equipoSelect.options).forEach(opt => {
+                        opt.hidden = true;
+                        opt.disabled = true;
+                        opt.selected = false;
+                    });
+                    buildEquipoChecklist();
+                }
+
+                /* ============ CUSTODIO INFO ============ */
+                function clearCustodioInfo() {
+                    document.getElementById('correoCustodio').textContent = '';
+                    document.getElementById('cedulaCustodio').textContent = '';
+                    document.getElementById('telefonoCustodio').textContent = '';
+                    document.getElementById('departamentoCustodio').textContent = '';
+                    document.getElementById('cargoCustodio').textContent = '';
+                    document.getElementById('ubicacionCustodio').textContent = '';
+                }
+
+                function fillCustodioInfo(opt) {
+                    document.getElementById('correoCustodio').textContent = opt?.getAttribute('data-correo') || '';
+                    document.getElementById('cedulaCustodio').textContent = opt?.getAttribute('data-cedula') || '';
+                    document.getElementById('telefonoCustodio').textContent = opt?.getAttribute('data-telefono') || '';
+                    document.getElementById('departamentoCustodio').textContent = opt?.getAttribute('data-departamento') || '';
+                    document.getElementById('cargoCustodio').textContent = opt?.getAttribute('data-cargo') || '';
+                    document.getElementById('ubicacionCustodio').textContent = opt?.getAttribute('data-ubicacion') || '';
+                }
+
+                /* ============ RESUMEN / SUMMARY ============ */
+                function updateResumen() {
+                    if (modoActual === 'ADMINISTRATIVO') {
+                        updateCustodioSummary();
                     } else {
-                        equiposHint.textContent = 'Se muestran ' + visibles + ' equipo(s) asignado(s) al custodio. Puedes seleccionar uno o varios.';
+                        updateFarmaciaSummary();
                     }
-
-                    updateSubmitState();
-                    updateSelectedEquipmentChips();
-                }
-
-                function updateProgress() {
-                    const done = checklist.filter(c => c.checked).length;
-                    const pct = totalChecklist === 0 ? 0 : Math.round((done / totalChecklist) * 100);
-                    checkProgress.textContent = done + ' / ' + totalChecklist;
-                    checkBar.style.width = pct + '%';
-                    updateSubmitState();
-                }
-
-                function selectedEquiposCount() {
-                    return Array.from(equipoSelect.options).filter(opt => opt.selected && !opt.hidden).length;
-                }
-
-                function updateSelectedEquipmentChips() {
-                    const selected = Array.from(equipoSelect.options).filter(opt => opt.selected && !opt.hidden);
-                    if (selected.length === 0) {
-                        selectedEquipmentChips.innerHTML = '<span class="selection-chip is-placeholder">Sin equipos seleccionados</span>';
-                        return;
-                    }
-                    selectedEquipmentChips.innerHTML = selected.map(opt =>
-                        '<span class="selection-chip">' + opt.textContent.trim() + '</span>'
-                    ).join('');
                 }
 
                 function updateCustodioSummary() {
@@ -306,11 +564,56 @@
                     resumenCustodioMeta.textContent = cargo + ' · ' + ubicacion;
                 }
 
+                function updateFarmaciaSummary() {
+                    if (!ubicacionSelect || !ubicacionSelect.value) {
+                        resumenCustodioNombre.textContent = 'Selecciona una sucursal';
+                        resumenCustodioMeta.textContent = 'Aqui veras los equipos y custodios de esa sucursal.';
+                        return;
+                    }
+                    const ubiOpt = ubicacionSelect.selectedOptions[0];
+                    const custOpt = custodioSelect.selectedOptions[0];
+                    const sucursalName = ubiOpt ? ubiOpt.textContent.trim() : '';
+                    const custodioName = (custOpt && custodioSelect.value) ? custOpt.textContent.trim() : 'Sin custodio seleccionado';
+                    const visibles = Array.from(equipoSelect.options).filter(o => !o.hidden).length;
+                    resumenCustodioNombre.textContent = sucursalName;
+                    resumenCustodioMeta.textContent = visibles + ' equipo(s) · Custodio: ' + custodioName;
+                }
+
+                /* ============ CHECKLIST / PROGRESS ============ */
+                function updateProgress() {
+                    const done = checklist.filter(c => c.checked).length;
+                    const pct = totalChecklist === 0 ? 0 : Math.round((done / totalChecklist) * 100);
+                    checkProgress.textContent = done + ' / ' + totalChecklist;
+                    checkBar.style.width = pct + '%';
+                    updateSubmitState();
+                }
+
+                function selectedEquiposCount() {
+                    return Array.from(equipoSelect.options).filter(opt => opt.selected && !opt.disabled).length;
+                }
+
+                function updateSelectedEquipmentChips() {
+                    const selected = Array.from(equipoSelect.options).filter(opt => opt.selected && !opt.disabled);
+                    if (selected.length === 0) {
+                        selectedEquipmentChips.innerHTML = '<span class="selection-chip is-placeholder">Sin equipos seleccionados</span>';
+                        return;
+                    }
+                    selectedEquipmentChips.innerHTML = selected.map(opt =>
+                        '<span class="selection-chip">' + opt.textContent.trim() + '</span>'
+                    ).join('');
+                }
+
+                /* ============ SUBMIT STATE ============ */
                 function updateSubmitState() {
                     const checklistCompleto = checklist.filter(c => c.checked).length === totalChecklist;
-                    const firmasCompletas = !!firmaTecnicoInput.value && !!firmaCustodioInput.value;
-                    const seleccionCompleta = !!custodioSelect.value && selectedEquiposCount() > 0;
-                    const ready = checklistCompleto && firmasCompletas && seleccionCompleta;
+                    const firmaOk = !!firmaTecnicoInput.value && !!firmaCustodioInput.value;
+                    let seleccionOk;
+                    if (modoActual === 'ADMINISTRATIVO') {
+                        seleccionOk = !!custodioSelect.value && selectedEquiposCount() > 0;
+                    } else {
+                        seleccionOk = !!ubicacionSelect.value && !!custodioSelect.value && selectedEquiposCount() > 0;
+                    }
+                    const ready = checklistCompleto && firmaOk && seleccionOk;
                     submitButton.disabled = !ready;
                     formReadyBadge.className = 'status-pill ' + (ready ? 'is-completed' : 'is-pending');
                     formReadyBadge.textContent = ready ? 'Listo para guardar' : 'Pendiente';
@@ -319,6 +622,7 @@
                         : 'Completa checklist, firmas y seleccion.';
                 }
 
+                /* ============ IMAGE HANDLING ============ */
                 async function convertImageFile(file, index) {
                     if (!(file instanceof File) || !file.type.startsWith('image/')) {
                         return file;
@@ -357,6 +661,7 @@
                     });
                 }
 
+                /* ============ SIGNATURE CANVAS ============ */
                 function bindCanvas(id) {
                     const canvas = document.getElementById(id);
                     const ctx = canvas.getContext('2d');
@@ -403,45 +708,70 @@
                     canvas.addEventListener('touchend', end);
                 }
 
+                /* ============ INIT ============ */
                 checklist.forEach(c => c.addEventListener('change', updateProgress));
                 updateProgress();
                 bindCanvas('canvasTecnico');
                 bindCanvas('canvasCustodio');
 
                 if (window.jQuery && window.jQuery.fn.select2) {
+                    function hideDisabledOption(option) {
+                        if (option.element && option.element.disabled) return null;
+                        if (option.disabled) return null;
+                        return option.text;
+                    }
+
                     window.jQuery(custodioSelect).select2({
                         width: '100%',
                         placeholder: 'Selecciona un custodio',
-                        allowClear: true
+                        allowClear: true,
+                        templateResult: hideDisabledOption
                     });
 
-                    window.jQuery(equipoSelect).select2({
+                    window.jQuery(ubicacionSelect).select2({
                         width: '100%',
-                        placeholder: 'Selecciona equipos del custodio',
-                        closeOnSelect: false
+                        placeholder: 'Selecciona una sucursal',
+                        allowClear: true,
+                        templateResult: hideDisabledOption
                     });
 
                     window.jQuery(custodioSelect).on('change', function() {
                         custodioSelect.dispatchEvent(new Event('change'));
                     });
-                    window.jQuery(equipoSelect).on('change', function() {
-                        updateSubmitState();
-                        updateSelectedEquipmentChips();
+                    window.jQuery(ubicacionSelect).on('change', function() {
+                        ubicacionSelect.dispatchEvent(new Event('change'));
                     });
                 }
 
+                /* Custodio change handler */
                 custodioSelect.addEventListener('change', function() {
                     const opt = this.selectedOptions[0];
-                    document.getElementById('correoCustodio').textContent = opt?.getAttribute('data-correo') || '';
-                    document.getElementById('cedulaCustodio').textContent = opt?.getAttribute('data-cedula') || '';
-                    document.getElementById('telefonoCustodio').textContent = opt?.getAttribute('data-telefono') || '';
-                    document.getElementById('departamentoCustodio').textContent = opt?.getAttribute('data-departamento') || '';
-                    document.getElementById('cargoCustodio').textContent = opt?.getAttribute('data-cargo') || '';
-                    document.getElementById('ubicacionCustodio').textContent = opt?.getAttribute('data-ubicacion') || '';
-                    updateCustodioSummary();
-                    refreshEquipoOptions();
+                    if (opt && this.value) {
+                        fillCustodioInfo(opt);
+                    } else {
+                        clearCustodioInfo();
+                    }
+
+                    if (modoActual === 'ADMINISTRATIVO') {
+                        updateCustodioSummary();
+                        refreshEquipoOptionsCustodio();
+                    } else {
+                        updateFarmaciaSummary();
+                        updateSubmitState();
+                    }
                 });
 
+                /* Sucursal change handler */
+                if (ubicacionSelect) {
+                    ubicacionSelect.addEventListener('change', function() {
+                        if (modoActual !== 'FARMACIA') return;
+                        refreshEquipoOptionsSucursal();
+                        refreshCustodioOptionsSucursal();
+                        updateFarmaciaSummary();
+                    });
+                }
+
+                /* Signature buttons */
                 document.querySelectorAll('[data-clear]').forEach(btn => btn.addEventListener('click', function() {
                     const canvas = document.getElementById(this.dataset.clear);
                     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
@@ -455,8 +785,9 @@
                     updateSubmitState();
                 }));
 
+                /* Image input */
                 imagenesInput.addEventListener('change', async function() {
-                    const originales = Array.from(this.files || []).slice(0, 5);
+                    const originales = Array.from(this.files || []).slice(0, 10);
                     const convertidas = [];
                     for (let i = 0; i < originales.length; i += 1) {
                         convertidas.push(await convertImageFile(originales[i], i));
@@ -467,6 +798,7 @@
                     renderImagePreview(imagenesInput.files);
                 });
 
+                /* Form submit validation */
                 form.addEventListener('submit', function(e) {
                     if (checklist.filter(c => c.checked).length < totalChecklist) {
                         e.preventDefault();
@@ -478,12 +810,24 @@
                         alert('Debes confirmar ambas firmas antes de guardar.');
                         return;
                     }
-                    if (!custodioSelect.value || selectedEquiposCount() === 0) {
+                    if (!custodioSelect.value) {
                         e.preventDefault();
-                        alert('Debes seleccionar un custodio y al menos un equipo asignado.');
+                        alert('Debes seleccionar un custodio.');
+                        return;
+                    }
+                    if (selectedEquiposCount() === 0) {
+                        e.preventDefault();
+                        alert('Debes seleccionar al menos un equipo.');
+                        return;
+                    }
+                    if (modoActual === 'FARMACIA' && (!ubicacionSelect || !ubicacionSelect.value)) {
+                        e.preventDefault();
+                        alert('Debes seleccionar una sucursal.');
+                        return;
                     }
                 });
 
+                /* Initial load: try to pre-select custodio from pre-selected equipo */
                 if (!custodioSelect.value) {
                     const equipoPreseleccionado = Array.from(equipoSelect.options).find(opt => opt.selected);
                     const custodios = (equipoPreseleccionado?.getAttribute('data-custodios') || '')
@@ -495,11 +839,11 @@
                     }
                 }
 
-                refreshEquipoOptions();
+                refreshEquipoOptionsCustodio();
                 if (custodioSelect.value) {
                     custodioSelect.dispatchEvent(new Event('change'));
                 }
-                updateCustodioSummary();
+                updateResumen();
                 updateSelectedEquipmentChips();
                 updateSubmitState();
             })();

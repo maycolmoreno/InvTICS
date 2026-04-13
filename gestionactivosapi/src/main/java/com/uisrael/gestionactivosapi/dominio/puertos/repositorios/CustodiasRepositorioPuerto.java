@@ -107,4 +107,6 @@ public interface CustodiasRepositorioPuerto {
     }
 
     Pagina<Custodias> listarPaginado(int pagina, int tamanio);
+
+    List<Custodias> buscarPorGrupoActa(int idCustodio, String tipoMovimiento, java.time.LocalDate fechaInicio);
 }

@@ -124,7 +124,7 @@
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.codigoSap : ''}"></td>
                             <td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
                             <td><code class="serial-code" th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></code></td>
-                            <td th:text="${d.fkEquipo != null and d.fkEquipo.fkUbicacion != null ? d.fkEquipo.fkUbicacion.nombre : ''}"></td>
+                            <td th:text="${d.fkCustodio != null and d.fkCustodio.fkUbicacion != null ? d.fkCustodio.fkUbicacion.nombre : ''}"></td>
                         </tr>
                         </tbody>
                     </table>

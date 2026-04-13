@@ -11,6 +11,11 @@ import com.uisrael.gestionactivosapi.presentacion.dto.response.MantenimientosRes
 public interface IMantenimientosDtoMapper {
 
     @Mapping(target = "idMantenimiento", source = "id")
+    @Mapping(target = "equipoSnapshot", ignore = true)
+    @Mapping(target = "sineSnapshot", ignore = true)
+    @Mapping(target = "estadoGeneral", ignore = true)
+    @Mapping(target = "proximaFecha", ignore = true)
+    @Mapping(target = "activo", ignore = true)
     Mantenimientos toDomain(MantenimientosRequestDTO dto);
 
     MantenimientosResponseDTO toResponseDto(Mantenimientos mantenimiento);

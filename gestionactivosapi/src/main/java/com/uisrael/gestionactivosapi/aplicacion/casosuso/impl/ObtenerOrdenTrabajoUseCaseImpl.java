@@ -95,9 +95,9 @@ public class ObtenerOrdenTrabajoUseCaseImpl implements IObtenerOrdenTrabajoUseCa
 
         if (custodia != null && custodia.getFkCustodio() != null) {
             resp.setCustodioNombre(custodia.getFkCustodio().getNombre());
-        }
-        if (custodia != null && custodia.getFkUbicacion() != null) {
-            resp.setUbicacionNombre(custodia.getFkUbicacion().getNombre());
+            if (custodia.getFkCustodio().getFkUbicacion() != null) {
+                resp.setUbicacionNombre(custodia.getFkCustodio().getFkUbicacion().getNombre());
+            }
         }
 
         resp.setFechaUltimoMantenimiento(fechaUlt);

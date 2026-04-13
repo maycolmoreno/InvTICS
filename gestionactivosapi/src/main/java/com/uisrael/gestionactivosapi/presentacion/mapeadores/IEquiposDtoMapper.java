@@ -23,7 +23,6 @@ public interface IEquiposDtoMapper {
     // =========================
     @Mapping(target = "fkCategoria", expression = "java(mapCategoria(dto))")
     @Mapping(target = "fkMarca", expression = "java(mapMarca(dto))")
-    @Mapping(target = "fkUbicacion", expression = "java(mapUbicacion(dto))")
     Equipos toDomain(EquiposRequestDTO dto);
 
     // =========================
@@ -32,7 +31,6 @@ public interface IEquiposDtoMapper {
     // =========================
     @Mapping(target = "fkMarca", expression = "java(toMarcaResponse(equipo.getFkMarca()))")
     @Mapping(target = "fkCategoria", expression = "java(toCategoriaResponse(equipo.getFkCategoria()))")
-    @Mapping(target = "fkUbicacion", expression = "java(toUbicacionResponse(equipo.getFkUbicacion()))")
     EquiposResponseDTO toResponseDto(Equipos equipo);
 
     // ==========================================================
@@ -98,14 +96,7 @@ public interface IEquiposDtoMapper {
     }
 
     default Ubicaciones mapUbicacion(EquiposRequestDTO dto) {
-        if (dto == null || dto.getFkUbicacion() == null) {
-			return null;
-		}
-        return new Ubicaciones(
-                dto.getFkUbicacion().getIdUbicacion(),
-                null, null, true,
-                null, null, null, null, null, null, null
-        );
+        return null;
     }
 
     default UbicacionesResponseDTO toUbicacionResponse(Ubicaciones u) {

@@ -138,6 +138,24 @@
 							<span class="nxl-mtext">Importar</span>
 						</a>
 					</li>
+					<li class="nxl-item nxl-hasmenu" th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">
+						<a href="javascript:void(0);" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-archive"></i></span>
+							<span class="nxl-mtext">Inventario</span>
+							<span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+						</a>
+						<ul class="nxl-submenu">
+							<li class="nxl-item">
+								<a th:href="@{/inventario/por-sucursal}" class="nxl-link">Por Sucursal</a>
+							</li>
+							<li class="nxl-item">
+								<a th:href="@{/inventario/por-departamento}" class="nxl-link">Por Departamento</a>
+							</li>
+							<li class="nxl-item">
+								<a th:href="@{/inventario/por-custodio}" class="nxl-link">Por Custodio</a>
+							</li>
+						</ul>
+					</li>
 				</ul>
 				<div class="sidebar-secondary-nav" th:if="${sesionUsuario.tieneModulo('EQUIPOS') || sesionUsuario.tieneModulo('MANTENIMIENTO')}">
 					<div class="sidebar-secondary-title">Accesos rapidos</div>
@@ -376,6 +394,13 @@
 		});
 
 		document.addEventListener('DOMContentLoaded', function() {
+			/* ── Mover TODOS los modales al body para evitar z-index/blur ── */
+			document.querySelectorAll('.modal').forEach(function(modal) {
+				if (modal.parentElement !== document.body) {
+					document.body.appendChild(modal);
+				}
+			});
+
 			const path = window.location.pathname;
 			document.querySelectorAll('.nxl-navigation .nxl-link[href]').forEach(function(link) {
 				const href = link.getAttribute('href');

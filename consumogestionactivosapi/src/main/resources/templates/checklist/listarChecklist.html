@@ -5,16 +5,6 @@
 <head>
 <title>Checklist de Actividades</title>
 <style>
-	.checklist-shell { display: flex; flex-direction: column; gap: 1.25rem; }
-	.checklist-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-	.checklist-stat-card {
-		border-radius: 22px; padding: 1.2rem 1.3rem;
-		background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
-		border: 1px solid rgba(22,54,120,0.08);
-		box-shadow: 0 16px 38px rgba(16,42,92,0.08);
-	}
-	.checklist-stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.14em; color: #6d7b9a; margin-bottom: 0.4rem; }
-	.checklist-stat-value { font-size: 1.8rem; font-weight: 800; color: #102a5c; line-height: 1; }
 	.category-section { margin-bottom: 1rem; }
 	.category-header {
 		font-size: 1rem; font-weight: 700; color: #102a5c;
@@ -25,12 +15,6 @@
 		font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: #6d7b9a; border-bottom-width: 1px;
 	}
 	.checklist-table td { vertical-align: middle; }
-	.status-pill {
-		display: inline-flex; align-items: center; gap: 0.45rem;
-		border-radius: 999px; padding: 0.35rem 0.8rem; font-size: 0.84rem; font-weight: 700;
-	}
-	.status-pill.is-active { background: rgba(23,178,106,0.12); color: #0d8a50; }
-	.status-pill.is-inactive { background: rgba(228,90,79,0.12); color: #bb3f35; }
 	.actions-inline { display: flex; flex-wrap: wrap; gap: 0.55rem; }
 	.btn-soft-light { border-radius: 999px; padding-inline: 0.9rem; }
 	.orden-badge {
@@ -38,7 +22,6 @@
 		width: 32px; height: 32px; border-radius: 50%; background: #e8edf5; color: #102a5c;
 		font-weight: 700; font-size: 0.9rem;
 	}
-	@media (max-width: 768px) { .checklist-summary { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -56,17 +39,16 @@
 			</div>
 		</div>
 
-		<div class="checklist-shell">
-			<div class="checklist-summary">
-				<div class="checklist-stat-card">
-					<div class="checklist-stat-label">Total actividades</div>
-					<div class="checklist-stat-value" th:text="${totalActividades}">0</div>
-				</div>
-				<div class="checklist-stat-card">
-					<div class="checklist-stat-label">Categorias</div>
-					<div class="checklist-stat-value" th:text="${totalCategorias}">0</div>
-				</div>
-			</div>
+		<section class="admin-summary-grid">
+			<article class="admin-summary-card">
+				<div class="admin-summary-label">Total actividades</div>
+				<div class="admin-summary-value" th:text="${totalActividades}">0</div>
+			</article>
+			<article class="admin-summary-card">
+				<div class="admin-summary-label">Categorias</div>
+				<div class="admin-summary-value" th:text="${totalCategorias}">0</div>
+			</article>
+		</section>
 
 			<div th:if="${#maps.isEmpty(porCategoria)}" class="surface-card page-panel text-center py-5">
 				<i class="feather-check-square" style="font-size:3rem;color:#6d7b9a"></i>
@@ -121,7 +103,6 @@
 					</div>
 				</div>
 			</div>
-		</div>
 	</div>
 </div>
 </body>

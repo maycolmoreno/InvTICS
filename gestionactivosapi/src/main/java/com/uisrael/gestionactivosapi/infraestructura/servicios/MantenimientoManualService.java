@@ -67,10 +67,14 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
         if (!equipo.isEstado()) {
             throw new IllegalArgumentException("El equipo no esta activo");
         }
-        CustodiosJpa custodio = custodiosRepo.findById(request.custodioId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Custodio no encontrado"));
-        if (!custodio.isEstado()) {
-            throw new IllegalArgumentException("El custodio no esta activo");
+        Integer idCliente = null;
+        if (request.custodioId() != null) {
+            CustodiosJpa custodio = custodiosRepo.findById(request.custodioId())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Custodio no encontrado"));
+            if (!custodio.isEstado()) {
+                throw new IllegalArgumentException("El custodio no esta activo");
+            }
+            idCliente = custodio.getIdCustodio();
         }
         if (mantenimientosRepo.existsByEquipoIdAndEstadoInterno(
                 equipo.getIdEquipo(), EstadoInternoMantenimiento.EN_PROCESO)) {
@@ -82,7 +86,7 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
 
         MantenimientosJpa entity = new MantenimientosJpa();
         entity.setEquipoId(equipo.getIdEquipo());
-        entity.setIdCliente(custodio.getIdCustodio());
+        entity.setIdCliente(idCliente);
         entity.setIdUsuario(tecnico.getIdUsuario());
         entity.setTipoMantenimiento(request.tipoMantenimiento());
         entity.setFechaProgramada(request.fechaMantenimiento().atStartOfDay());

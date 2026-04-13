@@ -38,5 +38,8 @@ build/
 
 ### Docker / Runtime ###
 .env
+
+### Firebase credentials ###
+*-firebase-adminsdk-*.json
 data/
 *.sql

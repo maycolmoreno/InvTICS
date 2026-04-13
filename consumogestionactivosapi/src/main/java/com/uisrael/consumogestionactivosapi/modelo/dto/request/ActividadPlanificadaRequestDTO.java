@@ -16,5 +16,6 @@ public class ActividadPlanificadaRequestDTO {
     private LocalDate fechaFin;
     private Integer tiempoEstimadoMinutos;
     private Integer referenciaMantenimientoId;
+    private Integer fkEquipoId;
     private String observaciones;
 }

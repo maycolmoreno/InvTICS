@@ -98,6 +98,7 @@
                             <th>Título</th>
                             <th>Técnico</th>
                             <th>Tipo</th>
+                            <th>Equipo</th>
                             <th>Prioridad</th>
                             <th>Estado</th>
                             <th>Fecha inicio</th>
@@ -118,6 +119,12 @@
                             <td th:text="${a.tecnicoNombre}"></td>
                             <td>
                                 <span th:text="${a.tipoActividad.replace('_', ' ')}" style="font-size:12px"></span>
+                            </td>
+                            <td>
+                                <span th:if="${a.equipoNombre}" th:text="${a.equipoNombre}" style="font-size:12px"></span>
+                                <span th:unless="${a.equipoNombre}" style="font-size:12px;color:var(--pl-muted)">—</span>
+                                <br th:if="${a.referenciaMantenimientoId != null}">
+                                <small th:if="${a.referenciaMantenimientoId != null}" style="color:var(--pl-ok)">🔧 Mant. #<span th:text="${a.referenciaMantenimientoId}"></span></small>
                             </td>
                             <td>
                                 <span class="pl-badge"

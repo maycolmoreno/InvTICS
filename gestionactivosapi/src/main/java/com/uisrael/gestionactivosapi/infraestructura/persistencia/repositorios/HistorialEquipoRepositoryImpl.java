@@ -68,10 +68,10 @@ public class HistorialEquipoRepositoryImpl implements HistorialEquipoRepositorio
 				dto.setDepartamentoNombre(custodia.getFkCustodio().getFkDepartamento() != null
 						? custodia.getFkCustodio().getFkDepartamento().getNombre()
 						: null);
-			}
-			if (custodia.getFkUbicacion() != null) {
-				dto.setUbicacionNombre(custodia.getFkUbicacion().getNombre());
-				dto.setUbicacionCiudad(custodia.getFkUbicacion().getCiudad());
+				if (custodia.getFkCustodio().getFkUbicacion() != null) {
+					dto.setUbicacionNombre(custodia.getFkCustodio().getFkUbicacion().getNombre());
+					dto.setUbicacionCiudad(custodia.getFkCustodio().getFkUbicacion().getCiudad());
+				}
 			}
 		}
 

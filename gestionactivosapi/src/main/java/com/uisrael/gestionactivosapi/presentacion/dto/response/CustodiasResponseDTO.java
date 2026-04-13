@@ -49,5 +49,9 @@ public class CustodiasResponseDTO {
     private String rutaActaPdf;
     public String getRutaActaPdf() { return rutaActaPdf; }
     public void setRutaActaPdf(String rutaActaPdf) { this.rutaActaPdf = rutaActaPdf; }
+
+    private String rutaActaFirmada;
+    public String getRutaActaFirmada() { return rutaActaFirmada; }
+    public void setRutaActaFirmada(String rutaActaFirmada) { this.rutaActaFirmada = rutaActaFirmada; }
 }
 

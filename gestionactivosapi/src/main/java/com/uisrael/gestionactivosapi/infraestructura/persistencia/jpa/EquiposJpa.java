@@ -76,6 +76,15 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
 
     private boolean estado;
 
+    @Column(name = "fecha_adquisicion")
+    private LocalDate fechaAdquisicion;
+
+    @Column(name = "valor_actual")
+    private Double valorActual;
+
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_marca", nullable = false)
     private MarcasJpa fkMarcas;
@@ -83,9 +92,5 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
     private CategoriaEquiposJpa fkCategoria;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_ubicacion")
-    private UbicacionesJpa fkUbicacion;
 
 }

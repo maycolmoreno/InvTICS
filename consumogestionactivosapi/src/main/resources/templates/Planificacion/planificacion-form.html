@@ -43,7 +43,7 @@
                 </div>
                 <div class="pf-group">
                     <label>Tipo de actividad *</label>
-                    <select th:field="*{tipoActividad}" required>
+                    <select th:field="*{tipoActividad}" required id="selectTipo">
                         <option value="">Seleccionar...</option>
                         <option value="TAREA_DIARIA">Tarea diaria</option>
                         <option value="TAREA_SEMANAL">Tarea semanal</option>
@@ -52,6 +52,14 @@
                         <option value="OBJETIVO_MENSUAL">Objetivo mensual</option>
                     </select>
                 </div>
+            </div>
+            <div class="pf-group" id="grupoEquipo" style="display:none">
+                <label>Equipo * <small style="color:var(--pl-muted,#6d7a92);font-weight:400">(obligatorio para mantenimiento programado)</small></label>
+                <select th:field="*{fkEquipoId}" id="selectEquipo">
+                    <option value="">Seleccionar equipo...</option>
+                    <option th:each="e : ${equipos}" th:value="${e.idEquipo}"
+                            th:text="${e.codigoSap + ' - ' + e.modelo + (e.serial != null ? ' (S/N: ' + e.serial + ')' : '')}"></option>
+                </select>
             </div>
             <div class="pf-row">
                 <div class="pf-group">
@@ -89,5 +97,31 @@
         </form>
     </div>
 </div>
+<th:block layout:fragment="scripts">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var selectTipo = document.getElementById('selectTipo');
+    var grupoEquipo = document.getElementById('grupoEquipo');
+    var selectEquipo = document.getElementById('selectEquipo');
+
+    function toggleEquipo() {
+        var esMant = selectTipo.value === 'MANTENIMIENTO_PROGRAMADO';
+        grupoEquipo.style.display = esMant ? '' : 'none';
+        selectEquipo.required = esMant;
+        if (!esMant) {
+            selectEquipo.value = '';
+        }
+    }
+
+    selectTipo.addEventListener('change', toggleEquipo);
+    toggleEquipo();
+
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+        $('#selectEquipo').select2({ width: '100%', placeholder: 'Buscar equipo...' });
+        $('#selectEquipo').on('change', function() { selectEquipo.value = this.value; });
+    }
+});
+</script>
+</th:block>
 </body>
 </html>

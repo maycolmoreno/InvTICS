@@ -40,10 +40,6 @@ public class CustodiasJpa implements Serializable {
     @JoinColumn(name = "id_custodio", nullable = false)
     private CustodiosJpa fkCustodio;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_ubicacion")
-    private UbicacionesJpa fkUbicacion;
-
     @Column(name = "fecha_inicio")
     private LocalDate fechaInicio;
 
@@ -59,4 +55,7 @@ public class CustodiasJpa implements Serializable {
 
     @Column(name = "ruta_acta_pdf")
     private String rutaActaPdf;
+
+    @Column(name = "ruta_acta_firmada")
+    private String rutaActaFirmada;
 }

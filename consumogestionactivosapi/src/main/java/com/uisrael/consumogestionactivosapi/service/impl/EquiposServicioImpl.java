@@ -74,10 +74,9 @@ public class EquiposServicioImpl implements IEquiposServicio {
 
 	@Override
 	public void actualizarEstado(Integer idEquipo, boolean estado) {
-		EquiposRequestDTO dto = new EquiposRequestDTO();
-		dto.setEstado(estado);
-
-		clienteWeb.put().uri("/equipos/estado/{id}", idEquipo).body(dto).retrieve().toBodilessEntity();
+		clienteWeb.put()
+				.uri(uriBuilder -> uriBuilder.path("/equipos/estado/{id}").queryParam("estado", estado).build(idEquipo))
+				.retrieve().toBodilessEntity();
 	}
 
 	@Override

@@ -22,6 +22,7 @@ public interface IUsuariosJpaMapper {
 	@Mapping(target = "updatedAt", ignore = true)
 	@Mapping(target = "updatedBy", ignore = true)
 	@Mapping(target = "deletedAt", ignore = true)
+	@Mapping(target = "fcmToken", ignore = true)
 	UsuariosJpa toEntity(Usuarios usuario);
 
 }

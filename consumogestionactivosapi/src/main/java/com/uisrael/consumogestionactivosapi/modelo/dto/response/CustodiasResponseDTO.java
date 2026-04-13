@@ -27,4 +27,5 @@ public class CustodiasResponseDTO {
     private String observacionDevolucion;
     private String tipoMovimiento;
     private String rutaActaPdf;
+    private String rutaActaFirmada;
 }

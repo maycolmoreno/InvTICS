@@ -100,6 +100,28 @@ public class CustodiasUseCaseImpl implements ICustodiasUseCase {
         }
     }
 
+    @Override
+    @Transactional
+    public void registrarActaFirmada(int id, String rutaActaFirmada) {
+        Custodias c = custodiasRepositorio.buscarPorId(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Custodia no encontrada: " + id));
+
+        int idCustodio = c.getFkCustodio() != null ? c.getFkCustodio().getIdCustodio() : 0;
+        String tipo = c.getTipoMovimiento();
+        java.time.LocalDate fecha = c.getFechaInicio();
+
+        List<Custodias> grupo = custodiasRepositorio.buscarPorGrupoActa(idCustodio, tipo, fecha);
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        for (Custodias item : grupo) {
+            item.setRutaActaFirmada(rutaActaFirmada);
+            item.setEstado(false);
+            if (item.getFechaFin() == null) {
+                item.setFechaFin(hoy);
+            }
+            custodiasRepositorio.actualizar(item.getIdCustodiaEquipo(), item);
+        }
+    }
+
     private void validarEquipoDisponibleParaCustodia(Custodias custodia) {
         if (custodia.getFkEquipo() == null || custodia.getFkEquipo().getIdEquipo() <= 0) {
             throw new IllegalArgumentException("Debe seleccionar un equipo");

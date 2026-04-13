@@ -22,4 +22,6 @@ public interface ICustodiasUseCase {
     long contarPorTipoMovimiento(String tipoMovimiento);
 
     void registrarActaPdf(List<Integer> ids, String rutaPdf);
+
+    void registrarActaFirmada(int id, String rutaActaFirmada);
 }

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiasRequestDTO;
@@ -324,9 +325,8 @@ public class CustodiasControlador {
 				upd.setEquipos(List.of(e));
 
 				servicioCustodias.actualizarCustodia(activa.getIdCustodiaEquipo(), upd);
+				servicioEquipos.actualizarEstado(idEquipo, false);
 			}
-
-			servicioEquipos.actualizarEstado(idEquipo, false);
 		}
 
 		List<EquiposResponseDTO> equiposBaja = equiposProcesados.stream().map(servicioEquipos::obtenerPorId)
@@ -891,6 +891,34 @@ public class CustodiasControlador {
 			org.slf4j.LoggerFactory.getLogger(getClass())
 					.error("Error al guardar acta PDF en disco: {}", e.getMessage());
 		}
+	}
+
+	// =========================================================
+	// SUBIR / DESCARGAR ACTA FIRMADA (PDF escaneado)
+	// =========================================================
+	@PostMapping("/acta-firmada/{idCustodia}")
+	public String subirActaFirmada(@PathVariable int idCustodia,
+			@RequestParam("archivo") MultipartFile archivo,
+			RedirectAttributes redirectAttributes) {
+		try {
+			servicioCustodias.subirActaFirmada(idCustodia, archivo);
+			redirectAttributes.addFlashAttribute("mensajeExito", "Acta firmada subida correctamente");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("mensajeError", "Error al subir el acta firmada: " + e.getMessage());
+		}
+		return "redirect:/custodias";
+	}
+
+	@GetMapping("/acta-firmada/{idCustodia}")
+	public ResponseEntity<byte[]> descargarActaFirmada(@PathVariable int idCustodia) {
+		byte[] pdf = servicioCustodias.descargarActaFirmada(idCustodia);
+		if (pdf == null || pdf.length == 0) {
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok()
+				.contentType(MediaType.APPLICATION_PDF)
+				.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"acta_firmada_" + idCustodia + ".pdf\"")
+				.body(pdf);
 	}
 
 }
