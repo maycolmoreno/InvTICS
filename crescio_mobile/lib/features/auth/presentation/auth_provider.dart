@@ -46,6 +46,11 @@ class AuthProvider extends ChangeNotifier {
     }
 
     _session = stored;
+    try {
+      _session = await _repository.refreshSession(stored);
+    } catch (_) {
+      _session = stored;
+    }
     _status = AuthStatus.authenticated;
     notifyListeners();
   }
@@ -87,9 +92,45 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> refreshSession({bool silent = true}) async {
+    final current = _session;
+    if (current == null) {
+      return;
+    }
+    try {
+      final refreshed = await _repository.refreshSession(current);
+      final changed = refreshed.role != current.role ||
+          refreshed.userId != current.userId ||
+          !_sameModules(refreshed.modules, current.modules) ||
+          refreshed.displayName != current.displayName ||
+          refreshed.username != current.username;
+      _session = refreshed;
+      if (changed || !silent) {
+        notifyListeners();
+      }
+    } catch (e) {
+      if (!silent) {
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
+        notifyListeners();
+      }
+    }
+  }
+
   void markServerConfigured() {
     _status = AuthStatus.unauthenticated;
     _errorMessage = null;
     notifyListeners();
+  }
+
+  bool _sameModules(List<String> a, List<String> b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    final left = a.map((item) => item.trim().toUpperCase()).toSet();
+    final right = b.map((item) => item.trim().toUpperCase()).toSet();
+    if (left.length != right.length) {
+      return false;
+    }
+    return left.containsAll(right);
   }
 }

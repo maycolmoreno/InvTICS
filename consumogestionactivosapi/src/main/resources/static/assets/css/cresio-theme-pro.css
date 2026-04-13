@@ -182,7 +182,16 @@ a { text-decoration: none; }
   min-height: 100vh;
 }
 
-.nxl-navigation .nxl-caption { display: none !important; }
+.nxl-navigation .nxl-caption {
+  display: block !important;
+  padding: 18px 14px 6px !important;
+  color: #8a94a6 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  text-transform: uppercase !important;
+}
+.nxl-navigation .nxl-caption label { margin-bottom: 0; cursor: default; }
 
 .nxl-navigation .nxl-item { margin-bottom: 4px; }
 

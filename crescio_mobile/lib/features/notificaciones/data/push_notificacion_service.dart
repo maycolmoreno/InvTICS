@@ -1,7 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import '../../core/network/api_client.dart';
+import '../../../core/network/api_client.dart';
 
 /// Servicio para gestionar push notifications con Firebase Cloud Messaging.
 /// Registra el token FCM en el backend y muestra notificaciones locales

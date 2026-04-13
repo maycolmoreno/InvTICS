@@ -7,6 +7,10 @@ import java.time.LocalDateTime;
 import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoOrigenMantenimiento;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -18,6 +22,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -31,8 +36,11 @@ public class MantenimientosJpa implements Serializable {
     @Column(name = "id_mantenimiento")
     private Integer idMantenimiento;
 
-    @Column(name = "equipo_id", nullable = false)
+    @Column(name = "equipo_id")
     private Integer equipoId;
+
+    @OneToMany(mappedBy = "mantenimiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<MantenimientoEquipoJpa> equipos = new ArrayList<>();
 
     @Embedded
     private EquipoSnapshotEmbeddable equipoSnapshot = new EquipoSnapshotEmbeddable();
@@ -346,5 +354,13 @@ public class MantenimientosJpa implements Serializable {
 
     public void setProgramadoRel(MantenimientoProgramadoJpa programadoRel) {
         this.programadoRel = programadoRel;
+    }
+
+    public List<MantenimientoEquipoJpa> getEquipos() {
+        return equipos;
+    }
+
+    public void setEquipos(List<MantenimientoEquipoJpa> equipos) {
+        this.equipos = equipos;
     }
 }

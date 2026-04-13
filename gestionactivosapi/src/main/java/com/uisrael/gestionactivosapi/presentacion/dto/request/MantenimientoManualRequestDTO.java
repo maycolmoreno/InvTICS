@@ -9,8 +9,8 @@ import lombok.Data;
 
 @Data
 public class MantenimientoManualRequestDTO {
-    @NotNull(message = "equipoId es obligatorio")
     private Integer equipoId;
+    private List<Integer> equipoIds;
     @NotNull(message = "custodioId es obligatorio")
     private Integer custodioId;
     @NotBlank(message = "tipoMantenimiento es obligatorio")

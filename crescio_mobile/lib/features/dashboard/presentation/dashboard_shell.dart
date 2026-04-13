@@ -27,14 +27,35 @@ class DashboardShell extends StatefulWidget {
   State<DashboardShell> createState() => _DashboardShellState();
 }
 
-class _DashboardShellState extends State<DashboardShell> {
+class _DashboardShellState extends State<DashboardShell>
+    with WidgetsBindingObserver {
   int _index = 0;
+  bool _promptMonitoreoMostrado = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _enviarUbicacionInicial();
     _inicializarPush();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AuthProvider>().refreshSession();
+      _mostrarAlertaMonitoreoSiAplica();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      context.read<AuthProvider>().refreshSession();
+    }
   }
 
   Future<void> _inicializarPush() async {
@@ -52,6 +73,59 @@ class _DashboardShellState extends State<DashboardShell> {
     if (userId == null) return;
     final gps = context.read<GpsProvider>();
     await gps.enviarUbicacionAlIngreso(userId);
+  }
+
+  Future<void> _mostrarAlertaMonitoreoSiAplica() async {
+    if (_promptMonitoreoMostrado || !mounted) {
+      return;
+    }
+
+    final auth = context.read<AuthProvider>();
+    if (!auth.hasCapability(UserCapability.sendGpsLocation)) {
+      return;
+    }
+    final userId = auth.userId;
+    if (userId == null) {
+      return;
+    }
+
+    final gps = context.read<GpsProvider>();
+    await gps.cargarConsentimientoRegistrado(userId);
+    if (!mounted || gps.consentimientoRegistrado) {
+      return;
+    }
+
+    _promptMonitoreoMostrado = true;
+
+    final abrirMonitoreo = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Monitoreo en tiempo real'),
+            content: const Text(
+              'Para continuar con tus actividades en campo, '
+              'necesitamos tu consentimiento para monitorear tu ubicacion en tiempo real.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Mas tarde'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Continuar'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!mounted || !abrirMonitoreo) {
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const ConsentimientoGpsScreen()),
+    );
   }
 
   @override
@@ -100,7 +174,7 @@ class _DashboardShellState extends State<DashboardShell> {
               page: EquiposScreen(),
             ));
           }
-          if (auth.hasCapability(UserCapability.viewMantenimientos)) {
+          if (auth.hasCapability(UserCapability.viewPlanificacion)) {
             tabs.add(const _ShellTab(
               title: 'Planificacion',
               icon: Icons.event_note_outlined,
@@ -212,7 +286,7 @@ class _HomeTab extends StatelessWidget {
             crossAxisCount: 2,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.6,
+            childAspectRatio: 1.35,
             children: [
               _MetricCard(
                 icon: Icons.build_circle,
@@ -462,20 +536,29 @@ class _MetricCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.max,
         children: [
           Icon(icon, color: Colors.white.withValues(alpha: 0.85), size: 22),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(value,
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 26,
                       fontWeight: FontWeight.w800)),
-              Text(label,
-                  style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      fontSize: 12)),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.85),
+                  fontSize: 12,
+                  height: 1.15,
+                ),
+              ),
             ],
           ),
         ],

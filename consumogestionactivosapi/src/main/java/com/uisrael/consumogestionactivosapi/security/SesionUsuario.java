@@ -137,4 +137,12 @@ public class SesionUsuario {
 	public boolean tieneModulo(String codigoModulo) {
 		return this.modulosPermitidos != null && this.modulosPermitidos.contains(codigoModulo);
 	}
+
+	public boolean tieneAlgunModulo(String... modulos) {
+		if (this.modulosPermitidos == null) return false;
+		for (String m : modulos) {
+			if (this.modulosPermitidos.contains(m)) return true;
+		}
+		return false;
+	}
 }

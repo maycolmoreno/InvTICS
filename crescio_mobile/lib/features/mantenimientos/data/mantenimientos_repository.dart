@@ -111,23 +111,19 @@ class MantenimientosRepository implements IMantenimientosRepository {
     String? firmaTecnico,
     String? firmaCustodio,
   }) async {
-    final created = <Map<String, dynamic>>[];
-    for (final equipoId in equipoIds) {
-      created.add(
-        await crear(
-          equipoId: equipoId,
-          custodioId: custodioId,
-          tipoMantenimiento: tipoMantenimiento,
-          fechaMantenimiento: fechaMantenimiento,
-          detalle: detalle,
-          estadoGeneral: estadoGeneral,
-          actividades: actividades,
-          firmaTecnico: firmaTecnico,
-          firmaCustodio: firmaCustodio,
-        ),
-      );
-    }
-    return created;
+    final data = await _apiClient.post('/mantenimiento', {
+      'equipoIds': equipoIds,
+      'custodioId': custodioId,
+      'tipoMantenimiento': tipoMantenimiento,
+      'fechaMantenimiento': fechaMantenimiento,
+      'detalle': detalle,
+      'estadoGeneral': estadoGeneral,
+      'firmaTecnico': firmaTecnico,
+      'firmaCustodio': firmaCustodio,
+      'actividades': actividades,
+      'imagenes': <Map<String, dynamic>>[],
+    });
+    return [Map<String, dynamic>.from(data as Map)];
   }
 
   @override

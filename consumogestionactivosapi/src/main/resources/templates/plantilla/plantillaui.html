@@ -40,11 +40,17 @@
 			</div>
 			<div class="navbar-content">
 				<ul class="nxl-navbar">
+					<!-- ===== INICIO ===== -->
 					<li class="nxl-item">
 						<a th:href="@{/inicio}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-grid"></i></span>
 							<span class="nxl-mtext">Inicio</span>
 						</a>
+					</li>
+
+					<!-- ===== TÉCNICO ===== -->
+					<li class="nxl-caption" th:if="${sesionUsuario.tieneAlgunModulo('EQUIPOS','MANTENIMIENTO','CHECKLIST','PLANIFICACION')}">
+						<label>Técnico</label>
 					</li>
 					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('EQUIPOS')}">
 						<a th:href="@{/equipos}" class="nxl-link">
@@ -59,6 +65,23 @@
 							<span class="badge bg-danger ms-auto" th:if="${notificacionesPendientes > 0}" th:text="${notificacionesPendientes}">0</span>
 						</a>
 					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('CHECKLIST')}">
+						<a th:href="@{/checklist}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-check-square"></i></span>
+							<span class="nxl-mtext">Checklist</span>
+						</a>
+					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('PLANIFICACION')}">
+						<a th:href="@{/planificacion}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-calendar"></i></span>
+							<span class="nxl-mtext">Planificación</span>
+						</a>
+					</li>
+
+					<!-- ===== GESTIÓN ===== -->
+					<li class="nxl-caption" th:if="${sesionUsuario.tieneAlgunModulo('CUSTODIAS','CUSTODIOS','USUARIOS','DEPARTAMENTOS','UBICACIONES')}">
+						<label>Gestión</label>
+					</li>
 					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('CUSTODIAS')}">
 						<a th:href="@{/custodias}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-clipboard"></i></span>
@@ -71,10 +94,10 @@
 							<span class="nxl-mtext">Custodios</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('UBICACIONES')}">
-						<a th:href="@{/ubicaciones}" class="nxl-link">
-							<span class="nxl-micon"><i class="feather-map-pin"></i></span>
-							<span class="nxl-mtext">Ubicaciones</span>
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('USUARIOS')}">
+						<a th:href="@{/usuarios}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-users"></i></span>
+							<span class="nxl-mtext">Usuarios</span>
 						</a>
 					</li>
 					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('DEPARTAMENTOS')}">
@@ -83,36 +106,16 @@
 							<span class="nxl-mtext">Departamentos</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('USUARIOS')}">
-						<a th:href="@{/usuarios}" class="nxl-link">
-							<span class="nxl-micon"><i class="feather-users"></i></span>
-							<span class="nxl-mtext">Usuarios</span>
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('UBICACIONES')}">
+						<a th:href="@{/ubicaciones}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-map-pin"></i></span>
+							<span class="nxl-mtext">Ubicaciones</span>
 						</a>
 					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('REPORTES')}">
-						<a th:href="@{/reportes}" class="nxl-link">
-							<span class="nxl-micon"><i class="feather-bar-chart-2"></i></span>
-							<span class="nxl-mtext">Reportes</span>
-						</a>
-					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('NOTIFICACIONES')}">
-						<a th:href="@{/notificaciones}" class="nxl-link">
-							<span class="nxl-micon"><i class="feather-bell"></i></span>
-							<span class="nxl-mtext">Notificaciones</span>
-							<span class="badge bg-danger ms-auto" th:if="${notificacionesPendientes > 0}" th:text="${notificacionesPendientes}">0</span>
-						</a>
-					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('CHECKLIST')}">
-						<a th:href="@{/checklist}" class="nxl-link">
-							<span class="nxl-micon"><i class="feather-check-square"></i></span>
-							<span class="nxl-mtext">Checklist</span>
-						</a>
-					</li>
-					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('PLANIFICACION')}">
-						<a th:href="@{/planificacion}" class="nxl-link">
-							<span class="nxl-micon"><i class="feather-calendar"></i></span>
-							<span class="nxl-mtext">Planificación</span>
-						</a>
+
+					<!-- ===== GPS & MONITOREO ===== -->
+					<li class="nxl-caption" th:if="${sesionUsuario.tieneAlgunModulo('MONITOREO_GPS','GPS_TIEMPO_REAL','GPS_HISTORIAL')}">
+						<label>GPS &amp; Monitoreo</label>
 					</li>
 					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('MONITOREO_GPS')}">
 						<a th:href="@{/ubicaciones-tecnicos/consentimiento}" class="nxl-link">
@@ -130,6 +133,17 @@
 						<a th:href="@{/ubicaciones-tecnicos/historial}" class="nxl-link">
 							<span class="nxl-micon"><i class="feather-clock"></i></span>
 							<span class="nxl-mtext">GPS Historial</span>
+						</a>
+					</li>
+
+					<!-- ===== REPORTES & DATOS ===== -->
+					<li class="nxl-caption" th:if="${sesionUsuario.tieneAlgunModulo('REPORTES','IMPORTAR','INVENTARIO','NOTIFICACIONES')}">
+						<label>Reportes &amp; Datos</label>
+					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('REPORTES')}">
+						<a th:href="@{/reportes}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-bar-chart-2"></i></span>
+							<span class="nxl-mtext">Reportes</span>
 						</a>
 					</li>
 					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('IMPORTAR')}">
@@ -155,6 +169,13 @@
 								<a th:href="@{/inventario/por-custodio}" class="nxl-link">Por Custodio</a>
 							</li>
 						</ul>
+					</li>
+					<li class="nxl-item" th:if="${sesionUsuario.tieneModulo('NOTIFICACIONES')}">
+						<a th:href="@{/notificaciones}" class="nxl-link">
+							<span class="nxl-micon"><i class="feather-bell"></i></span>
+							<span class="nxl-mtext">Notificaciones</span>
+							<span class="badge bg-danger ms-auto" th:if="${notificacionesPendientes > 0}" th:text="${notificacionesPendientes}">0</span>
+						</a>
 					</li>
 				</ul>
 				<div class="sidebar-secondary-nav" th:if="${sesionUsuario.tieneModulo('EQUIPOS') || sesionUsuario.tieneModulo('MANTENIMIENTO')}">

@@ -48,6 +48,11 @@
     .pl-alert { padding: 12px 18px; border-radius: 8px; margin: 10px 18px; font-size: 14px; }
     .pl-alert-success { background: #d4edda; color: var(--pl-ok); }
     .pl-alert-error { background: #f8d7da; color: var(--pl-danger); }
+    .pl-table th[data-sort] { user-select: none; }
+    .pl-table th[data-sort]:hover { background: #eef0f5; }
+    .sort-icon { font-size: 11px; opacity: .4; }
+    .sort-icon.asc::after { content: ' ▲'; opacity: 1; }
+    .sort-icon.desc::after { content: ' ▼'; opacity: 1; }
 </style>
 </head>
 <body>
@@ -67,10 +72,11 @@
 
             <div class="pl-filters">
                 <input id="searchInput" type="text" placeholder="Buscar actividad..." style="max-width:200px">
-                <select id="filtroTecnico">
+                <select id="filtroTecnico" th:unless="${esTecnico}">
                     <option value="">Todos los técnicos</option>
                     <option th:each="t : ${tecnicos}" th:value="${t.idUsuario}" th:text="${t.nombre}"></option>
                 </select>
+                <input type="hidden" id="filtroTecnico" value="" th:if="${esTecnico}">
                 <select id="filtroEstado">
                     <option value="">Todos los estados</option>
                     <option value="PENDIENTE">Pendiente</option>
@@ -94,15 +100,15 @@
                 <table class="pl-table" id="tablaActividades">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Título</th>
-                            <th>Técnico</th>
-                            <th>Tipo</th>
-                            <th>Equipo</th>
-                            <th>Prioridad</th>
-                            <th>Estado</th>
-                            <th>Fecha inicio</th>
-                            <th>Fecha fin</th>
+                            <th data-sort="num" style="cursor:pointer"># <span class="sort-icon"></span></th>
+                            <th data-sort="text" style="cursor:pointer">Título <span class="sort-icon"></span></th>
+                            <th data-sort="text" style="cursor:pointer">Técnico <span class="sort-icon"></span></th>
+                            <th data-sort="text" style="cursor:pointer">Tipo <span class="sort-icon"></span></th>
+                            <th data-sort="text" style="cursor:pointer">Equipo <span class="sort-icon"></span></th>
+                            <th data-sort="text" style="cursor:pointer">Prioridad <span class="sort-icon"></span></th>
+                            <th data-sort="text" style="cursor:pointer">Estado <span class="sort-icon"></span></th>
+                            <th data-sort="date" style="cursor:pointer">Fecha inicio <span class="sort-icon"></span></th>
+                            <th data-sort="date" style="cursor:pointer">Fecha fin <span class="sort-icon"></span></th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -166,23 +172,172 @@
             </div>
         </div>
     </div>
-</div>
 
-<th:block layout:fragment="scripts">
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  var searchInput=document.getElementById("searchInput"),filtroTecnico=document.getElementById("filtroTecnico"),filtroEstado=document.getElementById("filtroEstado"),filtroTipo=document.getElementById("filtroTipo"),rowCountEl=document.getElementById("rowCount"),pageSizeSelect=document.getElementById("pageSizeSelect"),paginationInfo=document.getElementById("paginationInfo"),paginationNav=document.getElementById("paginationNav");
-  var allRows=Array.from(document.querySelectorAll("#actividadesTbody .fila-actividad")),filteredRows=[],currentPage=1,pageSize=parseInt(pageSizeSelect.value,10);
-  if(typeof $!=='undefined'&&$.fn.select2){$('#filtroTecnico').select2({width:'200px'})}
-  function applyFilters(){var t=searchInput.value.trim().toLowerCase(),tec=filtroTecnico.value,est=filtroEstado.value,tip=filtroTipo.value;filteredRows=allRows.filter(function(r){if(t&&r.textContent.toLowerCase().indexOf(t)<0)return false;if(tec&&r.getAttribute("data-tecnico")!==tec)return false;if(est&&r.getAttribute("data-estado")!==est)return false;if(tip&&r.getAttribute("data-tipo")!==tip)return false;return true});currentPage=1;renderPage()}
-  function renderPage(){var total=filteredRows.length,tp=Math.max(1,Math.ceil(total/pageSize));if(currentPage>tp)currentPage=tp;var s=(currentPage-1)*pageSize,e=Math.min(s+pageSize,total),ps=new Set(filteredRows.slice(s,e));allRows.forEach(function(r){r.style.display=ps.has(r)?"":"none"});rowCountEl.textContent=total;paginationInfo.innerHTML=total===0?"Sin resultados":"<strong>"+(s+1)+"</strong> \u2013 <strong>"+e+"</strong> de <strong>"+total+"</strong>";renderPaginationNav(tp)}
-  function renderPaginationNav(tp){var h='<button class="pg-btn" data-page="prev"'+(currentPage<=1?' disabled':'')+'>&#9664;</button>';buildPN(currentPage,tp).forEach(function(p){if(p==='...')h+='<span class="pg-ellipsis">&hellip;</span>';else h+='<button class="pg-btn'+(p===currentPage?' active':'')+'\" data-page="'+p+'">'+p+'</button>'});h+='<button class="pg-btn" data-page="next"'+(currentPage>=tp?' disabled':'')+'>&#9654;</button>';paginationNav.innerHTML=h}
-  function buildPN(c,t){if(t<=7)return Array.from({length:t},function(_,i){return i+1});var p=[1];if(c>3)p.push('...');for(var i=Math.max(2,c-1);i<=Math.min(t-1,c+1);i++)p.push(i);if(c<t-2)p.push('...');p.push(t);return p}
-  paginationNav.addEventListener("click",function(ev){var b=ev.target.closest(".pg-btn");if(!b||b.disabled)return;var v=b.dataset.page,tp=Math.max(1,Math.ceil(filteredRows.length/pageSize));if(v==="prev")currentPage=Math.max(1,currentPage-1);else if(v==="next")currentPage=Math.min(tp,currentPage+1);else currentPage=parseInt(v,10);renderPage()});
-  pageSizeSelect.addEventListener("change",function(){pageSize=parseInt(this.value,10);currentPage=1;renderPage()});
-  searchInput.addEventListener("input",applyFilters);$('#filtroTecnico').on('change',applyFilters);filtroEstado.addEventListener("change",applyFilters);filtroTipo.addEventListener("change",applyFilters);applyFilters();
+  var searchInput = document.getElementById('searchInput');
+  var filtroTecnico = document.getElementById('filtroTecnico');
+  var filtroEstado = document.getElementById('filtroEstado');
+  var filtroTipo = document.getElementById('filtroTipo');
+  var rowCountEl = document.getElementById('rowCount');
+  var pageSizeSelect = document.getElementById('pageSizeSelect');
+  var paginationInfo = document.getElementById('paginationInfo');
+  var paginationNav = document.getElementById('paginationNav');
+  var thead = document.querySelector('#tablaActividades thead tr');
+
+  var allRows = Array.from(document.querySelectorAll('#actividadesTbody .fila-actividad'));
+  var filteredRows = [];
+  var currentPage = 1;
+  var pageSize = parseInt(pageSizeSelect.value, 10);
+  var sortCol = -1, sortDir = 'asc';
+
+  // Select2 opcional
+  if (typeof $ !== 'undefined' && $.fn.select2) {
+    $('#filtroTecnico').select2({ width: '100%' });
+  }
+
+  // ==================== FILTROS ====================
+  function applyFilters() {
+    var t = searchInput.value.trim().toLowerCase();
+    var tec = filtroTecnico.value;
+    var est = filtroEstado.value;
+    var tip = filtroTipo.value;
+
+    filteredRows = allRows.filter(function(r) {
+      if (t && r.textContent.toLowerCase().indexOf(t) < 0) return false;
+      if (tec && r.getAttribute('data-tecnico') !== tec) return false;
+      if (est && r.getAttribute('data-estado') !== est) return false;
+      if (tip && r.getAttribute('data-tipo') !== tip) return false;
+      return true;
+    });
+
+    currentPage = 1;
+    renderPage();
+  }
+
+  // ==================== ORDENAMIENTO ====================
+  function sortRows(colIndex, type) {
+    filteredRows.sort(function(a, b) {
+      var cellA = a.cells[colIndex], cellB = b.cells[colIndex];
+      var vA = (cellA ? cellA.textContent.trim() : '');
+      var vB = (cellB ? cellB.textContent.trim() : '');
+
+      if (type === 'num') {
+        vA = parseFloat(vA) || 0;
+        vB = parseFloat(vB) || 0;
+      } else if (type === 'date') {
+        vA = vA ? new Date(vA).getTime() : 0;
+        vB = vB ? new Date(vB).getTime() : 0;
+      } else {
+        vA = vA.toLowerCase();
+        vB = vB.toLowerCase();
+      }
+
+      if (vA < vB) return sortDir === 'asc' ? -1 : 1;
+      if (vA > vB) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    currentPage = 1;
+    renderPage();
+  }
+
+  thead.addEventListener('click', function(ev) {
+    var th = ev.target.closest('th[data-sort]');
+    if (!th) return;
+
+    var colIndex = Array.from(thead.children).indexOf(th);
+    var type = th.getAttribute('data-sort');
+
+    if (sortCol === colIndex) {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortCol = colIndex;
+      sortDir = 'asc';
+    }
+
+    // Actualizar iconos
+    thead.querySelectorAll('.sort-icon').forEach(function(ic) {
+      ic.className = 'sort-icon';
+    });
+    th.querySelector('.sort-icon').className = 'sort-icon ' + sortDir;
+
+    sortRows(colIndex, type);
+  });
+
+  // ==================== PAGINACIÓN ====================
+  function renderPage() {
+    var total = filteredRows.length;
+    var tp = Math.max(1, Math.ceil(total / pageSize));
+    if (currentPage > tp) currentPage = tp;
+    var s = (currentPage - 1) * pageSize;
+    var e = Math.min(s + pageSize, total);
+    var visible = new Set(filteredRows.slice(s, e));
+
+    allRows.forEach(function(r) {
+      r.style.display = visible.has(r) ? '' : 'none';
+    });
+
+    rowCountEl.textContent = total;
+    paginationInfo.innerHTML = total === 0 ? 'Sin resultados'
+      : '<strong>' + (s + 1) + '</strong> \u2013 <strong>' + e + '</strong> de <strong>' + total + '</strong>';
+    renderPaginationNav(tp);
+  }
+
+  function renderPaginationNav(tp) {
+    var h = '<button class="pg-btn" data-page="prev"' + (currentPage <= 1 ? ' disabled' : '') +
+      '><i class="feather feather-chevron-left" style="font-size:14px"></i></button>';
+    buildPN(currentPage, tp).forEach(function(p) {
+      if (p === '...') h += '<span class="pg-ellipsis">&hellip;</span>';
+      else h += '<button class="pg-btn' + (p === currentPage ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>';
+    });
+    h += '<button class="pg-btn" data-page="next"' + (currentPage >= tp ? ' disabled' : '') +
+      '><i class="feather feather-chevron-right" style="font-size:14px"></i></button>';
+    paginationNav.innerHTML = h;
+  }
+
+  function buildPN(c, t) {
+    if (t <= 7) return Array.from({length: t}, function(_, i) { return i + 1; });
+    var p = [1];
+    if (c > 3) p.push('...');
+    for (var i = Math.max(2, c - 1); i <= Math.min(t - 1, c + 1); i++) p.push(i);
+    if (c < t - 2) p.push('...');
+    p.push(t);
+    return p;
+  }
+
+  paginationNav.addEventListener('click', function(ev) {
+    var b = ev.target.closest('.pg-btn');
+    if (!b || b.disabled) return;
+    var v = b.dataset.page;
+    var tp = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+    if (v === 'prev') currentPage = Math.max(1, currentPage - 1);
+    else if (v === 'next') currentPage = Math.min(tp, currentPage + 1);
+    else currentPage = parseInt(v, 10);
+    renderPage();
+  });
+
+  pageSizeSelect.addEventListener('change', function() {
+    pageSize = parseInt(this.value, 10);
+    currentPage = 1;
+    renderPage();
+  });
+
+  // ==================== EVENT LISTENERS ====================
+  searchInput.addEventListener('input', applyFilters);
+  filtroEstado.addEventListener('change', applyFilters);
+  filtroTipo.addEventListener('change', applyFilters);
+
+  // Técnico: Select2 o nativo
+  if (typeof $ !== 'undefined' && $.fn.select2) {
+    $('#filtroTecnico').on('change', applyFilters);
+  } else {
+    filtroTecnico.addEventListener('change', applyFilters);
+  }
+
+  applyFilters();
 });
 </script>
-</th:block>
+</div>
 </body>
 </html>

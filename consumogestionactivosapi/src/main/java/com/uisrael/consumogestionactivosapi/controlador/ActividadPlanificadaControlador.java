@@ -100,7 +100,12 @@ public class ActividadPlanificadaControlador {
 	public String vistaMetricas(@RequestParam(defaultValue = "MENSUAL") String periodo, Model model) {
 		List<MetricasCumplimientoResponseDTO> metricas;
 		try {
-			metricas = actividadServicio.obtenerMetricasGlobales(periodo);
+			if (sesionUsuario.tieneRol("TECNICO") && sesionUsuario.getIdUsuario() != null) {
+				var metrica = actividadServicio.obtenerMetricasTecnico(sesionUsuario.getIdUsuario(), periodo);
+				metricas = metrica != null ? List.of(metrica) : List.of();
+			} else {
+				metricas = actividadServicio.obtenerMetricasGlobales(periodo);
+			}
 		} catch (Exception e) {
 			metricas = List.of();
 			model.addAttribute("error", "No se pudieron cargar las métricas: " + e.getMessage());

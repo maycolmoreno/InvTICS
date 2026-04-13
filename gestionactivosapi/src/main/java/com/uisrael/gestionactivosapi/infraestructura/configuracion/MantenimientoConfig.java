@@ -45,6 +45,7 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICustodiosJpaR
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IEquiposJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IFirmaMantenimientoJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IImagenMantenimientoJpaRepositorio;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IMantenimientoEquipoJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IMantenimientoProgramadoJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IMantenimientosJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.INotificacionJpaRepositorio;
@@ -127,6 +128,7 @@ public class MantenimientoConfig {
 	@Bean
 	IMantenimientoManualUseCase mantenimientoManualService(
 			IMantenimientosJpaRepositorio mantenimientosRepo,
+			IMantenimientoEquipoJpaRepositorio mantenimientoEquipoRepo,
 			IActividadRealizadaJpaRepositorio actividadRealizadaRepo,
 			IActividadChecklistJpaRepositorio actividadChecklistRepo,
 			IImagenMantenimientoJpaRepositorio imagenRepo,
@@ -136,9 +138,9 @@ public class MantenimientoConfig {
 			MantenimientoProgramadoService programadoService,
 			NotificacionService notificacionService,
 			FirmaMantenimientoRepositorioPuerto firmaMantenimientoRepositorio) {
-		return new MantenimientoManualService(mantenimientosRepo, actividadRealizadaRepo, actividadChecklistRepo,
-				imagenRepo, equiposRepo, custodiosRepo, usuariosRepo, programadoService, notificacionService,
-				firmaMantenimientoRepositorio);
+		return new MantenimientoManualService(mantenimientosRepo, mantenimientoEquipoRepo, actividadRealizadaRepo,
+				actividadChecklistRepo, imagenRepo, equiposRepo, custodiosRepo, usuariosRepo, programadoService,
+				notificacionService, firmaMantenimientoRepositorio);
 	}
 
 	@Bean

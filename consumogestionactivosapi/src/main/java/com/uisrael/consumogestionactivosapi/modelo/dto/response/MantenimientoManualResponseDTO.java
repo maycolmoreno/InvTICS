@@ -29,4 +29,6 @@ public class MantenimientoManualResponseDTO {
     private LocalDateTime creadoEn;
     private List<ActividadManualResponseDTO> actividades;
     private List<ImagenMantenimientoResponseDTO> imagenes;
+    private List<EquipoEnMantenimientoDTO> equipos;
+    private Integer totalEquipos;
 }

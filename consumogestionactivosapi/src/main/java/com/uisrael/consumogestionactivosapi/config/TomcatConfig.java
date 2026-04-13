@@ -1,18 +1,14 @@
 package com.uisrael.consumogestionactivosapi.config;
 
-import org.apache.catalina.connector.Connector;
-import org.springframework.boot.tomcat.ConfigurableTomcatWebServerFactory;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * La configuracion de Tomcat (max-part-count, max-parameter-count)
+ * se gestiona via application.properties:
+ *   server.tomcat.max-part-count=200
+ *   spring.servlet.multipart.max-file-size=5MB
+ *   spring.servlet.multipart.max-request-size=30MB
+ */
 @Configuration
 public class TomcatConfig {
-
-    @Bean
-    public WebServerFactoryCustomizer<ConfigurableTomcatWebServerFactory> multipartFileCountCustomizer() {
-        return factory -> factory.addConnectorCustomizers((Connector connector) ->
-                connector.setMaxParameterCount(500)
-        );
-    }
 }

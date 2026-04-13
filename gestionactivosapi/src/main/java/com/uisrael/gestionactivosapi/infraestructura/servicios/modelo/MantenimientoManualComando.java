@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record MantenimientoManualComando(
-		Integer equipoId,
+		List<Integer> equipoIds,
 		Integer custodioId,
 		String tipoMantenimiento,
 		LocalDate fechaMantenimiento,

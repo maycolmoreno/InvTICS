@@ -25,6 +25,7 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ActividadR
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.EquiposJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ImagenMantenimientoJpa;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.MantenimientoEquipoJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.MantenimientosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.UsuariosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IActividadChecklistJpaRepositorio;
@@ -32,12 +33,14 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.IActividadReal
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICustodiosJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IEquiposJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IImagenMantenimientoJpaRepositorio;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IMantenimientoEquipoJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IMantenimientosJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUsuariosJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.ActividadManualComando;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.ImagenMantenimientoComando;
 import com.uisrael.gestionactivosapi.infraestructura.servicios.modelo.MantenimientoManualComando;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.ActividadManualResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.EquipoEnMantenimientoDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.ImagenMantenimientoResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.MantenimientoManualResponseDTO;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IMantenimientoManualUseCase;
@@ -50,6 +53,7 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
     private static final String TRABAJO_REALIZADO_LABEL = "Trabajo realizado:";
 
     private final IMantenimientosJpaRepositorio mantenimientosRepo;
+    private final IMantenimientoEquipoJpaRepositorio mantenimientoEquipoRepo;
     private final IActividadRealizadaJpaRepositorio actividadRealizadaRepo;
     private final IActividadChecklistJpaRepositorio actividadChecklistRepo;
     private final IImagenMantenimientoJpaRepositorio imagenRepo;
@@ -62,11 +66,26 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
 
     @Transactional
     public MantenimientoManualResponseDTO crear(MantenimientoManualComando request, String correoAutenticado) {
-        EquiposJpa equipo = equiposRepo.findById(request.equipoId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Equipo no encontrado"));
-        if (!equipo.isEstado()) {
-            throw new IllegalArgumentException("El equipo no esta activo");
+        List<Integer> equipoIds = request.equipoIds();
+        if (equipoIds == null || equipoIds.isEmpty()) {
+            throw new IllegalArgumentException("Debe especificar al menos un equipo");
         }
+
+        List<EquiposJpa> equiposValidados = new ArrayList<>();
+        for (Integer eqId : equipoIds) {
+            EquiposJpa equipo = equiposRepo.findById(eqId)
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Equipo no encontrado: " + eqId));
+            if (!equipo.isEstado()) {
+                throw new IllegalArgumentException("El equipo " + eqId + " no esta activo");
+            }
+            if (mantenimientosRepo.existsByEquipoEnProcesoIncluyendoMultiple(
+                    equipo.getIdEquipo(), EstadoInternoMantenimiento.EN_PROCESO)) {
+                throw new IllegalArgumentException(
+                        "El equipo " + equipo.getModelo() + " ya tiene un mantenimiento en proceso. Debe finalizarlo antes de crear uno nuevo.");
+            }
+            equiposValidados.add(equipo);
+        }
+
         Integer idCliente = null;
         if (request.custodioId() != null) {
             CustodiosJpa custodio = custodiosRepo.findById(request.custodioId())
@@ -76,16 +95,14 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
             }
             idCliente = custodio.getIdCustodio();
         }
-        if (mantenimientosRepo.existsByEquipoIdAndEstadoInterno(
-                equipo.getIdEquipo(), EstadoInternoMantenimiento.EN_PROCESO)) {
-            throw new IllegalArgumentException(
-                    "El equipo ya tiene un mantenimiento en proceso. Debe finalizarlo antes de crear uno nuevo.");
-        }
+
         UsuariosJpa tecnico = usuariosRepo.findByCorreo(correoAutenticado)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario autenticado no encontrado"));
 
+        EquiposJpa primerEquipo = equiposValidados.get(0);
+
         MantenimientosJpa entity = new MantenimientosJpa();
-        entity.setEquipoId(equipo.getIdEquipo());
+        entity.setEquipoId(primerEquipo.getIdEquipo());
         entity.setIdCliente(idCliente);
         entity.setIdUsuario(tecnico.getIdUsuario());
         entity.setTipoMantenimiento(request.tipoMantenimiento());
@@ -98,10 +115,17 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
         entity.setEstadoInterno(EstadoInternoMantenimiento.EN_PROCESO);
         entity.setEstado("MANUAL");
         entity.setTipoOrigen(TipoOrigenMantenimiento.MANUAL);
-        entity.setSerieSnapshot(equipo.getSerial());
+        entity.setSerieSnapshot(primerEquipo.getSerial());
         entity = mantenimientosRepo.save(entity);
-        guardarFirmas(entity.getIdMantenimiento(), request);
 
+        for (EquiposJpa eq : equiposValidados) {
+            MantenimientoEquipoJpa me = new MantenimientoEquipoJpa();
+            me.setMantenimientoId(entity.getIdMantenimiento());
+            me.setEquipoId(eq.getIdEquipo());
+            mantenimientoEquipoRepo.save(me);
+        }
+
+        guardarFirmas(entity.getIdMantenimiento(), request);
         guardarActividades(entity.getIdMantenimiento(), request.actividades());
         guardarImagenes(entity.getIdMantenimiento(), request.imagenes());
         return obtenerDetalle(entity.getIdMantenimiento());
@@ -140,7 +164,7 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
     }
 
     public List<MantenimientoManualResponseDTO> obtenerHistorial(Integer equipoId) {
-        return mantenimientosRepo.findByEquipoIdOrderByCreadoEnDesc(equipoId).stream()
+        return mantenimientosRepo.findByEquipoIdIncluyendoMultipleOrderByCreadoEnDesc(equipoId).stream()
                 .map(m -> toDto(m, false))
                 .toList();
     }
@@ -177,9 +201,16 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
         mantenimiento.setEstadoInterno(EstadoInternoMantenimiento.CERRADO);
         mantenimiento.setFecCierre(LocalDateTime.now());
         mantenimientosRepo.save(mantenimiento);
-        if (mantenimiento.getEquipoId() != null) {
+
+        List<MantenimientoEquipoJpa> equiposOrden = mantenimientoEquipoRepo.findByMantenimientoId(idMantenimiento);
+        if (!equiposOrden.isEmpty()) {
+            for (MantenimientoEquipoJpa me : equiposOrden) {
+                programadoService.recalcularProximaFecha(me.getEquipoId());
+            }
+        } else if (mantenimiento.getEquipoId() != null) {
             programadoService.recalcularProximaFecha(mantenimiento.getEquipoId());
         }
+
         notificacionService.marcarRelacionadasComoLeidas(idMantenimiento);
         return toDto(mantenimiento, true);
     }
@@ -299,6 +330,32 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
         String detalle = extraerDetalleTecnico(mantenimiento.getDescripcion());
         String trabajoRealizado = extraerTrabajoRealizado(mantenimiento.getDescripcion());
 
+        List<MantenimientoEquipoJpa> equiposOrden = mantenimientoEquipoRepo
+                .findByMantenimientoId(mantenimiento.getIdMantenimiento());
+        List<EquipoEnMantenimientoDTO> equiposDtoList;
+        int totalEquipos;
+        if (!equiposOrden.isEmpty()) {
+            equiposDtoList = equiposOrden.stream()
+                    .map(me -> EquipoEnMantenimientoDTO.builder()
+                            .equipoId(me.getEquipoId())
+                            .codigoSap(me.getEquipo() != null ? me.getEquipo().getCodigoSap() : null)
+                            .descripcion(me.getEquipo() != null ? me.getEquipo().getModelo() : null)
+                            .serial(me.getEquipo() != null ? me.getEquipo().getSerial() : null)
+                            .build())
+                    .toList();
+            totalEquipos = equiposDtoList.size();
+        } else {
+            equiposDtoList = mantenimiento.getFkEquipo() != null
+                    ? List.of(EquipoEnMantenimientoDTO.builder()
+                            .equipoId(mantenimiento.getEquipoId())
+                            .codigoSap(mantenimiento.getFkEquipo().getCodigoSap())
+                            .descripcion(mantenimiento.getFkEquipo().getModelo())
+                            .serial(mantenimiento.getFkEquipo().getSerial())
+                            .build())
+                    : List.of();
+            totalEquipos = mantenimiento.getEquipoId() != null ? 1 : 0;
+        }
+
         return MantenimientoManualResponseDTO.builder()
                 .idMantenimiento(mantenimiento.getIdMantenimiento())
                 .equipoId(mantenimiento.getEquipoId())
@@ -324,6 +381,8 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
                 .creadoEn(mantenimiento.getCreadoEn())
                 .actividades(actividades)
                 .imagenes(imagenes)
+                .equipos(equiposDtoList)
+                .totalEquipos(totalEquipos)
                 .build();
     }
 

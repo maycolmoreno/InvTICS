@@ -34,13 +34,14 @@
                 <textarea th:field="*{descripcion}" placeholder="Detalle de la actividad..."></textarea>
             </div>
             <div class="pf-row">
-                <div class="pf-group">
+                <div class="pf-group" th:unless="${esTecnico}">
                     <label>Técnico asignado *</label>
                     <select th:field="*{tecnicoId}" required>
                         <option value="">Seleccionar...</option>
                         <option th:each="t : ${tecnicos}" th:value="${t.idUsuario}" th:text="${t.nombre}"></option>
                     </select>
                 </div>
+                <input type="hidden" th:if="${esTecnico}" name="tecnicoId" th:value="${idUsuarioActual}">
                 <div class="pf-group">
                     <label>Tipo de actividad *</label>
                     <select th:field="*{tipoActividad}" required id="selectTipo">

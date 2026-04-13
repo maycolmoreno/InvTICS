@@ -24,6 +24,7 @@ enum UserCapability {
   viewMantenimientos,
   createMantenimiento,
   closeMantenimiento,
+  viewPlanificacion,
   viewVisitas,
   viewEquipos,
   viewNotificaciones,
@@ -47,6 +48,8 @@ class AuthSession {
   final String displayName;
   final String role;
   final int? userId;
+  final List<String> modules;
+  final bool modulesLoaded;
 
   const AuthSession({
     required this.token,
@@ -54,6 +57,8 @@ class AuthSession {
     required this.displayName,
     required this.role,
     this.userId,
+    this.modules = const [],
+    this.modulesLoaded = false,
   });
 
   factory AuthSession.fromJson(Map<String, dynamic> json) {
@@ -66,10 +71,19 @@ class AuthSession {
           json['username']?.toString() ??
           '',
       role: json['role']?.toString() ?? json['rol']?.toString() ?? '',
+      modules: (json['modules'] as List? ?? json['modulos'] as List? ?? const [])
+          .map((item) => item?.toString() ?? '')
+          .where((item) => item.trim().isNotEmpty)
+          .toList(),
+      modulesLoaded: json.containsKey('modules') || json.containsKey('modulos'),
     );
   }
 
   String get normalizedRole => role.trim().toUpperCase();
+  Set<String> get normalizedModules => modules
+      .map((item) => item.trim().toUpperCase())
+      .where((item) => item.isNotEmpty)
+      .toSet();
 
   UserRole get userRole {
     final value = normalizedRole;
@@ -104,12 +118,19 @@ class AuthSession {
   bool get isSupported => userRole != UserRole.unknown;
 
   RoleCapabilities get capabilities {
+    final moduleCapabilities = _moduleCapabilities();
+    if (modulesLoaded) {
+      moduleCapabilities.addAll(_localRoleCapabilities());
+      return RoleCapabilities(moduleCapabilities);
+    }
+
     switch (userRole) {
       case UserRole.admin:
         return const RoleCapabilities({
           UserCapability.viewMantenimientos,
           UserCapability.createMantenimiento,
           UserCapability.closeMantenimiento,
+          UserCapability.viewPlanificacion,
           UserCapability.viewVisitas,
           UserCapability.viewEquipos,
           UserCapability.viewNotificaciones,
@@ -122,6 +143,7 @@ class AuthSession {
           UserCapability.viewMantenimientos,
           UserCapability.createMantenimiento,
           UserCapability.closeMantenimiento,
+          UserCapability.viewPlanificacion,
           UserCapability.viewVisitas,
           UserCapability.viewEquipos,
           UserCapability.viewNotificaciones,
@@ -135,6 +157,56 @@ class AuthSession {
         });
       case UserRole.unknown:
         return const RoleCapabilities({});
+    }
+  }
+
+  Set<UserCapability> _moduleCapabilities() {
+    final values = <UserCapability>{};
+    for (final module in normalizedModules) {
+      switch (module) {
+        case 'MANTENIMIENTO':
+          values.addAll(const {
+            UserCapability.viewMantenimientos,
+            UserCapability.createMantenimiento,
+            UserCapability.closeMantenimiento,
+          });
+          break;
+        case 'PLANIFICACION':
+          values.add(UserCapability.viewPlanificacion);
+          break;
+        case 'VISITA_TECNICA':
+          values.add(UserCapability.viewVisitas);
+          break;
+        case 'EQUIPOS':
+          values.add(UserCapability.viewEquipos);
+          break;
+        case 'NOTIFICACIONES':
+          values.add(UserCapability.viewNotificaciones);
+          break;
+        case 'UBICACIONES':
+          values.add(UserCapability.manageUbicaciones);
+          break;
+        case 'MONITOREO_GPS':
+          values.add(UserCapability.sendGpsLocation);
+          break;
+        case 'GPS_TIEMPO_REAL':
+          values.add(UserCapability.viewGpsRealtime);
+          break;
+        default:
+          break;
+      }
+    }
+    return values;
+  }
+
+  Set<UserCapability> _localRoleCapabilities() {
+    switch (userRole) {
+      case UserRole.admin:
+        return const {UserCapability.manageServerConfig};
+      case UserRole.tecnico:
+      case UserRole.consulta:
+      case UserRole.unknown:
+        return const {};
     }
   }
 }

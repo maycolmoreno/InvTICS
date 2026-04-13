@@ -86,7 +86,7 @@ class CresioApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CRESIO Mobile',
+      title: 'Cresio TICS',
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       theme: AppTheme.light,

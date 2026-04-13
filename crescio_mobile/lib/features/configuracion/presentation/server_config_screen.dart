@@ -25,7 +25,8 @@ class _ServerConfigScreenState extends State<ServerConfigScreen> {
   void initState() {
     super.initState();
     _ipController = TextEditingController(text: AppConfig.serverIp);
-    _portController = TextEditingController(text: AppConfig.serverPort.toString());
+    _portController =
+        TextEditingController(text: AppConfig.serverPort.toString());
   }
 
   @override
@@ -64,7 +65,7 @@ class _ServerConfigScreenState extends State<ServerConfigScreen> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 labelText: 'Puerto',
-                hintText: '8082',
+                hintText: '8084',
               ),
             ),
             const SizedBox(height: 20),
@@ -74,7 +75,9 @@ class _ServerConfigScreenState extends State<ServerConfigScreen> {
                 child: Text(
                   provider.message!,
                   style: TextStyle(
-                    color: provider.success ? Colors.green.shade700 : Colors.red.shade700,
+                    color: provider.success
+                        ? Colors.green.shade700
+                        : Colors.red.shade700,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

@@ -157,38 +157,36 @@ public class MantenimientoControlador {
 
         String detalleCompleto = construirDetalleConObservaciones(detalle, requestParams);
 
-        for (Integer idEquipo : ids) {
-            MantenimientoManualRequestDTO request = new MantenimientoManualRequestDTO();
-            request.setEquipoId(idEquipo);
-            request.setCustodioId(custodioId);
-            request.setTipoMantenimiento(tipoMantenimiento);
-            request.setFechaMantenimiento(fechaMantenimiento);
-            request.setProximaFecha(proximaFecha);
-            request.setEstadoGeneral(estadoGeneral);
-            request.setDetalle(detalleCompleto);
-            request.setFirmaTecnico(firmaTecnico);
-            request.setFirmaCustodio(firmaCustodio);
-            request.setActividades(construirActividadesSeleccionadas(actividadIds));
+        MantenimientoManualRequestDTO request = new MantenimientoManualRequestDTO();
+        request.setEquipoIds(ids);
+        request.setCustodioId(custodioId);
+        request.setTipoMantenimiento(tipoMantenimiento);
+        request.setFechaMantenimiento(fechaMantenimiento);
+        request.setProximaFecha(proximaFecha);
+        request.setEstadoGeneral(estadoGeneral);
+        request.setDetalle(detalleCompleto);
+        request.setFirmaTecnico(firmaTecnico);
+        request.setFirmaCustodio(firmaCustodio);
+        request.setActividades(construirActividadesSeleccionadas(actividadIds));
 
-            MantenimientoManualResponseDTO creado;
-            try {
-                creado = mantenimientoManualServicio.crear(request);
-            } catch (RuntimeException ex) {
-                redirectAttributes.addFlashAttribute("error", ex.getMessage());
-                return "redirect:/mantenimiento/nuevo";
-            }
-            creado.setTipoMantenimiento(tipoMantenimiento);
-            List<ImagenMantenimientoRequestDTO> metadata = mantenimientoManualServicio
-                    .subirImagenes(creado.getIdMantenimiento(), imagenes);
-            if (!metadata.isEmpty()) {
-                creado.setImagenes(metadata.stream().map(img -> {
-                    var dto = new com.uisrael.consumogestionactivosapi.modelo.dto.response.ImagenMantenimientoResponseDTO();
-                    dto.setNombreArchivo(img.getNombreArchivo());
-                    dto.setRutaArchivo(img.getRutaArchivo());
-                    dto.setTamanioBytes(img.getTamanioBytes());
-                    return dto;
-                }).toList());
-            }
+        MantenimientoManualResponseDTO creado;
+        try {
+            creado = mantenimientoManualServicio.crear(request);
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/mantenimiento/nuevo";
+        }
+        creado.setTipoMantenimiento(tipoMantenimiento);
+        List<ImagenMantenimientoRequestDTO> metadata = mantenimientoManualServicio
+                .subirImagenes(creado.getIdMantenimiento(), imagenes);
+        if (!metadata.isEmpty()) {
+            creado.setImagenes(metadata.stream().map(img -> {
+                var dto = new com.uisrael.consumogestionactivosapi.modelo.dto.response.ImagenMantenimientoResponseDTO();
+                dto.setNombreArchivo(img.getNombreArchivo());
+                dto.setRutaArchivo(img.getRutaArchivo());
+                dto.setTamanioBytes(img.getTamanioBytes());
+                return dto;
+            }).toList());
         }
 
         redirectAttributes.addFlashAttribute("exito", "Orden de mantenimiento guardada correctamente");

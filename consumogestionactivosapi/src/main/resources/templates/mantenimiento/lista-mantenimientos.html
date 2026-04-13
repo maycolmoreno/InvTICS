@@ -107,8 +107,16 @@
 								<div class="device-cell">
 									<div class="mini-thumb"><i class="feather-tool"></i></div>
 									<div>
-										<div class="device-name" th:text="${m.equipoDescripcion ?: 'Orden de mantenimiento'}"></div>
-										<div class="device-meta" th:text="${m.equipoCodigoSap ?: '-'}"></div>
+										<div th:if="${m.equipos != null and !#lists.isEmpty(m.equipos)}">
+											<div class="device-name" th:text="${m.equipos[0].descripcion ?: 'Orden de mantenimiento'}"></div>
+											<div class="device-meta" th:text="${m.equipos[0].codigoSap ?: '-'}"></div>
+											<div th:if="${m.totalEquipos != null and m.totalEquipos > 1}" class="device-meta text-primary fw-bold"
+												th:text="'+ ' + ${m.totalEquipos - 1} + ' equipo(s) mas'"></div>
+										</div>
+										<div th:unless="${m.equipos != null and !#lists.isEmpty(m.equipos)}">
+											<div class="device-name" th:text="${m.equipoDescripcion ?: 'Orden de mantenimiento'}"></div>
+											<div class="device-meta" th:text="${m.equipoCodigoSap ?: '-'}"></div>
+										</div>
 									</div>
 								</div>
 							</td>

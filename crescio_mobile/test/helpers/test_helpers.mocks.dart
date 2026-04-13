@@ -301,6 +301,8 @@ class MockSecureStorageService extends _i1.Mock
     required String? displayName,
     required String? role,
     String? userId,
+    List<String>? modules = const [],
+    bool? modulesLoaded = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -312,6 +314,8 @@ class MockSecureStorageService extends _i1.Mock
             #displayName: displayName,
             #role: role,
             #userId: userId,
+            #modules: modules,
+            #modulesLoaded: modulesLoaded,
           },
         ),
         returnValue: _i3.Future<void>.value(),
@@ -362,6 +366,24 @@ class MockSecureStorageService extends _i1.Mock
         ),
         returnValue: _i3.Future<String?>.value(),
       ) as _i3.Future<String?>);
+
+  @override
+  _i3.Future<bool> readModulesLoaded() => (super.noSuchMethod(
+        Invocation.method(
+          #readModulesLoaded,
+          [],
+        ),
+        returnValue: _i3.Future<bool>.value(false),
+      ) as _i3.Future<bool>);
+
+  @override
+  _i3.Future<List<String>> readModules() => (super.noSuchMethod(
+        Invocation.method(
+          #readModules,
+          [],
+        ),
+        returnValue: _i3.Future<List<String>>.value(<String>[]),
+      ) as _i3.Future<List<String>>);
 
   @override
   _i3.Future<void> clearSession() => (super.noSuchMethod(

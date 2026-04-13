@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class MantenimientoManualRequestDTO {
-    private Integer equipoId;
+    private List<Integer> equipoIds;
     private Integer custodioId;
     private String tipoMantenimiento;
     private LocalDate fechaMantenimiento;

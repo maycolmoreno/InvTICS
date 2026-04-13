@@ -1,6 +1,7 @@
 package com.uisrael.gestionactivosapi.presentacion.controladores;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -171,8 +172,18 @@ public class MantenimientoManualControlador {
     }
 
     private MantenimientoManualComando toCommand(MantenimientoManualRequestDTO request) {
+        List<Integer> ids = new ArrayList<>();
+        if (request.getEquipoIds() != null && !request.getEquipoIds().isEmpty()) {
+            ids.addAll(request.getEquipoIds());
+        }
+        if (request.getEquipoId() != null && !ids.contains(request.getEquipoId())) {
+            ids.add(0, request.getEquipoId());
+        }
+        if (ids.isEmpty()) {
+            throw new IllegalArgumentException("Debe especificar al menos un equipo (equipoId o equipoIds)");
+        }
         return new MantenimientoManualComando(
-                request.getEquipoId(),
+                ids,
                 request.getCustodioId(),
                 request.getTipoMantenimiento(),
                 request.getFechaMantenimiento(),

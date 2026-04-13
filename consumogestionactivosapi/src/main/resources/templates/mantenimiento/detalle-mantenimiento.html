@@ -82,12 +82,22 @@
 							<i th:unless="${mantenimiento.imagenes != null and !#lists.isEmpty(mantenimiento.imagenes)}" class="feather-printer" style="font-size:42px; color:#173774;"></i>
 						</div>
 						<div>
-							<div class="maintenance-id-label">Identidad del equipo</div>
-							<div class="maintenance-id-title" th:text="${mantenimiento.equipoDescripcion ?: 'Equipo sin descripcion'}"></div>
-							<div class="maintenance-id-serial"># Serial: <strong th:text="${mantenimiento.equipoCodigoSap ?: '-'}"></strong></div>
+							<div class="maintenance-id-label">Equipos de la orden</div>
+							<div th:if="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}">
+								<div th:each="eq : ${mantenimiento.equipos}" class="mb-2">
+									<div class="maintenance-id-title" th:text="${eq.descripcion ?: 'Equipo sin descripcion'}"></div>
+									<div class="maintenance-id-serial"># Serial: <strong th:text="${eq.codigoSap ?: '-'}"></strong></div>
+								</div>
+							</div>
+							<div th:unless="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}">
+								<div class="maintenance-id-title" th:text="${mantenimiento.equipoDescripcion ?: 'Equipo sin descripcion'}"></div>
+								<div class="maintenance-id-serial"># Serial: <strong th:text="${mantenimiento.equipoCodigoSap ?: '-'}"></strong></div>
+							</div>
 							<div class="maintenance-pill-row">
 								<span class="status-pill is-progress" th:text="${mantenimiento.estadoInterno ?: 'EN PROCESO'}">EN PROCESO</span>
 								<span class="status-pill is-active" th:text="${mantenimiento.tipoMantenimiento ?: 'PREVENTIVO'}">PREVENTIVO</span>
+								<span th:if="${mantenimiento.totalEquipos != null and mantenimiento.totalEquipos > 1}" class="status-pill"
+									th:text="${mantenimiento.totalEquipos + ' equipos'}"></span>
 							</div>
 						</div>
 						<div class="maintenance-assignee">

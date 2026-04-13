@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/gps_models.dart';
 import '../data/gps_repository.dart';
@@ -10,6 +11,7 @@ class GpsProvider extends ChangeNotifier {
   GpsProvider({required GpsRepository repository}) : _repository = repository;
 
   final GpsRepository _repository;
+  int? _tecnicoIdActual;
 
   // — Consentimiento —
   bool _consentimientoRegistrado = false;
@@ -21,7 +23,16 @@ class GpsProvider extends ChangeNotifier {
   String? _errorConsentimiento;
   String? get errorConsentimiento => _errorConsentimiento;
 
+  Future<void> cargarConsentimientoRegistrado(int tecnicoId) async {
+    _tecnicoIdActual = tecnicoId;
+    final prefs = await SharedPreferences.getInstance();
+    _consentimientoRegistrado =
+        prefs.getBool(_consentimientoKey(tecnicoId)) ?? false;
+    notifyListeners();
+  }
+
   Future<bool> registrarConsentimiento(int tecnicoId) async {
+    _tecnicoIdActual = tecnicoId;
     _loadingConsentimiento = true;
     _errorConsentimiento = null;
     notifyListeners();
@@ -31,6 +42,7 @@ class GpsProvider extends ChangeNotifier {
         ConsentimientoRequest(tecnicoId: tecnicoId),
       );
       _consentimientoRegistrado = true;
+      await _guardarConsentimientoLocal(tecnicoId);
       _loadingConsentimiento = false;
       notifyListeners();
       return true;
@@ -38,6 +50,7 @@ class GpsProvider extends ChangeNotifier {
       final message = e.toString().replaceAll('Exception: ', '');
       if (message.contains('ya tiene un consentimiento de monitoreo activo')) {
         _consentimientoRegistrado = true;
+        await _guardarConsentimientoLocal(tecnicoId);
         _loadingConsentimiento = false;
         _errorConsentimiento = null;
         notifyListeners();
@@ -49,6 +62,14 @@ class GpsProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<void> _guardarConsentimientoLocal(int tecnicoId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_consentimientoKey(tecnicoId), true);
+  }
+
+  String _consentimientoKey(int tecnicoId) =>
+      'gps_consentimiento_registrado_$tecnicoId';
 
   // — Envío de ubicación (TECNICO) —
   Timer? _sendTimer;

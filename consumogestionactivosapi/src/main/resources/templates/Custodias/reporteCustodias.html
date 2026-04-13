@@ -112,6 +112,8 @@
 
 											<td
 												th:text="${c.fkEquipo != null ? c.fkEquipo.codigoSap : '-'}"></td>
+											<td
+												th:text="${c.fkEquipo != null && c.fkEquipo.fkCategoria != null ? c.fkEquipo.fkCategoria.nombre : '-'}"></td>
 											<td th:text="${c.fkEquipo != null ? c.fkEquipo.modelo : '-'}"></td>
 											<td th:text="${c.fkEquipo != null ? c.fkEquipo.serial : '-'}"></td>
 
@@ -121,7 +123,7 @@
 
 										<tr
 											th:if="${listaCustodias == null || #lists.isEmpty(listaCustodias)}">
-											<td colspan="13" class="text-center py-4 text-muted">No
+											<td colspan="9" class="text-center py-4 text-muted">No
 												hay registros para los filtros seleccionados.</td>
 										</tr>
 
