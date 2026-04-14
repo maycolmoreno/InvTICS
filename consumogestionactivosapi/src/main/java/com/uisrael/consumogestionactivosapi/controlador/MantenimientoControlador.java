@@ -258,6 +258,22 @@ public class MantenimientoControlador {
         model.addAttribute("listaequipos", equiposServicio.listarEquipos());
         model.addAttribute("listausuarios", usuariosServicio.listarUsuario().stream().filter(UsuariosResponseDTO::isEstado).toList());
         model.addAttribute("vencidosProximos", mantenimientoProgramadoServicio.listarVencidosYProximos());
+
+        // Datos para el toggle Administrativo/Farmacia
+        List<CustodiasResponseDTO> custodiasActivas = custodiasServicio.listarCustodias().stream()
+                .filter(CustodiasResponseDTO::isEstado)
+                .filter(c -> c.getFkCustodio() != null && c.getFkEquipo() != null)
+                .toList();
+        Map<Integer, String> custodiosPorEquipo = custodiasActivas.stream()
+                .collect(Collectors.groupingBy(
+                        c -> c.getFkEquipo().getIdEquipo(),
+                        LinkedHashMap::new,
+                        Collectors.mapping(c -> String.valueOf(c.getFkCustodio().getIdCustodio()),
+                                Collectors.collectingAndThen(Collectors.toList(), ids -> String.join(",", ids)))));
+        model.addAttribute("listacustodios", custodiosServicio.listarCustodios().stream().filter(CustodiosResponseDTO::isEstado).toList());
+        model.addAttribute("listaubicaciones", ubicacionesServicio.listarUbicaciones().stream().filter(UbicacionesResponseDTO::isEstado).toList());
+        model.addAttribute("custodiosPorEquipo", custodiosPorEquipo);
+
         return "mantenimiento/mantenimiento-programado";
     }
 

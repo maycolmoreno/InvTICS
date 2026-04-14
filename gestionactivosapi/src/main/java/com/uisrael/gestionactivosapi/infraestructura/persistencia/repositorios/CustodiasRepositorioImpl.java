@@ -14,8 +14,6 @@ import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodiasRepos
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.ICustodiasJpaMapper;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICustodiasJpaRepositorio;
-import com.uisrael.gestionactivosapi.infraestructura.repositorios.IEquiposJpaRepositorio;
-import com.uisrael.gestionactivosapi.infraestructura.repositorios.ICustodiosJpaRepositorio;
 
 import jakarta.persistence.EntityManager;
 
@@ -23,19 +21,13 @@ public class CustodiasRepositorioImpl implements CustodiasRepositorioPuerto {
 
 	private final ICustodiasJpaRepositorio jpaRepositorio;
 	private final ICustodiasJpaMapper mapper;
-	private final IEquiposJpaRepositorio equiposRepo;
-	private final ICustodiosJpaRepositorio custodiosRepo;
 	private final EntityManager entityManager;
 
 	public CustodiasRepositorioImpl(ICustodiasJpaRepositorio jpaRepositorio, 
 			ICustodiasJpaMapper mapper,
-			IEquiposJpaRepositorio equiposRepo,
-			ICustodiosJpaRepositorio custodiosRepo,
 			EntityManager entityManager) {
 		this.jpaRepositorio = jpaRepositorio;
 		this.mapper = mapper;
-		this.equiposRepo = equiposRepo;
-		this.custodiosRepo = custodiosRepo;
 		this.entityManager = entityManager;
 	}
 

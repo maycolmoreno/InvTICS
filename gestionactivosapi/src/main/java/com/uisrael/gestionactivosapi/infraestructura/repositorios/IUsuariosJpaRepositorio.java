@@ -19,5 +19,7 @@ public interface IUsuariosJpaRepositorio extends JpaRepository<UsuariosJpa, Inte
 	@EntityGraph(attributePaths = {"fkDepartamento", "fkRol"})
 	List<UsuariosJpa> findAllByFkRol_IdRol(Integer rolId);
 
+	List<UsuariosJpa> findAllByFkRol_NombreAndEstadoTrue(String nombreRol);
+
 	boolean existsByCorreoIgnoreCase(String correo);
 }

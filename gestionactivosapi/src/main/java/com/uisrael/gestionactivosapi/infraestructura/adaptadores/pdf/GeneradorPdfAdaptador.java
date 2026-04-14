@@ -2,9 +2,6 @@ package com.uisrael.gestionactivosapi.infraestructura.adaptadores.pdf;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.uisrael.gestionactivosapi.infraestructura.servicios.PdfMantenimientoService;
 import com.uisrael.gestionactivosapi.dominio.puertos.servicios.GeneradorPdfPuerto;
 
@@ -17,8 +14,6 @@ import com.uisrael.gestionactivosapi.dominio.puertos.servicios.GeneradorPdfPuert
  * aplicacion se refactorice para usar puertos (Fase 4).
  */
 public class GeneradorPdfAdaptador implements GeneradorPdfPuerto {
-
-	private static final Logger log = LoggerFactory.getLogger(GeneradorPdfAdaptador.class);
 
 	private final PdfMantenimientoService pdfService;
 

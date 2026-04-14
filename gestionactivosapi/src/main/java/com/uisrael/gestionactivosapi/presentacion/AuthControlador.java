@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.UsuariosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IRolModuloJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IUsuariosJpaRepositorio;
 

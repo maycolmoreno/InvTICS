@@ -2,8 +2,6 @@ package com.uisrael.consumogestionactivosapi.modelo.dto.response;
 
 import java.time.LocalDate;
 
-import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
-
 import lombok.Data;
 
 @Data

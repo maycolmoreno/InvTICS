@@ -1,7 +1,5 @@
 package com.uisrael.gestionactivosapi.dominio.valoresobjeto;
 
-import com.uisrael.gestionactivosapi.dominio.excepciones.ValidacionNegocioException;
-
 /**
  * Value object que representa los estados posibles de un equipo.
  */

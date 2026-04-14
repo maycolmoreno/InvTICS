@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-
 import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.NotificacionJpa;

@@ -63,9 +63,9 @@ public class EquiposActivosConfig {
 
 	@Bean
 	public CustodiasRepositorioImpl custodiasRepositorio(ICustodiasJpaRepositorio jpaRepositorio,
-			ICustodiasJpaMapper mapper, IEquiposJpaRepositorio equiposRepo, ICustodiosJpaRepositorio custodiosRepo,
+			ICustodiasJpaMapper mapper,
 			EntityManager entityManager) {
-		return new CustodiasRepositorioImpl(jpaRepositorio, mapper, equiposRepo, custodiosRepo, entityManager);
+		return new CustodiasRepositorioImpl(jpaRepositorio, mapper, entityManager);
 	}
 
 	@Bean

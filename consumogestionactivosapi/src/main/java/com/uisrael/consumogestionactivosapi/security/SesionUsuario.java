@@ -2,7 +2,6 @@ package com.uisrael.consumogestionactivosapi.security;
 
 import java.util.Base64;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.nio.charset.StandardCharsets;
 

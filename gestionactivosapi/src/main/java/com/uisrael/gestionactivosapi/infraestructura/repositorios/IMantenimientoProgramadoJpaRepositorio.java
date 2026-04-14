@@ -26,4 +26,9 @@ public interface IMantenimientoProgramadoJpaRepositorio extends JpaRepository<Ma
 
     @EntityGraph(attributePaths = {"fkEquipo", "fkTecnicoAsignado"})
     List<MantenimientoProgramadoJpa> findByFechaProximoMantenimientoBetweenAndEstadoTrue(LocalDate inicio, LocalDate fin);
+
+    long countByTecnicoIdAndEstadoTrue(Integer tecnicoId);
+
+    @EntityGraph(attributePaths = {"fkEquipo"})
+    List<MantenimientoProgramadoJpa> findByTecnicoIdAndFechaProximoMantenimientoLessThanEqualAndEstadoTrue(Integer tecnicoId, LocalDate fecha);
 }

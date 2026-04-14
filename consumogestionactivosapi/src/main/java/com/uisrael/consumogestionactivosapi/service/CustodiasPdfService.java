@@ -37,7 +37,6 @@ public class CustodiasPdfService {
 	private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	private static final DateTimeFormatter FMT_DISPLAY = DateTimeFormatter.ofPattern("dd / MM / yyyy");
 	private static final Font TITLE_FONT = new Font(Font.HELVETICA, 14, Font.BOLD);
-	private static final Font SUBTITLE_FONT = new Font(Font.HELVETICA, 12, Font.BOLD);
 	private static final Font NORMAL_FONT = new Font(Font.HELVETICA, 10, Font.NORMAL);
 	private static final String PDF_BACKGROUND_CLASSPATH = "/pdf/marco-cresio.png";
 
@@ -52,9 +51,6 @@ public class CustodiasPdfService {
 	private static final Font ACTA_TABLE_CELL = new Font(Font.TIMES_ROMAN, 7, Font.NORMAL);
 	private static final Font ACTA_SMALL = new Font(Font.TIMES_ROMAN, 8, Font.NORMAL);
 	private static final Font ACTA_SMALL_BOLD = new Font(Font.TIMES_ROMAN, 8, Font.BOLD);
-	private static final Font ACTA_META = new Font(Font.TIMES_ROMAN, 8, Font.NORMAL, new Color(128, 128, 128));
-	private static final Font ACTA_META_BOLD = new Font(Font.TIMES_ROMAN, 8, Font.BOLD, new Color(128, 128, 128));
-	private static final String PDF_FONDO_ACTA = "/pdf/fondo_acta.png";
 	private static final String PDF_CARATULA_CRESIO = "/pdf/caratula_cresio.png";
 
 	public void generarActaSalidaPdf(List<CustodiasResponseDTO> lista,
@@ -142,14 +138,8 @@ public class CustodiasPdfService {
 		Integer idCustodio = custodioId(cab);
 		String numActa = String.format("%09d", idCustodio != null ? idCustodio : 0);
 
-		// Prefijo y etiqueta según tipo de movimiento
+		// Prefijo según tipo de movimiento
 		if (tipoMovimiento == null || tipoMovimiento.isBlank()) tipoMovimiento = "ASIGNACION";
-		String etiquetaTipo = switch (tipoMovimiento) {
-			case "ACTA_INICIAL" -> "Acta Inicial";
-			case "TRASLADO"     -> "Traslado";
-			case "BAJA"         -> "Baja";
-			default             -> "Acta Asignación";
-		};
 		String prefijo = switch (tipoMovimiento) {
 			case "ACTA_INICIAL" -> "FM001-001-TIC-\u2192 Acta Inicial N.\u00ba ";
 			case "TRASLADO"     -> "FM001-001-TIC-\u2192 Traslado N.\u00ba ";
@@ -599,16 +589,6 @@ public class CustodiasPdfService {
 		}
 	}
 
-	private void configurarFondoActa(PdfWriter writer) {
-		try (InputStream in = getClass().getResourceAsStream(PDF_FONDO_ACTA)) {
-			if (in == null) return;
-			byte[] imageBytes = in.readAllBytes();
-			writer.setPageEvent(new BackgroundImageEvent(imageBytes));
-		} catch (Exception ignored) {
-			// Si no existe la imagen, el PDF sigue generandose sin fondo.
-		}
-	}
-
 	private void configurarCaratula(PdfWriter writer) {
 		try (InputStream in = getClass().getResourceAsStream(PDF_CARATULA_CRESIO)) {
 			if (in == null) return;
@@ -619,13 +599,6 @@ public class CustodiasPdfService {
 	}
 
 	// --- Helpers para el acta de asignación ---
-
-	private PdfPCell metaCell(String text, boolean bold) {
-		PdfPCell c = new PdfPCell(new Phrase(text, bold ? ACTA_META_BOLD : ACTA_META));
-		c.setBorder(Rectangle.NO_BORDER);
-		c.setPadding(1);
-		return c;
-	}
 
 	private void addBulletField(Document doc, String label, String value) throws com.lowagie.text.DocumentException {
 		Paragraph p = new Paragraph();

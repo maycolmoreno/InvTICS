@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ValidacionNegocioException.class)
     public ResponseEntity<ApiError> handleValidacionNegocio(ValidacionNegocioException ex, WebRequest request) {
-        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request, Map.of());
+        return build(HttpStatus.valueOf(422), ex.getMessage(), request, Map.of());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

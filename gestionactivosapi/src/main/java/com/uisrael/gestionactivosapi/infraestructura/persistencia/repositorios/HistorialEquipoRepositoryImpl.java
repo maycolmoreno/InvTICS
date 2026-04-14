@@ -171,9 +171,11 @@ public class HistorialEquipoRepositoryImpl implements HistorialEquipoRepositorio
 
 	private Map<Integer, Long> calcularMantenimientosPorAnio(List<Mantenimientos> mantenimientos) {
 		return mantenimientos.stream()
-				.map(mantenimiento -> mantenimiento.getFechaProgramada() != null
-						? mantenimiento.getFechaProgramada().getYear()
-						: mantenimiento.getCreadoEn() != null ? mantenimiento.getCreadoEn().getYear() : null)
+				.map(mantenimiento -> {
+					if (mantenimiento.getFechaProgramada() != null) return mantenimiento.getFechaProgramada().getYear();
+					if (mantenimiento.getCreadoEn() != null) return mantenimiento.getCreadoEn().getYear();
+					return (Integer) null;
+				})
 				.filter(Objects::nonNull)
 				.sorted()
 				.collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()));

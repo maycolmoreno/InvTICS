@@ -44,7 +44,7 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
             throw new IllegalArgumentException("El equipo es obligatorio para actividades de tipo Mantenimiento Programado");
         }
 
-        UsuariosJpa tecnico = usuariosRepo.findById(request.getTecnicoId())
+        usuariosRepo.findById(request.getTecnicoId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Técnico no encontrado"));
         usuariosRepo.findById(request.getCreadoPorId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario creador no encontrado"));

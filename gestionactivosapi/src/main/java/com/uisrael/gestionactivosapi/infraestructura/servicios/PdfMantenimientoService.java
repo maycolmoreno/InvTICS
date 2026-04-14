@@ -32,7 +32,6 @@ import com.uisrael.gestionactivosapi.dominio.entidades.Equipos;
 import com.uisrael.gestionactivosapi.dominio.entidades.Usuarios;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.MantenimientoManualResponseDTO;
 
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -151,7 +150,7 @@ public class PdfMantenimientoService {
         table.addCell(tableCell("1206.001"));
         table.addCell(tableCell("ACTIVO FIJO"));
         table.addCell(tableCell(descripcionEquipo(mantenimiento, equipo)));
-        table.addCell(tableCell(safeOr(() -> equipo.getFkMarca().getNombre(), "-")));
+        table.addCell(tableCell(equipo != null ? safeOr(() -> equipo.getFkMarca().getNombre(), "-") : "-"));
         table.addCell(tableCell(safe(equipo, Equipos::getSerial)));
         table.addCell(tableCell(safe(equipo, Equipos::getModelo)));
         table.addCell(tableCell(equipo != null ? safe(equipo, Equipos::getEstadoEquipo) : valor(mantenimiento.getEstadoGeneral())));
@@ -251,7 +250,7 @@ public class PdfMantenimientoService {
                 tecnico != null ? safe(tecnico, Usuarios::getNombre) : valor(mantenimiento.getTecnicoNombre()),
                 safe(tecnico, Usuarios::getCedula),
                 "Asistente de Soporte Tecnico",
-                safeOr(() -> tecnico.getFkDepartamento().getNombre(), "-"),
+                tecnico != null ? safeOr(() -> tecnico.getFkDepartamento().getNombre(), "-") : "-",
                 mantenimiento.getFirmaTecnico()));
         firmas.addCell(firmaInfo(
                 "Custodio Asignado",

@@ -42,7 +42,7 @@
                                        th:text="${#temporals.format(n.creadoEn, 'dd/MM/yyyy HH:mm')}"></small>
                             </div>
                             <div class="d-flex gap-2 mt-1">
-                                <a th:if="${n.url}" th:href="@{${n.url}}"
+                                <a th:if="${n.url != null and n.url != '' and n.url != '/notificaciones'}" th:href="@{${n.url}}"
                                    class="btn btn-sm btn-outline-secondary py-0 px-2">
                                     <i class="feather-external-link me-1"></i>Ver detalle
                                 </a>

@@ -11,7 +11,6 @@ class GpsProvider extends ChangeNotifier {
   GpsProvider({required GpsRepository repository}) : _repository = repository;
 
   final GpsRepository _repository;
-  int? _tecnicoIdActual;
 
   // — Consentimiento —
   bool _consentimientoRegistrado = false;
@@ -24,7 +23,6 @@ class GpsProvider extends ChangeNotifier {
   String? get errorConsentimiento => _errorConsentimiento;
 
   Future<void> cargarConsentimientoRegistrado(int tecnicoId) async {
-    _tecnicoIdActual = tecnicoId;
     final prefs = await SharedPreferences.getInstance();
     _consentimientoRegistrado =
         prefs.getBool(_consentimientoKey(tecnicoId)) ?? false;
@@ -32,7 +30,6 @@ class GpsProvider extends ChangeNotifier {
   }
 
   Future<bool> registrarConsentimiento(int tecnicoId) async {
-    _tecnicoIdActual = tecnicoId;
     _loadingConsentimiento = true;
     _errorConsentimiento = null;
     notifyListeners();

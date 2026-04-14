@@ -50,6 +50,9 @@ public interface IMantenimientosJpaRepositorio extends JpaRepository<Mantenimien
     @EntityGraph(attributePaths = {"fkEquipo", "fkCliente", "fkUsuario"})
     Page<MantenimientosJpa> findByIdUsuarioOrderByFechaProgramadaDescIdMantenimientoDesc(Integer idUsuario, Pageable pageable);
 
+    long countByIdUsuarioAndEstadoInterno(Integer idUsuario,
+            com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimiento estadoInterno);
+
     @Query("SELECT DISTINCT m FROM MantenimientosJpa m LEFT JOIN m.equipos me " +
            "WHERE m.equipoId = :equipoId OR me.equipoId = :equipoId " +
            "ORDER BY m.creadoEn DESC")

@@ -68,7 +68,7 @@ public class MantenimientosRepositorioImpl implements MantenimientoRepositorioPu
 
 	@Override
 	public Integer obtenerMaxSecuenciaPorYear(int yearSnapshoted) {
-		String maxSine = jpaRepositorio.findMaxSineSnapshotedByYear(yearSnapshoted);
+		String maxSine = jpaRepositorio.findMaxCodigoInternoSnapshotByYear(yearSnapshoted);
 		if (maxSine == null || maxSine.isBlank()) {
 			return null;
 		}

@@ -1,6 +1,5 @@
 package com.uisrael.gestionactivosapi.dominio.entidades;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**

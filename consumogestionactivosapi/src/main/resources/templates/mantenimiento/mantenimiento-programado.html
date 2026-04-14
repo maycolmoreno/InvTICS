@@ -84,14 +84,55 @@
 					<h2 class="content-card-title">Programar mantenimiento</h2>
 				</div>
 			</div>
-			<form th:action="@{/mantenimiento/programado/guardar}" method="post" class="row g-3">
-				<div class="col-lg-4">
-					<label class="filter-label">Equipo</label>
-					<select name="equipoId" class="form-select" required>
-						<option value="">Selecciona</option>
-						<option th:each="e : ${listaequipos}" th:value="${e.idEquipo}" th:text="${(e.codigoSap ?: 'Cod. Interno') + ' - ' + (e.modelo ?: 'Equipo')}"></option>
+			<form th:action="@{/mantenimiento/programado/guardar}" method="post" id="formProgramado" class="row g-3">
+				<!-- TOGGLE ADMINISTRATIVO / FARMACIA -->
+				<div class="col-12">
+					<input type="hidden" id="modoSeleccionProg" name="modoSeleccion" value="ADMINISTRATIVO">
+					<div class="d-flex gap-3 mb-2">
+						<button type="button" id="btnModoAdminProg" class="btn btn-primary px-4 py-2" onclick="cambiarModoProg('ADMINISTRATIVO')">Administrativo</button>
+						<button type="button" id="btnModoFarmaciaProg" class="btn btn-outline-secondary px-4 py-2" onclick="cambiarModoProg('FARMACIA')">Farmacia</button>
+					</div>
+				</div>
+
+				<!-- SUCURSAL (solo visible en FARMACIA) -->
+				<div class="col-lg-4" id="grupoSucursalProg" style="display:none;">
+					<label class="filter-label">Sucursal</label>
+					<select id="ubicacionIdProg" name="ubicacionId" class="form-select">
+						<option value="">Selecciona una sucursal</option>
+						<option th:each="ubi : ${listaubicaciones}"
+								th:value="${ubi.idUbicacion}"
+								th:text="${ubi.nombre + (ubi.ciudad != null ? ' - ' + ubi.ciudad : '')}">
+						</option>
 					</select>
 				</div>
+
+				<!-- CUSTODIO -->
+				<div class="col-lg-4" id="grupoCustodioProg">
+					<label class="filter-label">Custodio</label>
+					<select id="custodioIdProg" name="custodioId" class="form-select">
+						<option value="">Selecciona un custodio</option>
+						<option th:each="custodio : ${listacustodios}"
+								th:value="${custodio.idCustodio}"
+								th:text="${custodio.nombre}"
+								th:attr="data-ubicacion-id=${custodio.fkUbicacion != null ? custodio.fkUbicacion.idUbicacion : ''}">
+						</option>
+					</select>
+				</div>
+
+				<!-- EQUIPO (filtrado por custodio/sucursal) -->
+				<div class="col-lg-4">
+					<label class="filter-label">Equipo</label>
+					<select id="equipoIdProg" name="equipoId" class="form-select" required>
+						<option value="">Selecciona</option>
+						<option th:each="e : ${listaequipos}"
+								th:value="${e.idEquipo}"
+								th:text="${(e.codigoSap ?: 'Cod. Interno') + ' - ' + (e.modelo ?: 'Equipo')}"
+								th:attr="data-custodios=${custodiosPorEquipo[e.idEquipo] ?: ''}">
+						</option>
+					</select>
+					<div id="equipoHintProg" class="form-text text-muted" style="font-size:.85rem;">Selecciona un custodio para filtrar equipos.</div>
+				</div>
+
 				<div class="col-lg-4">
 					<label class="filter-label">Tecnico</label>
 					<select name="tecnicoId" class="form-select" required>
@@ -117,6 +158,155 @@
 			</form>
 			</div>
 		</div>
+
+		<!-- SCRIPT: Toggle Administrativo/Farmacia para programado -->
+		<script>
+		(function() {
+			const modoInput = document.getElementById('modoSeleccionProg');
+			const btnAdmin = document.getElementById('btnModoAdminProg');
+			const btnFarmacia = document.getElementById('btnModoFarmaciaProg');
+			const grupoSucursal = document.getElementById('grupoSucursalProg');
+			const grupoCustodio = document.getElementById('grupoCustodioProg');
+			const ubicacionSelect = document.getElementById('ubicacionIdProg');
+			const custodioSelect = document.getElementById('custodioIdProg');
+			const equipoSelect = document.getElementById('equipoIdProg');
+			const equipoHint = document.getElementById('equipoHintProg');
+
+			let modoActual = 'ADMINISTRATIVO';
+
+			window.cambiarModoProg = function(modo) {
+				modoActual = modo;
+				modoInput.value = modo;
+
+				custodioSelect.value = '';
+				equipoSelect.value = '';
+				if (ubicacionSelect) ubicacionSelect.value = '';
+
+				if (modo === 'ADMINISTRATIVO') {
+					btnAdmin.className = 'btn btn-primary px-4 py-2';
+					btnFarmacia.className = 'btn btn-outline-secondary px-4 py-2';
+					grupoSucursal.style.display = 'none';
+					grupoCustodio.style.display = '';
+					restoreAllCustodioOptions();
+					hideAllEquipoOptions();
+					equipoHint.textContent = 'Selecciona un custodio para filtrar equipos.';
+				} else {
+					btnAdmin.className = 'btn btn-outline-secondary px-4 py-2';
+					btnFarmacia.className = 'btn btn-primary px-4 py-2';
+					grupoSucursal.style.display = '';
+					grupoCustodio.style.display = '';
+					hideAllCustodioOptions();
+					hideAllEquipoOptions();
+					equipoHint.textContent = 'Selecciona una sucursal para filtrar equipos.';
+				}
+			};
+
+			/* ---- Filtrado de equipos por custodio (ADMINISTRATIVO) ---- */
+			function refreshEquiposByCustodio() {
+				const custodioId = custodioSelect.value;
+				equipoSelect.value = '';
+				let visibles = 0;
+				Array.from(equipoSelect.options).forEach(function(opt) {
+					if (!opt.value) return;
+					const custodios = (opt.getAttribute('data-custodios') || '').split(',').map(function(v){ return v.trim(); }).filter(Boolean);
+					const visible = custodioId ? custodios.indexOf(custodioId) !== -1 : false;
+					opt.hidden = !visible;
+					opt.disabled = !visible;
+					if (visible) visibles++;
+				});
+				if (!custodioId) {
+					equipoHint.textContent = 'Selecciona un custodio para filtrar equipos.';
+				} else if (visibles === 0) {
+					equipoHint.textContent = 'El custodio seleccionado no tiene equipos asignados.';
+				} else {
+					equipoHint.textContent = visibles + ' equipo(s) disponible(s).';
+				}
+			}
+
+			/* ---- Filtrado de equipos por sucursal (FARMACIA) ---- */
+			function refreshEquiposBySucursal() {
+				var ubiId = ubicacionSelect ? ubicacionSelect.value : '';
+				equipoSelect.value = '';
+				var custodiosEnSucursal = [];
+				Array.from(custodioSelect.options).forEach(function(opt) {
+					if (!opt.value) return;
+					if ((opt.getAttribute('data-ubicacion-id') || '') === ubiId) custodiosEnSucursal.push(opt.value);
+				});
+				var visibles = 0;
+				Array.from(equipoSelect.options).forEach(function(opt) {
+					if (!opt.value) return;
+					var custodios = (opt.getAttribute('data-custodios') || '').split(',').map(function(v){ return v.trim(); }).filter(Boolean);
+					var visible = ubiId ? custodios.some(function(c){ return custodiosEnSucursal.indexOf(c) !== -1; }) : false;
+					opt.hidden = !visible;
+					opt.disabled = !visible;
+					if (visible) visibles++;
+				});
+				if (!ubiId) {
+					equipoHint.textContent = 'Selecciona una sucursal para filtrar equipos.';
+				} else if (visibles === 0) {
+					equipoHint.textContent = 'La sucursal seleccionada no tiene equipos registrados.';
+				} else {
+					equipoHint.textContent = visibles + ' equipo(s) disponible(s) en la sucursal.';
+				}
+			}
+
+			/* ---- Filtrado de custodios por sucursal ---- */
+			function refreshCustodiosBySucursal() {
+				var ubiId = ubicacionSelect ? ubicacionSelect.value : '';
+				custodioSelect.value = '';
+				Array.from(custodioSelect.options).forEach(function(opt) {
+					if (!opt.value) return;
+					var optUbiId = opt.getAttribute('data-ubicacion-id') || '';
+					var visible = ubiId ? optUbiId === ubiId : false;
+					opt.hidden = !visible;
+					opt.disabled = !visible;
+				});
+			}
+
+			function restoreAllCustodioOptions() {
+				Array.from(custodioSelect.options).forEach(function(opt) {
+					opt.hidden = false;
+					opt.disabled = false;
+				});
+			}
+
+			function hideAllCustodioOptions() {
+				Array.from(custodioSelect.options).forEach(function(opt) {
+					if (!opt.value) return;
+					opt.hidden = true;
+					opt.disabled = true;
+					opt.selected = false;
+				});
+			}
+
+			function hideAllEquipoOptions() {
+				Array.from(equipoSelect.options).forEach(function(opt) {
+					if (!opt.value) return;
+					opt.hidden = true;
+					opt.disabled = true;
+					opt.selected = false;
+				});
+			}
+
+			/* ---- Event listeners ---- */
+			custodioSelect.addEventListener('change', function() {
+				if (modoActual === 'ADMINISTRATIVO') {
+					refreshEquiposByCustodio();
+				}
+			});
+
+			if (ubicacionSelect) {
+				ubicacionSelect.addEventListener('change', function() {
+					if (modoActual !== 'FARMACIA') return;
+					refreshCustodiosBySucursal();
+					refreshEquiposBySucursal();
+				});
+			}
+
+			/* Estado inicial: ocultar equipos hasta seleccionar custodio */
+			hideAllEquipoOptions();
+		})();
+		</script>
 
 		<div class="card-surface-strong table-shell">
 			<div class="soft-header">

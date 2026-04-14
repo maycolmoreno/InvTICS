@@ -3,8 +3,6 @@ package com.uisrael.gestionactivosapi.infraestructura.servicios;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
 import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.EquiposJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.MantenimientoProgramadoJpa;

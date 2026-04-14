@@ -55,6 +55,7 @@ class EquiposIntegrationTest {
     @DisplayName("Debe retornar OK en listar equipos")
     void testListarEquipos_ReturnsOk() {
         // Arrange & Act
+        @SuppressWarnings("rawtypes")
         ResponseEntity<List> response = restTemplate.getForEntity(
             baseUrl + "/api/equipos",
             List.class
@@ -64,7 +65,7 @@ class EquiposIntegrationTest {
         assertThat(response.getStatusCode())
             .isEqualTo(HttpStatus.OK);
 
-        assertThat(response.getBody())
+        assertThat((List<?>) response.getBody())
             .isNotNull();
 
         logger.info("Test listar equipos endpoint: PASSED");
@@ -122,7 +123,7 @@ class EquiposIntegrationTest {
 
         // Assert
         assertThat(response.getStatusCode())
-            .isIn(HttpStatus.BAD_REQUEST, HttpStatus.UNPROCESSABLE_ENTITY);
+            .isIn(HttpStatus.BAD_REQUEST, HttpStatus.valueOf(422));
 
         logger.info("Test validación de datos: PASSED");
     }
