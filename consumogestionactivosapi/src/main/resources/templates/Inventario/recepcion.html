@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Recepcion</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas" class="itam-page">
+    <div class="main-content">
+        <div class="itam-shell">
+            <div class="itam-hero">
+                <div>
+                    <p class="itam-eyebrow">Inventario operativo</p>
+                    <h1 class="itam-title">Recepcion</h1>
+                    <p class="itam-subtitle">Registra ingreso de activos y consumibles desde una OC, con etiqueta fisica para habilitar asignaciones.</p>
+                </div>
+                <div class="itam-actions">
+                    <a th:href="@{/inventario/compras}" class="itam-btn">
+                        <i class="feather-shopping-bag"></i>
+                        <span>Compras</span>
+                    </a>
+                    <a th:href="@{/inventario/dashboard}" class="itam-btn primary">
+                        <i class="feather-grid"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+            <section class="itam-panel mb-3">
+                <div class="itam-panel-body">
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <span class="itam-badge">1. OC</span>
+                            <p class="itam-item-meta mt-2 mb-0">Seleccionar documento trazador</p>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="itam-badge">2. Verificar</span>
+                            <p class="itam-item-meta mt-2 mb-0">Validar item recibido</p>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="itam-badge">3. Registrar</span>
+                            <p class="itam-item-meta mt-2 mb-0">Datos tecnicos</p>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="itam-badge">4. Codigo</span>
+                            <p class="itam-item-meta mt-2 mb-0">Genera CR automatico</p>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="itam-badge">5. Etiquetar</span>
+                            <p class="itam-item-meta mt-2 mb-0">Codigo fisico adherido</p>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="itam-badge success">6. Confirmar</span>
+                            <p class="itam-item-meta mt-2 mb-0">Ingreso a bodega</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="itam-grid-2">
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Recepcion de activo</h2>
+                        <span class="itam-badge">Codigo CRESIO</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <form th:action="@{/inventario/recepcion/activos}" th:object="${recepcionActivoRequest}" method="post" class="row g-3">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <div class="col-md-6">
+                                <label class="form-label">OC</label>
+                                <select class="form-select" th:field="*{ordenCompraId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="oc : ${ordenesCompra}" th:value="${oc.idOrdenCompra}" th:text="${oc.numeroOc}">OC</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Bodega</label>
+                                <select class="form-select" th:field="*{bodegaId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Categoria</label>
+                                <select class="form-select" th:field="*{categoriaId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}">Categoria</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Marca</label>
+                                <select class="form-select" th:field="*{marcaId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="m : ${marcas}" th:value="${m.idMarca}" th:text="${m.nombre}">Marca</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Modelo</label>
+                                <input class="form-control" th:field="*{modelo}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Serial</label>
+                                <input class="form-control" th:field="*{serial}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">RAM GB</label>
+                                <input class="form-control" th:field="*{memoriaRamGb}" type="number" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Almacenamiento GB</label>
+                                <input class="form-control" th:field="*{capacidadAlmacenamientoGb}" type="number" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Fecha compra</label>
+                                <input class="form-control" th:field="*{fechaCompra}" type="date">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">MAC</label>
+                                <input class="form-control" th:field="*{mac}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Garantia</label>
+                                <input class="form-control" th:field="*{fechaGarantia}" type="date">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Procesador</label>
+                                <input class="form-control" th:field="*{procesador}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Precio</label>
+                                <input class="form-control" th:field="*{precioCompra}" type="number" step="0.01" min="0">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" th:field="*{etiquetado}">
+                                    <label class="form-check-label">Codigo CR adherido al equipo</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Observacion</label>
+                                <textarea class="form-control" th:field="*{observacion}" rows="2"></textarea>
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button class="itam-btn primary" type="submit">
+                                    <i class="feather-package"></i>
+                                    <span>Ingresar activo</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Recepcion de consumible</h2>
+                        <span class="itam-badge success">Stock</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <form th:action="@{/inventario/recepcion/consumibles}" th:object="${recepcionConsumibleRequest}" method="post" class="row g-3">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <div class="col-md-6">
+                                <label class="form-label">OC</label>
+                                <select class="form-select" th:field="*{ordenCompraId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="oc : ${ordenesCompra}" th:value="${oc.idOrdenCompra}" th:text="${oc.numeroOc}">OC</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Bodega</label>
+                                <select class="form-select" th:field="*{bodegaId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Consumible</label>
+                                <select class="form-select" th:field="*{consumibleId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="c : ${consumibles}" th:value="${c.idConsumible}" th:text="${c.nombre}">Consumible</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Cantidad</label>
+                                <input class="form-control" th:field="*{cantidad}" type="number" min="1" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Observacion</label>
+                                <textarea class="form-control" th:field="*{observacion}" rows="3"></textarea>
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button class="itam-btn success" type="submit">
+                                    <i class="feather-plus-circle"></i>
+                                    <span>Actualizar stock</span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="itam-empty mt-3">
+                            La recepcion valida cantidades contra la OC y registra movimiento de inventario.
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

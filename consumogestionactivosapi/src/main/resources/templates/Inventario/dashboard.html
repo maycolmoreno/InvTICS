@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Inventario operativo</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas" class="itam-page">
+    <div class="main-content">
+        <div class="itam-shell">
+            <div class="itam-hero">
+                <div>
+                    <p class="itam-eyebrow">Inventario operativo</p>
+                    <h1 class="itam-title">Centro de control de activos TI</h1>
+                    <p class="itam-subtitle">Prioriza recepciones, asignaciones, stock critico y trazabilidad sin entrar a pantallas densas.</p>
+                </div>
+                <div class="itam-actions">
+                    <a th:href="@{/inventario/ingreso-bodega}" class="itam-btn">
+                        <i class="feather-clipboard"></i>
+                        <span>Nueva OC</span>
+                    </a>
+                    <a th:href="@{/inventario/ingreso-bodega}" class="itam-btn primary">
+                        <i class="feather-package"></i>
+                        <span>Recibir</span>
+                    </a>
+                    <a th:href="@{/inventario/ingreso-bodega}" class="itam-btn success">
+                        <i class="feather-user-check"></i>
+                        <span>Asignar</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="itam-kpi-grid">
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon"><i class="feather-box"></i></div>
+                    <p class="itam-kpi-value" th:text="${totalActivos}">0</p>
+                    <p class="itam-kpi-label">Total activos</p>
+                    <div class="itam-kpi-note">Parque tecnologico registrado</div>
+                </div>
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon success"><i class="feather-user-check"></i></div>
+                    <p class="itam-kpi-value" th:text="${activosAsignados}">0</p>
+                    <p class="itam-kpi-label">Activos asignados</p>
+                    <div class="itam-kpi-note">Con custodia activa</div>
+                </div>
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon"><i class="feather-archive"></i></div>
+                    <p class="itam-kpi-value" th:text="${activosEnBodega}">0</p>
+                    <p class="itam-kpi-label">En bodega</p>
+                    <div class="itam-kpi-note">Disponibles para asignar</div>
+                </div>
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon warning"><i class="feather-tool"></i></div>
+                    <p class="itam-kpi-value" th:text="${activosEnReparacion}">0</p>
+                    <p class="itam-kpi-label">En reparacion</p>
+                    <div class="itam-kpi-note">Requieren seguimiento</div>
+                </div>
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon danger"><i class="feather-x-circle"></i></div>
+                    <p class="itam-kpi-value" th:text="${activosDadosBaja}">0</p>
+                    <p class="itam-kpi-label">Dados de baja</p>
+                    <div class="itam-kpi-note">Fuera de operacion</div>
+                </div>
+            </div>
+
+            <div class="itam-kpi-grid">
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon warning"><i class="feather-shopping-bag"></i></div>
+                    <p class="itam-kpi-value" th:text="${ocPendientes}">0</p>
+                    <p class="itam-kpi-label">OC pendientes</p>
+                    <div class="itam-kpi-note">Emitidas o parciales</div>
+                </div>
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon success"><i class="feather-check-circle"></i></div>
+                    <p class="itam-kpi-value" th:text="${ocRecibidas}">0</p>
+                    <p class="itam-kpi-label">OC recibidas</p>
+                    <div class="itam-kpi-note">Cerradas logisticamente</div>
+                </div>
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon danger"><i class="feather-alert-triangle"></i></div>
+                    <p class="itam-kpi-value" th:text="${consumiblesCriticos}">0</p>
+                    <p class="itam-kpi-label">Stock critico</p>
+                    <div class="itam-kpi-note">Cantidad menor o igual a 5</div>
+                </div>
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon neutral"><i class="feather-user-x"></i></div>
+                    <p class="itam-kpi-value" th:text="${equiposSinCustodio}">0</p>
+                    <p class="itam-kpi-label">Sin custodio</p>
+                    <div class="itam-kpi-note">Pendientes de asignacion</div>
+                </div>
+                <div class="itam-kpi">
+                    <div class="itam-kpi-icon warning"><i class="feather-calendar"></i></div>
+                    <p class="itam-kpi-value" th:text="${proximosMantenimientos}">0</p>
+                    <p class="itam-kpi-label">Mantenimientos</p>
+                    <div class="itam-kpi-note">Prioridad operativa</div>
+                </div>
+            </div>
+
+            <div class="itam-grid-2">
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Distribucion por estado</h2>
+                        <span class="itam-badge neutral">Activos</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div th:each="item, iter : ${distribucionEstados}" class="itam-state-row">
+                            <div class="itam-state-name" th:text="${item.key}">Estado</div>
+                            <div class="itam-bar"
+                                 th:classappend="${iter.index == 0 ? ' success' : (iter.index == 2 ? ' warning' : (iter.index == 3 ? ' danger' : ''))}">
+                                <span th:style="'width:' + ${T(java.lang.Math).min(100, (item.value * 100) / baseDistribucion)} + '%'"></span>
+                            </div>
+                            <strong th:text="${item.value}">0</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Stock critico</h2>
+                        <a th:href="@{/inventario/ingreso-bodega}" class="itam-badge warning">Ver stock</a>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div class="itam-list" th:if="${!#lists.isEmpty(stockCritico)}">
+                            <div class="itam-list-item" th:each="s : ${stockCritico}">
+                                <span class="itam-dot" th:classappend="${s.cantidad <= 2 ? ' danger' : ' warning'}"></span>
+                                <div>
+                                    <p class="itam-item-title" th:text="${s.consumibleNombre}">Consumible</p>
+                                    <p class="itam-item-meta" th:text="${s.bodegaNombre}">Bodega</p>
+                                </div>
+                                <span class="itam-badge" th:classappend="${s.cantidad <= 2 ? ' danger' : ' warning'}" th:text="${s.cantidad}">0</span>
+                            </div>
+                        </div>
+                        <div class="itam-empty" th:if="${#lists.isEmpty(stockCritico)}">No hay consumibles criticos en la bodega principal.</div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="itam-grid-3">
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">OC pendientes</h2>
+                        <a th:href="@{/inventario/ingreso-bodega}" class="itam-badge">Compras</a>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div class="itam-list" th:if="${!#lists.isEmpty(ordenesPendientes)}">
+                            <div class="itam-list-item" th:each="oc : ${ordenesPendientes}">
+                                <span class="itam-dot warning"></span>
+                                <div>
+                                    <p class="itam-item-title" th:text="${oc.numeroOc}">OC</p>
+                                    <p class="itam-item-meta" th:text="${oc.proveedor ?: 'Sin proveedor'}">Proveedor</p>
+                                </div>
+                                <span class="itam-badge warning" th:text="${oc.estado}">Estado</span>
+                            </div>
+                        </div>
+                        <div class="itam-empty" th:if="${#lists.isEmpty(ordenesPendientes)}">No hay ordenes pendientes.</div>
+                    </div>
+                </section>
+
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Ultimos movimientos</h2>
+                        <a th:href="@{/inventario/ingreso-bodega}" class="itam-badge">Timeline</a>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div class="itam-timeline" th:if="${!#lists.isEmpty(movimientos)}">
+                            <div class="itam-timeline-item" th:each="m : ${movimientos}">
+                                <div class="itam-timeline-icon"><i class="feather-activity"></i></div>
+                                <div class="itam-timeline-card">
+                                    <p class="itam-item-title" th:text="${m.tipoMovimiento}">Movimiento</p>
+                                    <p class="itam-item-meta" th:text="${(m.equipoCodigo ?: m.consumibleNombre ?: 'Item') + ' · ' + (m.custodioNombre ?: m.bodegaDestinoNombre ?: m.bodegaOrigenNombre ?: 'Sin responsable')}">Detalle</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="itam-empty" th:if="${#lists.isEmpty(movimientos)}">Todavia no hay movimientos registrados.</div>
+                    </div>
+                </section>
+
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Acciones rapidas</h2>
+                        <span class="itam-badge success">Operar</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div class="itam-list">
+                            <a th:href="@{/inventario/ingreso-bodega}" class="itam-list-item">
+                                <span class="itam-dot"></span>
+                                <div>
+                                    <p class="itam-item-title">Recibir activos</p>
+                                    <p class="itam-item-meta">OC, codigo CRESIO y etiqueta</p>
+                                </div>
+                                <i class="feather-chevron-right"></i>
+                            </a>
+                            <a th:href="@{/inventario/ingreso-bodega}" class="itam-list-item">
+                                <span class="itam-dot success"></span>
+                                <div>
+                                    <p class="itam-item-title">Asignar a custodio</p>
+                                    <p class="itam-item-meta">Activos y consumibles</p>
+                                </div>
+                                <i class="feather-chevron-right"></i>
+                            </a>
+                            <a th:href="@{/inventario/ingreso-bodega}" class="itam-list-item">
+                                <span class="itam-dot warning"></span>
+                                <div>
+                                    <p class="itam-item-title">Trasladar entre bodegas</p>
+                                    <p class="itam-item-meta">Stock y activos disponibles</p>
+                                </div>
+                                <i class="feather-chevron-right"></i>
+                            </a>
+                            <a th:href="@{/inventario/ingreso-bodega}" class="itam-list-item">
+                                <span class="itam-dot danger"></span>
+                                <div>
+                                    <p class="itam-item-title">Dar de baja</p>
+                                    <p class="itam-item-meta">Cierre operativo y auditoria</p>
+                                </div>
+                                <i class="feather-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

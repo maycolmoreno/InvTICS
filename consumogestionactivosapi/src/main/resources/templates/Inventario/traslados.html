@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Traslados</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas" class="itam-page">
+    <div class="main-content">
+        <div class="itam-shell">
+            <div class="itam-hero">
+                <div>
+                    <p class="itam-eyebrow">Inventario operativo</p>
+                    <h1 class="itam-title">Traslados</h1>
+                    <p class="itam-subtitle">Movimiento controlado de activos y consumibles entre bodegas.</p>
+                </div>
+                <div class="itam-actions">
+                    <a th:href="@{/inventario/stock}" class="itam-btn">
+                        <i class="feather-archive"></i>
+                        <span>Stock</span>
+                    </a>
+                    <a th:href="@{/inventario/movimientos}" class="itam-btn primary">
+                        <i class="feather-clock"></i>
+                        <span>Timeline</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+            <div class="itam-grid-2">
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Activo</h2>
+                        <span class="itam-badge" th:text="${#lists.size(activosEnBodega) + ' disponibles'}">0 disponibles</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <form th:action="@{/inventario/traslados/activos}" th:object="${trasladoActivoRequest}" method="post" class="row g-3">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <div class="col-12">
+                                <label class="form-label">Activo en bodega</label>
+                                <select class="form-select" th:field="*{equipoId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="a : ${activosEnBodega}"
+                                            th:value="${a.idEquipo}"
+                                            th:text="${(a.codigoCresio ?: 'Sin codigo') + ' - ' + (a.modelo ?: 'Sin modelo') + ' / ' + (a.bodegaNombre ?: 'Sin bodega')}">
+                                        Activo
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Bodega destino</label>
+                                <select class="form-select" th:field="*{bodegaDestinoId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Observacion</label>
+                                <textarea class="form-control" th:field="*{observacion}" rows="3"></textarea>
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button class="itam-btn primary" type="submit" th:disabled="${#lists.isEmpty(activosEnBodega)}">
+                                    <i class="feather-truck"></i>
+                                    <span>Trasladar activo</span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="itam-list mt-4" th:if="${!#lists.isEmpty(activosEnBodega)}">
+                            <div class="itam-list-item" th:each="a, aStat : ${activosEnBodega}" th:if="${aStat.index < 4}">
+                                <span class="itam-dot success"></span>
+                                <div>
+                                    <p class="itam-item-title" th:text="${a.codigoCresio ?: 'Sin codigo'}">CR-LAP-0001</p>
+                                    <p class="itam-item-meta mb-0" th:text="${(a.modelo ?: 'Sin modelo') + ' - ' + (a.bodegaNombre ?: 'Sin bodega')}">Modelo</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Consumible</h2>
+                        <span class="itam-badge success" th:text="${#lists.size(stock) + ' items'}">0 items</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <form th:action="@{/inventario/traslados/consumibles}" th:object="${trasladoConsumibleRequest}" method="post" class="row g-3">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <div class="col-md-6">
+                                <label class="form-label">Origen</label>
+                                <select class="form-select" th:field="*{bodegaOrigenId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Origen</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Destino</label>
+                                <select class="form-select" th:field="*{bodegaDestinoId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Destino</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Consumible</label>
+                                <select class="form-select" th:field="*{consumibleId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="s : ${stock}" th:value="${s.consumibleId}" th:text="${s.consumibleNombre + ' (' + s.cantidad + ')'}">Consumible</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Cantidad</label>
+                                <input class="form-control" th:field="*{cantidad}" type="number" min="1" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Observacion</label>
+                                <textarea class="form-control" th:field="*{observacion}" rows="3"></textarea>
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button class="itam-btn success" type="submit" th:disabled="${#lists.isEmpty(stock)}">
+                                    <i class="feather-send"></i>
+                                    <span>Trasladar consumible</span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="itam-empty mt-4" th:if="${#lists.isEmpty(stock)}">Sin consumibles con stock en la bodega principal.</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,158 +1,327 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{plantilla/plantillaui}">
-
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
 <head>
-<title>Equipos</title>
+    <title>Equipos</title>
 </head>
-
 <body>
-	<div layout:fragment="contenidopaginas">
-		<div class="page-shell">
-			<div class="view-heading">
-				<div>
-					<div class="eyebrow">Resumen Operativo</div>
-					<h1 class="view-title">Asignar Equipos</h1>
-				</div>
-				<div class="d-flex gap-3 flex-wrap align-items-stretch">
-					<a th:href="@{/equipos/reporte-equipo}" class="btn btn-light px-4 py-3">
-						<i class="feather-download me-2"></i>Exportar
-					</a>
-					<a th:href="@{/equipos/nuevo-equipo}" class="btn btn-primary px-4 py-3">
-						<i class="feather-plus me-2"></i>Agregar equipo
-					</a>
-				</div>
-			</div>
+<div layout:fragment="contenidopaginas" class="itam-page">
+    <div class="main-content">
+        <div class="itam-shell">
+            <div class="itam-hero">
+                <div>
+                    <p class="itam-eyebrow">Activos TI</p>
+                    <h1 class="itam-title">Inventario de equipos</h1>
+                    <p class="itam-subtitle">Vista hibrida para explorar activos en cards y administrar volumen desde tabla.</p>
+                </div>
+                <div class="itam-actions">
+                    <a th:href="@{/equipos/reporte-equipo}" class="itam-btn">
+                        <i class="feather-download"></i>
+                        <span>Exportar</span>
+                    </a>
+                    <a th:href="@{/equipos/nuevo-equipo}" class="itam-btn primary">
+                        <i class="feather-plus"></i>
+                        <span>Nuevo</span>
+                    </a>
+                </div>
+            </div>
 
-			<section class="admin-summary-grid">
-				<article class="admin-summary-card">
-					<div class="admin-summary-label">Total equipos</div>
-					<div class="admin-summary-value" th:text="${totalElementos != null ? totalElementos : #lists.size(listarequipos)}">0</div>
-				</article>
-				<article class="admin-summary-card">
-					<div class="admin-summary-label">Activos</div>
-					<div class="admin-summary-value" th:text="${#lists.size(listarequipos.?[estado == true])}">0</div>
-				</article>
-				<article class="admin-summary-card">
-					<div class="admin-summary-label">Con novedad</div>
-					<div class="admin-summary-value" th:text="${#lists.size(listarequipos.?[estadoEquipo != null and (#strings.toLowerCase(estadoEquipo).contains('mantenimiento') or #strings.toLowerCase(estadoEquipo).contains('falla') or #strings.toLowerCase(estadoEquipo).contains('repar'))])}">0</div>
-				</article>
-			</section>
+            <section class="itam-kpi-grid">
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon"><i class="feather-monitor"></i></div>
+                    <p class="itam-kpi-value" th:text="${totalElementos != null ? totalElementos : #lists.size(listarequipos)}">0</p>
+                    <p class="itam-kpi-label">Total equipos</p>
+                    <div class="itam-kpi-note">Inventario registrado</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon success"><i class="feather-check-circle"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(listarequipos.?[estado == true])}">0</p>
+                    <p class="itam-kpi-label">Activos visibles</p>
+                    <div class="itam-kpi-note">Pagina actual</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon warning"><i class="feather-alert-triangle"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(listarequipos.?[estadoEquipo != null and (#strings.toLowerCase(estadoEquipo).contains('mantenimiento') or #strings.toLowerCase(estadoEquipo).contains('falla') or #strings.toLowerCase(estadoEquipo).contains('repar'))])}">0</p>
+                    <p class="itam-kpi-label">Con novedad</p>
+                    <div class="itam-kpi-note">Mantenimiento o reparacion</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon neutral"><i class="feather-package"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(listarequipos.?[estadoEquipo == null or #strings.isEmpty(estadoEquipo)])}">0</p>
+                    <p class="itam-kpi-label">Sin estado</p>
+                    <div class="itam-kpi-note">Requieren clasificacion</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon danger"><i class="feather-x-circle"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(listarequipos.?[estado == false])}">0</p>
+                    <p class="itam-kpi-label">Inactivos</p>
+                    <div class="itam-kpi-note">Fuera de uso operativo</div>
+                </article>
+            </section>
 
-			<div class="surface-card content-card">
-				<div class="table-responsive">
-					<table class="inventory-table table" id="proposalList">
-						<thead>
-								<tr>
-									<th>Equipo</th>
-									<th>Serie</th>
-									<th>Marca / Modelo</th>
-									<th>Estado</th>
-									<th>Código / MAC</th>
-									<th class="text-end">Acciones</th>
-								</tr>
-						</thead>
-						<tbody>
-							<tr th:each="equipo : ${listarequipos}">
-								<td>
-									<div class="device-cell">
-										<div class="device-thumb inventory-icon-shell">
-											<i th:with="categoriaNormalizada=${equipo.fkCategoria != null and equipo.fkCategoria.nombre != null ? #strings.toLowerCase(equipo.fkCategoria.nombre) : ''}"
-											   th:class="${#strings.contains(categoriaNormalizada, 'impres')} ? 'feather-printer' : (${#strings.contains(categoriaNormalizada, 'scanner')} ? 'feather-file-text' : (${#strings.contains(categoriaNormalizada, 'red')} ? 'feather-cpu' : 'feather-monitor'))"></i>
-										</div>
-										<div>
-											<div class="device-name" th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Equipo'}"></div>
-											<div class="device-meta" th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Activo tecnologico'}"></div>
-										</div>
-									</div>
-								</td>
-								<td class="serial-strong" th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : '-'}"></td>
-								<td>
-									<div class="muted-stack">
-										<div class="device-name" th:text="${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'}"></div>
-										<div class="device-meta" th:text="${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : '-'}"></div>
-									</div>
-								</td>
-								<td>
-									<span class="status-pill"
-										th:with="estadoNormalizado=${equipo.estadoEquipo != null ? #strings.toLowerCase(equipo.estadoEquipo) : ''}"
-										th:classappend="${#strings.contains(estadoNormalizado, 'bueno')} ? ' is-good' : (${#strings.contains(estadoNormalizado, 'nuevo')} ? ' is-new' : (${equipo.estado} ? ' is-warning' : ' is-danger'))"
-										th:text="${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : (equipo.estado ? 'Pendiente de revision' : 'Inactivo')}"></span>
-								</td>
-								<td>
-									<div class="muted-stack">
-										<div class="device-name" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Cod. Interno'}"></div>
-										<div class="device-meta" th:text="${equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : 'Sin referencia de red'}"></div>
-									</div>
-								</td>
-								<td>
-									<div class="d-flex justify-content-end gap-2">
-										<a th:href="@{/equipos/editar-equipo/{id}(id=${equipo.idEquipo})}" class="avatar-text avatar-md" title="Editar">
-											<i class="feather feather-edit"></i>
-										</a>
-										<a href="javascript:void(0)" class="avatar-text avatar-md"
-											title="Activar / Desactivar" data-bs-toggle="modal"
-											data-bs-target="#modalToggleEquipo"
-											th:attr="data-id=${equipo.idEquipo},data-estado=${equipo.estado}">
-											<i th:class="${equipo.estado} ? 'feather feather-trash-2 text-danger' : 'feather feather-check-circle text-success'"></i>
-										</a>
-									</div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
+            <section class="itam-filter-band">
+                <div>
+                    <label class="form-label">Buscar</label>
+                    <input id="assetSearch" class="form-control" type="search" placeholder="Codigo, serial, marca, modelo o estado">
+                </div>
+                <div>
+                    <label class="form-label">Estado</label>
+                    <select id="assetStatusFilter" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="activo">Activos</option>
+                        <option value="inactivo">Inactivos</option>
+                        <option value="novedad">Con novedad</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Vista</label>
+                    <div class="itam-view-toggle" role="group" aria-label="Vista de equipos">
+                        <button id="assetCardsButton" class="active" type="button">
+                            <i class="feather-grid"></i>
+                            Cards
+                        </button>
+                        <button id="assetTableButton" type="button">
+                            <i class="feather-list"></i>
+                            Tabla
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Densidad</label>
+                    <select id="assetDensity" class="form-select">
+                        <option value="comfortable">Comoda</option>
+                        <option value="compact">Compacta</option>
+                    </select>
+                </div>
+            </section>
 
-			<div th:replace="~{plantilla/paginacion :: paginacion(rutaBase='/equipos')}"></div>
-		</div>
+            <section id="assetCardsView" class="itam-asset-grid">
+                <article class="itam-asset-card asset-record"
+                         th:each="equipo : ${listarequipos}"
+                         th:with="categoria=${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Equipo'},
+                                  marca=${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'},
+                                  estadoTexto=${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : (equipo.estado ? 'Pendiente' : 'Inactivo')},
+                                  busqueda=${(equipo.codigoSap ?: '') + ' ' + (equipo.serial ?: '') + ' ' + (equipo.modelo ?: '') + ' ' + marca + ' ' + categoria + ' ' + estadoTexto}"
+                         th:attr="data-search=${#strings.toLowerCase(busqueda)},data-active=${equipo.estado},data-status=${#strings.toLowerCase(estadoTexto)}">
+                    <div class="itam-asset-top">
+                        <div class="itam-asset-icon">
+                            <i th:with="categoriaNormalizada=${#strings.toLowerCase(categoria)}"
+                               th:class="${#strings.contains(categoriaNormalizada, 'impres')} ? 'feather-printer' : (${#strings.contains(categoriaNormalizada, 'scanner')} ? 'feather-file-text' : (${#strings.contains(categoriaNormalizada, 'red')} ? 'feather-cpu' : 'feather-monitor'))"></i>
+                        </div>
+                        <div>
+                            <p class="itam-asset-code" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Sin codigo'}">CR-LAP-0001</p>
+                            <p class="itam-asset-name" th:text="${categoria + ' - ' + marca}">Laptop Dell</p>
+                        </div>
+                        <span class="itam-badge"
+                              th:classappend="${!equipo.estado ? ' danger' : (#strings.contains(#strings.toLowerCase(estadoTexto), 'repar') or #strings.contains(#strings.toLowerCase(estadoTexto), 'mantenimiento') or #strings.contains(#strings.toLowerCase(estadoTexto), 'falla') ? ' warning' : ' success')}"
+                              th:text="${estadoTexto}">Activo</span>
+                    </div>
 
-		<div class="modal fade" id="modalToggleEquipo" tabindex="-1" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Confirmar</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div class="modal-body" id="textoModalToggle">Esta seguro?</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-light" data-bs-dismiss="modal">No</button>
-						<form id="formEstadoEquipo" method="post">
-							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-							<input type="hidden" name="idEquipo" id="idEquipoToggle">
-							<button type="submit" class="btn" id="btnToggle">Si</button>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
+                    <div class="itam-asset-facts">
+                        <div class="itam-asset-fact">
+                            <span>Modelo</span>
+                            <strong th:text="${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : '-'}">Latitude</strong>
+                        </div>
+                        <div class="itam-asset-fact">
+                            <span>Serial</span>
+                            <strong th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : '-'}">SN</strong>
+                        </div>
+                        <div class="itam-asset-fact">
+                            <span>MAC</span>
+                            <strong th:text="${equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : '-'}">MAC</strong>
+                        </div>
+                        <div class="itam-asset-fact">
+                            <span>Compra</span>
+                            <strong th:text="${equipo.fechaCompra != null ? #temporals.format(equipo.fechaCompra, 'dd/MM/yyyy') : '-'}">-</strong>
+                        </div>
+                    </div>
 
-		<script>
-			const modalToggle = document.getElementById('modalToggleEquipo');
-			modalToggle.addEventListener('show.bs.modal', function(event) {
-				const button = event.relatedTarget;
-				const id = button.getAttribute('data-id');
-				const estado = button.getAttribute('data-estado') === 'true';
-				document.getElementById('idEquipoToggle').value = id;
+                    <div class="itam-asset-actions">
+                        <a th:href="@{/activos/equipos/{id}/expediente(id=${equipo.idEquipo})}" class="itam-btn">
+                            <i class="feather-eye"></i>
+                            <span>Ver</span>
+                        </a>
+                        <a th:href="@{/mantenimiento/nuevo(equipoId=${equipo.idEquipo})}" class="itam-btn">
+                            <i class="feather-wrench"></i>
+                            <span>Mant.</span>
+                        </a>
+                        <button class="itam-btn" type="button" data-bs-toggle="modal" data-bs-target="#modalToggleEquipo"
+                                th:attr="data-id=${equipo.idEquipo},data-estado=${equipo.estado}">
+                            <i th:class="${equipo.estado} ? 'feather-trash-2' : 'feather-check-circle'"></i>
+                            <span th:text="${equipo.estado ? 'Desactivar' : 'Activar'}">Estado</span>
+                        </button>
+                    </div>
+                </article>
+            </section>
 
-				const form = document.getElementById('formEstadoEquipo');
-				const texto = document.getElementById('textoModalToggle');
-				const btn = document.getElementById('btnToggle');
+            <section id="assetTableView" class="itam-table-wrap itam-hidden">
+                <table class="itam-table">
+                    <thead>
+                    <tr>
+                        <th>Codigo</th>
+                        <th>Categoria</th>
+                        <th>Marca / Modelo</th>
+                        <th>Serial</th>
+                        <th>Estado</th>
+                        <th>MAC</th>
+                        <th>Compra</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="asset-record"
+                        th:each="equipo : ${listarequipos}"
+                        th:with="categoria=${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Equipo'},
+                                 marca=${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'},
+                                 estadoTexto=${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : (equipo.estado ? 'Pendiente' : 'Inactivo')},
+                                 busqueda=${(equipo.codigoSap ?: '') + ' ' + (equipo.serial ?: '') + ' ' + (equipo.modelo ?: '') + ' ' + marca + ' ' + categoria + ' ' + estadoTexto}"
+                        th:attr="data-search=${#strings.toLowerCase(busqueda)},data-active=${equipo.estado},data-status=${#strings.toLowerCase(estadoTexto)}">
+                        <td>
+                            <strong th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Sin codigo'}">Codigo</strong>
+                        </td>
+                        <td th:text="${categoria}">Categoria</td>
+                        <td>
+                            <div class="itam-item-title" th:text="${marca}">Marca</div>
+                            <div class="itam-item-meta" th:text="${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : '-'}">Modelo</div>
+                        </td>
+                        <td th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : '-'}">Serial</td>
+                        <td>
+                            <span class="itam-badge"
+                                  th:classappend="${!equipo.estado ? ' danger' : (#strings.contains(#strings.toLowerCase(estadoTexto), 'repar') or #strings.contains(#strings.toLowerCase(estadoTexto), 'mantenimiento') or #strings.contains(#strings.toLowerCase(estadoTexto), 'falla') ? ' warning' : ' success')}"
+                                  th:text="${estadoTexto}">Estado</span>
+                        </td>
+                        <td th:text="${equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : '-'}">MAC</td>
+                        <td th:text="${equipo.fechaCompra != null ? #temporals.format(equipo.fechaCompra, 'dd/MM/yyyy') : '-'}">-</td>
+                        <td>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a th:href="@{/activos/equipos/{id}/expediente(id=${equipo.idEquipo})}" class="avatar-text avatar-md" title="Ver">
+                                    <i class="feather feather-eye"></i>
+                                </a>
+                                <a th:href="@{/mantenimiento/nuevo(equipoId=${equipo.idEquipo})}" class="avatar-text avatar-md" title="Mantenimiento">
+                                    <i class="feather feather-wrench"></i>
+                                </a>
+                                <a href="javascript:void(0)" class="avatar-text avatar-md" title="Activar / Desactivar"
+                                   data-bs-toggle="modal" data-bs-target="#modalToggleEquipo"
+                                   th:attr="data-id=${equipo.idEquipo},data-estado=${equipo.estado}">
+                                    <i th:class="${equipo.estado} ? 'feather feather-trash-2 text-danger' : 'feather feather-check-circle text-success'"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
 
-				if (estado) {
-					form.action = '/equipos/eliminar-equipo';
-					texto.innerText = "Esta seguro de desactivar este equipo?";
-					btn.innerText = "Si, desactivar";
-					btn.className = "btn btn-outline-danger";
-				} else {
-					form.action = '/equipos/activar-equipo';
-					texto.innerText = "Esta seguro de activar este equipo?";
-					btn.innerText = "Si, activar";
-					btn.className = "btn btn-primary";
-				}
-			});
-		</script>
-	</div>
+            <div id="assetEmptyState" class="itam-empty mt-3 itam-hidden">No hay equipos para los filtros aplicados.</div>
+
+            <div class="mt-3" th:replace="~{plantilla/paginacion :: paginacion(rutaBase='/equipos')}"></div>
+        </div>
+
+        <div class="modal fade" id="modalToggleEquipo" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="textoModalToggle">Esta seguro?</div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">No</button>
+                        <form id="formEstadoEquipo" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="idEquipo" id="idEquipoToggle">
+                            <button type="submit" class="btn" id="btnToggle">Si</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (function() {
+                const search = document.getElementById('assetSearch');
+                const status = document.getElementById('assetStatusFilter');
+                const density = document.getElementById('assetDensity');
+                const cardsView = document.getElementById('assetCardsView');
+                const tableView = document.getElementById('assetTableView');
+                const cardsButton = document.getElementById('assetCardsButton');
+                const tableButton = document.getElementById('assetTableButton');
+                const empty = document.getElementById('assetEmptyState');
+
+                function activeRecords() {
+                    return Array.from(document.querySelectorAll('#assetCardsView .asset-record, #assetTableView .asset-record'));
+                }
+
+                function matchesStatus(record, selected) {
+                    const isActive = record.dataset.active === 'true';
+                    const text = record.dataset.status || '';
+                    if (!selected) return true;
+                    if (selected === 'activo') return isActive;
+                    if (selected === 'inactivo') return !isActive;
+                    if (selected === 'novedad') {
+                        return text.includes('mantenimiento') || text.includes('repar') || text.includes('falla');
+                    }
+                    return true;
+                }
+
+                function applyFilters() {
+                    const term = (search.value || '').trim().toLowerCase();
+                    const selected = status.value;
+                    let visibleCards = 0;
+                    activeRecords().forEach(function(record) {
+                        const matchesText = !term || (record.dataset.search || '').includes(term);
+                        const visible = matchesText && matchesStatus(record, selected);
+                        record.classList.toggle('itam-hidden', !visible);
+                        if (visible && record.closest('#assetCardsView')) visibleCards++;
+                    });
+                    empty.classList.toggle('itam-hidden', visibleCards > 0 || cardsView.classList.contains('itam-hidden'));
+                }
+
+                function setView(view) {
+                    const cards = view === 'cards';
+                    cardsView.classList.toggle('itam-hidden', !cards);
+                    tableView.classList.toggle('itam-hidden', cards);
+                    cardsButton.classList.toggle('active', cards);
+                    tableButton.classList.toggle('active', !cards);
+                    empty.classList.add('itam-hidden');
+                    applyFilters();
+                }
+
+                search.addEventListener('input', applyFilters);
+                status.addEventListener('change', applyFilters);
+                cardsButton.addEventListener('click', function() { setView('cards'); });
+                tableButton.addEventListener('click', function() { setView('table'); });
+                density.addEventListener('change', function() {
+                    document.body.classList.toggle('itam-density-compact', density.value === 'compact');
+                });
+
+                const modalToggle = document.getElementById('modalToggleEquipo');
+                modalToggle.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-id');
+                    const estado = button.getAttribute('data-estado') === 'true';
+                    document.getElementById('idEquipoToggle').value = id;
+
+                    const form = document.getElementById('formEstadoEquipo');
+                    const texto = document.getElementById('textoModalToggle');
+                    const btn = document.getElementById('btnToggle');
+
+                    if (estado) {
+                        form.action = '/equipos/eliminar-equipo';
+                        texto.innerText = 'Esta seguro de desactivar este equipo?';
+                        btn.innerText = 'Si, desactivar';
+                        btn.className = 'btn btn-outline-danger';
+                    } else {
+                        form.action = '/equipos/activar-equipo';
+                        texto.innerText = 'Esta seguro de activar este equipo?';
+                        btn.innerText = 'Si, activar';
+                        btn.className = 'btn btn-primary';
+                    }
+                });
+            })();
+        </script>
+    </div>
+</div>
 </body>
 </html>

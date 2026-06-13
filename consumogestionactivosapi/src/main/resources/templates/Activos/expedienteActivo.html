@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Expediente del activo</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas" class="itam-page">
+    <div class="main-content">
+        <div class="itam-shell">
+            <div class="itam-hero">
+                <div>
+                    <p class="itam-eyebrow">Activos TI</p>
+                    <h1 class="itam-title" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Activo sin codigo'}">CR-LAP-0001</h1>
+                    <p class="itam-subtitle">
+                        <span th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Equipo'}">Laptop</span>
+                        <span> &middot; </span>
+                        <span th:text="${equipo.fkMarca != null ? equipo.fkMarca.nombre : 'Sin marca'}">Dell</span>
+                        <span> &middot; </span>
+                        <span th:text="${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : 'Sin modelo'}">Latitude</span>
+                    </p>
+                </div>
+                <div class="itam-actions">
+                    <a th:href="@{/equipos}" class="itam-btn">
+                        <i class="feather-arrow-left"></i>
+                        <span>Equipos</span>
+                    </a>
+                    <a th:href="@{/mantenimiento/nuevo(equipoId=${equipo.idEquipo})}" class="itam-btn">
+                        <i class="feather-wrench"></i>
+                        <span>Mantenimiento</span>
+                    </a>
+                    <a th:href="@{/equipos/editar-equipo/{id}(id=${equipo.idEquipo})}" class="itam-btn primary">
+                        <i class="feather-edit"></i>
+                        <span>Editar</span>
+                    </a>
+                </div>
+            </div>
+
+            <section class="itam-kpi-grid">
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon"><i class="feather-monitor"></i></div>
+                    <p class="itam-kpi-value" th:text="${equipo.estado ? 'Activo' : 'Inactivo'}">Activo</p>
+                    <p class="itam-kpi-label">Estado administrativo</p>
+                    <div class="itam-kpi-note" th:text="${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : 'Sin estado tecnico'}">Bueno</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon success"><i class="feather-user-check"></i></div>
+                    <p class="itam-kpi-value" th:text="${custodiaActual != null ? 'Asignado' : 'Libre'}">Asignado</p>
+                    <p class="itam-kpi-label">Custodia actual</p>
+                    <div class="itam-kpi-note" th:text="${custodiaActual != null and custodiaActual.fkCustodio != null ? custodiaActual.fkCustodio.nombre : 'Sin custodio activo'}">Custodio</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon warning"><i class="feather-tool"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(mantenimientos)}">0</p>
+                    <p class="itam-kpi-label">Mantenimientos</p>
+                    <div class="itam-kpi-note">Historial tecnico</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon neutral"><i class="feather-clipboard"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(historialCustodias)}">0</p>
+                    <p class="itam-kpi-label">Custodias</p>
+                    <div class="itam-kpi-note">Cambios registrados</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon danger"><i class="feather-clock"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(movimientos)}">0</p>
+                    <p class="itam-kpi-label">Movimientos</p>
+                    <div class="itam-kpi-note">Inventario reciente</div>
+                </article>
+            </section>
+
+            <div class="itam-grid-2">
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Informacion general</h2>
+                        <span class="itam-badge"
+                              th:classappend="${equipo.estado ? ' success' : ' danger'}"
+                              th:text="${equipo.estado ? 'Activo' : 'Inactivo'}">Activo</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div class="itam-asset-top mb-3">
+                            <div class="itam-asset-icon">
+                                <i th:with="categoria=${equipo.fkCategoria != null and equipo.fkCategoria.nombre != null ? #strings.toLowerCase(equipo.fkCategoria.nombre) : ''}"
+                                   th:class="${#strings.contains(categoria, 'impres')} ? 'feather-printer' : (${#strings.contains(categoria, 'scanner')} ? 'feather-file-text' : (${#strings.contains(categoria, 'red')} ? 'feather-cpu' : 'feather-monitor'))"></i>
+                            </div>
+                            <div>
+                                <p class="itam-asset-code" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Sin codigo'}">Codigo</p>
+                                <p class="itam-asset-name" th:text="${equipo.descripcion != null and !#strings.isEmpty(equipo.descripcion) ? equipo.descripcion : 'Activo tecnologico'}">Descripcion</p>
+                            </div>
+                        </div>
+                        <div class="itam-asset-facts">
+                            <div class="itam-asset-fact"><span>Categoria</span><strong th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Marca</span><strong th:text="${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Modelo</span><strong th:text="${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Serial</span><strong th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>MAC</span><strong th:text="${equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Procesador</span><strong th:text="${equipo.procesador != null and !#strings.isEmpty(equipo.procesador) ? equipo.procesador : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>RAM</span><strong th:text="${equipo.memoriaRamGb != null ? equipo.memoriaRamGb + ' GB' : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Almacenamiento</span><strong th:text="${equipo.capacidadAlmacenamientoGb != null ? equipo.capacidadAlmacenamientoGb + ' GB' : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Compra</span><strong th:text="${equipo.fechaCompra != null ? #temporals.format(equipo.fechaCompra, 'dd/MM/yyyy') : '-'}">-</strong></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Custodia actual</h2>
+                        <span class="itam-badge" th:classappend="${custodiaActual != null ? ' success' : ' neutral'}" th:text="${custodiaActual != null ? 'Vigente' : 'Sin asignacion'}">Vigente</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div th:if="${custodiaActual != null}">
+                            <div class="itam-list">
+                                <div class="itam-list-item">
+                                    <span class="itam-dot success"></span>
+                                    <div>
+                                        <p class="itam-item-title" th:text="${custodiaActual.fkCustodio != null ? custodiaActual.fkCustodio.nombre : 'Custodio'}">Custodio</p>
+                                        <p class="itam-item-meta">
+                                            <span th:text="${custodiaActual.fechaInicio != null ? #temporals.format(custodiaActual.fechaInicio, 'dd/MM/yyyy') : 'Sin fecha'}">Fecha</span>
+                                            <span> &middot; </span>
+                                            <span th:text="${custodiaActual.tipoMovimiento != null ? custodiaActual.tipoMovimiento : 'Custodia'}">Tipo</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="itam-list-item" th:if="${custodiaActual.fkCustodio != null}">
+                                    <span class="itam-dot"></span>
+                                    <div>
+                                        <p class="itam-item-title">Contacto</p>
+                                        <p class="itam-item-meta" th:text="${custodiaActual.fkCustodio.correo != null ? custodiaActual.fkCustodio.correo : 'Sin correo'}">correo</p>
+                                    </div>
+                                </div>
+                                <div class="itam-list-item" th:if="${custodiaActual.rutaActaPdf != null || custodiaActual.rutaActaFirmada != null}">
+                                    <span class="itam-dot warning"></span>
+                                    <div>
+                                        <p class="itam-item-title">Actas</p>
+                                        <p class="itam-item-meta">
+                                            <span th:text="${custodiaActual.rutaActaFirmada != null ? 'Firmada' : 'Pendiente'}">Estado acta</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="itam-empty" th:if="${custodiaActual == null}">Activo sin custodia vigente.</div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="itam-panel">
+                <div class="itam-panel-head">
+                    <h2 class="itam-panel-title">Expediente</h2>
+                    <span class="itam-badge neutral">Historial</span>
+                </div>
+                <div class="itam-panel-body">
+                    <ul class="nav nav-pills mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-movimientos" type="button" role="tab">Movimientos</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-mantenimientos" type="button" role="tab">Mantenimientos</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-custodias" type="button" role="tab">Custodias</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tab-movimientos" role="tabpanel">
+                            <div class="itam-list" th:if="${!#lists.isEmpty(movimientos)}">
+                                <div class="itam-list-item align-items-start" th:each="m : ${movimientos}">
+                                    <span class="itam-dot" th:classappend="${m.tipoMovimiento == 'BAJA' ? ' danger' : (m.tipoMovimiento == 'TRASLADO' ? ' warning' : ' success')}"></span>
+                                    <div>
+                                        <p class="itam-item-title" th:text="${m.tipoMovimiento}">Movimiento</p>
+                                        <p class="itam-item-meta">
+                                            <span th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">Fecha</span>
+                                            <span> &middot; </span>
+                                            <span th:text="${m.bodegaDestinoNombre ?: (m.bodegaOrigenNombre ?: 'Inventario')}">Bodega</span>
+                                        </p>
+                                        <p class="itam-item-meta mb-0" th:if="${m.observacion != null}" th:text="${m.observacion}">Observacion</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="itam-empty" th:if="${#lists.isEmpty(movimientos)}">Sin movimientos recientes para este activo.</div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-mantenimientos" role="tabpanel">
+                            <div class="itam-list" th:if="${!#lists.isEmpty(mantenimientos)}">
+                                <div class="itam-list-item align-items-start" th:each="m : ${mantenimientos}">
+                                    <span class="itam-dot warning"></span>
+                                    <div>
+                                        <p class="itam-item-title" th:text="${m.tipoMantenimiento ?: 'Mantenimiento'}">Mantenimiento</p>
+                                        <p class="itam-item-meta">
+                                            <span th:text="${m.fechaMantenimiento != null ? #temporals.format(m.fechaMantenimiento, 'dd/MM/yyyy') : 'Sin fecha'}">Fecha</span>
+                                            <span> &middot; </span>
+                                            <span th:text="${m.tecnicoNombre ?: 'Sin tecnico'}">Tecnico</span>
+                                            <span> &middot; </span>
+                                            <span th:text="${m.estadoInterno ?: (m.estadoGeneral ?: 'Sin estado')}">Estado</span>
+                                        </p>
+                                        <p class="itam-item-meta mb-0" th:if="${m.detalle != null}" th:text="${m.detalle}">Detalle</p>
+                                    </div>
+                                    <a th:href="@{/mantenimiento/{id}(id=${m.idMantenimiento})}" class="itam-btn">
+                                        <i class="feather-eye"></i>
+                                        <span>Ver</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="itam-empty" th:if="${#lists.isEmpty(mantenimientos)}">Sin mantenimientos registrados para este activo.</div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-custodias" role="tabpanel">
+                            <div class="itam-list" th:if="${!#lists.isEmpty(historialCustodias)}">
+                                <div class="itam-list-item align-items-start" th:each="c : ${historialCustodias}">
+                                    <span class="itam-dot" th:classappend="${c.estado ? ' success' : ' neutral'}"></span>
+                                    <div>
+                                        <p class="itam-item-title" th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio'}">Custodio</p>
+                                        <p class="itam-item-meta">
+                                            <span th:text="${c.fechaInicio != null ? #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : 'Sin inicio'}">Inicio</span>
+                                            <span> -> </span>
+                                            <span th:text="${c.fechaFin != null ? #temporals.format(c.fechaFin, 'dd/MM/yyyy') : 'Vigente'}">Fin</span>
+                                            <span> &middot; </span>
+                                            <span th:text="${c.tipoMovimiento ?: 'Custodia'}">Tipo</span>
+                                        </p>
+                                        <p class="itam-item-meta mb-0" th:if="${c.observacion != null}" th:text="${c.observacion}">Observacion</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="itam-empty" th:if="${#lists.isEmpty(historialCustodias)}">Sin historial de custodias para este activo.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+</body>
+</html>

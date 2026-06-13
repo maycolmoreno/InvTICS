@@ -12,6 +12,7 @@ import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.EquipoReposito
 public class EquiposUseCaseImpl implements IEquiposUseCase {
 
 	private static final String CODIGO_ACTIVO_FIJO_REGEX = "^[A-Z]_EC_\\d{11}$";
+	private static final String CODIGO_CRESIO_REGEX = "^CR-[A-Z]{3}-\\d{4}$";
 
 	private final EquipoRepositorioPuerto equipoRepositorio;
 
@@ -23,8 +24,8 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 	public Equipos crear(Equipos equipo) {
 		if (equipo.getCodigoSap() != null && !equipo.getCodigoSap().isBlank()) {
 			String codigoActivoFijo = equipo.getCodigoSap().trim().toUpperCase();
-			if (!codigoActivoFijo.matches(CODIGO_ACTIVO_FIJO_REGEX)) {
-				throw new IllegalArgumentException("El Código Activo Fijo debe tener el formato A_EC_00000000919");
+			if (!esCodigoActivoValido(codigoActivoFijo)) {
+				throw new IllegalArgumentException("El Codigo Activo Fijo debe tener formato A_EC_00000000919 o CR-LAP-0001");
 			}
 			if (equipoRepositorio.existeCodigo(codigoActivoFijo)) {
 				throw new DuplicidadException("Ya existe un equipo con ese Código Activo Fijo");
@@ -65,8 +66,8 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 	public Equipos actualizar(int id, Equipos equipo) {
 		if (equipo.getCodigoSap() != null && !equipo.getCodigoSap().isBlank()) {
 			String codigoActivoFijo = equipo.getCodigoSap().trim().toUpperCase();
-			if (!codigoActivoFijo.matches(CODIGO_ACTIVO_FIJO_REGEX)) {
-				throw new IllegalArgumentException("El Código Activo Fijo debe tener el formato A_EC_00000000919");
+			if (!esCodigoActivoValido(codigoActivoFijo)) {
+				throw new IllegalArgumentException("El Codigo Activo Fijo debe tener formato A_EC_00000000919 o CR-LAP-0001");
 			}
 			if (equipoRepositorio.existeCodigoParaOtro(codigoActivoFijo, id)) {
 				throw new DuplicidadException("Ya existe un equipo con ese Código Activo Fijo");
@@ -106,6 +107,10 @@ public class EquiposUseCaseImpl implements IEquiposUseCase {
 	@Override
 	public boolean existeCodigoParaOtro(String codigo, int idEquipo) {
 		return equipoRepositorio.existeCodigoParaOtro(codigo.trim(), idEquipo);
+	}
+
+	private boolean esCodigoActivoValido(String codigo) {
+		return codigo.matches(CODIGO_ACTIVO_FIJO_REGEX) || codigo.matches(CODIGO_CRESIO_REGEX);
 	}
 
 	@Override

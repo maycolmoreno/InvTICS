@@ -159,6 +159,10 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1 justify-content-end">
+                                            <a th:href="@{/custodias/expediente/{id}(id=${acta.idCustodio})}"
+                                               class="act-btn" title="Expediente del custodio">
+                                                <i class="feather feather-user-check"></i>
+                                            </a>
                                             <a th:href="@{/custodias/acta-entrega/ver/{id}(id=${acta.idCustodio}, tipo=${acta.tipoMovimiento}, fecha=${acta.fechaInicio})}"
                                                class="act-btn" title="Ver Acta de Entrega">
                                                 <i class="feather feather-eye"></i>

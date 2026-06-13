@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Bajas</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas" class="itam-page">
+    <div class="main-content">
+        <div class="itam-shell">
+            <div class="itam-hero">
+                <div>
+                    <p class="itam-eyebrow">Inventario operativo</p>
+                    <h1 class="itam-title">Bajas</h1>
+                    <p class="itam-subtitle">Cierre controlado del ciclo de vida de activos con trazabilidad historica.</p>
+                </div>
+                <div class="itam-actions">
+                    <a th:href="@{/inventario/traslados}" class="itam-btn">
+                        <i class="feather-truck"></i>
+                        <span>Traslados</span>
+                    </a>
+                    <a th:href="@{/inventario/movimientos}" class="itam-btn primary">
+                        <i class="feather-clock"></i>
+                        <span>Movimientos</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+            <div class="itam-grid-2">
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Dar de baja</h2>
+                        <span class="itam-badge danger">Accion final</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <form th:action="@{/inventario/bajas/activos}" th:object="${bajaActivoRequest}" method="post" class="row g-3">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <div class="col-12">
+                                <label class="form-label">Activo</label>
+                                <select class="form-select" th:field="*{equipoId}" required>
+                                    <option value="">Seleccione</option>
+                                    <option th:each="a : ${activosEnBodega}"
+                                            th:value="${a.idEquipo}"
+                                            th:text="${(a.codigoCresio ?: 'Sin codigo') + ' - ' + (a.modelo ?: 'Sin modelo') + ' / ' + (a.bodegaNombre ?: 'Sin bodega')}">
+                                        Activo
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha baja</label>
+                                <input class="form-control" th:field="*{fechaBaja}" type="date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Motivo</label>
+                                <select class="form-select" th:field="*{motivo}" required>
+                                    <option value="">Seleccione</option>
+                                    <option value="OBSOLESCENCIA">Obsolescencia</option>
+                                    <option value="DANIO_IRREPARABLE">Danio irreparable</option>
+                                    <option value="PERDIDA">Perdida</option>
+                                    <option value="RENOVACION">Renovacion</option>
+                                    <option value="OTRO">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Observacion</label>
+                                <textarea class="form-control" th:field="*{observacion}" rows="4" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="itam-list-item">
+                                    <span class="itam-dot danger"></span>
+                                    <div>
+                                        <p class="itam-item-title">Validacion previa</p>
+                                        <p class="itam-item-meta mb-0">El backend bloquea activos con mantenimiento en proceso y conserva el historial.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button class="itam-btn danger" type="submit" th:disabled="${#lists.isEmpty(activosEnBodega)}">
+                                    <i class="feather-alert-triangle"></i>
+                                    <span>Dar de baja</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Ultimas bajas</h2>
+                        <span class="itam-badge neutral" th:text="${#lists.size(movimientos) + ' eventos'}">0 eventos</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div class="itam-list" th:if="${!#lists.isEmpty(movimientos)}">
+                            <div class="itam-list-item align-items-start" th:each="m : ${movimientos}">
+                                <span class="itam-dot danger"></span>
+                                <div>
+                                    <p class="itam-item-title" th:text="${m.equipoCodigo ?: 'Activo'}">CR-LAP-0001</p>
+                                    <p class="itam-item-meta">
+                                        <span th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">11/06/2026</span>
+                                        <span> &middot; </span>
+                                        <span th:text="${m.observacion ?: 'Sin observacion'}">Motivo</span>
+                                    </p>
+                                    <p class="itam-item-meta mb-0" th:if="${m.estadoAnterior != null || m.estadoNuevo != null}">
+                                        <span th:text="${m.estadoAnterior ?: 'Sin estado'}">Anterior</span>
+                                        <span> -> </span>
+                                        <span th:text="${m.estadoNuevo ?: 'Sin estado'}">Nuevo</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="itam-empty" th:if="${#lists.isEmpty(movimientos)}">Sin bajas registradas en los movimientos recientes.</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

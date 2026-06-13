@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Kanban mantenimiento</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas" class="itam-page">
+    <div class="main-content">
+        <div class="itam-shell">
+            <div class="itam-hero">
+                <div>
+                    <p class="itam-eyebrow">Mantenimiento</p>
+                    <h1 class="itam-title">Kanban de ordenes</h1>
+                    <p class="itam-subtitle">Tablero operativo para priorizar, revisar y cerrar mantenimientos por estado.</p>
+                </div>
+                <div class="itam-actions">
+                    <a th:href="@{/mantenimiento}" class="itam-btn">
+                        <i class="feather-list"></i>
+                        <span>Lista</span>
+                    </a>
+                    <a th:href="@{/mantenimiento/nuevo}" class="itam-btn primary">
+                        <i class="feather-plus"></i>
+                        <span>Nueva orden</span>
+                    </a>
+                </div>
+            </div>
+
+            <section class="itam-kpi-grid">
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon"><i class="feather-clipboard"></i></div>
+                    <p class="itam-kpi-value" th:text="${totalMantenimientos}">0</p>
+                    <p class="itam-kpi-label">Total ordenes</p>
+                    <div class="itam-kpi-note">Mantenimientos registrados</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon neutral"><i class="feather-clock"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(pendientes)}">0</p>
+                    <p class="itam-kpi-label">Pendientes</p>
+                    <div class="itam-kpi-note">Por iniciar</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon warning"><i class="feather-tool"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(enProceso)}">0</p>
+                    <p class="itam-kpi-label">En proceso</p>
+                    <div class="itam-kpi-note">Trabajo activo</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon danger"><i class="feather-alert-triangle"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(esperandoRepuesto)}">0</p>
+                    <p class="itam-kpi-label">Esperando repuesto</p>
+                    <div class="itam-kpi-note">Bloqueadas</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon success"><i class="feather-check-circle"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(finalizados)}">0</p>
+                    <p class="itam-kpi-label">Finalizadas</p>
+                    <div class="itam-kpi-note">Cerradas</div>
+                </article>
+            </section>
+
+            <section class="itam-filter-band">
+                <div>
+                    <label class="form-label">Buscar</label>
+                    <input id="kanbanSearch" class="form-control" type="search" placeholder="Equipo, custodio, tecnico o tipo">
+                </div>
+                <div>
+                    <label class="form-label">Tipo</label>
+                    <select id="kanbanTypeFilter" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="preventivo">Preventivo</option>
+                        <option value="correctivo">Correctivo</option>
+                        <option value="revision">Revision</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Prioridad</label>
+                    <select id="kanbanPriorityFilter" class="form-select">
+                        <option value="">Todas</option>
+                        <option value="vencido">Vencido</option>
+                        <option value="hoy">Hoy</option>
+                        <option value="proximo">Proximo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Vista</label>
+                    <span class="itam-badge neutral w-100 justify-content-center">Kanban</span>
+                </div>
+            </section>
+
+            <section class="itam-kanban">
+                <div th:replace="~{mantenimiento/kanban :: columnaKanban('Pendiente', 'neutral', ${pendientes})}"></div>
+                <div th:replace="~{mantenimiento/kanban :: columnaKanban('En Proceso', 'warning', ${enProceso})}"></div>
+                <div th:replace="~{mantenimiento/kanban :: columnaKanban('Esperando Repuesto', 'danger', ${esperandoRepuesto})}"></div>
+                <div th:replace="~{mantenimiento/kanban :: columnaKanban('Finalizado', 'success', ${finalizados})}"></div>
+            </section>
+        </div>
+
+        <th:block th:fragment="columnaKanban(titulo, tono, items)">
+            <section class="itam-kanban-column">
+                <div class="itam-kanban-head">
+                    <div>
+                        <h2 th:text="${titulo}">Pendiente</h2>
+                        <span th:text="${#lists.size(items) + ' ordenes'}">0 ordenes</span>
+                    </div>
+                    <span class="itam-dot" th:classappend="${tono}"></span>
+                </div>
+                <div class="itam-kanban-body">
+                    <article class="itam-kanban-card kanban-record"
+                             th:each="m : ${items}"
+                             th:with="busqueda=${(m.equipoCodigoSap ?: '') + ' ' + (m.equipoDescripcion ?: '') + ' ' + (m.custodioNombre ?: '') + ' ' + (m.tecnicoNombre ?: '') + ' ' + (m.tipoMantenimiento ?: '') + ' ' + (m.estadoInterno ?: '') + ' ' + (m.estadoGeneral ?: '')},
+                                      prioridad=${m.proximaFecha != null and m.proximaFecha.isBefore(T(java.time.LocalDate).now()) ? 'vencido' : (m.proximaFecha != null and m.proximaFecha.equals(T(java.time.LocalDate).now()) ? 'hoy' : 'proximo')}"
+                             th:attr="data-search=${#strings.toLowerCase(busqueda)},data-type=${#strings.toLowerCase(m.tipoMantenimiento ?: '')},data-priority=${prioridad}">
+                        <div class="itam-kanban-card-top">
+                            <strong th:text="${'MT-' + #numbers.formatInteger(m.idMantenimiento, 5)}">MT-00001</strong>
+                            <span class="itam-badge"
+                                  th:classappend="${prioridad == 'vencido' ? ' danger' : (prioridad == 'hoy' ? ' warning' : ' neutral')}"
+                                  th:text="${m.proximaFecha != null ? #temporals.format(m.proximaFecha, 'dd/MM') : 'Sin fecha'}">Fecha</span>
+                        </div>
+                        <p class="itam-item-title" th:text="${m.equipoCodigoSap ?: 'Equipo'}">CR-LAP-0001</p>
+                        <p class="itam-item-meta" th:text="${m.equipoDescripcion ?: 'Sin descripcion'}">Laptop</p>
+                        <div class="itam-kanban-meta">
+                            <span><i class="feather-user"></i><b th:text="${m.custodioNombre ?: 'Sin custodio'}">Custodio</b></span>
+                            <span><i class="feather-tool"></i><b th:text="${m.tecnicoNombre ?: 'Sin tecnico'}">Tecnico</b></span>
+                            <span><i class="feather-tag"></i><b th:text="${m.tipoMantenimiento ?: 'Mantenimiento'}">Tipo</b></span>
+                        </div>
+                        <div class="itam-kanban-actions">
+                            <a th:href="@{/mantenimiento/{id}(id=${m.idMantenimiento})}" class="itam-btn">
+                                <i class="feather-eye"></i>
+                                <span>Abrir</span>
+                            </a>
+                            <a th:if="${m.equipoId != null}" th:href="@{/activos/equipos/{id}/expediente(id=${m.equipoId})}" class="itam-btn">
+                                <i class="feather-monitor"></i>
+                                <span>Activo</span>
+                            </a>
+                        </div>
+                    </article>
+                    <div class="itam-empty" th:if="${#lists.isEmpty(items)}">Sin ordenes en esta columna.</div>
+                </div>
+            </section>
+        </th:block>
+
+        <script>
+            (function() {
+                const search = document.getElementById('kanbanSearch');
+                const type = document.getElementById('kanbanTypeFilter');
+                const priority = document.getElementById('kanbanPriorityFilter');
+
+                function applyFilters() {
+                    const term = (search.value || '').trim().toLowerCase();
+                    const selectedType = type.value;
+                    const selectedPriority = priority.value;
+                    document.querySelectorAll('.kanban-record').forEach(function(card) {
+                        const matchesText = !term || (card.dataset.search || '').includes(term);
+                        const matchesType = !selectedType || (card.dataset.type || '').includes(selectedType);
+                        const matchesPriority = !selectedPriority || card.dataset.priority === selectedPriority;
+                        card.classList.toggle('itam-hidden', !(matchesText && matchesType && matchesPriority));
+                    });
+                }
+
+                search.addEventListener('input', applyFilters);
+                type.addEventListener('change', applyFilters);
+                priority.addEventListener('change', applyFilters);
+            })();
+        </script>
+    </div>
+</div>
+</body>
+</html>

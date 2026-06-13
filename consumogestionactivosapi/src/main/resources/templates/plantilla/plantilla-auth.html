@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title layout:title-pattern="$CONTENT_TITLE - Cresio">Cresio</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/images/logo/logoCRESIO.png}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/vendors.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/cresio-auth.css}">
+</head>
+<body>
+    <main layout:fragment="contenidoauth"></main>
+
+    <script th:src="@{/assets/vendors/js/vendors.min.js}"></script>
+    <script th:src="@{/assets/js/common-init.min.js}"></script>
+    <th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

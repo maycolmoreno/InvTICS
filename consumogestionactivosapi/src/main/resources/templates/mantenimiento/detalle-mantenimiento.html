@@ -3,201 +3,201 @@
 <head><title>Detalle Mantenimiento</title></head>
 <body>
 <div layout:fragment="contenidopaginas">
-	<div class="page-shell">
-		<div class="operations-strip">
-			<div class="operations-hero">
-				<div class="eyebrow text-white-50">Orden tecnica</div>
-				<h2 th:text="${'Seguimiento operativo de la orden #' + mantenimiento.idMantenimiento}">Seguimiento operativo</h2>
-				<div class="operations-badges">
-					<div class="operations-badge"><i class="feather-tool"></i><span th:text="${mantenimiento.tipoMantenimiento ?: 'MANTENIMIENTO'}">MANTENIMIENTO</span></div>
-					<div class="operations-badge"><i class="feather-user"></i><span th:text="${mantenimiento.tecnicoNombre ?: 'Sin tecnico'}">Sin tecnico</span></div>
-					<div class="operations-badge"><i class="feather-check-circle"></i><span th:text="${mantenimiento.estadoInterno ?: 'PENDIENTE'}">PENDIENTE</span></div>
-				</div>
-			</div>
-			<div class="surface-card insight-panel">
-				<div class="content-card-header mb-0">
-					<div>
-						<h2 class="content-card-title">Resumen de ejecucion</h2>
-					</div>
-				</div>
-				<div class="insight-list">
-					<div class="insight-item" th:with="total=${#lists.size(mantenimiento.actividades)}, realizadas=${#lists.size(mantenimiento.actividades.?[realizada == true])}">
-						<i class="feather-check-square"></i>
-						<div>
-							<div class="signal-title">Checklist</div>
-						</div>
-						<div class="insight-value" th:text="${realizadas} + '/' + ${total}">0/0</div>
-					</div>
-					<div class="insight-item">
-						<i class="feather-image"></i>
-						<div>
-							<div class="signal-title">Evidencias</div>
-						</div>
-						<div class="insight-value" th:text="${mantenimiento.imagenes != null ? #lists.size(mantenimiento.imagenes) : 0}">0</div>
-					</div>
-					<div class="insight-item">
-						<i class="feather-edit-3"></i>
-						<div>
-							<div class="signal-title">Firmas</div>
-						</div>
-						<div class="insight-value" th:text="${(mantenimiento.firmaTecnico != null ? 1 : 0) + (mantenimiento.firmaCustodio != null ? 1 : 0)} + '/2'">0/2</div>
-					</div>
-				</div>
-			</div>
-		</div>
+    <div class="page-shell">
+        <div class="operations-strip">
+            <div class="operations-hero">
+                <div class="eyebrow text-white-50">Orden tecnica</div>
+                <h2 th:text="${'Seguimiento operativo de la orden #' + mantenimiento.idMantenimiento}">Seguimiento operativo</h2>
+                <div class="operations-badges">
+                    <div class="operations-badge"><i class="feather-tool"></i><span th:text="${mantenimiento.tipoMantenimiento ?: 'MANTENIMIENTO'}">MANTENIMIENTO</span></div>
+                    <div class="operations-badge"><i class="feather-user"></i><span th:text="${mantenimiento.tecnicoNombre ?: 'Sin tecnico'}">Sin tecnico</span></div>
+                    <div class="operations-badge"><i class="feather-check-circle"></i><span th:text="${mantenimiento.estadoInterno ?: 'PENDIENTE'}">PENDIENTE</span></div>
+                </div>
+            </div>
+            <div class="surface-card insight-panel">
+                <div class="content-card-header mb-0">
+                    <div>
+                        <h2 class="content-card-title">Resumen de ejecucion</h2>
+                    </div>
+                </div>
+                <div class="insight-list">
+                    <div class="insight-item" th:with="total=${#lists.size(mantenimiento.actividades)}, realizadas=${#lists.size(mantenimiento.actividades.?[realizada == true])}">
+                        <i class="feather-check-square"></i>
+                        <div>
+                            <div class="signal-title">Checklist</div>
+                        </div>
+                        <div class="insight-value" th:text="${realizadas} + '/' + ${total}">0/0</div>
+                    </div>
+                    <div class="insight-item">
+                        <i class="feather-image"></i>
+                        <div>
+                            <div class="signal-title">Evidencias</div>
+                        </div>
+                        <div class="insight-value" th:text="${mantenimiento.imagenes != null ? #lists.size(mantenimiento.imagenes) : 0}">0</div>
+                    </div>
+                    <div class="insight-item">
+                        <i class="feather-edit-3"></i>
+                        <div>
+                            <div class="signal-title">Firmas</div>
+                        </div>
+                        <div class="insight-value" th:text="${(mantenimiento.firmaTecnico != null ? 1 : 0) + (mantenimiento.firmaCustodio != null ? 1 : 0)} + '/2'">0/2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<div class="view-heading">
-			<div>
-				<div class="eyebrow">Mantenimiento &gt; Vista detallada</div>
-				<h1 class="view-title" th:text="${'Orden #' + mantenimiento.idMantenimiento}">Orden #2026-0001</h1>
-				<div class="view-subtitle">
-					<span class="status-pill is-progress" th:text="${mantenimiento.tipoMantenimiento ?: 'PREVENTIVO'}">PREVENTIVO</span>
-					<span class="ms-3">Tecnico: <strong th:text="${mantenimiento.tecnicoNombre ?: '-'}">Tecnico</strong></span>
-				</div>
-				<div class="d-flex gap-2 mt-3">
-					<a class="btn btn-outline-secondary px-4 py-2" th:href="@{/mantenimiento}">Atras</a>
-					<a class="btn btn-light px-4 py-2" th:href="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/pdf'}" target="_blank">Ver PDF</a>
-					<form th:action="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/reenviar-correo'}" method="post">
-						<button type="submit" class="btn btn-outline-primary px-4 py-2">Reenviar correo</button>
-					</form>
-				</div>
-			</div>
-			<form th:action="@{'/mantenimiento/cerrar/' + ${mantenimiento.idMantenimiento}}" method="post">
-				<button type="submit" class="btn btn-primary px-4 py-3">Completar mantenimiento</button>
-			</form>
-		</div>
+        <div class="view-heading">
+            <div>
+                <div class="eyebrow">Mantenimiento &gt; Vista detallada</div>
+                <h1 class="view-title" th:text="${'Orden #' + mantenimiento.idMantenimiento}">Orden #2026-0001</h1>
+                <div class="view-subtitle">
+                    <span class="status-pill is-progress" th:text="${mantenimiento.tipoMantenimiento ?: 'PREVENTIVO'}">PREVENTIVO</span>
+                    <span class="ms-3">Tecnico: <strong th:text="${mantenimiento.tecnicoNombre ?: '-'}">Tecnico</strong></span>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <a class="btn btn-outline-secondary px-4 py-2" th:href="@{/mantenimiento}">Atras</a>
+                    <a class="btn btn-light px-4 py-2" th:href="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/pdf'}" target="_blank">Ver PDF</a>
+                    <form th:action="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/reenviar-correo'}" method="post">
+                        <button type="submit" class="btn btn-outline-primary px-4 py-2">Reenviar correo</button>
+                    </form>
+                </div>
+            </div>
+            <form th:action="@{'/mantenimiento/cerrar/' + ${mantenimiento.idMantenimiento}}" method="post">
+                <button type="submit" class="btn btn-primary px-4 py-3">Completar mantenimiento</button>
+            </form>
+        </div>
 
-		<div class="info-chip-row">
-			<div class="info-chip"><i class="feather-calendar"></i><span>Fecha <strong th:text="${mantenimiento.fechaMantenimiento ?: '-'}">-</strong></span></div>
-			<div class="info-chip"><i class="feather-user-check"></i><span>Custodio <strong th:text="${mantenimiento.custodioNombre ?: '-'}">-</strong></span></div>
-			<div class="info-chip"><i class="feather-file-text"></i><span>Observaciones <strong th:text="${mantenimiento.detalle != null and !#strings.isEmpty(mantenimiento.detalle) ? 'registradas' : 'pendientes'}">pendientes</strong></span></div>
-		</div>
+        <div class="info-chip-row">
+            <div class="info-chip"><i class="feather-calendar"></i><span>Fecha <strong th:text="${mantenimiento.fechaMantenimiento ?: '-'}">-</strong></span></div>
+            <div class="info-chip"><i class="feather-user-check"></i><span>Custodio <strong th:text="${mantenimiento.custodioNombre ?: '-'}">-</strong></span></div>
+            <div class="info-chip"><i class="feather-file-text"></i><span>Observaciones <strong th:text="${mantenimiento.detalle != null and !#strings.isEmpty(mantenimiento.detalle) ? 'registradas' : 'pendientes'}">pendientes</strong></span></div>
+        </div>
 
-		<div class="maintenance-layout">
-			<div>
-				<div class="maintenance-hero">
-					<div class="surface-card maintenance-id-card">
-						<div class="maintenance-product-shot">
-							<img th:if="${mantenimiento.imagenes != null and !#lists.isEmpty(mantenimiento.imagenes)}" th:src="@{'/' + ${mantenimiento.imagenes[0].rutaArchivo}}" alt="equipo">
-							<i th:unless="${mantenimiento.imagenes != null and !#lists.isEmpty(mantenimiento.imagenes)}" class="feather-printer" style="font-size:42px; color:#173774;"></i>
-						</div>
-						<div>
-							<div class="maintenance-id-label">Equipos de la orden</div>
-							<div th:if="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}">
-								<div th:each="eq : ${mantenimiento.equipos}" class="mb-2">
-									<div class="maintenance-id-title" th:text="${eq.descripcion ?: 'Equipo sin descripcion'}"></div>
-									<div class="maintenance-id-serial"># Serial: <strong th:text="${eq.codigoSap ?: '-'}"></strong></div>
-								</div>
-							</div>
-							<div th:unless="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}">
-								<div class="maintenance-id-title" th:text="${mantenimiento.equipoDescripcion ?: 'Equipo sin descripcion'}"></div>
-								<div class="maintenance-id-serial"># Serial: <strong th:text="${mantenimiento.equipoCodigoSap ?: '-'}"></strong></div>
-							</div>
-							<div class="maintenance-pill-row">
-								<span class="status-pill is-progress" th:text="${mantenimiento.estadoInterno ?: 'EN PROCESO'}">EN PROCESO</span>
-								<span class="status-pill is-active" th:text="${mantenimiento.tipoMantenimiento ?: 'PREVENTIVO'}">PREVENTIVO</span>
-								<span th:if="${mantenimiento.totalEquipos != null and mantenimiento.totalEquipos > 1}" class="status-pill"
-									th:text="${mantenimiento.totalEquipos + ' equipos'}"></span>
-							</div>
-						</div>
-						<div class="maintenance-assignee">
-							<div class="maintenance-id-label mb-3">Tecnico asignado</div>
-							<div class="maintenance-assignee-body">
-								<div class="maintenance-assignee-avatar">TC</div>
-								<div>
-									<div class="device-name" th:text="${mantenimiento.tecnicoNombre ?: '-'}"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="surface-card maintenance-progress-card">
-						<div class="maintenance-id-label">Progreso de la Orden</div>
-						<div th:with="total=${#lists.size(mantenimiento.actividades)}, realizadas=${#lists.size(mantenimiento.actividades.?[realizada == true])}, progreso=${total == 0 ? 0 : (realizadas * 100 / total)}">
-						<div class="maintenance-progress-value"
-							th:text="${progreso} + '%'">66%</div>
-						<div class="progress-rail mb-3"><div class="progress-fill" th:style="'width:' + ${progreso} + '%'"></div></div>
-						<div class="mb-4">
-							<span th:text="${realizadas}">0</span>
-							de
-							<span th:text="${total}">0</span>
-							tareas completadas
-						</div>
-						</div>
-						<form th:action="@{'/mantenimiento/cerrar/' + ${mantenimiento.idMantenimiento}}" method="post">
-							<button type="submit" class="btn btn-light w-100 py-3">Finalizar reporte</button>
-						</form>
-					</div>
-				</div>
+        <div class="maintenance-layout">
+            <div>
+                <div class="maintenance-hero">
+                    <div class="surface-card maintenance-id-card">
+                        <div class="maintenance-product-shot">
+                            <img th:if="${mantenimiento.imagenes != null and !#lists.isEmpty(mantenimiento.imagenes)}" th:src="@{'/' + ${mantenimiento.imagenes[0].rutaArchivo}}" alt="equipo">
+                            <i th:unless="${mantenimiento.imagenes != null and !#lists.isEmpty(mantenimiento.imagenes)}" class="feather-printer" style="font-size:42px; color:#173774;"></i>
+                        </div>
+                        <div>
+                            <div class="maintenance-id-label">Equipos de la orden</div>
+                            <div th:if="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}">
+                                <div th:each="equipo : ${mantenimiento.equipos}" class="mb-2">
+                                    <div class="maintenance-id-title" th:text="${equipo.descripcion ?: 'Equipo sin descripcion'}"></div>
+                                    <div class="maintenance-id-serial"># Serial: <strong th:text="${equipo.codigoSap ?: '-'}"></strong></div>
+                                </div>
+                            </div>
+                            <div th:unless="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}">
+                                <div class="maintenance-id-title" th:text="${mantenimiento.equipoDescripcion ?: 'Equipo sin descripcion'}"></div>
+                                <div class="maintenance-id-serial"># Serial: <strong th:text="${mantenimiento.equipoCodigoSap ?: '-'}"></strong></div>
+                            </div>
+                            <div class="maintenance-pill-row">
+                                <span class="status-pill is-progress" th:text="${mantenimiento.estadoInterno ?: 'EN PROCESO'}">EN PROCESO</span>
+                                <span class="status-pill is-active" th:text="${mantenimiento.tipoMantenimiento ?: 'PREVENTIVO'}">PREVENTIVO</span>
+                                <span th:if="${mantenimiento.totalEquipos != null and mantenimiento.totalEquipos > 1}" class="status-pill"
+                                    th:text="${mantenimiento.totalEquipos + ' equipos'}"></span>
+                            </div>
+                        </div>
+                        <div class="maintenance-assignee">
+                            <div class="maintenance-id-label mb-3">Tecnico asignado</div>
+                            <div class="maintenance-assignee-body">
+                                <div class="maintenance-assignee-avatar">TC</div>
+                                <div>
+                                    <div class="device-name" th:text="${mantenimiento.tecnicoNombre ?: '-'}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="surface-card maintenance-progress-card">
+                        <div class="maintenance-id-label">Progreso de la Orden</div>
+                        <div th:with="total=${#lists.size(mantenimiento.actividades)}, realizadas=${#lists.size(mantenimiento.actividades.?[realizada == true])}, progreso=${total == 0 ? 0 : (realizadas * 100 / total)}">
+                        <div class="maintenance-progress-value"
+                            th:text="${progreso} + '%'">66%</div>
+                        <div class="progress-rail mb-3"><div class="progress-fill" th:style="'width:' + ${progreso} + '%'"></div></div>
+                        <div class="mb-4">
+                            <span th:text="${realizadas}">0</span>
+                            de
+                            <span th:text="${total}">0</span>
+                            tareas completadas
+                        </div>
+                        </div>
+                        <form th:action="@{'/mantenimiento/cerrar/' + ${mantenimiento.idMantenimiento}}" method="post">
+                            <button type="submit" class="btn btn-light w-100 py-3">Finalizar reporte</button>
+                        </form>
+                    </div>
+                </div>
 
-				<div class="surface-card maintenance-board mt-4">
-					<div class="section-heading">
-						<h2 class="section-title">Checklist de Mantenimiento</h2>
-						<div class="device-meta" th:text="${mantenimiento.creadoEn != null ? 'Actualizado ' + #temporals.format(mantenimiento.creadoEn, 'dd/MM/yyyy HH:mm') : 'Actualizado hace unos momentos'}">Actualizado hace unos momentos</div>
-					</div>
-					<div class="checklist-list">
-						<div th:each="act : ${mantenimiento.actividades}" class="checklist-row" th:classappend="${act.realizada} ? '' : ' pending'">
-							<div class="checklist-icon">
-								<i th:class="${act.realizada} ? 'feather-check' : 'feather-refresh-cw'"></i>
-							</div>
-							<div>
-								<div class="checklist-name" th:text="${act.nombreActividad}"></div>
-								<div class="checklist-note" th:text="${act.categoriaActividad ?: 'Actividad operativa'}"></div>
-							</div>
-							<div class="status-pill" th:classappend="${act.realizada} ? ' is-completed' : ' is-pending'" th:text="${act.realizada} ? 'Completado' : 'Pendiente'"></div>
-							<div class="checklist-toggle"><i class="feather-check"></i></div>
-						</div>
-					</div>
-				</div>
+                <div class="surface-card maintenance-board mt-4">
+                    <div class="section-heading">
+                        <h2 class="section-title">Checklist de Mantenimiento</h2>
+                        <div class="device-meta" th:text="${mantenimiento.creadoEn != null ? 'Actualizado ' + #temporals.format(mantenimiento.creadoEn, 'dd/MM/yyyy HH:mm') : 'Actualizado hace unos momentos'}">Actualizado hace unos momentos</div>
+                    </div>
+                    <div class="checklist-list">
+                        <div th:each="act : ${mantenimiento.actividades}" class="checklist-row" th:classappend="${act.realizada} ? '' : ' pending'">
+                            <div class="checklist-icon">
+                                <i th:class="${act.realizada} ? 'feather-check' : 'feather-refresh-cw'"></i>
+                            </div>
+                            <div>
+                                <div class="checklist-name" th:text="${act.nombreActividad}"></div>
+                                <div class="checklist-note" th:text="${act.categoriaActividad ?: 'Actividad operativa'}"></div>
+                            </div>
+                            <div class="status-pill" th:classappend="${act.realizada} ? ' is-completed' : ' is-pending'" th:text="${act.realizada} ? 'Completado' : 'Pendiente'"></div>
+                            <div class="checklist-toggle"><i class="feather-check"></i></div>
+                        </div>
+                    </div>
+                </div>
 
-				<div class="surface-card maintenance-evidence-card mt-4">
-					<div class="section-heading">
-						<h2 class="section-title">Evidencia del Mantenimiento</h2>
-						<div class="link-action">Agregar foto</div>
-					</div>
-					<div class="evidence-grid">
-						<div class="evidence-tile" th:each="img : ${mantenimiento.imagenes}">
-							<img th:src="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/imagen/' + ${img.nombreArchivo}}" alt="evidencia">
-						</div>
-						<div class="status-empty" th:if="${mantenimiento.imagenes == null or #lists.isEmpty(mantenimiento.imagenes)}" style="grid-column:1/-1;">
-							<i class="feather-image"></i>
-							<div>No se han cargado evidencias para esta orden.</div>
-						</div>
-						<div class="evidence-tile evidence-upload">
-							<div>
-								<div class="mb-2"><i class="feather-camera" style="font-size:30px;"></i></div>
-								<div>Subir</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+                <div class="surface-card maintenance-evidence-card mt-4">
+                    <div class="section-heading">
+                        <h2 class="section-title">Evidencia del Mantenimiento</h2>
+                        <div class="link-action">Agregar foto</div>
+                    </div>
+                    <div class="evidence-grid">
+                        <div class="evidence-tile" th:each="img : ${mantenimiento.imagenes}">
+                            <img th:src="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/imagen/' + ${img.nombreArchivo}}" alt="evidencia">
+                        </div>
+                        <div class="status-empty" th:if="${mantenimiento.imagenes == null or #lists.isEmpty(mantenimiento.imagenes)}" style="grid-column:1/-1;">
+                            <i class="feather-image"></i>
+                            <div>No se han cargado evidencias para esta orden.</div>
+                        </div>
+                        <div class="evidence-tile evidence-upload">
+                            <div>
+                                <div class="mb-2"><i class="feather-camera" style="font-size:30px;"></i></div>
+                                <div>Subir</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-			<div>
-				<div class="surface-card maintenance-side-card">
-					<div class="section-title mb-4">Panel de Autorizaciones</div>
-					<div class="mb-4">
-						<div class="maintenance-id-label mb-3">Firma del Tecnico</div>
-						<div class="signature-shell">
-							<img th:if="${mantenimiento.firmaTecnico}" th:src="${mantenimiento.firmaTecnico}" alt="firma tecnico">
-							<div th:unless="${mantenimiento.firmaTecnico}">Pendiente de firma</div>
-						</div>
-					</div>
-					<div>
-						<div class="maintenance-id-label mb-3">Firma del Custodio</div>
-						<div class="signature-shell">
-							<img th:if="${mantenimiento.firmaCustodio}" th:src="${mantenimiento.firmaCustodio}" alt="firma custodio">
-							<div th:unless="${mantenimiento.firmaCustodio}">Pendiente de firma</div>
-						</div>
-					</div>
-				</div>
+            <div>
+                <div class="surface-card maintenance-side-card">
+                    <div class="section-title mb-4">Panel de Autorizaciones</div>
+                    <div class="mb-4">
+                        <div class="maintenance-id-label mb-3">Firma del Tecnico</div>
+                        <div class="signature-shell">
+                            <img th:if="${mantenimiento.firmaTecnico}" th:src="${mantenimiento.firmaTecnico}" alt="firma tecnico">
+                            <div th:unless="${mantenimiento.firmaTecnico}">Pendiente de firma</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="maintenance-id-label mb-3">Firma del Custodio</div>
+                        <div class="signature-shell">
+                            <img th:if="${mantenimiento.firmaCustodio}" th:src="${mantenimiento.firmaCustodio}" alt="firma custodio">
+                            <div th:unless="${mantenimiento.firmaCustodio}">Pendiente de firma</div>
+                        </div>
+                    </div>
+                </div>
 
-				<div class="surface-card notes-card mt-4">
-					<div class="section-title mb-4">Notas de Observacion</div>
-					<div class="notes-area" th:text="${mantenimiento.detalle ?: 'Sin observaciones registradas.'}"></div>
-				</div>
-			</div>
-		</div>
-	</div>
+                <div class="surface-card notes-card mt-4">
+                    <div class="section-title mb-4">Notas de Observacion</div>
+                    <div class="notes-area" th:text="${mantenimiento.detalle ?: 'Sin observaciones registradas.'}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

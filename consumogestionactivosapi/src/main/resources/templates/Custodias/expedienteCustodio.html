@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Expediente de custodio</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas" class="itam-page">
+    <div class="main-content">
+        <div class="itam-shell">
+            <div class="itam-hero">
+                <div>
+                    <p class="itam-eyebrow">Custodias</p>
+                    <h1 class="itam-title" th:text="${custodio.nombre}">Custodio</h1>
+                    <p class="itam-subtitle">
+                        <span th:text="${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : 'Sin departamento'}">TI</span>
+                        <span> &middot; </span>
+                        <span th:text="${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : 'Sin ubicacion'}">Loja</span>
+                        <span> &middot; </span>
+                        <span th:text="${custodio.correo != null ? custodio.correo : 'Sin correo'}">correo</span>
+                    </p>
+                </div>
+                <div class="itam-actions">
+                    <a th:href="@{/custodias}" class="itam-btn">
+                        <i class="feather-arrow-left"></i>
+                        <span>Custodias</span>
+                    </a>
+                    <a th:href="@{/custodias/nueva-custodia}" class="itam-btn primary">
+                        <i class="feather-plus"></i>
+                        <span>Nueva asignacion</span>
+                    </a>
+                </div>
+            </div>
+
+            <section class="itam-kpi-grid">
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon success"><i class="feather-user-check"></i></div>
+                    <p class="itam-kpi-value" th:text="${custodio.estado ? 'Activo' : 'Inactivo'}">Activo</p>
+                    <p class="itam-kpi-label">Estado colaborador</p>
+                    <div class="itam-kpi-note" th:text="${custodio.cedula != null ? 'CI: ' + custodio.cedula : 'Sin cedula'}">CI</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon"><i class="feather-monitor"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(custodiasActivas)}">0</p>
+                    <p class="itam-kpi-label">Activos vigentes</p>
+                    <div class="itam-kpi-note">Custodia activa</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon warning"><i class="feather-archive"></i></div>
+                    <p class="itam-kpi-value" th:text="${consumiblesEntregados}">0</p>
+                    <p class="itam-kpi-label">Consumibles</p>
+                    <div class="itam-kpi-note">En movimientos recientes</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon neutral"><i class="feather-clipboard"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(custodias)}">0</p>
+                    <p class="itam-kpi-label">Actas</p>
+                    <div class="itam-kpi-note">Historial completo</div>
+                </article>
+                <article class="itam-kpi">
+                    <div class="itam-kpi-icon danger"><i class="feather-clock"></i></div>
+                    <p class="itam-kpi-value" th:text="${#lists.size(movimientos)}">0</p>
+                    <p class="itam-kpi-label">Eventos</p>
+                    <div class="itam-kpi-note">Timeline reciente</div>
+                </article>
+            </section>
+
+            <div class="itam-grid-2">
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Activos asignados</h2>
+                        <span class="itam-badge success" th:text="${#lists.size(custodiasActivas) + ' vigentes'}">0 vigentes</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div class="itam-list" th:if="${!#lists.isEmpty(custodiasActivas)}">
+                            <div class="itam-list-item" th:each="c : ${custodiasActivas}">
+                                <span class="itam-dot success"></span>
+                                <div>
+                                    <p class="itam-item-title" th:text="${c.fkEquipo != null and c.fkEquipo.codigoSap != null ? c.fkEquipo.codigoSap : 'Activo'}">CR-LAP-0001</p>
+                                    <p class="itam-item-meta">
+                                        <span th:text="${c.fkEquipo != null and c.fkEquipo.fkCategoria != null ? c.fkEquipo.fkCategoria.nombre : 'Equipo'}">Categoria</span>
+                                        <span> &middot; </span>
+                                        <span th:text="${c.fkEquipo != null and c.fkEquipo.modelo != null ? c.fkEquipo.modelo : 'Sin modelo'}">Modelo</span>
+                                    </p>
+                                </div>
+                                <a th:if="${c.fkEquipo != null}" th:href="@{/activos/equipos/{id}/expediente(id=${c.fkEquipo.idEquipo})}" class="itam-btn">
+                                    <i class="feather-eye"></i>
+                                    <span>Ver</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="itam-empty" th:if="${#lists.isEmpty(custodiasActivas)}">Sin activos vigentes asignados.</div>
+                    </div>
+                </section>
+
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Datos del colaborador</h2>
+                        <span class="itam-badge" th:classappend="${custodio.estado ? ' success' : ' danger'}" th:text="${custodio.estado ? 'Activo' : 'Inactivo'}">Activo</span>
+                    </div>
+                    <div class="itam-panel-body">
+                        <div class="itam-asset-facts">
+                            <div class="itam-asset-fact"><span>Cedula</span><strong th:text="${custodio.cedula ?: '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Correo</span><strong th:text="${custodio.correo ?: '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Telefono</span><strong th:text="${custodio.telefono ?: '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Cargo</span><strong th:text="${custodio.fkCargo != null ? custodio.fkCargo.nombre : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Departamento</span><strong th:text="${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Ubicacion</span><strong th:text="${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : '-'}">-</strong></div>
+                            <div class="itam-asset-fact"><span>Ingreso</span><strong th:text="${custodio.fechaIngreso != null ? #temporals.format(custodio.fechaIngreso, 'dd/MM/yyyy') : '-'}">-</strong></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="itam-panel">
+                <div class="itam-panel-head">
+                    <h2 class="itam-panel-title">Expediente</h2>
+                    <span class="itam-badge neutral">Auditoria</span>
+                </div>
+                <div class="itam-panel-body">
+                    <ul class="nav nav-pills mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-timeline-custodio" type="button" role="tab">Timeline</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-actas-custodio" type="button" role="tab">Actas</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-consumibles-custodio" type="button" role="tab">Consumibles</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tab-timeline-custodio" role="tabpanel">
+                            <div class="itam-list" th:if="${!#lists.isEmpty(movimientos)}">
+                                <div class="itam-list-item align-items-start" th:each="m : ${movimientos}">
+                                    <span class="itam-dot" th:classappend="${m.tipoMovimiento == 'BAJA' ? ' danger' : (m.tipoMovimiento == 'TRASLADO' ? ' warning' : ' success')}"></span>
+                                    <div>
+                                        <p class="itam-item-title" th:text="${m.tipoMovimiento}">Movimiento</p>
+                                        <p class="itam-item-meta">
+                                            <span th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">Fecha</span>
+                                            <span> &middot; </span>
+                                            <span th:text="${m.equipoCodigo ?: (m.consumibleNombre ?: 'Inventario')}">Entidad</span>
+                                        </p>
+                                        <p class="itam-item-meta mb-0" th:if="${m.observacion != null}" th:text="${m.observacion}">Observacion</p>
+                                    </div>
+                                    <span class="itam-badge neutral" th:if="${m.cantidad != null}" th:text="${'x' + m.cantidad}">x1</span>
+                                </div>
+                            </div>
+                            <div class="itam-empty" th:if="${#lists.isEmpty(movimientos)}">Sin movimientos recientes para este custodio.</div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-actas-custodio" role="tabpanel">
+                            <div class="itam-list" th:if="${!#lists.isEmpty(custodias)}">
+                                <div class="itam-list-item align-items-start" th:each="c : ${custodias}">
+                                    <span class="itam-dot" th:classappend="${c.estado ? ' success' : ' neutral'}"></span>
+                                    <div>
+                                        <p class="itam-item-title" th:text="${c.fkEquipo != null ? (c.fkEquipo.codigoSap ?: 'Activo') : 'Acta'}">Acta</p>
+                                        <p class="itam-item-meta">
+                                            <span th:text="${c.fechaInicio != null ? #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : 'Sin inicio'}">Inicio</span>
+                                            <span> -> </span>
+                                            <span th:text="${c.fechaFin != null ? #temporals.format(c.fechaFin, 'dd/MM/yyyy') : 'Vigente'}">Fin</span>
+                                            <span> &middot; </span>
+                                            <span th:text="${c.tipoMovimiento ?: 'Custodia'}">Tipo</span>
+                                        </p>
+                                        <p class="itam-item-meta mb-0" th:text="${c.rutaActaFirmada != null ? 'Acta firmada disponible' : 'Acta pendiente o no registrada'}">Acta</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="itam-empty" th:if="${#lists.isEmpty(custodias)}">Sin actas registradas para este custodio.</div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-consumibles-custodio" role="tabpanel">
+                            <div class="itam-list" th:if="${!#lists.isEmpty(movimientos.?[consumibleId != null])}">
+                                <div class="itam-list-item" th:each="m : ${movimientos}" th:if="${m.consumibleId != null}">
+                                    <span class="itam-dot warning"></span>
+                                    <div>
+                                        <p class="itam-item-title" th:text="${m.consumibleNombre ?: 'Consumible'}">Consumible</p>
+                                        <p class="itam-item-meta">
+                                            <span th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">Fecha</span>
+                                            <span> &middot; </span>
+                                            <span th:text="${m.tipoMovimiento}">Movimiento</span>
+                                        </p>
+                                    </div>
+                                    <span class="itam-badge warning" th:text="${m.cantidad != null ? 'x' + m.cantidad : 'x1'}">x1</span>
+                                </div>
+                            </div>
+                            <div class="itam-empty" th:if="${#lists.isEmpty(movimientos.?[consumibleId != null])}">Sin consumibles en movimientos recientes.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+</body>
+</html>

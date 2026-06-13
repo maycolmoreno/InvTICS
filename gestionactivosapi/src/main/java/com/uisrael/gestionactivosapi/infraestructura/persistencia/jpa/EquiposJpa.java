@@ -41,6 +41,9 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @Column(name = "codigo_sap", length = 20)
     private String codigoSap;
 
+    @Column(name = "codigo_cresio", length = 20, unique = true)
+    private String codigoCresio;
+
     @Column(length = 100)
     private String modelo;
 
@@ -71,6 +74,9 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @Column(name = "estado_equipo", length = 50)
     private String estadoEquipo;
 
+    @Column(name = "estado_inventario", length = 50)
+    private String estadoInventario;
+
     @Column(name = "observacion_equipo", columnDefinition = "TEXT")
     private String observacionEquipo;
 
@@ -92,5 +98,19 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
     private CategoriaEquiposJpa fkCategoria;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_bodega_actual")
+    private BodegaJpa bodegaActual;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_orden_compra")
+    private OrdenCompraJpa ordenCompra;
+
+    @Column(name = "fecha_garantia")
+    private LocalDate fechaGarantia;
+
+    @Column(name = "etiquetado")
+    private Boolean etiquetado;
 
 }

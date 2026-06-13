@@ -46,7 +46,9 @@ import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequestMapping("/mantenimiento")
 @RequiredArgsConstructor
@@ -83,6 +85,18 @@ public class MantenimientoControlador {
         model.addAttribute("listacustodios", custodiosServicio.listarCustodios());
         model.addAttribute("listaubicaciones", ubicacionesServicio.listarUbicaciones());
         return "mantenimiento/lista-mantenimientos";
+    }
+
+    @GetMapping("/kanban")
+    public String kanban(Model model) {
+        List<MantenimientoManualResponseDTO> mantenimientos = mantenimientoManualServicio.listarTodos();
+        model.addAttribute("pendientes", filtrarPorEstadoKanban(mantenimientos, "PENDIENTE"));
+        model.addAttribute("enProceso", filtrarPorEstadoKanban(mantenimientos, "EN_PROCESO"));
+        model.addAttribute("esperandoRepuesto", filtrarPorEstadoKanban(mantenimientos, "ESPERANDO_REPUESTO"));
+        model.addAttribute("finalizados", filtrarPorEstadoKanban(mantenimientos, "FINALIZADO"));
+        model.addAttribute("totalMantenimientos", mantenimientos.size());
+        model.addAttribute("mantenimientos", mantenimientos);
+        return "mantenimiento/kanban";
     }
 
     @GetMapping("/nuevo")
@@ -195,7 +209,23 @@ public class MantenimientoControlador {
 
     @GetMapping("/{id}")
     public String detalle(@PathVariable Integer id, Model model) {
-        model.addAttribute("mantenimiento", mantenimientoManualServicio.obtenerDetalle(id));
+        try {
+            var dto = mantenimientoManualServicio.obtenerDetalle(id);
+            // Asegurar listas no-null para evitar NPE en Thymeleaf
+            if (dto.getActividades() == null) {
+                dto.setActividades(new java.util.ArrayList<>());
+            }
+            if (dto.getImagenes() == null) {
+                dto.setImagenes(new java.util.ArrayList<>());
+            }
+            if (dto.getEquipos() == null) {
+                dto.setEquipos(new java.util.ArrayList<>());
+            }
+            model.addAttribute("mantenimiento", dto);
+        } catch (Exception e) {
+            log.error("Error al cargar detalle mantenimiento {}: {}", id, e.getMessage());
+            return "redirect:/mantenimiento";
+        }
         return "mantenimiento/detalle-mantenimiento";
     }
 
@@ -289,6 +319,36 @@ public class MantenimientoControlador {
         mantenimientoProgramadoServicio.desactivar(idProgramado);
         redirectAttributes.addFlashAttribute("exito", "Programacion desactivada correctamente");
         return "redirect:/mantenimiento/programado";
+    }
+
+    private List<MantenimientoManualResponseDTO> filtrarPorEstadoKanban(
+            List<MantenimientoManualResponseDTO> mantenimientos, String columna) {
+        return mantenimientos.stream()
+                .filter(m -> columna.equals(clasificarEstadoKanban(m)))
+                .toList();
+    }
+
+    private String clasificarEstadoKanban(MantenimientoManualResponseDTO mantenimiento) {
+        String estado = normalizarEstado(mantenimiento.getEstadoInterno() + " " + mantenimiento.getEstadoGeneral());
+        if (estado.contains("FINAL") || estado.contains("CERR") || Boolean.FALSE.equals(mantenimiento.getEstado())) {
+            return "FINALIZADO";
+        }
+        if (estado.contains("REPUEST") || estado.contains("ESPER")) {
+            return "ESPERANDO_REPUESTO";
+        }
+        if (estado.contains("PROCES") || estado.contains("EJEC") || estado.contains("CURSO")) {
+            return "EN_PROCESO";
+        }
+        return "PENDIENTE";
+    }
+
+    private String normalizarEstado(String value) {
+        return Objects.toString(value, "").trim().toUpperCase()
+                .replace("Á", "A")
+                .replace("É", "E")
+                .replace("Í", "I")
+                .replace("Ó", "O")
+                .replace("Ú", "U");
     }
 
     private List<ActividadManualRequestDTO> actividadesBase() {

@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, system-ui); background: transparent; color: var(--color-text-primary); padding: 1rem 0; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { font-size: 12px; padding: 6px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+.tab.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+
+.section { display: none; }
+.section.active { display: block; }
+
+.sec-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; margin-bottom: 10px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 10px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 10px; }
+
+table.t { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.t th { text-align: left; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); padding: 6px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+table.t td { padding: 9px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; line-height: 1.45; }
+table.t tr:last-child td { border-bottom: none; }
+
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: var(--border-radius-md); }
+.num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+
+.flow { display: flex; flex-direction: column; gap: 0; }
+.flow-step { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.flow-step:last-child { border-bottom: none; }
+.flow-line { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.flow-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+.flow-connector { width: 2px; flex: 1; min-height: 16px; background: var(--color-border-tertiary); margin: 2px 0; }
+.flow-content { flex: 1; padding-top: 4px; }
+.flow-action { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+.flow-detail { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.flow-role { font-size: 11px; display: inline-block; padding: 2px 8px; border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-secondary); margin-top: 5px; }
+
+.alert { border-radius: var(--border-radius-md); padding: 10px 14px; font-size: 12px; margin-bottom: 10px; }
+.alert-warn { background: #FFF8E6; color: #7A4E00; border: 0.5px solid #F0D080; }
+.alert-info { background: #E8F3FF; color: #0C447C; border: 0.5px solid #B0D0F0; }
+.alert-ok { background: #EAF5E6; color: #1A5C1A; border: 0.5px solid #A0D4A0; }
+
+.bodega-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.bodega-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; text-align: center; }
+.bodega-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.bodega-label { font-size: 11px; color: var(--color-text-secondary); }
+
+.estado { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.e-bodega { background: #E6F1FB; color: #0C447C; }
+.e-asignado { background: #EAF3DE; color: #27500A; }
+.e-reparacion { background: #FAEEDA; color: #633806; }
+.e-baja { background: #FCEBEB; color: #791F1F; }
+.e-transito { background: #EEEDFE; color: #3C3489; }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('compra')">1 · Compra</div>
+  <div class="tab" onclick="showTab('ingreso')">2 · Ingreso a bodega</div>
+  <div class="tab" onclick="showTab('asignacion')">3 · Asignación</div>
+  <div class="tab" onclick="showTab('desvinculacion')">4 · Desvinculación</div>
+  <div class="tab" onclick="showTab('estados')">Estados del activo</div>
+  <div class="tab" onclick="showTab('nomenclatura')">Nomenclatura</div>
+</div>
+
+<!-- TAB 1: COMPRA -->
+<div id="tab-compra" class="section active">
+  <p class="sec-title">Flujo 1 — Compra de activos y consumibles</p>
+  <div class="alert alert-info">La compra puede originarse de forma central (TI coordina para varias bodegas) o local (bodega específica solicita directamente). En ambos casos el número de OC es el documento trazador.</div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#E6F1FB;color:#0C447C;">1</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Identificación de necesidad</p>
+        <p class="flow-detail">El custodio de bodega o el coordinador TI detecta la necesidad (stock bajo, equipo nuevo, reposición). Se especifica: tipo de ítem, cantidad, bodega destino.</p>
+        <span class="flow-role">Custodio de bodega / Coordinador TI</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#E6F1FB;color:#0C447C;">2</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Emisión de Orden de Compra (OC)</p>
+        <p class="flow-detail">Se genera la OC con número único. Debe incluir: N° OC, proveedor, ítems solicitados, cantidades, bodega(s) destino y fecha de emisión.</p>
+        <span class="flow-role">Área de compras / Coordinador TI</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#E6F1FB;color:#0C447C;">3</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Recepción física del proveedor</p>
+        <p class="flow-detail">El custodio de la bodega destino verifica que lo recibido coincide con la OC: ítem, cantidad, estado físico. Si hay diferencias se registra una novedad en la OC.</p>
+        <span class="flow-role">Custodio de bodega</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#E6F1FB;color:#0C447C;">4</div></div>
+      <div class="flow-content">
+        <p class="flow-action">Vinculación OC → ítems en sistema</p>
+        <p class="flow-detail">Cada ítem recibido se registra en el sistema asociado al número de OC. Los activos de información generan código CR-XXX-NNNN automáticamente. Los consumibles suman al stock de la bodega.</p>
+        <span class="flow-role">Custodio de bodega / Técnico</span>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px;">
+    <p style="font-size:13px;font-weight:500;margin-bottom:10px;">Datos que debe contener la OC en el sistema</p>
+    <table class="t">
+      <tr><th>Campo</th><th>Detalle</th></tr>
+      <tr><td>N° Orden de Compra</td><td>Identificador único — campo trazador principal</td></tr>
+      <tr><td>Proveedor</td><td>Nombre / RUC</td></tr>
+      <tr><td>Fecha de emisión</td><td>dd/mm/aaaa</td></tr>
+      <tr><td>Bodega(s) destino</td><td>Machala / Loja / Cuenca / Portoviejo / …</td></tr>
+      <tr><td>Ítems y cantidades</td><td>Tipo, cantidad solicitada, cantidad recibida</td></tr>
+      <tr><td>Novedad en recepción</td><td>Faltantes, daños o diferencias (puede quedar vacío)</td></tr>
+      <tr><td>Custodio que recibió</td><td>Nombre + firma (o confirmación digital)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 2: INGRESO A BODEGA -->
+<div id="tab-ingreso" class="section">
+  <p class="sec-title">Flujo 2 — Ingreso y registro en bodega</p>
+  <div class="bodega-grid">
+    <div class="bodega-card"><p class="bodega-name">🏭 Bodega Machala</p><p class="bodega-label">Custodio asignado</p></div>
+    <div class="bodega-card"><p class="bodega-name">🏭 Bodega Loja</p><p class="bodega-label">Custodio asignado</p></div>
+    <div class="bodega-card"><p class="bodega-name">🏭 Bodega Cuenca</p><p class="bodega-label">Custodio asignado</p></div>
+    <div class="bodega-card"><p class="bodega-name">🏭 Bodega Portoviejo</p><p class="bodega-label">Custodio asignado</p></div>
+  </div>
+  <div class="alert alert-warn">Cada bodega tiene un custodio responsable. Los activos y consumibles solo existen en el sistema si están vinculados a una bodega específica.</div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EAF3DE;color:#27500A;">1</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Verificar OC en el sistema</p>
+        <p class="flow-detail">El custodio busca la OC correspondiente. El sistema muestra los ítems esperados para esa bodega.</p>
+        <span class="flow-role">Custodio de bodega</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EAF3DE;color:#27500A;">2</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Registro de activos de información</p>
+        <p class="flow-detail">Por cada equipo: ingresar marca, modelo, número de serie, fecha de compra, vencimiento de garantía. El sistema genera el código <strong>CR-XXX-NNNN</strong> y lo asocia a la OC.</p>
+        <span class="flow-role">Custodio / Técnico</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EAF3DE;color:#27500A;">3</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Etiquetado físico del equipo</p>
+        <p class="flow-detail">Se imprime o escribe la etiqueta con el código CR generado y se adhiere al equipo físicamente. Sin etiqueta, el activo no puede salir de bodega.</p>
+        <span class="flow-role">Custodio de bodega</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EAF3DE;color:#27500A;">4</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Registro de consumibles</p>
+        <p class="flow-detail">Mouse, teclados, cables y similares: ingresar tipo, cantidad recibida. Se suman al stock de la bodega. No generan código individual.</p>
+        <span class="flow-role">Custodio de bodega</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EAF3DE;color:#27500A;">5</div></div>
+      <div class="flow-content">
+        <p class="flow-action">Confirmación de ingreso</p>
+        <p class="flow-detail">El custodio cierra el ingreso en el sistema. Estado de los activos queda como <span class="estado e-bodega">En bodega</span>. La OC queda marcada como recibida.</p>
+        <span class="flow-role">Custodio de bodega</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: ASIGNACIÓN -->
+<div id="tab-asignacion" class="section">
+  <p class="sec-title">Flujo 3 — Asignación a colaborador</p>
+  <div class="alert alert-info">Los datos del colaborador (nombre, cargo, sucursal, zona) vienen precargados desde la integración con RRHH/nómina. No se ingresan manualmente.</div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EEEDFE;color:#3C3489;">1</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Seleccionar colaborador receptor</p>
+        <p class="flow-detail">Buscar por nombre, cédula o sucursal. El sistema muestra nombre, cargo, sucursal y zona del colaborador desde nómina.</p>
+        <span class="flow-role">Cualquiera con acceso</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EEEDFE;color:#3C3489;">2</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Seleccionar activo(s) a asignar</p>
+        <p class="flow-detail">Buscar por código CR-XXX-NNNN o por tipo. Solo aparecen activos con estado <span class="estado e-bodega">En bodega</span>. Se puede asignar más de un activo al mismo colaborador.</p>
+        <span class="flow-role">Cualquiera con acceso</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EEEDFE;color:#3C3489;">3</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Asignar consumibles si aplica</p>
+        <p class="flow-detail">Seleccionar tipo y cantidad de consumibles entregados (ej: 1 mouse, 1 teclado). Se descuenta del stock de la bodega y queda registrado a nombre del colaborador.</p>
+        <span class="flow-role">Cualquiera con acceso</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EEEDFE;color:#3C3489;">4</div><div class="flow-connector"></div></div>
+      <div class="flow-content">
+        <p class="flow-action">Registrar estado físico al momento de entrega</p>
+        <p class="flow-detail">Consignar estado del equipo: Nuevo / Bueno / Regular. Queda en el historial del activo como estado de salida de bodega.</p>
+        <span class="flow-role">Quien entrega físicamente</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-line"><div class="flow-dot" style="background:#EEEDFE;color:#3C3489;">5</div></div>
+      <div class="flow-content">
+        <p class="flow-action">Confirmar asignación</p>
+        <p class="flow-detail">El sistema registra: activo, colaborador, fecha, quien realizó la asignación y bodega de origen. Estado del activo cambia a <span class="estado e-asignado">Asignado</span>. Queda trazabilidad completa.</p>
+        <span class="flow-role">Sistema automático</span>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:4px;">
+    <p style="font-size:13px;font-weight:500;margin-bottom:8px;">Registro de asignación — datos que quedan en el historial</p>
+    <table class="t">
+      <tr><th>Campo</th><th>Valor</th></tr>
+      <tr><td>Código activo</td><td>CR-LAP-0012</td></tr>
+      <tr><td>Colaborador</td><td>Nombre + cargo + sucursal (desde RRHH)</td></tr>
+      <tr><td>Bodega de origen</td><td>Cuenca / Machala / Loja / Portoviejo</td></tr>
+      <tr><td>Fecha de asignación</td><td>dd/mm/aaaa</td></tr>
+      <tr><td>Estado físico al entregar</td><td>Nuevo / Bueno / Regular</td></tr>
+      <tr><td>Consumibles entregados</td><td>1 mouse, 1 teclado (o vacío)</td></tr>
+      <tr><td>Registrado por</td><td>Usuario del sistema que confirmó</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 4: DESVINCULACIÓN -->
+<div id="tab-desvinculacion" class="section">
+  <p class="sec-title">Flujo 4 — Desvinculación de activo</p>
+  <div class="grid2">
+    <div>
+      <div class="alert alert-warn">
+        <strong>Motivo A — Colaborador desvinculado o renuncia</strong><br>
+        RRHH notifica a TI antes o durante el proceso de salida. Se debe recuperar el equipo antes de procesar la liquidación.
+      </div>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="background:#FAEEDA;color:#633806;">1</div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <p class="flow-action">Notificación desde RRHH</p>
+            <p class="flow-detail">RRHH comunica la desvinculación. El sistema muestra todos los activos asignados a ese colaborador.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="background:#FAEEDA;color:#633806;">2</div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <p class="flow-action">Recuperación física del equipo</p>
+            <p class="flow-detail">El técnico o custodio de zona recupera el equipo. Verifica estado físico al momento de la devolución.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="background:#FAEEDA;color:#633806;">3</div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <p class="flow-action">Registro de devolución en sistema</p>
+            <p class="flow-detail">Se cierra la asignación: fecha de devolución, estado físico al retorno, quien recibió. Se registra también la devolución de consumibles si aplica.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="background:#FAEEDA;color:#633806;">4</div></div>
+          <div class="flow-content">
+            <p class="flow-action">Destino del equipo</p>
+            <p class="flow-detail">Según estado: <span class="estado e-bodega">En bodega</span> si está en buen estado · <span class="estado e-reparacion">En reparación</span> si necesita revisión técnica.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="alert" style="background:#FCEBEB;color:#791F1F;border:0.5px solid #F0A0A0;">
+        <strong>Motivo B — Baja o envío a reparación</strong><br>
+        El equipo deja de estar operativo o sufre daño. Se desvincula del colaborador y cambia de estado.
+      </div>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="background:#FCEBEB;color:#791F1F;">1</div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <p class="flow-action">Identificar el activo por código CR</p>
+            <p class="flow-detail">Buscar por CR-XXX-NNNN. El sistema muestra asignación activa si existe.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="background:#FCEBEB;color:#791F1F;">2</div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <p class="flow-action">Registrar motivo de desvinculación</p>
+            <p class="flow-detail"><strong>Baja:</strong> destrucción, obsolescencia, robo/pérdida, donación.<br><strong>Reparación:</strong> falla técnica, daño físico.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="background:#FCEBEB;color:#791F1F;">3</div><div class="flow-connector"></div></div>
+          <div class="flow-content">
+            <p class="flow-action">Cambio de estado</p>
+            <p class="flow-detail"><span class="estado e-baja">Dado de baja</span> — permanece en el sistema para auditoría, nunca se elimina.<br><span class="estado e-reparacion">En reparación</span> — puede reasignarse al volver.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot" style="background:#FCEBEB;color:#791F1F;">4</div></div>
+          <div class="flow-content">
+            <p class="flow-action">Retorno de reparación (si aplica)</p>
+            <p class="flow-detail">Al regresar, se registra estado físico post-reparación. El equipo vuelve a estado <span class="estado e-bodega">En bodega</span> listo para reasignación.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 5: ESTADOS -->
+<div id="tab-estados" class="section">
+  <p class="sec-title">Estados del ciclo de vida del activo</p>
+  <div class="card" style="margin-bottom:10px;">
+    <table class="t">
+      <tr><th>Estado</th><th>Descripción</th><th>¿Quién lo genera?</th><th>¿Puede asignarse?</th></tr>
+      <tr><td><span class="estado e-bodega">En bodega</span></td><td>Recibido, etiquetado, disponible</td><td>Custodio al ingresar</td><td>✅ Sí</td></tr>
+      <tr><td><span class="estado e-asignado">Asignado</span></td><td>En poder de un colaborador activo</td><td>Sistema al confirmar asignación</td><td>❌ No</td></tr>
+      <tr><td><span class="estado e-reparacion">En reparación</span></td><td>Enviado a servicio técnico</td><td>Quien registra la desvinculación</td><td>❌ No</td></tr>
+      <tr><td><span class="estado e-transito">En tránsito</span></td><td>Moviéndose entre bodegas</td><td>Custodio que despacha</td><td>❌ No</td></tr>
+      <tr><td><span class="estado e-baja">Dado de baja</span></td><td>Retirado definitivamente del servicio</td><td>Coordinador TI</td><td>❌ No</td></tr>
+    </table>
+  </div>
+  <div class="alert alert-ok">Un activo <strong>nunca se elimina</strong> del sistema. El estado "Dado de baja" conserva toda la trazabilidad histórica para auditoría.</div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin-bottom:10px;">Historial mínimo por activo (trazabilidad completa)</p>
+    <table class="t">
+      <tr><th>Evento</th><th>Datos registrados</th></tr>
+      <tr><td>Ingreso</td><td>OC, proveedor, bodega, custodio, fecha, estado físico inicial</td></tr>
+      <tr><td>Asignación</td><td>Colaborador, cargo, sucursal, fecha, estado físico, quien asignó</td></tr>
+      <tr><td>Devolución</td><td>Fecha, estado físico al retorno, motivo, quien recibió</td></tr>
+      <tr><td>Reparación</td><td>Motivo, fecha envío, fecha retorno, proveedor técnico</td></tr>
+      <tr><td>Baja</td><td>Motivo, fecha, autorizado por</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 6: NOMENCLATURA -->
+<div id="tab-nomenclatura" class="section">
+  <p class="sec-title">Nomenclatura de activos de información</p>
+  <div class="card" style="margin-bottom:10px;text-align:center;">
+    <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;">Estructura del código</p>
+    <p style="font-size:24px;font-weight:600;font-family:var(--font-mono);letter-spacing:3px;">CR — [TIPO] — [NNNN]</p>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin-top:8px;">Prefijo empresa · Categoría de equipo · Secuencial global de 4 dígitos</p>
+  </div>
+  <div class="alert alert-warn">El secuencial es único por tipo en toda la empresa. No reinicia por bodega, zona ni año. CR-LAP-0047 existe una sola vez en CRESIO.</div>
+  <div class="grid3">
+    <div class="card" style="text-align:center;"><p style="font-size:11px;color:var(--color-text-secondary);">Laptop</p><p style="font-size:16px;font-family:var(--font-mono);font-weight:600;">CR-LAP-0001</p></div>
+    <div class="card" style="text-align:center;"><p style="font-size:11px;color:var(--color-text-secondary);">Desktop</p><p style="font-size:16px;font-family:var(--font-mono);font-weight:600;">CR-DSK-0001</p></div>
+    <div class="card" style="text-align:center;"><p style="font-size:11px;color:var(--color-text-secondary);">Impresora</p><p style="font-size:16px;font-family:var(--font-mono);font-weight:600;">CR-IMP-0001</p></div>
+    <div class="card" style="text-align:center;"><p style="font-size:11px;color:var(--color-text-secondary);">Servidor</p><p style="font-size:16px;font-family:var(--font-mono);font-weight:600;">CR-SRV-0001</p></div>
+    <div class="card" style="text-align:center;"><p style="font-size:11px;color:var(--color-text-secondary);">Red (switch/router)</p><p style="font-size:16px;font-family:var(--font-mono);font-weight:600;">CR-NET-0001</p></div>
+    <div class="card" style="text-align:center;"><p style="font-size:11px;color:var(--color-text-secondary);">Tablet</p><p style="font-size:16px;font-family:var(--font-mono);font-weight:600;">CR-TAB-0001</p></div>
+    <div class="card" style="text-align:center;"><p style="font-size:11px;color:var(--color-text-secondary);">UPS</p><p style="font-size:16px;font-family:var(--font-mono);font-weight:600;">CR-UPS-0001</p></div>
+    <div class="card" style="text-align:center;"><p style="font-size:11px;color:var(--color-text-secondary);">Teléfono IP</p><p style="font-size:16px;font-family:var(--font-mono);font-weight:600;">CR-TEL-0001</p></div>
+    <div class="card" style="text-align:center;"><p style="font-size:11px;color:var(--color-text-secondary);">Cámara / CCTV</p><p style="font-size:16px;font-family:var(--font-mono);font-weight:600;">CR-CAM-0001</p></div>
+  </div>
+  <div class="card" style="margin-top:4px;">
+    <p style="font-size:13px;font-weight:500;margin-bottom:8px;">Consumibles — sin código individual, control por stock</p>
+    <table class="t">
+      <tr><th>Tipo</th><th>Control</th></tr>
+      <tr><td>Mouse, teclado, auriculares</td><td>Cantidad en bodega + registro de a quién se entregó</td></tr>
+      <tr><td>Cables, adaptadores</td><td>Stock por bodega únicamente</td></tr>
+      <tr><td>Cartuchos / tóner</td><td>Stock por bodega + asociado al activo CR-IMP que lo usa</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

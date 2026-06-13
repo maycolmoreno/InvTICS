@@ -1,21 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantilla-auth}">
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Configuracion Inicial - Cresio</title>
-    <link rel="icon" type="image/png" th:href="@{/assets/images/logo/logoCRESIO.png}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/bootstrap.min.css}">
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme.min.css}">
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/vendors.min.css}">
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/cresio-auth.css}">
+    <title>Configuracion Inicial</title>
 </head>
 <body>
-    <div class="auth-container">
+    <div layout:fragment="contenidoauth" class="auth-container">
         <div class="auth-card login-card login-card-pro">
             <div class="auth-showcase">
                 <div class="auth-brand auth-brand-left">
@@ -92,9 +83,7 @@
         </div>
     </div>
 
-    <script th:src="@{/assets/vendors/js/vendors.min.js}"></script>
-    <script th:src="@{/assets/js/common-init.min.js}"></script>
-    <script>
+    <script layout:fragment="scripts">
         function validarCedulaEcuatoriana(cedula) {
             if (!cedula || !/^\d{10}$/.test(cedula)) return false;
             var provincia = parseInt(cedula.substring(0, 2));
