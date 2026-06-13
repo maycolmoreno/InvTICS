@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="topbar" class="cui-topbar">
+    <div class="cui-topbar-left">
+        <button type="button" class="cui-icon-button" data-cui-sidebar-toggle aria-label="Alternar menu">
+            <i class="feather-menu"></i>
+        </button>
+        <label class="cui-global-search" for="cuiGlobalSearch">
+            <i class="feather-search"></i>
+            <input id="cuiGlobalSearch" type="search" placeholder="Buscar activo, custodio, serial u orden...">
+            <span class="cui-search-shortcut">Ctrl K</span>
+        </label>
+    </div>
+    <div class="cui-topbar-right">
+        <a th:if="${sesionUsuario.tieneModulo('NOTIFICACIONES')}" th:href="@{/notificaciones}" class="cui-icon-button position-relative" aria-label="Notificaciones">
+            <i class="feather-bell"></i>
+            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
+                  th:if="${notificacionesPendientes > 0}" th:text="${notificacionesPendientes}">0</span>
+        </a>
+        <div class="dropdown">
+            <a href="javascript:void(0);" class="cui-user-card" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside">
+                <div class="text-end d-none d-md-block">
+                    <div class="cui-user-name" th:text="${sesionUsuario.nombreUsuario}">Usuario</div>
+                    <div class="cui-user-role" th:text="${sesionUsuario.rol}">ROL</div>
+                </div>
+                <img th:src="@{/assets/images/avatar/usuario.png}" alt="Usuario" class="cui-user-avatar">
+            </a>
+            <div class="dropdown-menu dropdown-menu-end">
+                <div class="dropdown-header">
+                    <strong th:text="${sesionUsuario.nombreUsuario}">Usuario</strong>
+                    <div class="small text-muted" th:text="${sesionUsuario.correo}">correo@example.com</div>
+                </div>
+                <a th:if="${sesionUsuario.tieneModulo('USUARIOS')}" th:href="@{/usuarios}" class="dropdown-item">
+                    <i class="feather-users me-2"></i>Usuarios
+                </a>
+                <a th:href="@{/logout}" class="dropdown-item">
+                    <i class="feather-log-out me-2"></i>Cerrar sesion
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>

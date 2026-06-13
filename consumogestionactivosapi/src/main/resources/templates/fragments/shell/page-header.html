@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="pageHeader(title, subtitle)" class="cui-page-header">
+    <div>
+        <h1 class="cui-page-title" th:text="${title}">Titulo</h1>
+        <p class="cui-page-subtitle" th:text="${subtitle}">Descripcion de la pantalla</p>
+    </div>
+</header>
+</body>
+</html>

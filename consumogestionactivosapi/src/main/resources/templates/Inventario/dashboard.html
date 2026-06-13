@@ -16,15 +16,15 @@
                     <p class="itam-subtitle">Prioriza recepciones, asignaciones, stock critico y trazabilidad sin entrar a pantallas densas.</p>
                 </div>
                 <div class="itam-actions">
-                    <a th:href="@{/inventario/ingreso-bodega}" class="itam-btn">
+                    <a th:href="@{/inventario/compras}" class="itam-btn">
                         <i class="feather-clipboard"></i>
                         <span>Nueva OC</span>
                     </a>
-                    <a th:href="@{/inventario/ingreso-bodega}" class="itam-btn primary">
+                    <a th:href="@{/inventario/recepcion}" class="itam-btn primary">
                         <i class="feather-package"></i>
                         <span>Recibir</span>
                     </a>
-                    <a th:href="@{/inventario/ingreso-bodega}" class="itam-btn success">
+                    <a th:href="@{/inventario/stock}" class="itam-btn success">
                         <i class="feather-user-check"></i>
                         <span>Asignar</span>
                     </a>
@@ -118,7 +118,7 @@
                 <section class="itam-panel">
                     <div class="itam-panel-head">
                         <h2 class="itam-panel-title">Stock critico</h2>
-                        <a th:href="@{/inventario/ingreso-bodega}" class="itam-badge warning">Ver stock</a>
+                        <a th:href="@{/inventario/stock}" class="itam-badge warning">Ver stock</a>
                     </div>
                     <div class="itam-panel-body">
                         <div class="itam-list" th:if="${!#lists.isEmpty(stockCritico)}">
@@ -140,7 +140,7 @@
                 <section class="itam-panel">
                     <div class="itam-panel-head">
                         <h2 class="itam-panel-title">OC pendientes</h2>
-                        <a th:href="@{/inventario/ingreso-bodega}" class="itam-badge">Compras</a>
+                        <a th:href="@{/inventario/compras}" class="itam-badge">Compras</a>
                     </div>
                     <div class="itam-panel-body">
                         <div class="itam-list" th:if="${!#lists.isEmpty(ordenesPendientes)}">
@@ -160,7 +160,7 @@
                 <section class="itam-panel">
                     <div class="itam-panel-head">
                         <h2 class="itam-panel-title">Ultimos movimientos</h2>
-                        <a th:href="@{/inventario/ingreso-bodega}" class="itam-badge">Timeline</a>
+                        <a th:href="@{/inventario/movimientos}" class="itam-badge">Timeline</a>
                     </div>
                     <div class="itam-panel-body">
                         <div class="itam-timeline" th:if="${!#lists.isEmpty(movimientos)}">
@@ -183,7 +183,7 @@
                     </div>
                     <div class="itam-panel-body">
                         <div class="itam-list">
-                            <a th:href="@{/inventario/ingreso-bodega}" class="itam-list-item">
+                            <a th:href="@{/inventario/recepcion}" class="itam-list-item">
                                 <span class="itam-dot"></span>
                                 <div>
                                     <p class="itam-item-title">Recibir activos</p>
@@ -191,7 +191,7 @@
                                 </div>
                                 <i class="feather-chevron-right"></i>
                             </a>
-                            <a th:href="@{/inventario/ingreso-bodega}" class="itam-list-item">
+                            <a th:href="@{/inventario/stock}" class="itam-list-item">
                                 <span class="itam-dot success"></span>
                                 <div>
                                     <p class="itam-item-title">Asignar a custodio</p>
@@ -199,7 +199,7 @@
                                 </div>
                                 <i class="feather-chevron-right"></i>
                             </a>
-                            <a th:href="@{/inventario/ingreso-bodega}" class="itam-list-item">
+                            <a th:href="@{/inventario/traslados}" class="itam-list-item">
                                 <span class="itam-dot warning"></span>
                                 <div>
                                     <p class="itam-item-title">Trasladar entre bodegas</p>
@@ -207,7 +207,7 @@
                                 </div>
                                 <i class="feather-chevron-right"></i>
                             </a>
-                            <a th:href="@{/inventario/ingreso-bodega}" class="itam-list-item">
+                            <a th:href="@{/inventario/bajas}" class="itam-list-item">
                                 <span class="itam-dot danger"></span>
                                 <div>
                                     <p class="itam-item-title">Dar de baja</p>

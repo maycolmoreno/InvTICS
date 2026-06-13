@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="breadcrumbs" class="cui-breadcrumbs" aria-label="Ruta">
+    <a th:href="@{/inicio}">CRESIO</a>
+    <i class="feather-chevron-right"></i>
+    <span th:text="${pageSection ?: 'Workspace'}">Workspace</span>
+</nav>
+</body>
+</html>

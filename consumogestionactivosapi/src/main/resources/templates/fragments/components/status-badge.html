@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<span th:fragment="statusBadge(label, state)" class="cui-badge"
+      th:classappend="${state != null ? ' cui-badge-' + #strings.toLowerCase(#strings.replace(state, '_', '-')) : ' cui-badge-muted'}"
+      th:text="${label}">Estado</span>
+</body>
+</html>

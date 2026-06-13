@@ -1,0 +1,233 @@
+.cui-btn {
+  align-items: center;
+  border-radius: var(--cui-radius-md);
+  display: inline-flex;
+  font-weight: 800;
+  gap: var(--cui-space-2);
+  min-height: 38px;
+  padding: 0 var(--cui-space-4);
+}
+
+.cui-btn-primary {
+  background: var(--cui-primary);
+  border: 1px solid var(--cui-primary);
+  color: #fff;
+}
+
+.cui-btn-primary:hover {
+  background: var(--cui-primary-dark);
+  color: #fff;
+}
+
+.cui-btn-secondary {
+  background: var(--cui-surface);
+  border: 1px solid var(--cui-border);
+  color: var(--cui-text-main);
+}
+
+.cui-btn-secondary:hover {
+  border-color: #cbd5e1;
+  color: var(--cui-primary);
+}
+
+.cui-card {
+  background: var(--cui-surface);
+  border: 1px solid var(--cui-border);
+  border-radius: var(--cui-radius-lg);
+  box-shadow: var(--cui-shadow-sm);
+  padding: var(--cui-space-4);
+}
+
+.cui-error-card {
+  max-width: 520px;
+}
+
+.cui-kpi-card {
+  background: var(--cui-surface);
+  border: 1px solid var(--cui-border);
+  border-radius: var(--cui-radius-lg);
+  box-shadow: var(--cui-shadow-sm);
+  padding: var(--cui-space-4);
+}
+
+.cui-kpi-label {
+  color: var(--cui-text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cui-kpi-value {
+  color: var(--cui-text-main);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-top: var(--cui-space-2);
+}
+
+.cui-kpi-meta {
+  color: var(--cui-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: var(--cui-space-1);
+}
+
+.cui-badge {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 800;
+  gap: 6px;
+  line-height: 1;
+  padding: 6px 10px;
+  text-transform: uppercase;
+}
+
+.cui-badge-en-bodega,
+.cui-badge-info {
+  background: var(--cui-blue-soft);
+  color: #1e40af;
+}
+
+.cui-badge-asignado,
+.cui-badge-success {
+  background: var(--cui-green-soft);
+  color: #166534;
+}
+
+.cui-badge-en-reparacion,
+.cui-badge-warning {
+  background: var(--cui-amber-soft);
+  color: #92400e;
+}
+
+.cui-badge-en-transito {
+  background: var(--cui-cyan-soft);
+  color: #155e75;
+}
+
+.cui-badge-dado-de-baja,
+.cui-badge-muted {
+  background: var(--cui-gray-soft);
+  color: #374151;
+}
+
+.cui-badge-critico,
+.cui-badge-danger {
+  background: var(--cui-red-soft);
+  color: #991b1b;
+}
+
+.cui-command-bar {
+  align-items: center;
+  background: var(--cui-surface);
+  border: 1px solid var(--cui-border);
+  border-radius: var(--cui-radius-lg);
+  box-shadow: var(--cui-shadow-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cui-space-2);
+  justify-content: space-between;
+  margin-bottom: var(--cui-space-5);
+  padding: var(--cui-space-3);
+}
+
+.cui-breadcrumbs {
+  align-items: center;
+  color: var(--cui-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 700;
+  gap: var(--cui-space-2);
+  margin-bottom: var(--cui-space-3);
+}
+
+.cui-page-header {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--cui-space-4);
+  justify-content: space-between;
+  margin-bottom: var(--cui-space-4);
+}
+
+.cui-page-title {
+  color: var(--cui-text-main);
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.cui-page-subtitle {
+  color: var(--cui-text-muted);
+  font-weight: 600;
+  margin: 6px 0 0;
+}
+
+.cui-toast-container {
+  position: fixed;
+  right: var(--cui-space-5);
+  top: calc(var(--cui-topbar-height) + var(--cui-space-4));
+  z-index: 1080;
+}
+
+.cui-drawer-backdrop {
+  background: rgba(15, 23, 42, 0.32);
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  transition: opacity 0.2s ease;
+  z-index: 1060;
+}
+
+.cui-drawer {
+  background: var(--cui-surface);
+  border-left: 1px solid var(--cui-border);
+  box-shadow: var(--cui-shadow-lg);
+  height: 100vh;
+  max-width: 100%;
+  position: fixed;
+  right: 0;
+  top: 0;
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+  width: 480px;
+  z-index: 1061;
+}
+
+.cui-drawer.is-open {
+  transform: translateX(0);
+}
+
+.cui-drawer-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cui-drawer-header {
+  align-items: center;
+  border-bottom: 1px solid var(--cui-border);
+  display: flex;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 0 var(--cui-space-4);
+}
+
+.cui-drawer-body {
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding: var(--cui-space-4);
+}
+
+@media (max-width: 767.98px) {
+  .cui-page-header {
+    display: block;
+  }
+
+  .cui-drawer {
+    width: 92vw;
+  }
+}

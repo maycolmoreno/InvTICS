@@ -1,0 +1,33 @@
+.cui-text-muted {
+  color: var(--cui-text-muted) !important;
+}
+
+.cui-bg-surface {
+  background: var(--cui-surface) !important;
+}
+
+.cui-border {
+  border: 1px solid var(--cui-border) !important;
+}
+
+.cui-radius-md {
+  border-radius: var(--cui-radius-md) !important;
+}
+
+.cui-radius-lg {
+  border-radius: var(--cui-radius-lg) !important;
+}
+
+.cui-shadow-sm {
+  box-shadow: var(--cui-shadow-sm) !important;
+}
+
+.cui-visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

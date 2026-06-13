@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantilla-auth}">
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE - CRESIO">CRESIO</title>
+</head>
+<body>
+    <section layout:fragment="contenidoauth"></section>
+    <th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

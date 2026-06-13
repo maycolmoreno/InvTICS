@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="sidebar" class="cui-sidebar" aria-label="Navegacion principal">
+    <div class="cui-sidebar-brand">
+        <span class="cui-brand-mark">CR</span>
+        <span class="cui-brand-copy">
+            <span class="cui-brand-name">CRESIO</span>
+            <span class="cui-brand-subtitle">Enterprise ITAM</span>
+        </span>
+    </div>
+
+    <div class="cui-sidebar-scroll">
+        <div class="cui-nav-section">
+            <ul class="cui-nav-list">
+                <li>
+                    <a th:href="@{/inicio}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-grid"></i></span>
+                        <span class="cui-nav-text">Dashboard</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="cui-nav-section" th:if="${sesionUsuario.tieneAlgunModulo('MANTENIMIENTO','NOTIFICACIONES')}">
+            <div class="cui-nav-label">Mi Trabajo</div>
+            <ul class="cui-nav-list">
+                <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
+                    <a th:href="@{/mantenimiento}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-briefcase"></i></span>
+                        <span class="cui-nav-text">Mis ordenes</span>
+                    </a>
+                </li>
+                <li th:if="${sesionUsuario.tieneModulo('NOTIFICACIONES')}">
+                    <a th:href="@{/notificaciones}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-bell"></i></span>
+                        <span class="cui-nav-text">Mis alertas</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="cui-nav-section" th:if="${sesionUsuario.tieneAlgunModulo('EQUIPOS','CUSTODIAS','IMPORTAR')}">
+            <div class="cui-nav-label">Gestion de Activos</div>
+            <ul class="cui-nav-list">
+                <li class="cui-nav-group">
+                    <button type="button" class="cui-nav-toggle" aria-expanded="false">
+                        <span class="cui-nav-icon"><i class="feather-box"></i></span>
+                        <span class="cui-nav-text">Activos</span>
+                        <span class="cui-nav-arrow"><i class="feather-chevron-right"></i></span>
+                    </button>
+                    <ul class="cui-nav-submenu">
+                        <li th:if="${sesionUsuario.tieneModulo('EQUIPOS')}">
+                            <a th:href="@{/equipos}" class="cui-nav-link">Activos</a>
+                        </li>
+                        <li th:if="${sesionUsuario.tieneModulo('IMPORTAR')}">
+                            <a th:href="@{/importar}" class="cui-nav-link">Importar</a>
+                        </li>
+                    </ul>
+                </li>
+                <li th:if="${sesionUsuario.tieneModulo('CUSTODIAS')}">
+                    <a th:href="@{/custodias}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-clipboard"></i></span>
+                        <span class="cui-nav-text">Custodias</span>
+                    </a>
+                </li>
+                <li th:if="${sesionUsuario.tieneModulo('CUSTODIAS')}">
+                    <span class="cui-nav-link is-disabled" aria-disabled="true" title="Se consolidara como biblioteca documental en un sprint posterior">
+                        <span class="cui-nav-icon"><i class="feather-file-text"></i></span>
+                        <span class="cui-nav-text">Documentos</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="cui-nav-section" th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">
+            <div class="cui-nav-label">Operacion Logistica</div>
+            <ul class="cui-nav-list">
+                <li>
+                    <a th:href="@{/inventario/compras}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-shopping-cart"></i></span>
+                        <span class="cui-nav-text">Compras</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/inventario/recepcion}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-package"></i></span>
+                        <span class="cui-nav-text">Recepcion</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/inventario/stock}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-layers"></i></span>
+                        <span class="cui-nav-text">Stock</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/inventario/traslados}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-repeat"></i></span>
+                        <span class="cui-nav-text">Traslados</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/inventario/movimientos}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-activity"></i></span>
+                        <span class="cui-nav-text">Movimientos</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/inventario/bajas}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-archive"></i></span>
+                        <span class="cui-nav-text">Bajas</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="cui-nav-section" th:if="${sesionUsuario.tieneAlgunModulo('MANTENIMIENTO','CHECKLIST')}">
+            <div class="cui-nav-label">Soporte Tecnico</div>
+            <ul class="cui-nav-list">
+                <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
+                    <a th:href="@{/mantenimiento}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-tool"></i></span>
+                        <span class="cui-nav-text">Ordenes</span>
+                    </a>
+                </li>
+                <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
+                    <a th:href="@{/mantenimiento/kanban}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-columns"></i></span>
+                        <span class="cui-nav-text">Kanban</span>
+                    </a>
+                </li>
+                <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
+                    <a th:href="@{/mantenimiento/programado}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-calendar"></i></span>
+                        <span class="cui-nav-text">Programados</span>
+                    </a>
+                </li>
+                <li th:if="${sesionUsuario.tieneModulo('CHECKLIST')}">
+                    <a th:href="@{/checklist}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-check-square"></i></span>
+                        <span class="cui-nav-text">Checklist</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="cui-nav-section" th:if="${sesionUsuario.tieneAlgunModulo('INVENTARIO','REPORTES','NOTIFICACIONES')}">
+            <div class="cui-nav-label">Centro Operacional</div>
+            <ul class="cui-nav-list">
+                <li th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">
+                    <a th:href="@{/inventario/dashboard}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-command"></i></span>
+                        <span class="cui-nav-text">Operacion</span>
+                    </a>
+                </li>
+                <li th:if="${sesionUsuario.tieneModulo('REPORTES')}">
+                    <a th:href="@{/reportes}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-bar-chart-2"></i></span>
+                        <span class="cui-nav-text">Reportes</span>
+                    </a>
+                </li>
+                <li th:if="${sesionUsuario.tieneModulo('NOTIFICACIONES')}">
+                    <a th:href="@{/notificaciones}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-alert-circle"></i></span>
+                        <span class="cui-nav-text">Notificaciones</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="cui-nav-section" th:if="${sesionUsuario.tieneAlgunModulo('USUARIOS','ROLES','UBICACIONES','DEPARTAMENTOS','CARGOS','MARCAS','CATEGORIAS','CUSTODIOS')}">
+            <div class="cui-nav-label">Administracion</div>
+            <ul class="cui-nav-list">
+                <li th:if="${sesionUsuario.tieneModulo('USUARIOS')}"><a th:href="@{/usuarios}" class="cui-nav-link"><span class="cui-nav-icon"><i class="feather-users"></i></span><span class="cui-nav-text">Usuarios</span></a></li>
+                <li th:if="${sesionUsuario.tieneModulo('ROLES')}"><a th:href="@{/roles}" class="cui-nav-link"><span class="cui-nav-icon"><i class="feather-shield"></i></span><span class="cui-nav-text">Roles</span></a></li>
+                <li th:if="${sesionUsuario.tieneModulo('UBICACIONES')}"><a th:href="@{/ubicaciones}" class="cui-nav-link"><span class="cui-nav-icon"><i class="feather-map-pin"></i></span><span class="cui-nav-text">Ubicaciones</span></a></li>
+                <li th:if="${sesionUsuario.tieneModulo('DEPARTAMENTOS')}"><a th:href="@{/departamentos}" class="cui-nav-link"><span class="cui-nav-icon"><i class="feather-home"></i></span><span class="cui-nav-text">Departamentos</span></a></li>
+                <li th:if="${sesionUsuario.tieneModulo('CARGOS')}"><a th:href="@{/cargos}" class="cui-nav-link"><span class="cui-nav-icon"><i class="feather-briefcase"></i></span><span class="cui-nav-text">Cargos</span></a></li>
+                <li th:if="${sesionUsuario.tieneModulo('MARCAS')}"><a th:href="@{/marcas}" class="cui-nav-link"><span class="cui-nav-icon"><i class="feather-tag"></i></span><span class="cui-nav-text">Marcas</span></a></li>
+                <li th:if="${sesionUsuario.tieneModulo('CATEGORIAS')}"><a th:href="@{/categorias-equipo}" class="cui-nav-link"><span class="cui-nav-icon"><i class="feather-layers"></i></span><span class="cui-nav-text">Categorias</span></a></li>
+                <li th:if="${sesionUsuario.tieneModulo('CUSTODIOS')}"><a th:href="@{/custodios}" class="cui-nav-link"><span class="cui-nav-icon"><i class="feather-user-check"></i></span><span class="cui-nav-text">Custodios</span></a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="cui-sidebar-footer">
+        <a th:href="@{/mantenimiento/nuevo}" class="cui-sidebar-cta" th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
+            <i class="feather-plus"></i>
+            <span>Nueva orden</span>
+        </a>
+    </div>
+</nav>
+</body>
+</html>

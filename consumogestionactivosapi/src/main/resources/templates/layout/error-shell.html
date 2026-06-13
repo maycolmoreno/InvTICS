@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Error - CRESIO</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/cresio/tokens.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/cresio/base.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/cresio/components.css}">
+</head>
+<body>
+    <main class="d-flex align-items-center justify-content-center min-vh-100 p-4">
+        <section class="cui-card cui-error-card text-center">
+            <h1 class="cui-page-title">No pudimos completar la solicitud</h1>
+            <p class="cui-page-subtitle">Intenta nuevamente o vuelve al dashboard.</p>
+            <a th:href="@{/inicio}" class="cui-btn cui-btn-primary mt-3">Volver al dashboard</a>
+        </section>
+    </main>
+</body>
+</html>

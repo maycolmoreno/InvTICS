@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="drawer">
+    <div class="cui-drawer-backdrop" data-cui-drawer-backdrop></div>
+    <aside class="cui-drawer" id="cuiDrawer" aria-hidden="true" aria-label="Panel de detalle">
+        <div class="cui-drawer-header">
+            <div>
+                <div class="fw-bold">Detalle</div>
+                <div class="small cui-text-muted">Panel contextual</div>
+            </div>
+            <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                <i class="feather-x"></i>
+            </button>
+        </div>
+        <div class="cui-drawer-body">
+            <div class="cui-card">
+                Selecciona un registro para ver su informacion contextual.
+            </div>
+        </div>
+    </aside>
+</th:block>
+</body>
+</html>

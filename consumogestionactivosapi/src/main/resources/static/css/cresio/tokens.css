@@ -1,0 +1,45 @@
+:root {
+  --cui-primary: #1d4ed8;
+  --cui-primary-dark: #1e3a8a;
+  --cui-secondary: #0891b2;
+  --cui-background: #f5f7fa;
+  --cui-surface: #ffffff;
+  --cui-border: #e5e7eb;
+  --cui-text-main: #111827;
+  --cui-text-muted: #6b7280;
+  --cui-success: #16a34a;
+  --cui-warning: #d97706;
+  --cui-danger: #dc2626;
+  --cui-info: #0284c7;
+  --cui-disabled: #9ca3af;
+
+  --cui-blue-soft: #dbeafe;
+  --cui-green-soft: #dcfce7;
+  --cui-amber-soft: #fef3c7;
+  --cui-cyan-soft: #cffafe;
+  --cui-red-soft: #fee2e2;
+  --cui-gray-soft: #f3f4f6;
+
+  --cui-space-1: 4px;
+  --cui-space-2: 8px;
+  --cui-space-3: 12px;
+  --cui-space-4: 16px;
+  --cui-space-5: 24px;
+  --cui-space-6: 32px;
+  --cui-space-7: 48px;
+
+  --cui-radius-sm: 6px;
+  --cui-radius-md: 8px;
+  --cui-radius-lg: 12px;
+  --cui-radius-xl: 16px;
+
+  --cui-shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.06);
+  --cui-shadow-md: 0 8px 24px rgba(17, 24, 39, 0.08);
+  --cui-shadow-lg: 0 18px 48px rgba(17, 24, 39, 0.14);
+
+  --cui-sidebar-width: 276px;
+  --cui-sidebar-collapsed: 82px;
+  --cui-topbar-height: 68px;
+  --cui-content-max: 1680px;
+  --cui-font-family: "Plus Jakarta Sans", "Inter", "Segoe UI", Arial, sans-serif;
+}
