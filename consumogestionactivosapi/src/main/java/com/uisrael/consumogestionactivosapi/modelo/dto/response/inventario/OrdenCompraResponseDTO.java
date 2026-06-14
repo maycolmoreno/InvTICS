@@ -1,6 +1,8 @@
 package com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrdenCompraResponseDTO {
     private Integer idOrdenCompra;
@@ -10,6 +12,7 @@ public class OrdenCompraResponseDTO {
     private LocalDate fechaRecepcion;
     private String estado;
     private String bodegaDestinoNombre;
+    private List<OrdenCompraDetalleResponseDTO> detalles = new ArrayList<>();
 
     public Integer getIdOrdenCompra() { return idOrdenCompra; }
     public void setIdOrdenCompra(Integer idOrdenCompra) { this.idOrdenCompra = idOrdenCompra; }
@@ -25,4 +28,6 @@ public class OrdenCompraResponseDTO {
     public void setEstado(String estado) { this.estado = estado; }
     public String getBodegaDestinoNombre() { return bodegaDestinoNombre; }
     public void setBodegaDestinoNombre(String bodegaDestinoNombre) { this.bodegaDestinoNombre = bodegaDestinoNombre; }
+    public List<OrdenCompraDetalleResponseDTO> getDetalles() { return detalles; }
+    public void setDetalles(List<OrdenCompraDetalleResponseDTO> detalles) { this.detalles = detalles; }
 }

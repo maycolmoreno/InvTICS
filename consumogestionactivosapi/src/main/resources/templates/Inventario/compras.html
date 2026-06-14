@@ -38,7 +38,7 @@
             <span class="cui-summary-sep" aria-hidden="true">·</span>
             <div class="cui-summary-item">
                 <span class="cui-summary-label">Parciales</span>
-                <strong class="cui-summary-value danger" th:text="${#lists.size(ordenesCompra.?[estado == 'RECIBIDA_PARCIAL'])}">0</strong>
+                <strong class="cui-summary-value danger" th:text="${#lists.size(ordenesCompra.?[estado == 'RECEPCION_PARCIAL'])}">0</strong>
             </div>
         </div>
 
@@ -57,7 +57,7 @@
                 <select class="form-select" data-cui-grid-filter data-filter-key="estado" data-cui-filter-persist>
                     <option value="">Todos los estados</option>
                     <option value="RECIBIDA">Recibida</option>
-                    <option value="RECIBIDA_PARCIAL">Recibida parcial</option>
+                    <option value="RECEPCION_PARCIAL">Recepcion parcial</option>
                     <option value="PENDIENTE">Pendiente</option>
                 </select>
             </div>
@@ -95,12 +95,13 @@
                             <td th:text="${oc.bodegaDestinoNombre ?: 'Sin bodega'}">Bodega</td>
                             <td>
                                 <span class="cui-badge"
-                                      th:classappend="${estadoTexto == 'RECIBIDA'} ? ' cui-badge-asignado' : (${estadoTexto == 'RECIBIDA_PARCIAL'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
+                                      th:classappend="${estadoTexto == 'RECIBIDA'} ? ' cui-badge-asignado' : (${estadoTexto == 'RECEPCION_PARCIAL'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
                                       th:text="${estadoTexto}">Estado</span>
                             </td>
                             <td>
                                 <div class="cui-action-cell">
-                                    <a th:href="@{/inventario/recepcion}" class="btn btn-outline-primary btn-sm">
+                                    <a th:href="@{/inventario/ordenes-compra/{id}/gestionar(id=${oc.idOrdenCompra})}"
+                                       class="btn btn-outline-primary btn-sm">
                                         Gestionar
                                     </a>
                                     <div class="dropdown cui-action-menu">
@@ -108,7 +109,8 @@
                                             <i class="feather-more-vertical" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
-                                            <a class="dropdown-item" th:href="@{/inventario/recepcion}">
+                                            <a class="dropdown-item"
+                                               th:href="@{/inventario/ordenes-compra/{id}/gestionar(id=${oc.idOrdenCompra})}">
                                                 <i class="feather-package" aria-hidden="true"></i>
                                                 Recibir
                                             </a>

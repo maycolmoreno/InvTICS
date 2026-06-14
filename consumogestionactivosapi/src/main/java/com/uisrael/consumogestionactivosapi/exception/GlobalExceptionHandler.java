@@ -89,6 +89,18 @@ public class GlobalExceptionHandler {
 			case 401 -> "Su sesión ha expirado. Por favor inicie sesión nuevamente.";
 			case 403 -> "No tiene permisos para realizar esta acción.";
 			case 404 -> "El recurso solicitado no fue encontrado.";
+			case 409 -> {
+				String backendMsg = WebClientHelper.extraerMensajeError(ex);
+				yield (backendMsg != null && !backendMsg.isBlank())
+						? backendMsg
+						: "Ya existe un recurso con los mismos datos.";
+			}
+			case 422 -> {
+				String backendMsg = WebClientHelper.extraerMensajeError(ex);
+				yield (backendMsg != null && !backendMsg.isBlank())
+						? backendMsg
+						: "La operación no puede realizarse en el estado actual.";
+			}
 			case 500 -> "El servicio backend no pudo procesar la solicitud.";
 			default -> {
 				String backendMsg = WebClientHelper.extraerMensajeError(ex);

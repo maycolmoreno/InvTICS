@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AsignacionConsumibleRequestDTO;
@@ -13,6 +14,8 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BajaAc
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.OrdenCompraRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RecepcionActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RecepcionConsumibleRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
@@ -38,6 +41,19 @@ public class InventarioExperienciaControlador {
         model.addAttribute("bodegas", safeList(inventarioOperacionServicio.listarBodegas()));
         model.addAttribute("ordenCompraRequest", new OrdenCompraRequestDTO());
         return "Inventario/compras";
+    }
+
+    @GetMapping("/ordenes-compra/{id}/gestionar")
+    public String gestionarOC(@PathVariable Integer id, Model model) {
+        var oc = inventarioOperacionServicio.obtenerOrdenCompra(id);
+        model.addAttribute("oc", oc);
+        model.addAttribute("recepciones", safeList(inventarioOperacionServicio.listarRecepciones(id)));
+        model.addAttribute("bodegas", safeList(inventarioOperacionServicio.listarBodegas()));
+        model.addAttribute("marcas", marcasServicio.listarMarca());
+        model.addAttribute("categorias", categoriaEquiposServicio.listarCategoriaEquipo());
+        model.addAttribute("recepcionStockRequest", new RegistrarRecepcionStockRequestDTO());
+        model.addAttribute("recepcionActivoRequest", new RegistrarRecepcionActivoRequestDTO());
+        return "Inventario/gestionarOC";
     }
 
     @GetMapping("/recepcion")

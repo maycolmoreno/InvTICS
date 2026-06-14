@@ -741,6 +741,7 @@ public class InventarioService {
         OrdenCompraDetalleResponseDTO dto = new OrdenCompraDetalleResponseDTO();
         dto.setIdOrdenCompraDetalle(detalle.getIdOrdenCompraDetalle());
         dto.setTipoItem(detalle.getTipoItem());
+        dto.setEstado(detalle.getEstado() != null ? detalle.getEstado().name() : null);
         dto.setDescripcion(detalle.getDescripcion());
         dto.setCantidadSolicitada(detalle.getCantidadSolicitada());
         dto.setCantidadRecibida(detalle.getCantidadRecibida());

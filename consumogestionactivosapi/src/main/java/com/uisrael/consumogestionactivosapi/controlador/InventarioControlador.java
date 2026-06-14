@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AsignacionActivoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AsignacionConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BajaActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BodegaRequestDTO;
@@ -196,6 +198,34 @@ public class InventarioControlador {
 			redirect.addFlashAttribute("error", "No se pudo dar de baja el activo: " + ex.getMessage());
 		}
 		return "redirect:/inventario/ingreso-bodega";
+	}
+
+	@PostMapping("/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/stock")
+	public String recibirStock(@PathVariable Integer idOC,
+			@PathVariable Integer idDetalle,
+			@ModelAttribute RegistrarRecepcionStockRequestDTO request,
+			RedirectAttributes redirect) {
+		try {
+			inventarioOperacionServicio.registrarRecepcionStock(idOC, idDetalle, request);
+			redirect.addFlashAttribute("success", "Stock recibido correctamente.");
+		} catch (Exception ex) {
+			redirect.addFlashAttribute("error", "No se pudo registrar la recepcion de stock: " + ex.getMessage());
+		}
+		return "redirect:/inventario/ordenes-compra/" + idOC + "/gestionar";
+	}
+
+	@PostMapping("/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/activo")
+	public String recibirActivo(@PathVariable Integer idOC,
+			@PathVariable Integer idDetalle,
+			@ModelAttribute RegistrarRecepcionActivoRequestDTO request,
+			RedirectAttributes redirect) {
+		try {
+			inventarioOperacionServicio.registrarRecepcionActivo(idOC, idDetalle, request);
+			redirect.addFlashAttribute("success", "Activo ingresado a bodega correctamente.");
+		} catch (Exception ex) {
+			redirect.addFlashAttribute("error", "No se pudo registrar la recepcion del activo: " + ex.getMessage());
+		}
+		return "redirect:/inventario/ordenes-compra/" + idOC + "/gestionar";
 	}
 
 	@GetMapping("/por-sucursal")

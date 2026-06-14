@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BodegaRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.RecepcionLoteResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AsignacionActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AsignacionConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BajaActivoRequestDTO;
@@ -61,6 +64,11 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
     public List<OrdenCompraResponseDTO> listarOrdenesCompra() {
         return clienteWeb.get().uri("/inventario/ordenes-compra").retrieve()
                 .body(new ParameterizedTypeReference<List<OrdenCompraResponseDTO>>() {});
+    }
+
+    @Override
+    public OrdenCompraResponseDTO obtenerOrdenCompra(Integer id) {
+        return clienteWeb.get().uri("/ordenes-compra/{id}", id).retrieve().body(OrdenCompraResponseDTO.class);
     }
 
     @Override
@@ -145,5 +153,33 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
     public ActivoInventarioResponseDTO darBajaActivo(BajaActivoRequestDTO request) {
         return clienteWeb.post().uri("/inventario/bajas/activos").body(request).retrieve()
                 .body(ActivoInventarioResponseDTO.class);
+    }
+
+    @Override
+    public List<RecepcionLoteResponseDTO> listarRecepciones(Integer idOrdenCompra) {
+        return clienteWeb.get()
+                .uri("/ordenes-compra/{idOC}/recepciones", idOrdenCompra)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<RecepcionLoteResponseDTO>>() {});
+    }
+
+    @Override
+    public RecepcionLoteResponseDTO registrarRecepcionStock(Integer idOrdenCompra, Integer idDetalle,
+                                                            RegistrarRecepcionStockRequestDTO request) {
+        return clienteWeb.post()
+                .uri("/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/stock", idOrdenCompra, idDetalle)
+                .body(request)
+                .retrieve()
+                .body(RecepcionLoteResponseDTO.class);
+    }
+
+    @Override
+    public RecepcionLoteResponseDTO registrarRecepcionActivo(Integer idOrdenCompra, Integer idDetalle,
+                                                             RegistrarRecepcionActivoRequestDTO request) {
+        return clienteWeb.post()
+                .uri("/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/activo", idOrdenCompra, idDetalle)
+                .body(request)
+                .retrieve()
+                .body(RecepcionLoteResponseDTO.class);
     }
 }

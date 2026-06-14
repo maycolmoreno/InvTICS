@@ -76,7 +76,7 @@ public class AuthControlador {
 	@GetMapping("/setup")
 	public String mostrarSetup(Model model) {
 		if (!setupNecesario()) {
-			return "redirect:/login";
+			return sesionUsuario.isAutenticado() ? "redirect:/inicio" : "redirect:/login";
 		}
 		return "auth/setup";
 	}

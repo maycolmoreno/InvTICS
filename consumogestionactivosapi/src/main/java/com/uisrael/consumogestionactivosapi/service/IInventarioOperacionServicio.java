@@ -3,6 +3,9 @@ package com.uisrael.consumogestionactivosapi.service;
 import java.util.List;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BodegaRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.RecepcionLoteResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AsignacionActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AsignacionConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BajaActivoRequestDTO;
@@ -27,6 +30,7 @@ public interface IInventarioOperacionServicio {
     List<ConsumibleResponseDTO> listarConsumibles();
     ConsumibleResponseDTO crearConsumible(ConsumibleRequestDTO request);
     List<OrdenCompraResponseDTO> listarOrdenesCompra();
+    OrdenCompraResponseDTO obtenerOrdenCompra(Integer id);
     OrdenCompraResponseDTO crearOrdenCompra(OrdenCompraRequestDTO request);
     OrdenCompraResponseDTO confirmarRecepcionOrden(Integer ordenCompraId);
     ActivoInventarioResponseDTO recibirActivo(RecepcionActivoRequestDTO request);
@@ -41,4 +45,7 @@ public interface IInventarioOperacionServicio {
     ActivoInventarioResponseDTO trasladarActivo(TrasladoActivoRequestDTO request);
     StockConsumibleResponseDTO trasladarConsumible(TrasladoConsumibleRequestDTO request);
     ActivoInventarioResponseDTO darBajaActivo(BajaActivoRequestDTO request);
+    List<RecepcionLoteResponseDTO> listarRecepciones(Integer idOrdenCompra);
+    RecepcionLoteResponseDTO registrarRecepcionStock(Integer idOrdenCompra, Integer idDetalle, RegistrarRecepcionStockRequestDTO request);
+    RecepcionLoteResponseDTO registrarRecepcionActivo(Integer idOrdenCompra, Integer idDetalle, RegistrarRecepcionActivoRequestDTO request);
 }
