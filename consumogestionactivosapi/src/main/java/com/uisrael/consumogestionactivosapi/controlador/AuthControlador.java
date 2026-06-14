@@ -3,7 +3,7 @@ package com.uisrael.consumogestionactivosapi.controlador;
 import java.util.Base64;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,17 +21,17 @@ import jakarta.servlet.http.HttpSession;
 public class AuthControlador {
 
 	private final SesionUsuario sesionUsuario;
+	private final RestClient publicRestClient;
 
-	@Value("${api.base-url}")
-	private String apiBaseUrl;
-
-	public AuthControlador(SesionUsuario sesionUsuario) {
+	public AuthControlador(SesionUsuario sesionUsuario,
+			@Qualifier("publicRestClient") RestClient publicRestClient) {
 		this.sesionUsuario = sesionUsuario;
+		this.publicRestClient = publicRestClient;
 	}
 
 	private boolean setupNecesario() {
 		try {
-			Map<String, Object> resp = RestClient.create(apiBaseUrl)
+			Map<String, Object> resp = publicRestClient
 					.get()
 					.uri("/setup/necesario")
 					.retrieve()
@@ -158,7 +158,7 @@ public class AuthControlador {
 			datos.put("contrasena", contrasena);
 			datos.put("cedula", cedula);
 
-			Map<String, Object> resp = RestClient.create(apiBaseUrl)
+			Map<String, Object> resp = publicRestClient
 					.post()
 					.uri("/setup/admin")
 					.body(datos)
@@ -208,14 +208,10 @@ public class AuthControlador {
 			String credenciales = correo + ":" + contrasena;
 			String credencialesBase64 = Base64.getEncoder().encodeToString(credenciales.getBytes());
 
-			RestClient clienteTemp = RestClient.builder()
-					.baseUrl(apiBaseUrl)
-					.defaultHeader("Authorization", "Basic " + credencialesBase64)
-					.build();
-
 			try {
-				Map<String, Object> respuestaUsuario = clienteTemp.get()
+				Map<String, Object> respuestaUsuario = publicRestClient.get()
 						.uri("/auth/yo")
+						.header("Authorization", "Basic " + credencialesBase64)
 						.retrieve()
 						.body(new ParameterizedTypeReference<Map<String, Object>>() {
 						});
