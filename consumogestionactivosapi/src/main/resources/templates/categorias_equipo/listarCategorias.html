@@ -9,31 +9,18 @@
 <body>
 <div layout:fragment="contenidopaginas">
   <div class="page-shell admin-shell">
-    <section class="operations-hero">
-      <div class="operations-hero-copy">
-        <div class="eyebrow">Clasificacion Tecnica</div>
-        <h1>Categorias de equipo</h1>
-      </div>
-      <div class="operations-hero-actions">
-        <a th:href="@{/categorias-equipo/nueva-categoria}" class="btn btn-primary px-4 py-3">
-          <i class="feather-plus-circle me-2"></i>Nueva categoria
+    <section class="cui-admin-header">
+      <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+        <div>
+          <div class="cui-data-grid-meta">Administracion / Clasificacion tecnica</div>
+          <h1>Categorias de equipo</h1>
+          <p>Tipos de activos tecnologicos disponibles para inventario y reportes.</p>
+        </div>
+        <a th:href="@{/categorias-equipo/nueva-categoria}" class="cui-btn cui-btn-primary">
+          <i class="feather-plus-circle"></i>
+          Nueva categoria
         </a>
       </div>
-    </section>
-
-    <section class="admin-summary-grid">
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Total categorias</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listarcategorias)}">0</div>
-      </article>
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Activas</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listarcategorias.?[estado])}">0</div>
-      </article>
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Inactivas</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listarcategorias.?[!estado])}">0</div>
-      </article>
     </section>
 
     <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorEliminar}">
@@ -41,84 +28,110 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <section class="surface-card page-panel">
-      <div class="filter-bar">
-        <input id="searchInput" type="text" class="form-control form-control-sm" placeholder="Buscar categoría..." style="max-width:220px">
-        <select id="filterEstado" class="form-select form-select-sm" style="max-width:150px">
-          <option value="">Todo estado</option>
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
-        </select>
-        <span class="row-counter"><span id="rowCount">0</span> registros</span>
+    <section class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Total categorias', ${#lists.size(listarcategorias)}, 'Catalogo tecnico', 'feather-layers', 'primary')}"></div>
       </div>
-
-      <div class="card card-custodios">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead>
-              <tr>
-                <th>ID</th>
-                <th>Categoria</th>
-                <th>Estado</th>
-                <th class="text-end">Acciones</th>
-              </tr>
-              </thead>
-              <tbody id="categoriasTbody">
-              <tr class="fila-categoria" th:each="categoria : ${listarcategorias}"
-                  th:data-estado="${categoria.estado ? 'Activo' : 'Inactivo'}">
-                <td><strong th:text="${categoria.idCategoria}">1</strong></td>
-                <td>
-                  <div class="fw-semibold" th:text="${categoria.nombre}">Laptop</div>
-                </td>
-                <td><span th:class="${categoria.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}" th:text="${categoria.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
-                <td>
-                  <div class="hstack gap-2 justify-content-end">
-                    <a th:href="@{/categorias-equipo/editar-categoria/{id}(id=${categoria.idCategoria})}" class="btn btn-light btn-sm">
-                      <i class="feather-edit-2 me-1"></i>Editar
-                    </a>
-                    <form th:action="@{/categorias-equipo/eliminar/{id}(id=${categoria.idCategoria})}" method="post" style="display:inline;">
-                      <button th:if="${categoria.estado}" type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Estas seguro de desactivar esta categoria?');">
-                        <i class="feather-slash me-1"></i>Desactivar
-                      </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-              <tr th:if="${#lists.isEmpty(listarcategorias)}">
-                <td colspan="4">
-                  <div class="table-empty-state">
-                    <i class="feather-layers"></i>
-                    <div class="fw-semibold">No hay categorias registradas</div>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Activas', ${#lists.size(listarcategorias.?[estado])}, 'Disponibles para activos', 'feather-check-circle', 'success')}"></div>
       </div>
-
-      <div class="pagination-bar">
-        <div class="page-size-wrap">Mostrar <select id="pageSizeSelect"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select> filas</div>
-        <div class="pagination-info" id="paginationInfo"></div>
-        <div class="pagination-nav" id="paginationNav"></div>
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Inactivas', ${#lists.size(listarcategorias.?[!estado])}, 'No disponibles', 'feather-slash', 'warning')}"></div>
       </div>
     </section>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var searchInput=document.getElementById("searchInput"),filterEstado=document.getElementById("filterEstado"),rowCountEl=document.getElementById("rowCount"),pageSizeSelect=document.getElementById("pageSizeSelect"),paginationInfo=document.getElementById("paginationInfo"),paginationNav=document.getElementById("paginationNav");
-      var allRows=Array.from(document.querySelectorAll("#categoriasTbody .fila-categoria")),filteredRows=[],currentPage=1,pageSize=parseInt(pageSizeSelect.value,10);
-      function applyFilters(){var t=searchInput.value.trim().toLowerCase(),e=filterEstado.value;filteredRows=allRows.filter(function(r){if(t&&r.textContent.toLowerCase().indexOf(t)<0)return false;if(e&&r.getAttribute("data-estado")!==e)return false;return true});currentPage=1;renderPage()}
-      function renderPage(){var total=filteredRows.length,tp=Math.max(1,Math.ceil(total/pageSize));if(currentPage>tp)currentPage=tp;var s=(currentPage-1)*pageSize,e=Math.min(s+pageSize,total),ps=new Set(filteredRows.slice(s,e));allRows.forEach(function(r){r.style.display=ps.has(r)?"":"none"});rowCountEl.textContent=total;paginationInfo.innerHTML=total===0?"Sin resultados":"<strong>"+(s+1)+"</strong> \u2013 <strong>"+e+"</strong> de <strong>"+total+"</strong>";renderPaginationNav(tp)}
-      function renderPaginationNav(tp){var h='<button class="pg-btn" data-page="prev"'+(currentPage<=1?' disabled':'')+'>\u25C0</button>';buildPN(currentPage,tp).forEach(function(p){if(p==='...')h+='<span class="pg-ellipsis">\u2026</span>';else h+='<button class="pg-btn'+(p===currentPage?' active':'')+'" data-page="'+p+'">'+p+'</button>'});h+='<button class="pg-btn" data-page="next"'+(currentPage>=tp?' disabled':'')+'>\u25B6</button>';paginationNav.innerHTML=h}
-      function buildPN(c,t){if(t<=7)return Array.from({length:t},function(_,i){return i+1});var p=[1];if(c>3)p.push('...');for(var i=Math.max(2,c-1);i<=Math.min(t-1,c+1);i++)p.push(i);if(c<t-2)p.push('...');p.push(t);return p}
-      paginationNav.addEventListener("click",function(ev){var b=ev.target.closest(".pg-btn");if(!b||b.disabled)return;var v=b.dataset.page,tp=Math.max(1,Math.ceil(filteredRows.length/pageSize));if(v==="prev")currentPage=Math.max(1,currentPage-1);else if(v==="next")currentPage=Math.min(tp,currentPage+1);else currentPage=parseInt(v,10);renderPage()});
-      pageSizeSelect.addEventListener("change",function(){pageSize=parseInt(this.value,10);currentPage=1;renderPage()});
-      searchInput.addEventListener("input",applyFilters);filterEstado.addEventListener("change",applyFilters);applyFilters();
-    });
-    </script>
+    <section class="cui-data-grid" data-cui-grid>
+      <div class="cui-data-grid-header">
+        <div>
+          <h2>Listado de categorias</h2>
+          <span class="cui-data-grid-meta" data-cui-grid-count>0 registros</span>
+        </div>
+        <span class="badge text-bg-light">Catalogo</span>
+      </div>
+
+      <div class="cui-data-grid-toolbar">
+        <label class="cui-search-control">
+          <i class="feather-search"></i>
+          <input type="search" class="form-control" placeholder="Buscar categoria..." data-cui-grid-search>
+        </label>
+        <div class="cui-toolbar-actions">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-cui-filter-reset>
+            <i class="feather-rotate-ccw me-1"></i>Limpiar filtros
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">
+            <i class="feather-columns me-1"></i>Columnas
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">
+            <i class="feather-download me-1"></i>Exportar
+          </button>
+        </div>
+      </div>
+
+      <div class="cui-grid-filters">
+        <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="estado">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="cui-data-grid-body">
+        <div class="table-responsive">
+          <table class="table cui-table">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Categoria</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="categoria : ${listarcategorias}"
+                data-cui-grid-row
+                th:data-search="${(categoria.idCategoria + ' ' + categoria.nombre).toLowerCase()}"
+                th:data-estado="${categoria.estado ? 'activo' : 'inactivo'}">
+              <td class="fw-bold" th:text="${categoria.idCategoria}">1</td>
+              <td>
+                <div class="cui-row-title" th:text="${categoria.nombre}">Laptop</div>
+                <div class="cui-row-subtitle">Categoria de activo tecnologico</div>
+              </td>
+              <td>
+                <span th:replace="~{fragments/components/status-badge :: statusBadge(${categoria.estado ? 'Activo' : 'Inactivo'}, ${categoria.estado ? 'success' : 'muted'})}"></span>
+              </td>
+              <td>
+                <div class="cui-action-cell">
+                  <a th:href="@{/categorias-equipo/editar-categoria/{id}(id=${categoria.idCategoria})}" class="btn btn-outline-primary btn-sm">Editar</a>
+                  <div class="dropdown cui-action-menu">
+                    <button class="btn btn-light btn-sm cui-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                      <i class="feather-more-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <form th:if="${categoria.estado}" th:action="@{/categorias-equipo/eliminar/{id}(id=${categoria.idCategoria})}" method="post">
+                          <button type="submit" class="cui-document-action text-danger" data-cui-confirm="Esta accion desactivara esta categoria.">
+                            <i class="feather-slash"></i>Desactivar
+                          </button>
+                        </form>
+                      </li>
+                      <li th:unless="${categoria.estado}">
+                        <span class="dropdown-item text-muted"><i class="feather-info"></i>Sin acciones disponibles</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cui-empty-state" data-cui-empty-state th:hidden="${!#lists.isEmpty(listarcategorias)}">
+          <span class="cui-empty-icon"><i class="feather-layers"></i></span>
+          <h3>No hay categorias registradas</h3>
+          <p>Crea una categoria para clasificar los activos tecnologicos.</p>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 </body>

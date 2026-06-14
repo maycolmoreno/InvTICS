@@ -6,123 +6,157 @@
     <title>Movimientos</title>
 </head>
 <body>
-<div layout:fragment="contenidopaginas" class="itam-page">
-    <div class="main-content">
-        <div class="itam-shell">
-            <div class="itam-hero">
-                <div>
-                    <p class="itam-eyebrow">Inventario operativo</p>
-                    <h1 class="itam-title">Movimientos</h1>
-                    <p class="itam-subtitle">Linea de tiempo para auditar ingresos, asignaciones, devoluciones, traslados y bajas.</p>
-                </div>
-                <div class="itam-actions">
-                    <a th:href="@{/inventario/stock}" class="itam-btn">
-                        <i class="feather-archive"></i>
-                        <span>Stock</span>
-                    </a>
-                    <a th:href="@{/inventario/dashboard}" class="itam-btn primary">
-                        <i class="feather-grid"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-            </div>
+<div layout:fragment="contenidopaginas">
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Movimientos', subtitle='Auditoria operativa de ingresos, asignaciones, devoluciones, traslados y bajas.')}"></div>
 
-            <div class="itam-grid-2">
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Timeline</h2>
-                        <span class="itam-badge" th:text="${#lists.size(movimientos) + ' eventos'}">0 eventos</span>
+        <div class="cui-command-bar">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a th:href="@{/inventario/stock}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-archive" aria-hidden="true"></i>
+                    <span>Stock</span>
+                </a>
+                <a th:href="@{/inventario/dashboard}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-grid" aria-hidden="true"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+        </div>
+
+        <section class="cui-kpi-grid">
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Eventos', value=${#lists.size(movimientos)}, meta='Movimientos registrados', icon='feather-activity', tone='primary')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Traslados', value=${#lists.size(movimientos.?[tipoMovimiento == 'TRASLADO'])}, meta='Cambios logisticos', icon='feather-truck', tone='warning')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Bajas', value=${#lists.size(movimientos.?[tipoMovimiento == 'BAJA'])}, meta='Cierre de ciclo', icon='feather-x-circle', tone='danger')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Asignaciones', value=${#lists.size(movimientos.?[tipoMovimiento == 'ASIGNACION'])}, meta='Entregas a custodios', icon='feather-user-check', tone='success')}"></div>
+        </section>
+
+        <div class="cui-workspace-grid">
+            <section class="cui-data-grid" id="movementsGrid" data-cui-grid>
+                <div class="cui-data-grid-header">
+                    <div>
+                        <p class="cui-eyebrow">Auditoria operativa</p>
+                        <h2>Movimientos de inventario</h2>
                     </div>
-                    <div class="itam-panel-body">
-                        <div class="itam-list" th:if="${!#lists.isEmpty(movimientos)}">
-                            <div class="itam-list-item align-items-start" th:each="m : ${movimientos}">
-                                <span class="itam-dot"
-                                      th:classappend="${m.tipoMovimiento == 'BAJA' ? ' danger' : (m.tipoMovimiento == 'TRASLADO' ? ' warning' : ' success')}"></span>
-                                <div>
-                                    <p class="itam-item-title" th:text="${m.tipoMovimiento}">INGRESO_ACTIVO</p>
-                                    <p class="itam-item-meta">
-                                        <span th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">11/06/2026 09:00</span>
-                                        <span> &middot; </span>
-                                        <span th:text="${m.equipoCodigo ?: (m.consumibleNombre ?: 'Inventario')}">CR-LAP-0001</span>
-                                    </p>
-                                    <p class="itam-item-meta mb-0" th:if="${m.bodegaOrigenNombre != null || m.bodegaDestinoNombre != null}">
-                                        <span th:text="${m.bodegaOrigenNombre ?: 'Origen no aplica'}">Origen</span>
-                                        <span> -> </span>
-                                        <span th:text="${m.bodegaDestinoNombre ?: 'Destino no aplica'}">Destino</span>
-                                    </p>
-                                    <p class="itam-item-meta mb-0" th:if="${m.custodioNombre != null}" th:text="${'Custodio: ' + m.custodioNombre}">Custodio</p>
-                                    <p class="itam-item-meta mb-0" th:if="${m.estadoAnterior != null || m.estadoNuevo != null}">
+                    <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+                </div>
+
+                <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar por codigo, consumible, custodio, bodega o tipo...', exportHref=null)}"></div>
+
+                <div class="cui-grid-filters">
+                    <select class="form-select" data-cui-grid-filter data-filter-key="tipo" data-cui-filter-persist>
+                        <option value="">Todos los tipos</option>
+                        <option value="INGRESO_ACTIVO">Ingreso activo</option>
+                        <option value="ASIGNACION">Asignacion</option>
+                        <option value="TRASLADO">Traslado</option>
+                        <option value="BAJA">Baja</option>
+                    </select>
+                </div>
+
+                <div class="cui-data-grid-body">
+                    <div class="table-responsive">
+                        <table class="table cui-table">
+                            <thead>
+                            <tr>
+                                <th>Movimiento</th>
+                                <th>Referencia</th>
+                                <th>Bodega / Custodio</th>
+                                <th>Estados</th>
+                                <th>Cantidad</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${movimientos == null or #lists.isEmpty(movimientos)}">
+                                <td colspan="6">
+                                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin movimientos', message='No hay movimientos registrados.')}"></div>
+                                </td>
+                            </tr>
+                            <tr th:each="m : ${movimientos}"
+                                data-cui-grid-row
+                                th:with="tipoTexto=${m.tipoMovimiento ?: 'MOVIMIENTO'},
+                                         referencia=${m.equipoCodigo ?: (m.consumibleNombre ?: 'Inventario')},
+                                         busqueda=${tipoTexto + ' ' + referencia + ' ' + (m.bodegaOrigenNombre ?: '') + ' ' + (m.bodegaDestinoNombre ?: '') + ' ' + (m.custodioNombre ?: '') + ' ' + (m.observacion ?: '')}"
+                                th:attr="data-search=${#strings.toLowerCase(busqueda)},data-tipo=${tipoTexto}">
+                                <td>
+                                    <div class="cui-row-stack">
+                                        <span class="cui-row-title" th:text="${tipoTexto}">Movimiento</span>
+                                        <span class="cui-row-subtitle" th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">Fecha</span>
+                                    </div>
+                                </td>
+                                <td th:text="${referencia}">Referencia</td>
+                                <td>
+                                    <div class="cui-row-stack">
+                                        <span class="cui-row-title" th:text="${m.custodioNombre ?: 'Sin custodio'}">Custodio</span>
+                                        <span class="cui-row-subtitle" th:if="${m.bodegaOrigenNombre != null or m.bodegaDestinoNombre != null}">
+                                            <span th:text="${m.bodegaOrigenNombre ?: 'Origen no aplica'}">Origen</span>
+                                            <span> -> </span>
+                                            <span th:text="${m.bodegaDestinoNombre ?: 'Destino no aplica'}">Destino</span>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="cui-row-stack">
                                         <span th:text="${m.estadoAnterior ?: 'Sin estado'}">Anterior</span>
-                                        <span> -> </span>
-                                        <span th:text="${m.estadoNuevo ?: 'Sin estado'}">Nuevo</span>
-                                    </p>
-                                    <p class="itam-item-meta mb-0" th:if="${m.observacion != null}" th:text="${m.observacion}">Observacion</p>
-                                </div>
-                                <div class="text-end" th:if="${m.cantidad != null}">
-                                    <span class="itam-badge neutral" th:text="${'x' + m.cantidad}">x1</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="itam-empty" th:if="${#lists.isEmpty(movimientos)}">Sin movimientos registrados.</div>
+                                        <span class="cui-row-subtitle" th:text="${m.estadoNuevo ?: 'Sin estado nuevo'}">Nuevo</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:if="${m.cantidad != null}" class="cui-badge cui-badge-muted" th:text="${'x' + m.cantidad}">x1</span>
+                                    <span th:unless="${m.cantidad != null}" class="text-muted">-</span>
+                                </td>
+                                <td>
+                                    <div class="cui-action-cell">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" disabled>
+                                            Ver detalle
+                                        </button>
+                                        <div class="dropdown cui-action-menu">
+                                            <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                                <i class="feather-more-vertical" aria-hidden="true"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <a class="dropdown-item" th:href="@{/inventario/stock}">
+                                                    <i class="feather-archive" aria-hidden="true"></i>
+                                                    Ver stock
+                                                </a>
+                                                <a class="dropdown-item" th:href="@{/inventario/dashboard}">
+                                                    <i class="feather-grid" aria-hidden="true"></i>
+                                                    Dashboard operativo
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </section>
 
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Filtros visuales</h2>
-                        <span class="itam-badge neutral">Lectura rapida</span>
+                    <div hidden data-cui-empty-state>
+                        <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay movimientos que coincidan con los filtros aplicados.')}"></div>
                     </div>
-                    <div class="itam-panel-body">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label">Buscar</label>
-                                <input class="form-control" type="search" placeholder="Codigo, consumible, custodio o bodega" disabled>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Tipo</label>
-                                <select class="form-select" disabled>
-                                    <option>Todos</option>
-                                    <option>Ingreso</option>
-                                    <option>Asignacion</option>
-                                    <option>Traslado</option>
-                                    <option>Baja</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Bodega</label>
-                                <select class="form-select" disabled>
-                                    <option>Todas</option>
-                                    <option th:each="b : ${bodegas}" th:text="${b.nombre}">Bodega</option>
-                                </select>
-                            </div>
-                        </div>
+                </div>
+            </section>
 
-                        <div class="itam-list mt-4">
-                            <div class="itam-list-item">
-                                <span class="itam-dot success"></span>
-                                <div>
-                                    <p class="itam-item-title">Ingreso / asignacion</p>
-                                    <p class="itam-item-meta mb-0">Eventos que aumentan trazabilidad operativa.</p>
-                                </div>
-                            </div>
-                            <div class="itam-list-item">
-                                <span class="itam-dot warning"></span>
-                                <div>
-                                    <p class="itam-item-title">Traslado</p>
-                                    <p class="itam-item-meta mb-0">Cambio entre bodegas o ubicaciones logisticas.</p>
-                                </div>
-                            </div>
-                            <div class="itam-list-item">
-                                <span class="itam-dot danger"></span>
-                                <div>
-                                    <p class="itam-item-title">Baja</p>
-                                    <p class="itam-item-meta mb-0">Cierre del ciclo de vida del activo.</p>
-                                </div>
-                            </div>
+            <section class="cui-form-panel">
+                <div class="cui-form-panel-header">
+                    <h2 class="cui-form-panel-title">Timeline reciente</h2>
+                    <span class="cui-badge cui-badge-en-bodega">Lectura rapida</span>
+                </div>
+                <div class="cui-timeline" th:if="${movimientos != null and !#lists.isEmpty(movimientos)}">
+                    <article class="cui-timeline-item" th:each="m, stat : ${movimientos}" th:if="${stat.index < 8}">
+                        <span class="cui-timeline-marker"
+                              th:classappend="${m.tipoMovimiento == 'BAJA'} ? ' is-danger' : (${m.tipoMovimiento == 'TRASLADO'} ? ' is-warning' : ' is-success')"></span>
+                        <div class="cui-row-stack">
+                            <span class="cui-row-title" th:text="${m.tipoMovimiento}">Movimiento</span>
+                            <span class="cui-row-subtitle" th:text="${m.equipoCodigo ?: (m.consumibleNombre ?: 'Inventario')}">Referencia</span>
+                            <span class="cui-row-subtitle" th:if="${m.observacion != null}" th:text="${m.observacion}">Observacion</span>
                         </div>
-                    </div>
-                </section>
-            </div>
+                        <span class="cui-row-subtitle" th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM HH:mm') : '-'}">Fecha</span>
+                    </article>
+                </div>
+                <div th:if="${movimientos == null or #lists.isEmpty(movimientos)}"
+                     th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin actividad', message='No hay actividad reciente para mostrar.')}"></div>
+            </section>
         </div>
     </div>
 </div>

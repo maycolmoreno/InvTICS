@@ -6,131 +6,187 @@
     <title>Traslados</title>
 </head>
 <body>
-<div layout:fragment="contenidopaginas" class="itam-page">
-    <div class="main-content">
-        <div class="itam-shell">
-            <div class="itam-hero">
-                <div>
-                    <p class="itam-eyebrow">Inventario operativo</p>
-                    <h1 class="itam-title">Traslados</h1>
-                    <p class="itam-subtitle">Movimiento controlado de activos y consumibles entre bodegas.</p>
-                </div>
-                <div class="itam-actions">
-                    <a th:href="@{/inventario/stock}" class="itam-btn">
-                        <i class="feather-archive"></i>
-                        <span>Stock</span>
-                    </a>
-                    <a th:href="@{/inventario/movimientos}" class="itam-btn primary">
-                        <i class="feather-clock"></i>
-                        <span>Timeline</span>
-                    </a>
-                </div>
-            </div>
+<div layout:fragment="contenidopaginas">
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Traslados', subtitle='Movimiento controlado de activos y consumibles entre bodegas.')}"></div>
 
-            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
-            <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
-
-            <div class="itam-grid-2">
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Activo</h2>
-                        <span class="itam-badge" th:text="${#lists.size(activosEnBodega) + ' disponibles'}">0 disponibles</span>
-                    </div>
-                    <div class="itam-panel-body">
-                        <form th:action="@{/inventario/traslados/activos}" th:object="${trasladoActivoRequest}" method="post" class="row g-3">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                            <div class="col-12">
-                                <label class="form-label">Activo en bodega</label>
-                                <select class="form-select" th:field="*{equipoId}" required>
-                                    <option value="">Seleccione</option>
-                                    <option th:each="a : ${activosEnBodega}"
-                                            th:value="${a.idEquipo}"
-                                            th:text="${(a.codigoCresio ?: 'Sin codigo') + ' - ' + (a.modelo ?: 'Sin modelo') + ' / ' + (a.bodegaNombre ?: 'Sin bodega')}">
-                                        Activo
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Bodega destino</label>
-                                <select class="form-select" th:field="*{bodegaDestinoId}" required>
-                                    <option value="">Seleccione</option>
-                                    <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Observacion</label>
-                                <textarea class="form-control" th:field="*{observacion}" rows="3"></textarea>
-                            </div>
-                            <div class="col-12 d-flex justify-content-end">
-                                <button class="itam-btn primary" type="submit" th:disabled="${#lists.isEmpty(activosEnBodega)}">
-                                    <i class="feather-truck"></i>
-                                    <span>Trasladar activo</span>
-                                </button>
-                            </div>
-                        </form>
-
-                        <div class="itam-list mt-4" th:if="${!#lists.isEmpty(activosEnBodega)}">
-                            <div class="itam-list-item" th:each="a, aStat : ${activosEnBodega}" th:if="${aStat.index < 4}">
-                                <span class="itam-dot success"></span>
-                                <div>
-                                    <p class="itam-item-title" th:text="${a.codigoCresio ?: 'Sin codigo'}">CR-LAP-0001</p>
-                                    <p class="itam-item-meta mb-0" th:text="${(a.modelo ?: 'Sin modelo') + ' - ' + (a.bodegaNombre ?: 'Sin bodega')}">Modelo</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Consumible</h2>
-                        <span class="itam-badge success" th:text="${#lists.size(stock) + ' items'}">0 items</span>
-                    </div>
-                    <div class="itam-panel-body">
-                        <form th:action="@{/inventario/traslados/consumibles}" th:object="${trasladoConsumibleRequest}" method="post" class="row g-3">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                            <div class="col-md-6">
-                                <label class="form-label">Origen</label>
-                                <select class="form-select" th:field="*{bodegaOrigenId}" required>
-                                    <option value="">Seleccione</option>
-                                    <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Origen</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Destino</label>
-                                <select class="form-select" th:field="*{bodegaDestinoId}" required>
-                                    <option value="">Seleccione</option>
-                                    <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Destino</option>
-                                </select>
-                            </div>
-                            <div class="col-md-8">
-                                <label class="form-label">Consumible</label>
-                                <select class="form-select" th:field="*{consumibleId}" required>
-                                    <option value="">Seleccione</option>
-                                    <option th:each="s : ${stock}" th:value="${s.consumibleId}" th:text="${s.consumibleNombre + ' (' + s.cantidad + ')'}">Consumible</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Cantidad</label>
-                                <input class="form-control" th:field="*{cantidad}" type="number" min="1" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Observacion</label>
-                                <textarea class="form-control" th:field="*{observacion}" rows="3"></textarea>
-                            </div>
-                            <div class="col-12 d-flex justify-content-end">
-                                <button class="itam-btn success" type="submit" th:disabled="${#lists.isEmpty(stock)}">
-                                    <i class="feather-send"></i>
-                                    <span>Trasladar consumible</span>
-                                </button>
-                            </div>
-                        </form>
-
-                        <div class="itam-empty mt-4" th:if="${#lists.isEmpty(stock)}">Sin consumibles con stock en la bodega principal.</div>
-                    </div>
-                </section>
+        <div class="cui-command-bar">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a th:href="@{/inventario/stock}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-archive" aria-hidden="true"></i>
+                    <span>Stock</span>
+                </a>
+                <a th:href="@{/inventario/movimientos}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-clock" aria-hidden="true"></i>
+                    <span>Movimientos</span>
+                </a>
             </div>
         </div>
+
+        <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
+
+        <section class="cui-kpi-grid">
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Activos disponibles', value=${#lists.size(activosEnBodega)}, meta='En bodega para traslado', icon='feather-monitor', tone='primary')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Consumibles', value=${#lists.size(stock)}, meta='Items con stock', icon='feather-package', tone='success')}"></div>
+        </section>
+
+        <div class="cui-workspace-grid">
+            <section class="cui-form-panel">
+                <div class="cui-form-panel-header">
+                    <h2 class="cui-form-panel-title">Traslado de activo</h2>
+                    <span class="cui-badge cui-badge-en-transito">Activo</span>
+                </div>
+                <form th:action="@{/inventario/traslados/activos}" th:object="${trasladoActivoRequest}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="col-12">
+                        <label class="form-label">Activo en bodega</label>
+                        <select class="form-select" th:field="*{equipoId}" required>
+                            <option value="">Seleccione</option>
+                            <option th:each="a : ${activosEnBodega}"
+                                    th:value="${a.idEquipo}"
+                                    th:text="${(a.codigoCresio ?: 'Sin codigo') + ' - ' + (a.modelo ?: 'Sin modelo') + ' / ' + (a.bodegaNombre ?: 'Sin bodega')}">
+                                Activo
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Bodega destino</label>
+                        <select class="form-select" th:field="*{bodegaDestinoId}" required>
+                            <option value="">Seleccione</option>
+                            <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion</label>
+                        <textarea class="form-control" th:field="*{observacion}" rows="3"></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <button class="cui-btn cui-btn-primary" type="submit" th:disabled="${#lists.isEmpty(activosEnBodega)}">
+                            <i class="feather-truck" aria-hidden="true"></i>
+                            <span>Trasladar activo</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="cui-form-panel">
+                <div class="cui-form-panel-header">
+                    <h2 class="cui-form-panel-title">Traslado de consumible</h2>
+                    <span class="cui-badge cui-badge-asignado">Consumible</span>
+                </div>
+                <form th:action="@{/inventario/traslados/consumibles}" th:object="${trasladoConsumibleRequest}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="col-md-6">
+                        <label class="form-label">Origen</label>
+                        <select class="form-select" th:field="*{bodegaOrigenId}" required>
+                            <option value="">Seleccione</option>
+                            <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Origen</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Destino</label>
+                        <select class="form-select" th:field="*{bodegaDestinoId}" required>
+                            <option value="">Seleccione</option>
+                            <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Destino</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Consumible</label>
+                        <select class="form-select" th:field="*{consumibleId}" required>
+                            <option value="">Seleccione</option>
+                            <option th:each="s : ${stock}" th:value="${s.consumibleId}" th:text="${s.consumibleNombre + ' (' + s.cantidad + ')'}">Consumible</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Cantidad</label>
+                        <input class="form-control" th:field="*{cantidad}" type="number" min="1" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion</label>
+                        <textarea class="form-control" th:field="*{observacion}" rows="3"></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <button class="cui-btn cui-btn-primary" type="submit" th:disabled="${#lists.isEmpty(stock)}">
+                            <i class="feather-send" aria-hidden="true"></i>
+                            <span>Trasladar consumible</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <section class="cui-data-grid mt-4" id="transferAvailabilityGrid" data-cui-grid>
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Disponibilidad</p>
+                    <h2>Activos en bodega</h2>
+                </div>
+                <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+            </div>
+            <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar activo disponible...', exportHref=null)}"></div>
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Modelo</th>
+                            <th>Bodega actual</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${activosEnBodega == null or #lists.isEmpty(activosEnBodega)}">
+                            <td colspan="5">
+                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-archive', title='Sin activos disponibles', message='No hay activos en bodega para trasladar.')}"></div>
+                            </td>
+                        </tr>
+                        <tr th:each="a : ${activosEnBodega}"
+                            data-cui-grid-row
+                            th:with="busqueda=${(a.codigoCresio ?: '') + ' ' + (a.modelo ?: '') + ' ' + (a.bodegaNombre ?: '')}"
+                            th:attr="data-search=${#strings.toLowerCase(busqueda)}">
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${a.codigoCresio ?: 'Sin codigo'}">CR-LAP-0001</span>
+                                    <span class="cui-row-subtitle" th:text="${'ID ' + a.idEquipo}">ID</span>
+                                </div>
+                            </td>
+                            <td th:text="${a.modelo ?: 'Sin modelo'}">Modelo</td>
+                            <td th:text="${a.bodegaNombre ?: 'Sin bodega'}">Bodega</td>
+                            <td><span class="cui-badge cui-badge-en-bodega">En bodega</span></td>
+                            <td>
+                                <div class="cui-action-cell">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" disabled>
+                                        Disponible
+                                    </button>
+                                    <div class="dropdown cui-action-menu">
+                                        <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                            <i class="feather-more-vertical" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item" th:href="@{/inventario/movimientos}">
+                                                <i class="feather-clock" aria-hidden="true"></i>
+                                                Ver movimientos
+                                            </a>
+                                            <a class="dropdown-item" th:href="@{/activos/equipos/{id}/expediente(id=${a.idEquipo})}">
+                                                <i class="feather-monitor" aria-hidden="true"></i>
+                                                Expediente
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div hidden data-cui-empty-state>
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay activos que coincidan con la busqueda.')}"></div>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
 </body>

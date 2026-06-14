@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="empty(icon, title, message)" class="cui-empty-state">
+    <div class="cui-empty-icon">
+        <i th:class="${icon != null ? icon : 'feather-inbox'}" aria-hidden="true"></i>
+    </div>
+    <h3 th:text="${title != null ? title : 'Sin registros'}">Sin registros</h3>
+    <p th:text="${message != null ? message : 'No hay informacion disponible para mostrar.'}">No hay informacion disponible.</p>
+</div>
+</body>
+</html>

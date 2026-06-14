@@ -9,145 +9,135 @@
 <body>
 <div layout:fragment="contenidopaginas">
   <div class="page-shell admin-shell">
-    <section class="operations-hero">
-      <div class="operations-hero-copy">
-        <div class="eyebrow">Estructura Organizacional</div>
-        <h1>Catalogo de cargos</h1>
-      </div>
-      <div class="operations-hero-actions">
-        <a th:href="@{/cargos/nuevo-cargo}" class="btn btn-primary px-4 py-3">
-          <i class="feather-plus-circle me-2"></i>Nuevo cargo
+    <section class="cui-admin-header">
+      <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+        <div>
+          <div class="cui-data-grid-meta">Administracion / Estructura organizacional</div>
+          <h1>Cargos</h1>
+          <p>Catalogo de funciones laborales asociadas a departamentos.</p>
+        </div>
+        <a th:href="@{/cargos/nuevo-cargo}" class="cui-btn cui-btn-primary">
+          <i class="feather-plus-circle"></i>
+          Nuevo cargo
         </a>
       </div>
     </section>
 
-    <section class="admin-summary-grid">
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Total cargos</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listacargo)}">0</div>
-      </article>
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Activos</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listacargo.?[estado])}">0</div>
-      </article>
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Inactivos</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listacargo.?[!estado])}">0</div>
-      </article>
-    </section>
-
-    <section class="surface-card page-panel">
-      <div class="filter-bar">
-        <input id="searchInput" type="text" class="form-control form-control-sm" placeholder="Buscar cargo..." style="max-width:220px">
-        <select id="filterDepartamento" class="form-select form-select-sm" style="max-width:180px">
-          <option value="">Todo departamento</option>
-        </select>
-        <select id="filterEstado" class="form-select form-select-sm" style="max-width:150px">
-          <option value="">Todo estado</option>
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
-        </select>
-        <span class="row-counter"><span id="rowCount">0</span> registros</span>
+    <section class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Total cargos', ${#lists.size(listacargo)}, 'Catalogo administrativo', 'feather-briefcase', 'primary')}"></div>
       </div>
-
-      <div class="card card-custodios">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead>
-              <tr>
-                <th>ID</th>
-                <th>Cargo</th>
-                <th>Departamento</th>
-                <th>Estado</th>
-                <th class="text-end">Acciones</th>
-              </tr>
-              </thead>
-              <tbody id="cargosTbody">
-              <tr class="fila-cargo" th:each="cargos : ${listacargo}"
-                  th:data-departamento="${cargos.fkDepartamento?.nombre ?: 'Sin departamento'}"
-                  th:data-estado="${cargos.estado ? 'Activo' : 'Inactivo'}">
-                <td><strong th:text="${cargos.idCargo}">1</strong></td>
-                <td th:text="${cargos.nombre}">Analista</td>
-                <td th:text="${cargos.fkDepartamento?.nombre ?: 'Sin departamento'}">Sistemas</td>
-                <td><span th:class="${cargos.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}" th:text="${cargos.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
-                <td>
-                  <div class="hstack gap-2 justify-content-end">
-                    <a th:href="@{/cargos/editar-cargo/{id}(id=${cargos.idCargo})}" class="btn btn-light btn-sm">
-                      <i class="feather-edit-2 me-1"></i>Editar
-                    </a>
-                    <a th:if="${cargos.estado}" href="javascript:void(0)" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminarCargo" th:attr="data-id=${cargos.idCargo}">
-                      <i class="feather-slash me-1"></i>Desactivar
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr th:if="${#lists.isEmpty(listacargo)}">
-                <td colspan="5">
-                  <div class="table-empty-state">
-                    <i class="feather-briefcase"></i>
-                    <div class="fw-semibold">No hay cargos registrados</div>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Activos', ${#lists.size(listacargo.?[estado])}, 'Disponibles para asignacion', 'feather-check-circle', 'success')}"></div>
       </div>
-
-      <div class="pagination-bar">
-        <div class="page-size-wrap">Mostrar <select id="pageSizeSelect"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select> filas</div>
-        <div class="pagination-info" id="paginationInfo"></div>
-        <div class="pagination-nav" id="paginationNav"></div>
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Inactivos', ${#lists.size(listacargo.?[!estado])}, 'Ocultos en nuevos registros', 'feather-slash', 'warning')}"></div>
       </div>
     </section>
 
-    <div class="modal fade" id="modalEliminarCargo" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Confirmar desactivacion</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">Esta accion desactivara el cargo seleccionado y dejara de estar disponible para nuevos registros.</div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-            <form th:action="@{/cargos/eliminar-cargo}" method="post">
-              <input type="hidden" name="idCargo" id="idCargoEliminar">
-              <button type="submit" class="btn btn-outline-danger">Si, desactivar</button>
-            </form>
-          </div>
+    <section class="cui-data-grid" data-cui-grid>
+      <div class="cui-data-grid-header">
+        <div>
+          <h2>Listado de cargos</h2>
+          <span class="cui-data-grid-meta" data-cui-grid-count>0 registros</span>
+        </div>
+        <span class="badge text-bg-light">Configuracion</span>
+      </div>
+
+      <div class="cui-data-grid-toolbar">
+        <label class="cui-search-control">
+          <i class="feather-search"></i>
+          <input type="search" class="form-control" placeholder="Buscar cargo o departamento..." data-cui-grid-search>
+        </label>
+        <div class="cui-toolbar-actions">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-cui-filter-reset>
+            <i class="feather-rotate-ccw me-1"></i>Limpiar filtros
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">
+            <i class="feather-columns me-1"></i>Columnas
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">
+            <i class="feather-download me-1"></i>Exportar
+          </button>
         </div>
       </div>
-    </div>
 
-    <script>
-      const modalEliminarCargo = document.getElementById('modalEliminarCargo');
-      modalEliminarCargo.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const id = button.getAttribute('data-id');
-        document.getElementById('idCargoEliminar').value = id;
-      });
-      document.addEventListener('DOMContentLoaded', function() {
-        if (modalEliminarCargo && modalEliminarCargo.parentElement !== document.body) {
-          document.body.appendChild(modalEliminarCargo);
-        }
-        var searchInput=document.getElementById("searchInput"),filterDepartamento=document.getElementById("filterDepartamento"),filterEstado=document.getElementById("filterEstado"),rowCountEl=document.getElementById("rowCount"),pageSizeSelect=document.getElementById("pageSizeSelect"),paginationInfo=document.getElementById("paginationInfo"),paginationNav=document.getElementById("paginationNav");
-        var allRows=Array.from(document.querySelectorAll("#cargosTbody .fila-cargo")),filteredRows=[],currentPage=1,pageSize=parseInt(pageSizeSelect.value,10);
-        // Populate departamento dropdown
-        var deptos=new Set();allRows.forEach(function(r){var d=r.getAttribute("data-departamento");if(d)deptos.add(d)});
-        Array.from(deptos).sort().forEach(function(d){var o=document.createElement("option");o.value=d;o.textContent=d;filterDepartamento.appendChild(o)});
-        if(typeof $!=='undefined'&&$.fn.select2){$('#filterDepartamento').select2({width:'200px'})}
-        function applyFilters(){var t=searchInput.value.trim().toLowerCase(),dep=filterDepartamento.value,est=filterEstado.value;filteredRows=allRows.filter(function(r){if(t&&r.textContent.toLowerCase().indexOf(t)<0)return false;if(dep&&r.getAttribute("data-departamento")!==dep)return false;if(est&&r.getAttribute("data-estado")!==est)return false;return true});currentPage=1;renderPage()}
-        function renderPage(){var total=filteredRows.length,tp=Math.max(1,Math.ceil(total/pageSize));if(currentPage>tp)currentPage=tp;var s=(currentPage-1)*pageSize,e=Math.min(s+pageSize,total),ps=new Set(filteredRows.slice(s,e));allRows.forEach(function(r){r.style.display=ps.has(r)?"":"none"});rowCountEl.textContent=total;paginationInfo.innerHTML=total===0?"Sin resultados":"<strong>"+(s+1)+"</strong> \u2013 <strong>"+e+"</strong> de <strong>"+total+"</strong>";renderPaginationNav(tp)}
-        function renderPaginationNav(tp){var h='<button class="pg-btn" data-page="prev"'+(currentPage<=1?' disabled':'')+'>&#9664;</button>';buildPN(currentPage,tp).forEach(function(p){if(p==='...')h+='<span class="pg-ellipsis">&hellip;</span>';else h+='<button class="pg-btn'+(p===currentPage?' active':'')+'\" data-page="'+p+'">'+p+'</button>'});h+='<button class="pg-btn" data-page="next"'+(currentPage>=tp?' disabled':'')+'>&#9654;</button>';paginationNav.innerHTML=h}
-        function buildPN(c,t){if(t<=7)return Array.from({length:t},function(_,i){return i+1});var p=[1];if(c>3)p.push('...');for(var i=Math.max(2,c-1);i<=Math.min(t-1,c+1);i++)p.push(i);if(c<t-2)p.push('...');p.push(t);return p}
-        paginationNav.addEventListener("click",function(ev){var b=ev.target.closest(".pg-btn");if(!b||b.disabled)return;var v=b.dataset.page,tp=Math.max(1,Math.ceil(filteredRows.length/pageSize));if(v==="prev")currentPage=Math.max(1,currentPage-1);else if(v==="next")currentPage=Math.min(tp,currentPage+1);else currentPage=parseInt(v,10);renderPage()});
-        pageSizeSelect.addEventListener("change",function(){pageSize=parseInt(this.value,10);currentPage=1;renderPage()});
-        searchInput.addEventListener("input",applyFilters);$('#filterDepartamento').on('change',applyFilters);filterEstado.addEventListener("change",applyFilters);applyFilters();
-      });
-    </script>
+      <div class="cui-grid-filters">
+        <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="departamento">
+          <option value="">Todos los departamentos</option>
+          <option th:each="cargo : ${listacargo}"
+                  th:if="${cargo.fkDepartamento != null}"
+                  th:value="${cargo.fkDepartamento.nombre}"
+                  th:text="${cargo.fkDepartamento.nombre}">Departamento</option>
+        </select>
+        <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="estado">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="cui-data-grid-body">
+        <div class="table-responsive">
+          <table class="table cui-table">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cargo</th>
+              <th>Departamento</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cargo : ${listacargo}"
+                data-cui-grid-row
+                th:data-search="${(cargo.idCargo + ' ' + cargo.nombre + ' ' + (cargo.fkDepartamento != null ? cargo.fkDepartamento.nombre : 'Sin departamento')).toLowerCase()}"
+                th:data-departamento="${cargo.fkDepartamento != null ? cargo.fkDepartamento.nombre : 'Sin departamento'}"
+                th:data-estado="${cargo.estado ? 'activo' : 'inactivo'}">
+              <td class="fw-bold" th:text="${cargo.idCargo}">1</td>
+              <td>
+                <div class="cui-row-title" th:text="${cargo.nombre}">Analista</div>
+                <div class="cui-row-subtitle">Cargo administrativo</div>
+              </td>
+              <td th:text="${cargo.fkDepartamento != null ? cargo.fkDepartamento.nombre : 'Sin departamento'}">Sistemas</td>
+              <td>
+                <span th:replace="~{fragments/components/status-badge :: statusBadge(${cargo.estado ? 'Activo' : 'Inactivo'}, ${cargo.estado ? 'success' : 'muted'})}"></span>
+              </td>
+              <td>
+                <div class="cui-action-cell">
+                  <a th:href="@{/cargos/editar-cargo/{id}(id=${cargo.idCargo})}" class="btn btn-outline-primary btn-sm">Editar</a>
+                  <div class="dropdown cui-action-menu">
+                    <button class="btn btn-light btn-sm cui-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                      <i class="feather-more-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <form th:if="${cargo.estado}" th:action="@{/cargos/eliminar-cargo}" method="post">
+                          <input type="hidden" name="idCargo" th:value="${cargo.idCargo}">
+                          <button type="submit" class="cui-document-action text-danger" data-cui-confirm="Esta accion desactivara el cargo seleccionado.">
+                            <i class="feather-slash"></i>Desactivar
+                          </button>
+                        </form>
+                      </li>
+                      <li th:unless="${cargo.estado}">
+                        <span class="dropdown-item text-muted"><i class="feather-info"></i>Sin acciones disponibles</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cui-empty-state" data-cui-empty-state th:hidden="${!#lists.isEmpty(listacargo)}">
+          <span class="cui-empty-icon"><i class="feather-briefcase"></i></span>
+          <h3>No hay cargos registrados</h3>
+          <p>Crea el primer cargo para completar la estructura organizacional.</p>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 </body>

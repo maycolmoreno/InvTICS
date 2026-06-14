@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="shell(id, title)" class="cui-data-grid" th:id="${id}" data-cui-grid>
+    <div class="cui-data-grid-header">
+        <div>
+            <p class="cui-eyebrow">Listado</p>
+            <h2 th:text="${title}">Registros</h2>
+        </div>
+        <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+    </div>
+    <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar registros...', exportHref=null)}"></div>
+    <div class="cui-data-grid-body">
+        <div class="table-responsive">
+            <table class="table cui-table">
+                <tbody>
+                <tr>
+                    <td>Defina el contenido de la tabla en la vista.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

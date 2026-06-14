@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="table(rows)" class="cui-skeleton-table" aria-hidden="true">
+    <div class="cui-skeleton-row" th:each="i : ${#numbers.sequence(1, rows != null ? rows : 5)}">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</div>
+</body>
+</html>

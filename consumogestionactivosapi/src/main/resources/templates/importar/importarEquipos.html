@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultra.net.nz/thymeleaf/layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{plantilla/plantillaui}">
 
 <head>
@@ -120,14 +120,14 @@
                         <h5 class="card-title mb-0">Vista Previa de Equipos</h5>
                         <div class="hstack gap-2">
                             <!-- Confirmar -->
-                            <form th:action="@{/importar/confirmar}" method="post" style="display:inline;">
+                            <form th:action="@{/importar/confirmar}" method="post">
                                 <button type="submit" class="btn btn-success"
-                                        onclick="return confirm('¿Confirmar la importación de ' + document.getElementById('totalEquiposCount').innerText + ' equipo(s)?');">
+                                        data-cui-confirm="Confirma la importacion de equipos desde el archivo cargado.">
                                     <i class="feather-check me-2"></i>Confirmar importacion
                                 </button>
                             </form>
                             <!-- Cancelar -->
-                            <form th:action="@{/importar/cancelar}" method="post" style="display:inline;">
+                            <form th:action="@{/importar/cancelar}" method="post">
                                 <button type="submit" class="btn btn-outline-secondary">
                                     <i class="feather-x me-2"></i>Cancelar
                                 </button>

@@ -6,228 +6,451 @@
     <title>Expediente del activo</title>
 </head>
 <body>
-<div layout:fragment="contenidopaginas" class="itam-page">
-    <div class="main-content">
-        <div class="itam-shell">
-            <div class="itam-hero">
-                <div>
-                    <p class="itam-eyebrow">Activos TI</p>
-                    <h1 class="itam-title" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Activo sin codigo'}">CR-LAP-0001</h1>
-                    <p class="itam-subtitle">
-                        <span th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Equipo'}">Laptop</span>
-                        <span> &middot; </span>
-                        <span th:text="${equipo.fkMarca != null ? equipo.fkMarca.nombre : 'Sin marca'}">Dell</span>
-                        <span> &middot; </span>
-                        <span th:text="${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : 'Sin modelo'}">Latitude</span>
-                    </p>
-                </div>
-                <div class="itam-actions">
-                    <a th:href="@{/equipos}" class="itam-btn">
-                        <i class="feather-arrow-left"></i>
-                        <span>Equipos</span>
-                    </a>
-                    <a th:href="@{/mantenimiento/nuevo(equipoId=${equipo.idEquipo})}" class="itam-btn">
-                        <i class="feather-wrench"></i>
-                        <span>Mantenimiento</span>
-                    </a>
-                    <a th:href="@{/equipos/editar-equipo/{id}(id=${equipo.idEquipo})}" class="itam-btn primary">
-                        <i class="feather-edit"></i>
-                        <span>Editar</span>
-                    </a>
+<div layout:fragment="contenidopaginas">
+    <div class="cui-expediente"
+         th:with="codigoActivo=${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Activo sin codigo'},
+                  categoriaActivo=${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Equipo'},
+                  marcaActivo=${equipo.fkMarca != null ? equipo.fkMarca.nombre : 'Sin marca'},
+                  modeloActivo=${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : 'Sin modelo'},
+                  estadoTecnico=${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : (equipo.estado ? 'EN_BODEGA' : 'DADO_DE_BAJA')},
+                  estadoClase=${!equipo.estado ? 'cui-badge-dado-de-baja' : ((#strings.contains(#strings.toLowerCase(estadoTecnico), 'repar') or #strings.contains(#strings.toLowerCase(estadoTecnico), 'mantenimiento') or #strings.contains(#strings.toLowerCase(estadoTecnico), 'falla')) ? 'cui-badge-en-reparacion' : (custodiaActual != null ? 'cui-badge-asignado' : 'cui-badge-en-bodega'))},
+                  custodioNombre=${custodiaActual != null and custodiaActual.fkCustodio != null ? custodiaActual.fkCustodio.nombre : 'No asignado'},
+                  ubicacionNombre=${custodiaActual != null and custodiaActual.fkCustodio != null and custodiaActual.fkCustodio.fkUbicacion != null ? custodiaActual.fkCustodio.fkUbicacion.nombre : 'No registrado'},
+                  departamentoNombre=${custodiaActual != null and custodiaActual.fkCustodio != null and custodiaActual.fkCustodio.fkDepartamento != null ? custodiaActual.fkCustodio.fkDepartamento.nombre : 'No registrado'},
+                  healthScore=${!equipo.estado ? 45 : ((#lists.isEmpty(mantenimientos) and #lists.isEmpty(movimientos)) ? 70 : (custodiaActual != null ? 88 : 78))}">
+
+        <header class="cui-entity-header">
+            <div class="cui-entity-avatar">
+                <i th:with="categoriaNormalizada=${#strings.toLowerCase(categoriaActivo)}"
+                   th:class="${#strings.contains(categoriaNormalizada, 'impres')} ? 'feather-printer' : (${#strings.contains(categoriaNormalizada, 'scanner')} ? 'feather-file-text' : (${#strings.contains(categoriaNormalizada, 'red')} ? 'feather-cpu' : 'feather-monitor'))"
+                   aria-hidden="true"></i>
+            </div>
+            <div class="cui-entity-heading">
+                <p class="cui-eyebrow">Expediente 360 del activo</p>
+                <h1 th:text="${codigoActivo}">CR-LAP-0001</h1>
+                <p>
+                    <span th:text="${categoriaActivo}">Categoria</span>
+                    <span> / </span>
+                    <span th:text="${marcaActivo}">Marca</span>
+                    <span> / </span>
+                    <span th:text="${modeloActivo}">Modelo</span>
+                </p>
+                <div class="cui-entity-meta">
+                    <span class="cui-badge" th:classappend="${' ' + estadoClase}" th:text="${estadoTecnico}">Estado</span>
+                    <span class="cui-badge cui-badge-muted">
+                        <i class="feather-user" aria-hidden="true"></i>
+                        <span th:text="${custodioNombre}">Custodio</span>
+                    </span>
+                    <span class="cui-badge cui-badge-info">
+                        <i class="feather-map-pin" aria-hidden="true"></i>
+                        <span th:text="${ubicacionNombre}">Ubicacion</span>
+                    </span>
                 </div>
             </div>
-
-            <section class="itam-kpi-grid">
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon"><i class="feather-monitor"></i></div>
-                    <p class="itam-kpi-value" th:text="${equipo.estado ? 'Activo' : 'Inactivo'}">Activo</p>
-                    <p class="itam-kpi-label">Estado administrativo</p>
-                    <div class="itam-kpi-note" th:text="${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : 'Sin estado tecnico'}">Bueno</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon success"><i class="feather-user-check"></i></div>
-                    <p class="itam-kpi-value" th:text="${custodiaActual != null ? 'Asignado' : 'Libre'}">Asignado</p>
-                    <p class="itam-kpi-label">Custodia actual</p>
-                    <div class="itam-kpi-note" th:text="${custodiaActual != null and custodiaActual.fkCustodio != null ? custodiaActual.fkCustodio.nombre : 'Sin custodio activo'}">Custodio</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon warning"><i class="feather-tool"></i></div>
-                    <p class="itam-kpi-value" th:text="${#lists.size(mantenimientos)}">0</p>
-                    <p class="itam-kpi-label">Mantenimientos</p>
-                    <div class="itam-kpi-note">Historial tecnico</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon neutral"><i class="feather-clipboard"></i></div>
-                    <p class="itam-kpi-value" th:text="${#lists.size(historialCustodias)}">0</p>
-                    <p class="itam-kpi-label">Custodias</p>
-                    <div class="itam-kpi-note">Cambios registrados</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon danger"><i class="feather-clock"></i></div>
-                    <p class="itam-kpi-value" th:text="${#lists.size(movimientos)}">0</p>
-                    <p class="itam-kpi-label">Movimientos</p>
-                    <div class="itam-kpi-note">Inventario reciente</div>
-                </article>
-            </section>
-
-            <div class="itam-grid-2">
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Informacion general</h2>
-                        <span class="itam-badge"
-                              th:classappend="${equipo.estado ? ' success' : ' danger'}"
-                              th:text="${equipo.estado ? 'Activo' : 'Inactivo'}">Activo</span>
+            <div class="cui-entity-actions">
+                <a th:href="@{/equipos}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-arrow-left" aria-hidden="true"></i>
+                    <span>Listado</span>
+                </a>
+                <a th:href="@{/mantenimiento/nuevo(equipoId=${equipo.idEquipo})}" class="cui-btn cui-btn-primary">
+                    <i class="feather-wrench" aria-hidden="true"></i>
+                    <span>Crear mantenimiento</span>
+                </a>
+                <div class="dropdown cui-action-menu">
+                    <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                        <i class="feather-more-vertical" aria-hidden="true"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" th:href="@{/equipos/editar-equipo/{id}(id=${equipo.idEquipo})}">
+                            <i class="feather-edit-2" aria-hidden="true"></i>
+                            Editar activo
+                        </a>
+                        <a class="dropdown-item" th:if="${custodiaActual == null and equipo.estado}" th:href="@{/custodias/nueva-custodia}">
+                            <i class="feather-user-check" aria-hidden="true"></i>
+                            Asignar activo
+                        </a>
+                        <a class="dropdown-item" th:if="${custodiaActual != null}" th:href="@{/custodias/expediente/{id}(id=${custodiaActual.idCustodio})}">
+                            <i class="feather-users" aria-hidden="true"></i>
+                            Expediente custodio
+                        </a>
+                        <a class="dropdown-item text-danger" th:if="${equipo.estado}" th:href="@{/inventario/bajas}">
+                            <i class="feather-x-circle" aria-hidden="true"></i>
+                            Gestionar baja
+                        </a>
                     </div>
-                    <div class="itam-panel-body">
-                        <div class="itam-asset-top mb-3">
-                            <div class="itam-asset-icon">
-                                <i th:with="categoria=${equipo.fkCategoria != null and equipo.fkCategoria.nombre != null ? #strings.toLowerCase(equipo.fkCategoria.nombre) : ''}"
-                                   th:class="${#strings.contains(categoria, 'impres')} ? 'feather-printer' : (${#strings.contains(categoria, 'scanner')} ? 'feather-file-text' : (${#strings.contains(categoria, 'red')} ? 'feather-cpu' : 'feather-monitor'))"></i>
+                </div>
+            </div>
+        </header>
+
+        <section class="cui-kpi-grid">
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Custodia', value=${custodiaActual != null ? 'Asignado' : 'Libre'}, meta=${custodioNombre}, icon='feather-user-check', tone=${custodiaActual != null ? 'success' : 'info'})}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Mantenimientos', value=${#lists.size(mantenimientos)}, meta='Historial tecnico', icon='feather-tool', tone='warning')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Custodias', value=${#lists.size(historialCustodias)}, meta='Cambios registrados', icon='feather-clipboard', tone='primary')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Movimientos', value=${#lists.size(movimientos)}, meta='Eventos recientes', icon='feather-activity', tone='danger')}"></div>
+        </section>
+
+        <div class="cui-expediente-layout">
+            <aside>
+                <section class="cui-entity-snapshot">
+                    <div class="cui-snapshot-header">
+                        <h2>Snapshot del activo</h2>
+                        <span class="cui-badge" th:classappend="${' ' + estadoClase}" th:text="${estadoTecnico}">Estado</span>
+                    </div>
+                    <dl class="cui-snapshot-list">
+                        <div>
+                            <dt>Codigo CRESIO</dt>
+                            <dd th:text="${codigoActivo}">CR</dd>
+                        </div>
+                        <div>
+                            <dt>Serial</dt>
+                            <dd th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : 'No registrado'}">Serial</dd>
+                        </div>
+                        <div>
+                            <dt>MAC</dt>
+                            <dd th:text="${equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : 'No registrado'}">MAC</dd>
+                        </div>
+                        <div>
+                            <dt>Categoria</dt>
+                            <dd th:text="${categoriaActivo}">Categoria</dd>
+                        </div>
+                        <div>
+                            <dt>Marca / Modelo</dt>
+                            <dd th:text="${marcaActivo + ' / ' + modeloActivo}">Marca</dd>
+                        </div>
+                        <div>
+                            <dt>Fecha adquisicion</dt>
+                            <dd th:text="${equipo.fechaAdquisicion != null ? #temporals.format(equipo.fechaAdquisicion, 'dd/MM/yyyy') : (equipo.fechaCompra != null ? #temporals.format(equipo.fechaCompra, 'dd/MM/yyyy') : 'No registrado')}">Fecha</dd>
+                        </div>
+                        <div>
+                            <dt>Valor actual</dt>
+                            <dd th:text="${equipo.valorActual != null ? equipo.valorActual : (equipo.precioCompra != null ? equipo.precioCompra : 'No registrado')}">Valor</dd>
+                        </div>
+                        <div>
+                            <dt>Garantia</dt>
+                            <dd>No registrado</dd>
+                        </div>
+                        <div>
+                            <dt>Ultimo movimiento</dt>
+                            <dd th:if="${!#lists.isEmpty(movimientos)}" th:text="${movimientos[0].tipoMovimiento + ' / ' + (movimientos[0].fechaMovimiento != null ? #temporals.format(movimientos[0].fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha')}">Movimiento</dd>
+                            <dd th:if="${#lists.isEmpty(movimientos)}">No registrado</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <section class="cui-risk-panel">
+                    <div class="cui-risk-header">
+                        <h2>Riesgos visuales</h2>
+                    </div>
+                    <div class="cui-risk-list">
+                        <div class="cui-risk-item" th:if="${!equipo.estado}">
+                            <span class="cui-risk-dot is-danger"></span>
+                            <div>
+                                <strong>Activo inactivo</strong>
+                                <p>El activo no esta disponible para operacion regular.</p>
+                            </div>
+                        </div>
+                        <div class="cui-risk-item" th:if="${equipo.estado and (equipo.serial == null or #strings.isEmpty(equipo.serial))}">
+                            <span class="cui-risk-dot is-warning"></span>
+                            <div>
+                                <strong>Serial no registrado</strong>
+                                <p>Completar identificador tecnico mejora trazabilidad.</p>
+                            </div>
+                        </div>
+                        <div class="cui-risk-item" th:if="${equipo.estado and custodiaActual == null}">
+                            <span class="cui-risk-dot is-warning"></span>
+                            <div>
+                                <strong>Sin custodio vigente</strong>
+                                <p>El activo no tiene responsable asignado en el expediente.</p>
+                            </div>
+                        </div>
+                        <div class="cui-risk-item" th:if="${equipo.estado and custodiaActual != null and equipo.serial != null and !#strings.isEmpty(equipo.serial)}">
+                            <span class="cui-risk-dot"></span>
+                            <div>
+                                <strong>Sin alertas criticas</strong>
+                                <p>No se detectan riesgos con la informacion disponible.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+
+            <main>
+                <section class="cui-exp-card mb-4">
+                    <div class="cui-exp-card-header">
+                        <h2>Resumen ejecutivo</h2>
+                        <span class="cui-badge cui-badge-info">Health Score</span>
+                    </div>
+                    <div class="cui-exp-card-body">
+                        <div class="cui-health-score">
+                            <div class="cui-health-ring"
+                                 th:classappend="${healthScore < 60} ? ' is-low' : (${healthScore < 80} ? ' is-medium' : ' is-high')">
+                                <span th:text="${healthScore}">88</span>
                             </div>
                             <div>
-                                <p class="itam-asset-code" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Sin codigo'}">Codigo</p>
-                                <p class="itam-asset-name" th:text="${equipo.descripcion != null and !#strings.isEmpty(equipo.descripcion) ? equipo.descripcion : 'Activo tecnologico'}">Descripcion</p>
+                                <h3 class="cui-row-title">Estado operativo del activo</h3>
+                                <p class="cui-row-subtitle">Calculado visualmente con datos disponibles: estado administrativo, custodia, movimientos y mantenimiento.</p>
+                                <div class="cui-entity-meta">
+                                    <span class="cui-badge" th:classappend="${' ' + estadoClase}" th:text="${estadoTecnico}">Estado</span>
+                                    <span class="cui-badge cui-badge-muted" th:text="${departamentoNombre}">Departamento</span>
+                                    <span class="cui-badge cui-badge-muted" th:text="${ubicacionNombre}">Ubicacion</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="itam-asset-facts">
-                            <div class="itam-asset-fact"><span>Categoria</span><strong th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : '-'}">-</strong></div>
-                            <div class="itam-asset-fact"><span>Marca</span><strong th:text="${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'}">-</strong></div>
-                            <div class="itam-asset-fact"><span>Modelo</span><strong th:text="${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : '-'}">-</strong></div>
-                            <div class="itam-asset-fact"><span>Serial</span><strong th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : '-'}">-</strong></div>
-                            <div class="itam-asset-fact"><span>MAC</span><strong th:text="${equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : '-'}">-</strong></div>
-                            <div class="itam-asset-fact"><span>Procesador</span><strong th:text="${equipo.procesador != null and !#strings.isEmpty(equipo.procesador) ? equipo.procesador : '-'}">-</strong></div>
-                            <div class="itam-asset-fact"><span>RAM</span><strong th:text="${equipo.memoriaRamGb != null ? equipo.memoriaRamGb + ' GB' : '-'}">-</strong></div>
-                            <div class="itam-asset-fact"><span>Almacenamiento</span><strong th:text="${equipo.capacidadAlmacenamientoGb != null ? equipo.capacidadAlmacenamientoGb + ' GB' : '-'}">-</strong></div>
-                            <div class="itam-asset-fact"><span>Compra</span><strong th:text="${equipo.fechaCompra != null ? #temporals.format(equipo.fechaCompra, 'dd/MM/yyyy') : '-'}">-</strong></div>
                         </div>
                     </div>
                 </section>
 
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Custodia actual</h2>
-                        <span class="itam-badge" th:classappend="${custodiaActual != null ? ' success' : ' neutral'}" th:text="${custodiaActual != null ? 'Vigente' : 'Sin asignacion'}">Vigente</span>
-                    </div>
-                    <div class="itam-panel-body">
-                        <div th:if="${custodiaActual != null}">
-                            <div class="itam-list">
-                                <div class="itam-list-item">
-                                    <span class="itam-dot success"></span>
-                                    <div>
-                                        <p class="itam-item-title" th:text="${custodiaActual.fkCustodio != null ? custodiaActual.fkCustodio.nombre : 'Custodio'}">Custodio</p>
-                                        <p class="itam-item-meta">
-                                            <span th:text="${custodiaActual.fechaInicio != null ? #temporals.format(custodiaActual.fechaInicio, 'dd/MM/yyyy') : 'Sin fecha'}">Fecha</span>
-                                            <span> &middot; </span>
-                                            <span th:text="${custodiaActual.tipoMovimiento != null ? custodiaActual.tipoMovimiento : 'Custodia'}">Tipo</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="itam-list-item" th:if="${custodiaActual.fkCustodio != null}">
-                                    <span class="itam-dot"></span>
-                                    <div>
-                                        <p class="itam-item-title">Contacto</p>
-                                        <p class="itam-item-meta" th:text="${custodiaActual.fkCustodio.correo != null ? custodiaActual.fkCustodio.correo : 'Sin correo'}">correo</p>
-                                    </div>
-                                </div>
-                                <div class="itam-list-item" th:if="${custodiaActual.rutaActaPdf != null || custodiaActual.rutaActaFirmada != null}">
-                                    <span class="itam-dot warning"></span>
-                                    <div>
-                                        <p class="itam-item-title">Actas</p>
-                                        <p class="itam-item-meta">
-                                            <span th:text="${custodiaActual.rutaActaFirmada != null ? 'Firmada' : 'Pendiente'}">Estado acta</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="itam-empty" th:if="${custodiaActual == null}">Activo sin custodia vigente.</div>
-                    </div>
-                </section>
-            </div>
-
-            <section class="itam-panel">
-                <div class="itam-panel-head">
-                    <h2 class="itam-panel-title">Expediente</h2>
-                    <span class="itam-badge neutral">Historial</span>
-                </div>
-                <div class="itam-panel-body">
-                    <ul class="nav nav-pills mb-3" role="tablist">
+                <section class="cui-exp-tabs">
+                    <ul class="nav nav-pills" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-movimientos" type="button" role="tab">Movimientos</button>
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-resumen" data-cui-tab-hash type="button" role="tab">Resumen</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-mantenimientos" type="button" role="tab">Mantenimientos</button>
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-tecnicos" data-cui-tab-hash type="button" role="tab">Datos tecnicos</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-custodias" type="button" role="tab">Custodias</button>
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-custodias" data-cui-tab-hash type="button" role="tab">Custodias</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-movimientos" data-cui-tab-hash type="button" role="tab">Movimientos</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-mantenimientos" data-cui-tab-hash type="button" role="tab">Mantenimientos</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-documentos" data-cui-tab-hash type="button" role="tab">Documentos</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-auditoria" data-cui-tab-hash type="button" role="tab">Auditoria</button>
                         </li>
                     </ul>
 
                     <div class="tab-content">
-                        <div class="tab-pane fade show active" id="tab-movimientos" role="tabpanel">
-                            <div class="itam-list" th:if="${!#lists.isEmpty(movimientos)}">
-                                <div class="itam-list-item align-items-start" th:each="m : ${movimientos}">
-                                    <span class="itam-dot" th:classappend="${m.tipoMovimiento == 'BAJA' ? ' danger' : (m.tipoMovimiento == 'TRASLADO' ? ' warning' : ' success')}"></span>
-                                    <div>
-                                        <p class="itam-item-title" th:text="${m.tipoMovimiento}">Movimiento</p>
-                                        <p class="itam-item-meta">
-                                            <span th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">Fecha</span>
-                                            <span> &middot; </span>
-                                            <span th:text="${m.bodegaDestinoNombre ?: (m.bodegaOrigenNombre ?: 'Inventario')}">Bodega</span>
-                                        </p>
-                                        <p class="itam-item-meta mb-0" th:if="${m.observacion != null}" th:text="${m.observacion}">Observacion</p>
+                        <div class="tab-pane fade show active" id="tab-resumen" role="tabpanel">
+                            <div class="cui-tab-pane-body">
+                                <div class="cui-detail-grid mb-4">
+                                    <div class="cui-detail-item">
+                                        <span>Ultima custodia</span>
+                                        <strong th:text="${custodiaActual != null and custodiaActual.fkCustodio != null ? custodiaActual.fkCustodio.nombre : 'No registrado'}">Custodio</strong>
+                                    </div>
+                                    <div class="cui-detail-item">
+                                        <span>Ultimo mantenimiento</span>
+                                        <strong th:if="${!#lists.isEmpty(mantenimientos)}" th:text="${mantenimientos[0].tipoMantenimiento ?: 'Mantenimiento'}">Mantenimiento</strong>
+                                        <strong th:if="${#lists.isEmpty(mantenimientos)}">No registrado</strong>
+                                    </div>
+                                    <div class="cui-detail-item">
+                                        <span>Ultimo movimiento</span>
+                                        <strong th:if="${!#lists.isEmpty(movimientos)}" th:text="${movimientos[0].tipoMovimiento}">Movimiento</strong>
+                                        <strong th:if="${#lists.isEmpty(movimientos)}">No registrado</strong>
                                     </div>
                                 </div>
+
+                                <h3 class="cui-row-title mb-3">Actividad reciente</h3>
+                                <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(movimientos)}">
+                                    <article class="cui-activity-item" th:each="m, stat : ${movimientos}" th:if="${stat.index < 5}">
+                                        <span class="cui-activity-dot" th:classappend="${m.tipoMovimiento == 'BAJA'} ? ' is-danger' : (${m.tipoMovimiento == 'TRASLADO'} ? ' is-warning' : ' is-success')"></span>
+                                        <div>
+                                            <strong th:text="${m.tipoMovimiento}">Movimiento</strong>
+                                            <p th:text="${m.observacion ?: (m.bodegaDestinoNombre ?: (m.bodegaOrigenNombre ?: 'Inventario'))}">Detalle</p>
+                                        </div>
+                                        <span class="cui-activity-time" th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM HH:mm') : '-'}">Fecha</span>
+                                    </article>
+                                </div>
+                                <div th:if="${#lists.isEmpty(movimientos)}" th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin actividad reciente', message='No hay movimientos recientes para este activo.')}"></div>
                             </div>
-                            <div class="itam-empty" th:if="${#lists.isEmpty(movimientos)}">Sin movimientos recientes para este activo.</div>
                         </div>
 
-                        <div class="tab-pane fade" id="tab-mantenimientos" role="tabpanel">
-                            <div class="itam-list" th:if="${!#lists.isEmpty(mantenimientos)}">
-                                <div class="itam-list-item align-items-start" th:each="m : ${mantenimientos}">
-                                    <span class="itam-dot warning"></span>
-                                    <div>
-                                        <p class="itam-item-title" th:text="${m.tipoMantenimiento ?: 'Mantenimiento'}">Mantenimiento</p>
-                                        <p class="itam-item-meta">
-                                            <span th:text="${m.fechaMantenimiento != null ? #temporals.format(m.fechaMantenimiento, 'dd/MM/yyyy') : 'Sin fecha'}">Fecha</span>
-                                            <span> &middot; </span>
-                                            <span th:text="${m.tecnicoNombre ?: 'Sin tecnico'}">Tecnico</span>
-                                            <span> &middot; </span>
-                                            <span th:text="${m.estadoInterno ?: (m.estadoGeneral ?: 'Sin estado')}">Estado</span>
-                                        </p>
-                                        <p class="itam-item-meta mb-0" th:if="${m.detalle != null}" th:text="${m.detalle}">Detalle</p>
-                                    </div>
-                                    <a th:href="@{/mantenimiento/{id}(id=${m.idMantenimiento})}" class="itam-btn">
-                                        <i class="feather-eye"></i>
-                                        <span>Ver</span>
-                                    </a>
+                        <div class="tab-pane fade" id="tab-tecnicos" role="tabpanel">
+                            <div class="cui-tab-pane-body">
+                                <div class="cui-detail-grid">
+                                    <div class="cui-detail-item"><span>Descripcion</span><strong th:text="${equipo.descripcion != null and !#strings.isEmpty(equipo.descripcion) ? equipo.descripcion : 'No registrado'}">Descripcion</strong></div>
+                                    <div class="cui-detail-item"><span>Procesador</span><strong th:text="${equipo.procesador != null and !#strings.isEmpty(equipo.procesador) ? equipo.procesador : 'No registrado'}">Procesador</strong></div>
+                                    <div class="cui-detail-item"><span>RAM</span><strong th:text="${equipo.memoriaRamGb != null ? equipo.memoriaRamGb + ' GB' : 'No registrado'}">RAM</strong></div>
+                                    <div class="cui-detail-item"><span>Almacenamiento</span><strong th:text="${equipo.capacidadAlmacenamientoGb != null ? equipo.capacidadAlmacenamientoGb + ' GB' : 'No registrado'}">Almacenamiento</strong></div>
+                                    <div class="cui-detail-item"><span>Licencia Windows</span><strong th:text="${equipo.licenciaWindowsActivada != null ? (equipo.licenciaWindowsActivada ? 'Activada' : 'No activada') : 'No registrado'}">Licencia</strong></div>
+                                    <div class="cui-detail-item"><span>Observacion</span><strong th:text="${equipo.observacionEquipo != null and !#strings.isEmpty(equipo.observacionEquipo) ? equipo.observacionEquipo : 'No registrado'}">Observacion</strong></div>
                                 </div>
                             </div>
-                            <div class="itam-empty" th:if="${#lists.isEmpty(mantenimientos)}">Sin mantenimientos registrados para este activo.</div>
                         </div>
 
                         <div class="tab-pane fade" id="tab-custodias" role="tabpanel">
-                            <div class="itam-list" th:if="${!#lists.isEmpty(historialCustodias)}">
-                                <div class="itam-list-item align-items-start" th:each="c : ${historialCustodias}">
-                                    <span class="itam-dot" th:classappend="${c.estado ? ' success' : ' neutral'}"></span>
-                                    <div>
-                                        <p class="itam-item-title" th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio'}">Custodio</p>
-                                        <p class="itam-item-meta">
-                                            <span th:text="${c.fechaInicio != null ? #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : 'Sin inicio'}">Inicio</span>
-                                            <span> -> </span>
-                                            <span th:text="${c.fechaFin != null ? #temporals.format(c.fechaFin, 'dd/MM/yyyy') : 'Vigente'}">Fin</span>
-                                            <span> &middot; </span>
-                                            <span th:text="${c.tipoMovimiento ?: 'Custodia'}">Tipo</span>
-                                        </p>
-                                        <p class="itam-item-meta mb-0" th:if="${c.observacion != null}" th:text="${c.observacion}">Observacion</p>
+                            <div class="cui-tab-pane-body">
+                                <div class="cui-data-grid">
+                                    <div class="table-responsive">
+                                        <table class="table cui-table">
+                                            <thead>
+                                            <tr>
+                                                <th>Custodio</th>
+                                                <th>Periodo</th>
+                                                <th>Tipo</th>
+                                                <th>Estado</th>
+                                                <th>Acta</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:if="${#lists.isEmpty(historialCustodias)}">
+                                                <td colspan="5">
+                                                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-clipboard', title='Sin custodias', message='No hay historial de custodias para este activo.')}"></div>
+                                                </td>
+                                            </tr>
+                                            <tr th:each="c : ${historialCustodias}">
+                                                <td>
+                                                    <div class="cui-row-stack">
+                                                        <span class="cui-row-title" th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio no registrado'}">Custodio</span>
+                                                        <span class="cui-row-subtitle" th:text="${c.fkCustodio != null ? c.fkCustodio.correo : 'No registrado'}">Correo</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span th:text="${c.fechaInicio != null ? #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : 'Sin inicio'}">Inicio</span>
+                                                    <span> -> </span>
+                                                    <span th:text="${c.fechaFin != null ? #temporals.format(c.fechaFin, 'dd/MM/yyyy') : 'Vigente'}">Fin</span>
+                                                </td>
+                                                <td th:text="${c.tipoMovimiento ?: 'Custodia'}">Tipo</td>
+                                                <td>
+                                                    <span class="cui-badge" th:classappend="${c.estado} ? ' cui-badge-asignado' : ' cui-badge-muted'" th:text="${c.estado ? 'Vigente' : 'Cerrada'}">Estado</span>
+                                                </td>
+                                                <td>
+                                                    <span class="cui-badge" th:classappend="${c.rutaActaFirmada != null ? ' cui-badge-asignado' : ' cui-badge-en-reparacion'}" th:text="${c.rutaActaFirmada != null ? 'Firmada' : (c.rutaActaPdf != null ? 'PDF generado' : 'No registrada')}">Acta</span>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
-                            <div class="itam-empty" th:if="${#lists.isEmpty(historialCustodias)}">Sin historial de custodias para este activo.</div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-movimientos" role="tabpanel">
+                            <div class="cui-tab-pane-body">
+                                <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(movimientos)}">
+                                    <article class="cui-activity-item" th:each="m : ${movimientos}">
+                                        <span class="cui-activity-dot" th:classappend="${m.tipoMovimiento == 'BAJA'} ? ' is-danger' : (${m.tipoMovimiento == 'TRASLADO'} ? ' is-warning' : ' is-success')"></span>
+                                        <div>
+                                            <strong th:text="${m.tipoMovimiento}">Movimiento</strong>
+                                            <p>
+                                                <span th:text="${m.bodegaOrigenNombre ?: 'Origen no aplica'}">Origen</span>
+                                                <span> -> </span>
+                                                <span th:text="${m.bodegaDestinoNombre ?: 'Destino no aplica'}">Destino</span>
+                                            </p>
+                                            <p th:if="${m.estadoAnterior != null or m.estadoNuevo != null}">
+                                                <span th:text="${m.estadoAnterior ?: 'Sin estado'}">Anterior</span>
+                                                <span> -> </span>
+                                                <span th:text="${m.estadoNuevo ?: 'Sin estado nuevo'}">Nuevo</span>
+                                            </p>
+                                            <p th:if="${m.observacion != null}" th:text="${m.observacion}">Observacion</p>
+                                        </div>
+                                        <span class="cui-activity-time" th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : '-'}">Fecha</span>
+                                    </article>
+                                </div>
+                                <div th:if="${#lists.isEmpty(movimientos)}" th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin movimientos', message='No hay movimientos registrados para este activo.')}"></div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-mantenimientos" role="tabpanel">
+                            <div class="cui-tab-pane-body">
+                                <div class="cui-data-grid">
+                                    <div class="table-responsive">
+                                        <table class="table cui-table">
+                                            <thead>
+                                            <tr>
+                                                <th>Orden</th>
+                                                <th>Tecnico</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                                <th class="text-end">Acciones</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:if="${#lists.isEmpty(mantenimientos)}">
+                                                <td colspan="5">
+                                                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-tool', title='Sin mantenimientos', message='No hay mantenimientos registrados para este activo.')}"></div>
+                                                </td>
+                                            </tr>
+                                            <tr th:each="m : ${mantenimientos}">
+                                                <td>
+                                                    <div class="cui-row-stack">
+                                                        <span class="cui-row-title" th:text="${m.tipoMantenimiento ?: 'Mantenimiento'}">Tipo</span>
+                                                        <span class="cui-row-subtitle" th:text="${m.detalle ?: 'Sin detalle'}">Detalle</span>
+                                                    </div>
+                                                </td>
+                                                <td th:text="${m.tecnicoNombre ?: 'Sin tecnico'}">Tecnico</td>
+                                                <td th:text="${m.fechaMantenimiento != null ? #temporals.format(m.fechaMantenimiento, 'dd/MM/yyyy') : 'Sin fecha'}">Fecha</td>
+                                                <td>
+                                                    <span class="cui-badge"
+                                                          th:with="estadoMant=${m.estadoInterno ?: (m.estadoGeneral ?: 'PENDIENTE')}"
+                                                          th:classappend="${estadoMant == 'CERRADO'} ? ' cui-badge-asignado' : (${estadoMant == 'EN_PROCESO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
+                                                          th:text="${estadoMant}">Estado</span>
+                                                </td>
+                                                <td>
+                                                    <div class="cui-action-cell">
+                                                        <a th:href="@{/mantenimiento/{id}(id=${m.idMantenimiento})}" class="btn btn-outline-primary btn-sm">Ver</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-documentos" role="tabpanel">
+                            <div class="cui-tab-pane-body">
+                                <div class="cui-document-list" th:if="${!#lists.isEmpty(historialCustodias) or !#lists.isEmpty(mantenimientos)}">
+                                    <div class="cui-document-row" th:each="c : ${historialCustodias}" th:if="${c.rutaActaPdf != null or c.rutaActaFirmada != null}">
+                                        <i class="feather-file-text" aria-hidden="true"></i>
+                                        <div>
+                                            <strong th:text="${c.rutaActaFirmada != null ? 'Acta firmada' : 'Acta PDF'}">Acta</strong>
+                                            <span th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio no registrado'}">Custodio</span>
+                                        </div>
+                                        <span class="cui-badge" th:classappend="${c.rutaActaFirmada != null ? ' cui-badge-asignado' : ' cui-badge-info'}" th:text="${c.rutaActaFirmada != null ? 'Firmada' : 'PDF'}">PDF</span>
+                                    </div>
+                                    <div class="cui-document-row" th:each="m : ${mantenimientos}" th:if="${(m.imagenes != null and !#lists.isEmpty(m.imagenes)) or m.firmaTecnico != null or m.firmaCustodio != null}">
+                                        <i class="feather-paperclip" aria-hidden="true"></i>
+                                        <div>
+                                            <strong>Evidencia de mantenimiento</strong>
+                                            <span th:text="${m.tipoMantenimiento ?: 'Mantenimiento'}">Mantenimiento</span>
+                                        </div>
+                                        <a th:href="@{/mantenimiento/{id}(id=${m.idMantenimiento})}" class="btn btn-outline-primary btn-sm">Ver</a>
+                                    </div>
+                                </div>
+                                <div th:if="${#lists.isEmpty(historialCustodias) and #lists.isEmpty(mantenimientos)}" th:replace="~{fragments/components/empty-state :: empty(icon='feather-file-text', title='Sin documentos', message='No hay actas, PDFs o evidencias disponibles para este activo.')}"></div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-auditoria" role="tabpanel">
+                            <div class="cui-tab-pane-body">
+                                <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(movimientos) or !#lists.isEmpty(historialCustodias) or !#lists.isEmpty(mantenimientos)}">
+                                    <article class="cui-activity-item" th:each="m : ${movimientos}">
+                                        <span class="cui-activity-dot is-success"></span>
+                                        <div>
+                                            <strong th:text="${'Movimiento: ' + m.tipoMovimiento}">Movimiento</strong>
+                                            <p th:text="${m.observacion ?: 'Evento de inventario registrado'}">Evento</p>
+                                        </div>
+                                        <span class="cui-activity-time" th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : '-'}">Fecha</span>
+                                    </article>
+                                    <article class="cui-activity-item" th:each="c : ${historialCustodias}">
+                                        <span class="cui-activity-dot is-warning"></span>
+                                        <div>
+                                            <strong>Evento de custodia</strong>
+                                            <p th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio no registrado'}">Custodio</p>
+                                        </div>
+                                        <span class="cui-activity-time" th:text="${c.fechaInicio != null ? #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : '-'}">Fecha</span>
+                                    </article>
+                                    <article class="cui-activity-item" th:each="m : ${mantenimientos}">
+                                        <span class="cui-activity-dot"></span>
+                                        <div>
+                                            <strong>Evento de mantenimiento</strong>
+                                            <p th:text="${m.tipoMantenimiento ?: 'Mantenimiento registrado'}">Mantenimiento</p>
+                                        </div>
+                                        <span class="cui-activity-time" th:text="${m.fechaMantenimiento != null ? #temporals.format(m.fechaMantenimiento, 'dd/MM/yyyy') : '-'}">Fecha</span>
+                                    </article>
+                                </div>
+                                <div th:if="${#lists.isEmpty(movimientos) and #lists.isEmpty(historialCustodias) and #lists.isEmpty(mantenimientos)}" th:replace="~{fragments/components/empty-state :: empty(icon='feather-shield', title='Sin auditoria visible', message='No hay eventos auditables disponibles en el modelo actual.')}"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </main>
         </div>
     </div>
 </div>

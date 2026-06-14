@@ -1,397 +1,164 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{plantilla/plantillaui}">
-
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
 <head>
+<meta charset="utf-8">
 <title>Ubicaciones</title>
-<style>
-	.locations-table .table {
-		margin-bottom: 0;
-	}
-
-	.locations-table th {
-		font-size: 0.78rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		color: #6d7b9a;
-		border-bottom-width: 1px;
-	}
-
-	.locations-table td {
-		vertical-align: middle;
-	}
-
-	.location-name-cell {
-		display: flex;
-		flex-direction: column;
-		gap: 0.2rem;
-	}
-
-	.location-name-cell strong {
-		color: #102a5c;
-		font-size: 1rem;
-	}
-
-	.location-name-cell span {
-		color: #6d7b9a;
-		font-size: 0.9rem;
-	}
-
-	.coordinates-cell {
-		font-family: Consolas, Monaco, monospace;
-		font-size: 0.9rem;
-		color: #334155;
-	}
-
-	.coordinates-cell.is-missing {
-		color: #b45309;
-		font-style: italic;
-	}
-
-	.actions-inline {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.55rem;
-	}
-
-	.btn-soft-light {
-		border-radius: 999px;
-		padding-inline: 0.9rem;
-	}
-</style>
 </head>
-
 <body>
-	<div layout:fragment="contenidopaginas">
-		<div class="page-shell">
-			<div class="view-heading">
-				<div>
-					<div class="eyebrow">Operaciones Geograficas</div>
-					<h1 class="view-title">Gestion de Ubicaciones</h1>
-				</div>
-				<div class="d-flex gap-3 flex-wrap">
-					<a th:href="@{/ubicaciones/nueva-ubicacion}" class="btn btn-primary px-4 py-3">
-						<i class="feather-plus-circle me-2"></i>Agregar ubicacion
-					</a>
-				</div>
-			</div>
+<div layout:fragment="contenidopaginas">
+  <div class="page-shell admin-shell">
+    <section class="cui-admin-header">
+      <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+        <div>
+          <div class="cui-data-grid-meta">Administracion / Ubicaciones</div>
+          <h1>Ubicaciones</h1>
+          <p>Sedes, agencias y referencias geograficas utilizadas por activos e inventario.</p>
+        </div>
+        <a th:href="@{/ubicaciones/nueva-ubicacion}" class="cui-btn cui-btn-primary">
+          <i class="feather-plus-circle"></i>
+          Agregar ubicacion
+        </a>
+      </div>
+    </section>
 
-			<section class="admin-summary-grid">
-				<article class="admin-summary-card">
-					<div class="admin-summary-label">Total ubicaciones</div>
-					<div class="admin-summary-value" th:text="${#lists.size(listaubicacion)}">0</div>
-				</article>
-				<article class="admin-summary-card">
-					<div class="admin-summary-label">Ubicaciones activas</div>
-					<div class="admin-summary-value" th:text="${#aggregates.sum(listaubicacion.![estado ? 1 : 0])}">0</div>
-				</article>
-				<article class="admin-summary-card">
-					<div class="admin-summary-label">Con coordenadas</div>
-					<div class="admin-summary-value" th:text="${#aggregates.sum(listaubicacion.![latitud != null and !#strings.isEmpty(latitud) and longitud != null and !#strings.isEmpty(longitud) ? 1 : 0])}">0</div>
-				</article>
-			</section>
+    <section class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Total ubicaciones', ${#lists.size(listaubicacion)}, 'Catalogo geografico', 'feather-map-pin', 'primary')}"></div>
+      </div>
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Activas', ${#aggregates.sum(listaubicacion.![estado ? 1 : 0])}, 'Disponibles para operaciones', 'feather-check-circle', 'success')}"></div>
+      </div>
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Con coordenadas', ${#aggregates.sum(listaubicacion.![latitud != null and !#strings.isEmpty(latitud) and longitud != null and !#strings.isEmpty(longitud) ? 1 : 0])}, 'Listas para mapa', 'feather-navigation', 'info')}"></div>
+      </div>
+    </section>
 
-				<!-- FILTER BAR -->
-				<div class="filter-bar">
-					<div class="flex-grow-1" style="min-width:200px; max-width:340px;">
-						<div class="input-group">
-							<span class="input-group-text bg-white border-end-0 pe-2" style="border-color:#e4e4e7;">
-								<i class="feather feather-search" style="font-size:14px; color:#a1a1aa;"></i>
-							</span>
-							<input type="text" id="searchInput"
-								   class="form-control border-start-0 ps-1"
-								   placeholder="Buscar por nombre, agencia, ciudad..."
-								   autocomplete="off">
-						</div>
-					</div>
-					<div style="min-width:160px;">
-						<select id="filterProvincia" class="form-select">
-							<option value="">Todas las provincias</option>
-						</select>
-					</div>
-					<div style="min-width:140px;">
-						<select id="filterEstado" class="form-select">
-							<option value="">Todos los estados</option>
-							<option value="activo">En linea</option>
-							<option value="inactivo">Fuera de linea</option>
-						</select>
-					</div>
-					<div class="ms-auto row-counter">
-						Mostrando <strong id="rowCount">0</strong> ubicaciones
-					</div>
-				</div>
+    <section class="cui-data-grid" data-cui-grid>
+      <div class="cui-data-grid-header">
+        <div>
+          <h2>Listado de ubicaciones</h2>
+          <span class="cui-data-grid-meta" data-cui-grid-count>0 registros</span>
+        </div>
+        <span class="badge text-bg-light">Configuracion</span>
+      </div>
 
-				<!-- TABLE -->
-				<div class="card card-custodios">
-					<div class="card-body p-0">
-						<div class="surface-card table-shell locations-table">
-							<div class="table-responsive">
-								<table class="table align-middle mb-0" id="ubicacionesTable">
-									<thead>
-										<tr>
-											<th>Ubicacion</th>
-											<th>Provincia</th>
-											<th>Ciudad</th>
-											<th>Direccion</th>
-											<th>Coordenadas</th>
-											<th>Estado</th>
-											<th>Acciones</th>
-										</tr>
-									</thead>
-									<tbody id="locationsTableBody">
-										<tr th:each="ubicaciones : ${listaubicacion}"
-											class="fila-ubicacion"
-											th:attr="data-provincia=${ubicaciones.provincia != null ? ubicaciones.provincia : ''},
-												data-estado=${ubicaciones.estado ? 'activo' : 'inactivo'},
-												data-busqueda=${((ubicaciones.nombre != null ? ubicaciones.nombre : '') + ' ' + (ubicaciones.agencia != null ? ubicaciones.agencia : '') + ' ' + (ubicaciones.ciudad != null ? ubicaciones.ciudad : '') + ' ' + (ubicaciones.provincia != null ? ubicaciones.provincia : '')).toLowerCase()}">
-											<td>
-												<div class="location-name-cell">
-													<strong th:text="${ubicaciones.nombre}">Ubicacion</strong>
-													<span th:text="${ubicaciones.agencia != null and !#strings.isEmpty(ubicaciones.agencia) ? 'Agencia: ' + ubicaciones.agencia : 'Sin agencia'}">Agencia</span>
-												</div>
-											</td>
-											<td th:text="${ubicaciones.provincia != null and !#strings.isEmpty(ubicaciones.provincia) ? ubicaciones.provincia : 'Sin provincia'}">Provincia</td>
-											<td th:text="${ubicaciones.ciudad != null and !#strings.isEmpty(ubicaciones.ciudad) ? ubicaciones.ciudad : 'Sin ciudad'}">Ciudad</td>
-											<td th:text="${ubicaciones.direccion != null and !#strings.isEmpty(ubicaciones.direccion) ? ubicaciones.direccion : 'Sin direccion registrada'}">Direccion</td>
-											<td class="coordinates-cell"
-												th:classappend="${ubicaciones.latitud == null or #strings.isEmpty(ubicaciones.latitud) or ubicaciones.longitud == null or #strings.isEmpty(ubicaciones.longitud)} ? ' is-missing' : ''"
-												th:text="${ubicaciones.latitud != null and !#strings.isEmpty(ubicaciones.latitud) and ubicaciones.longitud != null and !#strings.isEmpty(ubicaciones.longitud) ? ubicaciones.latitud + ', ' + ubicaciones.longitud : 'Sin coordenadas'}">Coordenadas</td>
-											<td>
-												<span class="status-pill"
-													th:classappend="${ubicaciones.estado} ? ' is-online' : ' is-offline'">
-													<i class="feather-circle"></i>
-													<span th:text="${ubicaciones.estado} ? 'En linea' : 'Fuera de linea'">Estado</span>
-												</span>
-											</td>
-											<td>
-												<div class="actions-inline">
-													<a class="btn btn-light btn-sm btn-soft-light"
-														th:href="@{/ubicaciones/editar-ubicacion/{id}(id=${ubicaciones.idUbicacion})}">
-														<i class="feather-edit-2 me-1"></i>Editar
-													</a>
-													<a class="btn btn-outline-primary btn-sm btn-soft-light"
-														th:if="${ubicaciones.linkCoordenada != null and !#strings.isEmpty(ubicaciones.linkCoordenada)}"
-														th:href="${ubicaciones.linkCoordenada}"
-														target="_blank" rel="noopener noreferrer">
-														<i class="feather-navigation me-1"></i>Abrir
-													</a>
-													<a class="btn btn-outline-primary btn-sm btn-soft-light location-generated-link"
-														th:if="${(ubicaciones.linkCoordenada == null or #strings.isEmpty(ubicaciones.linkCoordenada)) and ubicaciones.latitud != null and !#strings.isEmpty(ubicaciones.latitud) and ubicaciones.longitud != null and !#strings.isEmpty(ubicaciones.longitud)}"
-														href="#"
-														th:attr="data-lat=${ubicaciones.latitud},data-lng=${ubicaciones.longitud}"
-														target="_blank" rel="noopener noreferrer">
-														<i class="feather-navigation me-1"></i>Abrir
-													</a>
-													<button type="button"
-														class="btn btn-outline-danger btn-sm btn-soft-light"
-														data-bs-toggle="modal"
-														data-bs-target="#modalEliminarUbicacion"
-														th:attr="data-id=${ubicaciones.idUbicacion}">
-														<i class="feather-trash-2 me-1"></i>Desactivar
-													</button>
-												</div>
-											</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
+      <div class="cui-data-grid-toolbar">
+        <label class="cui-search-control">
+          <i class="feather-search"></i>
+          <input type="search" class="form-control" placeholder="Buscar nombre, agencia, provincia o ciudad..." data-cui-grid-search>
+        </label>
+        <div class="cui-toolbar-actions">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-cui-filter-reset>
+            <i class="feather-rotate-ccw me-1"></i>Limpiar filtros
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">
+            <i class="feather-columns me-1"></i>Columnas
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">
+            <i class="feather-download me-1"></i>Exportar
+          </button>
+        </div>
+      </div>
 
-					<!-- PAGINATION BAR -->
-					<div class="pagination-bar" id="paginationBar">
-						<div class="page-size-wrap">
-							<span>Filas por pagina:</span>
-							<select id="pageSizeSelect">
-								<option value="5">5</option>
-								<option value="10" selected>10</option>
-								<option value="25">25</option>
-								<option value="50">50</option>
-							</select>
-						</div>
-						<div class="pagination-info" id="paginationInfo"></div>
-						<nav class="pagination-nav" id="paginationNav"></nav>
-					</div>
-				</div>
+      <div class="cui-grid-filters">
+        <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="provincia">
+          <option value="">Todas las provincias</option>
+          <option th:each="ubicacion : ${listaubicacion}"
+                  th:if="${ubicacion.provincia != null and !#strings.isEmpty(ubicacion.provincia)}"
+                  th:value="${ubicacion.provincia}"
+                  th:text="${ubicacion.provincia}">Provincia</option>
+        </select>
+        <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="estado">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activa</option>
+          <option value="inactivo">Inactiva</option>
+        </select>
+      </div>
 
-		<div class="modal fade" id="modalEliminarUbicacion" tabindex="-1" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Confirmar</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-					</div>
-					<div class="modal-body">Esta accion desactivara la ubicacion seleccionada.</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-light" data-bs-dismiss="modal">No</button>
-						<form th:action="@{/ubicaciones/eliminar-logico}" method="post">
-							<input type="hidden" name="idUbicacion" id="idUbicacionEliminar">
-							<button type="submit" class="btn btn-outline-danger">Si, desactivar</button>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<script>
-			const modalEliminar = document.getElementById('modalEliminarUbicacion');
-			modalEliminar.addEventListener('show.bs.modal', function(event) {
-				const button = event.relatedTarget;
-				document.getElementById('idUbicacionEliminar').value = button.getAttribute('data-id');
-			});
-
-			document.addEventListener("DOMContentLoaded", function() {
-
-				/* ── Google Maps links ────────────────────────────── */
-				document.querySelectorAll('.location-generated-link').forEach(function(link) {
-					const lat = String(link.dataset.lat || '').replace(',', '.').trim();
-					const lng = String(link.dataset.lng || '').replace(',', '.').trim();
-					if (lat && lng) {
-						link.href = 'https://www.google.com/maps?q=' + lat + ',' + lng;
-					}
-				});
-
-				/* ── FILTROS + PAGINACION ─────────────────────────── */
-				const searchInput      = document.getElementById("searchInput");
-				const filterProvincia  = document.getElementById("filterProvincia");
-				const filterEstado     = document.getElementById("filterEstado");
-				const rowCountEl       = document.getElementById("rowCount");
-				const pageSizeSelect   = document.getElementById("pageSizeSelect");
-				const paginationInfo   = document.getElementById("paginationInfo");
-				const paginationNav    = document.getElementById("paginationNav");
-
-				const allRows = Array.from(document.querySelectorAll("#locationsTableBody .fila-ubicacion"));
-				let filteredRows = [];
-				let currentPage  = 1;
-				let pageSize     = parseInt(pageSizeSelect.value, 10);
-
-				/* Poblar filtro Provincia con valores unicos */
-				const provincias = new Set();
-				allRows.forEach(function (r) {
-					const p = (r.getAttribute("data-provincia") || "").trim();
-					if (p) provincias.add(p);
-				});
-				Array.from(provincias).sort().forEach(function (p) {
-					const o = document.createElement("option"); o.value = p; o.textContent = p;
-					filterProvincia.appendChild(o);
-				});
-
-				/* ── Select2: búsqueda en dropdown ────────────────── */
-				if (typeof $ !== 'undefined' && $.fn.select2) {
-					$('#filterProvincia').select2({ width: '100%' });
-				}
-
-				/* ── Filter logic ─────────────────────────────────── */
-				function applyFilters() {
-					const term      = searchInput.value.trim().toLowerCase();
-					const provincia = filterProvincia.value;
-					const estado    = filterEstado.value;
-
-					filteredRows = allRows.filter(function (row) {
-						const searchable = (row.getAttribute("data-busqueda") || "");
-						if (term && searchable.indexOf(term) < 0) return false;
-						if (provincia && (row.getAttribute("data-provincia") || "") !== provincia) return false;
-						if (estado && (row.getAttribute("data-estado") || "") !== estado) return false;
-						return true;
-					});
-
-					currentPage = 1;
-					renderPage();
-				}
-
-				/* ── Render current page ──────────────────────────── */
-				function renderPage() {
-					const total      = filteredRows.length;
-					const totalPages = Math.max(1, Math.ceil(total / pageSize));
-					if (currentPage > totalPages) currentPage = totalPages;
-
-					const start = (currentPage - 1) * pageSize;
-					const end   = Math.min(start + pageSize, total);
-					const pageSet = new Set(filteredRows.slice(start, end));
-
-					allRows.forEach(function (row) {
-						row.style.display = pageSet.has(row) ? "" : "none";
-					});
-
-					rowCountEl.textContent = total;
-
-					if (total === 0) {
-						paginationInfo.innerHTML = "Sin resultados";
-					} else {
-						paginationInfo.innerHTML =
-							"<strong>" + (start + 1) + "</strong> – <strong>" + end +
-							"</strong> de <strong>" + total + "</strong>";
-					}
-
-					renderPaginationNav(totalPages);
-				}
-
-				/* ── Build pagination nav ─────────────────────────── */
-				function renderPaginationNav(totalPages) {
-					let html = "";
-
-					html += '<button class="pg-btn" data-page="prev"' +
-							(currentPage <= 1 ? ' disabled' : '') + '>' +
-							'<i class="feather feather-chevron-left" style="font-size:14px;"></i></button>';
-
-					const pages = buildPageNumbers(currentPage, totalPages);
-					pages.forEach(function (p) {
-						if (p === '...') {
-							html += '<span class="pg-ellipsis">&hellip;</span>';
-						} else {
-							html += '<button class="pg-btn' +
-									(p === currentPage ? ' active' : '') +
-									'" data-page="' + p + '">' + p + '</button>';
-						}
-					});
-
-					html += '<button class="pg-btn" data-page="next"' +
-							(currentPage >= totalPages ? ' disabled' : '') + '>' +
-							'<i class="feather feather-chevron-right" style="font-size:14px;"></i></button>';
-
-					paginationNav.innerHTML = html;
-				}
-
-				function buildPageNumbers(current, total) {
-					if (total <= 7) return Array.from({length: total}, function (_, i) { return i + 1; });
-					const pages = [];
-					pages.push(1);
-					if (current > 3) pages.push('...');
-					for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
-						pages.push(i);
-					}
-					if (current < total - 2) pages.push('...');
-					pages.push(total);
-					return pages;
-				}
-
-				/* ── Pagination click handler ─────────────────────── */
-				paginationNav.addEventListener("click", function (e) {
-					const btn = e.target.closest(".pg-btn");
-					if (!btn || btn.disabled) return;
-					const val = btn.dataset.page;
-					const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
-					if (val === "prev")      currentPage = Math.max(1, currentPage - 1);
-					else if (val === "next") currentPage = Math.min(totalPages, currentPage + 1);
-					else                     currentPage = parseInt(val, 10);
-					renderPage();
-				});
-
-				/* ── Page-size change ─────────────────────────────── */
-				pageSizeSelect.addEventListener("change", function () {
-					pageSize    = parseInt(pageSizeSelect.value, 10);
-					currentPage = 1;
-					renderPage();
-				});
-
-				/* ── INIT ─────────────────────────────────────────── */
-				applyFilters();
-				searchInput.addEventListener("input",      applyFilters);
-				$('#filterProvincia').on('change', applyFilters);
-				filterEstado.addEventListener("change",    applyFilters);
-			});
-		</script>
-	</div>
+      <div class="cui-data-grid-body">
+        <div class="table-responsive">
+          <table class="table cui-table">
+            <thead>
+            <tr>
+              <th>Ubicacion</th>
+              <th>Provincia</th>
+              <th>Ciudad</th>
+              <th>Direccion</th>
+              <th>Coordenadas</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="ubicacion : ${listaubicacion}"
+                data-cui-grid-row
+                th:data-search="${((ubicacion.nombre != null ? ubicacion.nombre : '') + ' ' + (ubicacion.agencia != null ? ubicacion.agencia : '') + ' ' + (ubicacion.provincia != null ? ubicacion.provincia : '') + ' ' + (ubicacion.ciudad != null ? ubicacion.ciudad : '') + ' ' + (ubicacion.direccion != null ? ubicacion.direccion : '')).toLowerCase()}"
+                th:data-provincia="${ubicacion.provincia != null ? ubicacion.provincia : ''}"
+                th:data-estado="${ubicacion.estado ? 'activo' : 'inactivo'}">
+              <td>
+                <div class="cui-row-title" th:text="${ubicacion.nombre}">Ubicacion</div>
+                <div class="cui-row-subtitle" th:text="${ubicacion.agencia != null and !#strings.isEmpty(ubicacion.agencia) ? 'Agencia: ' + ubicacion.agencia : 'Sin agencia'}">Agencia</div>
+              </td>
+              <td th:text="${ubicacion.provincia != null and !#strings.isEmpty(ubicacion.provincia) ? ubicacion.provincia : 'No registrado'}">Provincia</td>
+              <td th:text="${ubicacion.ciudad != null and !#strings.isEmpty(ubicacion.ciudad) ? ubicacion.ciudad : 'No registrado'}">Ciudad</td>
+              <td th:text="${ubicacion.direccion != null and !#strings.isEmpty(ubicacion.direccion) ? ubicacion.direccion : 'No registrado'}">Direccion</td>
+              <td>
+                <span th:if="${ubicacion.latitud != null and !#strings.isEmpty(ubicacion.latitud) and ubicacion.longitud != null and !#strings.isEmpty(ubicacion.longitud)}"
+                      class="cui-row-subtitle"
+                      th:text="${ubicacion.latitud + ', ' + ubicacion.longitud}">Coordenadas</span>
+                <span th:unless="${ubicacion.latitud != null and !#strings.isEmpty(ubicacion.latitud) and ubicacion.longitud != null and !#strings.isEmpty(ubicacion.longitud)}"
+                      class="text-warning fw-semibold">Sin coordenadas</span>
+              </td>
+              <td>
+                <span th:replace="~{fragments/components/status-badge :: statusBadge(${ubicacion.estado ? 'Activa' : 'Inactiva'}, ${ubicacion.estado ? 'success' : 'muted'})}"></span>
+              </td>
+              <td>
+                <div class="cui-action-cell">
+                  <a th:href="@{/ubicaciones/editar-ubicacion/{id}(id=${ubicacion.idUbicacion})}" class="btn btn-outline-primary btn-sm">Editar</a>
+                  <div class="dropdown cui-action-menu">
+                    <button class="btn btn-light btn-sm cui-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                      <i class="feather-more-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li th:if="${ubicacion.linkCoordenada != null and !#strings.isEmpty(ubicacion.linkCoordenada)}">
+                        <a class="dropdown-item" th:href="${ubicacion.linkCoordenada}" target="_blank" rel="noopener noreferrer">
+                          <i class="feather-navigation"></i>Abrir mapa
+                        </a>
+                      </li>
+                      <li th:if="${(ubicacion.linkCoordenada == null or #strings.isEmpty(ubicacion.linkCoordenada)) and ubicacion.latitud != null and !#strings.isEmpty(ubicacion.latitud) and ubicacion.longitud != null and !#strings.isEmpty(ubicacion.longitud)}">
+                        <a class="dropdown-item" th:href="${'https://www.google.com/maps?q=' + ubicacion.latitud + ',' + ubicacion.longitud}" target="_blank" rel="noopener noreferrer">
+                          <i class="feather-navigation"></i>Abrir mapa
+                        </a>
+                      </li>
+                      <li>
+                        <form th:if="${ubicacion.estado}" th:action="@{/ubicaciones/eliminar-logico}" method="post">
+                          <input type="hidden" name="idUbicacion" th:value="${ubicacion.idUbicacion}">
+                          <button type="submit" class="cui-document-action text-danger" data-cui-confirm="Esta accion desactivara la ubicacion seleccionada.">
+                            <i class="feather-slash"></i>Desactivar
+                          </button>
+                        </form>
+                      </li>
+                      <li th:unless="${ubicacion.estado}">
+                        <span class="dropdown-item text-muted"><i class="feather-info"></i>Sin acciones disponibles</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cui-empty-state" data-cui-empty-state th:hidden="${!#lists.isEmpty(listaubicacion)}">
+          <span class="cui-empty-icon"><i class="feather-map-pin"></i></span>
+          <h3>No hay ubicaciones registradas</h3>
+          <p>Crea una ubicacion para asociar activos, custodias e inventario.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
 </body>
 </html>

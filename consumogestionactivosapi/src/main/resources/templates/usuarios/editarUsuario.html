@@ -103,29 +103,29 @@
         </article>
 
         <!-- Modulos del Rol -->
-        <article class="admin-form-card" id="modulosCard" style="display:none;">
+        <article class="admin-form-card" id="modulosCard" hidden>
           <h2 class="admin-form-card-title">Modulos asignados al rol</h2>
           <p class="admin-form-card-copy">Selecciona los modulos que tendra disponible este rol. Los cambios aplican a <strong>todos los usuarios</strong> con el mismo rol.</p>
 
-          <div id="modulosLoading" class="text-center py-3" style="display:none;">
+          <div id="modulosLoading" class="text-center py-3" hidden>
             <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
             <span class="ms-2 text-muted">Cargando modulos...</span>
           </div>
 
           <div id="modulosGrid" class="row g-2"></div>
 
-          <div id="modulosVacio" class="text-muted small py-2" style="display:none;">
+          <div id="modulosVacio" class="text-muted small py-2" hidden>
             No hay modulos configurados en el sistema.
           </div>
 
           <div class="d-flex justify-content-between align-items-center mt-3">
             <small class="text-muted" id="modulosContador"></small>
-            <button type="button" class="btn btn-outline-primary btn-sm" id="btnGuardarModulos" style="display:none;">
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btnGuardarModulos" hidden>
               <i class="feather-save me-1"></i>Guardar permisos del rol
             </button>
           </div>
-          <div class="text-success small mt-2" id="modulosExito" style="display:none;"></div>
-          <div class="text-danger small mt-2" id="modulosError" style="display:none;"></div>
+          <div class="text-success small mt-2" id="modulosExito" hidden></div>
+          <div class="text-danger small mt-2" id="modulosError" hidden></div>
         </article>
       </section>
 
@@ -238,26 +238,26 @@
     var rolIdActual = null;
 
     function cargarModulos(rolId) {
-      modulosExito.style.display = 'none';
-      modulosError.style.display = 'none';
+      modulosExito.hidden = true;
+      modulosError.hidden = true;
       if (!rolId) {
-        modulosCard.style.display = 'none';
+        modulosCard.hidden = true;
         return;
       }
       rolIdActual = rolId;
-      modulosCard.style.display = '';
+      modulosCard.hidden = false;
       modulosGrid.innerHTML = '';
-      modulosVacio.style.display = 'none';
-      btnGuardarModulos.style.display = 'none';
-      modulosLoading.style.display = '';
+      modulosVacio.hidden = true;
+      btnGuardarModulos.hidden = true;
+      modulosLoading.hidden = false;
       modulosContador.textContent = '';
 
       fetch('/api/relaciones/modulos-por-rol/' + rolId)
         .then(function (r) { return r.json(); })
         .then(function (modulos) {
-          modulosLoading.style.display = 'none';
+          modulosLoading.hidden = true;
           if (!modulos || modulos.length === 0) {
-            modulosVacio.style.display = '';
+            modulosVacio.hidden = false;
             return;
           }
           modulos.sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
@@ -265,21 +265,21 @@
             var col = document.createElement('div');
             col.className = 'col-6 col-md-4';
             col.innerHTML =
-              '<label class="d-flex align-items-center gap-2 p-2 rounded border modulo-check-label" style="cursor:pointer;">' +
+              '<label class="d-flex align-items-center gap-2 p-2 rounded border modulo-check-label">' +
                 '<input type="checkbox" class="form-check-input m-0 modulo-cb" value="' + m.idModulo + '"' + (m.asignado ? ' checked' : '') + '>' +
                 '<i class="' + (m.icono || 'feather-box') + '"></i>' +
                 '<span class="small">' + m.nombre + '</span>' +
               '</label>';
             modulosGrid.appendChild(col);
           });
-          btnGuardarModulos.style.display = '';
+          btnGuardarModulos.hidden = false;
           actualizarContador();
           modulosGrid.addEventListener('change', actualizarContador);
         })
         .catch(function () {
-          modulosLoading.style.display = 'none';
+          modulosLoading.hidden = true;
           modulosVacio.textContent = 'Error al cargar modulos.';
-          modulosVacio.style.display = '';
+          modulosVacio.hidden = false;
         });
     }
 
@@ -298,8 +298,8 @@
         ids.push(parseInt(cb.value));
       });
       btnGuardarModulos.disabled = true;
-      modulosExito.style.display = 'none';
-      modulosError.style.display = 'none';
+      modulosExito.hidden = true;
+      modulosError.hidden = true;
 
       fetch('/api/relaciones/modulos-por-rol/' + rolIdActual, {
         method: 'PUT',
@@ -312,11 +312,11 @@
       })
       .then(function () {
         modulosExito.textContent = 'Permisos del rol actualizados correctamente.';
-        modulosExito.style.display = '';
+        modulosExito.hidden = false;
       })
       .catch(function (e) {
         modulosError.textContent = e.message;
-        modulosError.style.display = '';
+        modulosError.hidden = false;
       })
       .finally(function () { btnGuardarModulos.disabled = false; });
     });

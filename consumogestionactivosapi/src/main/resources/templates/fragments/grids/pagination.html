@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="pagination(rutaBase)" class="cui-grid-pagination">
+    <div th:replace="~{plantilla/paginacion :: paginacion(rutaBase=${rutaBase})}"></div>
+</div>
+</body>
+</html>

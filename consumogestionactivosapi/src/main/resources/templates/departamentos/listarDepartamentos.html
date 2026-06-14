@@ -9,207 +9,125 @@
 <body>
 <div layout:fragment="contenidopaginas">
   <div class="page-shell admin-shell">
-    <section class="operations-hero">
-      <div class="operations-hero-copy">
-        <div class="eyebrow">Organizacion Interna</div>
-        <h1>Catalogo de departamentos</h1>
-      </div>
-      <div class="operations-hero-actions">
-        <a th:href="@{/departamentos/nuevo-departamento}" class="btn btn-primary px-4 py-3">
-          <i class="feather-plus-circle me-2"></i>Nuevo departamento
+    <section class="cui-admin-header">
+      <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+        <div>
+          <div class="cui-data-grid-meta">Administracion / Organizacion interna</div>
+          <h1>Departamentos</h1>
+          <p>Areas internas usadas por usuarios, custodios, cargos y ubicaciones.</p>
+        </div>
+        <a th:href="@{/departamentos/nuevo-departamento}" class="cui-btn cui-btn-primary">
+          <i class="feather-plus-circle"></i>
+          Nuevo departamento
         </a>
       </div>
     </section>
 
-    <section class="admin-summary-grid">
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Total departamentos</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listadepartamento)}">0</div>
-      </article>
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Activos</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listadepartamento.?[estado])}">0</div>
-      </article>
-
-    </section>
-
-    <section class="surface-card page-panel">
-      <!-- FILTER BAR -->
-      <div class="filter-bar">
-        <div class="flex-grow-1" style="min-width:200px; max-width:340px;">
-          <div class="input-group">
-            <span class="input-group-text bg-white border-end-0 pe-2" style="border-color:#e4e4e7;">
-              <i class="feather feather-search" style="font-size:14px; color:#a1a1aa;"></i>
-            </span>
-            <input type="text" id="searchInput" class="form-control border-start-0 ps-1"
-                   placeholder="Buscar departamento..." autocomplete="off">
-          </div>
-        </div>
-        <div style="min-width:140px;">
-          <select id="filterEstado" class="form-select">
-            <option value="">Todos los estados</option>
-            <option value="activo">Activo</option>
-            <option value="inactivo">Inactivo</option>
-          </select>
-        </div>
-        <div class="ms-auto row-counter">
-          Mostrando <strong id="rowCount">0</strong> departamentos
-        </div>
+    <section class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Total departamentos', ${#lists.size(listadepartamento)}, 'Catalogo administrativo', 'feather-grid', 'primary')}"></div>
       </div>
-
-      <div class="card card-custodios">
-        <div class="card-body p-0">
-          <div class="table-shell">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0" id="departamentosTable">
-                <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Departamento</th>
-                  <th>Estado</th>
-                  <th class="text-end">Acciones</th>
-                </tr>
-                </thead>
-                <tbody id="departamentosTbody">
-                <tr th:each="departamento : ${listadepartamento}"
-                    class="fila-departamento"
-                    th:attr="data-estado=${departamento.estado ? 'activo' : 'inactivo'}">
-                  <td><strong th:text="${departamento.idDepartamento}">1</strong></td>
-                  <td th:text="${departamento.nombre}">Sistemas</td>
-                  <td><span th:class="${departamento.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}" th:text="${departamento.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
-                  <td>
-                    <div class="hstack gap-2 justify-content-end">
-                      <a th:href="@{/departamentos/editar-departamento/{id}(id=${departamento.idDepartamento})}" class="btn btn-light btn-sm">
-                        <i class="feather-edit-2 me-1"></i>Editar
-                      </a>
-                      <a th:if="${departamento.estado}" href="javascript:void(0)" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminarDepartamento" th:attr="data-id=${departamento.idDepartamento}">
-                        <i class="feather-slash me-1"></i>Desactivar
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(listadepartamento)}">
-                  <td colspan="4">
-                    <div class="table-empty-state">
-                      <i class="feather-grid"></i>
-                      <div class="fw-semibold">No hay departamentos registrados</div>
-                    </div>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- PAGINATION BAR -->
-        <div class="pagination-bar" id="paginationBar">
-          <div class="page-size-wrap">
-            <span>Filas por pagina:</span>
-            <select id="pageSizeSelect">
-              <option value="5">5</option>
-              <option value="10" selected>10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-            </select>
-          </div>
-          <div class="pagination-info" id="paginationInfo"></div>
-          <nav class="pagination-nav" id="paginationNav"></nav>
-        </div>
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Activos', ${#lists.size(listadepartamento.?[estado])}, 'Disponibles en formularios', 'feather-check-circle', 'success')}"></div>
+      </div>
+      <div class="col-md-4">
+        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Inactivos', ${#lists.size(listadepartamento.?[!estado])}, 'No disponibles', 'feather-slash', 'warning')}"></div>
       </div>
     </section>
 
-    <div class="modal fade" id="modalEliminarDepartamento" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Confirmar desactivacion</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">Esta accion desactivara el departamento seleccionado y dejara de aparecer en nuevos registros.</div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-            <form th:action="@{/departamentos/eliminar-departamento}" method="post">
-              <input type="hidden" name="idDepartamento" id="idDepartamentoEliminar">
-              <button type="submit" class="btn btn-outline-danger">Si, desactivar</button>
-            </form>
-          </div>
+    <section class="cui-data-grid" data-cui-grid>
+      <div class="cui-data-grid-header">
+        <div>
+          <h2>Listado de departamentos</h2>
+          <span class="cui-data-grid-meta" data-cui-grid-count>0 registros</span>
+        </div>
+        <span class="badge text-bg-light">Configuracion</span>
+      </div>
+
+      <div class="cui-data-grid-toolbar">
+        <label class="cui-search-control">
+          <i class="feather-search"></i>
+          <input type="search" class="form-control" placeholder="Buscar departamento..." data-cui-grid-search>
+        </label>
+        <div class="cui-toolbar-actions">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-cui-filter-reset>
+            <i class="feather-rotate-ccw me-1"></i>Limpiar filtros
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">
+            <i class="feather-columns me-1"></i>Columnas
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">
+            <i class="feather-download me-1"></i>Exportar
+          </button>
         </div>
       </div>
-    </div>
 
-    <script>
-      const modalEliminarDepartamento = document.getElementById('modalEliminarDepartamento');
-      modalEliminarDepartamento.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const id = button.getAttribute('data-id');
-        document.getElementById('idDepartamentoEliminar').value = id;
-      });
-      document.addEventListener('DOMContentLoaded', function() {
-        if (modalEliminarDepartamento && modalEliminarDepartamento.parentElement !== document.body) {
-          document.body.appendChild(modalEliminarDepartamento);
-        }
+      <div class="cui-grid-filters">
+        <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="estado">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
 
-        const searchInput    = document.getElementById("searchInput");
-        const filterEstado   = document.getElementById("filterEstado");
-        const rowCountEl     = document.getElementById("rowCount");
-        const pageSizeSelect = document.getElementById("pageSizeSelect");
-        const paginationInfo = document.getElementById("paginationInfo");
-        const paginationNav  = document.getElementById("paginationNav");
-        const allRows = Array.from(document.querySelectorAll("#departamentosTbody .fila-departamento"));
-        let filteredRows = []; let currentPage = 1; let pageSize = parseInt(pageSizeSelect.value, 10);
-
-        function applyFilters() {
-          const term = searchInput.value.trim().toLowerCase();
-          const estado = filterEstado.value;
-          filteredRows = allRows.filter(function(row) {
-            if (term && row.textContent.toLowerCase().indexOf(term) < 0) return false;
-            if (estado && (row.getAttribute("data-estado") || "") !== estado) return false;
-            return true;
-          });
-          currentPage = 1; renderPage();
-        }
-        function renderPage() {
-          const total = filteredRows.length;
-          const totalPages = Math.max(1, Math.ceil(total / pageSize));
-          if (currentPage > totalPages) currentPage = totalPages;
-          const start = (currentPage - 1) * pageSize;
-          const end = Math.min(start + pageSize, total);
-          const pageSet = new Set(filteredRows.slice(start, end));
-          allRows.forEach(function(row) { row.style.display = pageSet.has(row) ? "" : "none"; });
-          rowCountEl.textContent = total;
-          paginationInfo.innerHTML = total === 0 ? "Sin resultados" : "<strong>" + (start+1) + "</strong> – <strong>" + end + "</strong> de <strong>" + total + "</strong>";
-          renderPaginationNav(totalPages);
-        }
-        function renderPaginationNav(totalPages) {
-          let html = '<button class="pg-btn" data-page="prev"' + (currentPage <= 1 ? ' disabled' : '') + '><i class="feather feather-chevron-left" style="font-size:14px;"></i></button>';
-          buildPageNumbers(currentPage, totalPages).forEach(function(p) {
-            if (p === '...') html += '<span class="pg-ellipsis">&hellip;</span>';
-            else html += '<button class="pg-btn' + (p === currentPage ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>';
-          });
-          html += '<button class="pg-btn" data-page="next"' + (currentPage >= totalPages ? ' disabled' : '') + '><i class="feather feather-chevron-right" style="font-size:14px;"></i></button>';
-          paginationNav.innerHTML = html;
-        }
-        function buildPageNumbers(c, t) {
-          if (t <= 7) return Array.from({length:t}, function(_,i){return i+1;});
-          var p = [1]; if (c>3) p.push('...');
-          for (var i=Math.max(2,c-1); i<=Math.min(t-1,c+1); i++) p.push(i);
-          if (c<t-2) p.push('...'); p.push(t); return p;
-        }
-        paginationNav.addEventListener("click", function(e) {
-          var btn = e.target.closest(".pg-btn"); if (!btn || btn.disabled) return;
-          var val = btn.dataset.page, tp = Math.max(1, Math.ceil(filteredRows.length / pageSize));
-          if (val === "prev") currentPage = Math.max(1, currentPage-1);
-          else if (val === "next") currentPage = Math.min(tp, currentPage+1);
-          else currentPage = parseInt(val, 10);
-          renderPage();
-        });
-        pageSizeSelect.addEventListener("change", function() { pageSize = parseInt(pageSizeSelect.value, 10); currentPage = 1; renderPage(); });
-        applyFilters();
-        searchInput.addEventListener("input", applyFilters);
-        filterEstado.addEventListener("change", applyFilters);
-      });
-    </script>
+      <div class="cui-data-grid-body">
+        <div class="table-responsive">
+          <table class="table cui-table">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Departamento</th>
+              <th>Estado</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="departamento : ${listadepartamento}"
+                data-cui-grid-row
+                th:data-search="${(departamento.idDepartamento + ' ' + departamento.nombre).toLowerCase()}"
+                th:data-estado="${departamento.estado ? 'activo' : 'inactivo'}">
+              <td class="fw-bold" th:text="${departamento.idDepartamento}">1</td>
+              <td>
+                <div class="cui-row-title" th:text="${departamento.nombre}">Sistemas</div>
+                <div class="cui-row-subtitle">Unidad organizacional</div>
+              </td>
+              <td>
+                <span th:replace="~{fragments/components/status-badge :: statusBadge(${departamento.estado ? 'Activo' : 'Inactivo'}, ${departamento.estado ? 'success' : 'muted'})}"></span>
+              </td>
+              <td>
+                <div class="cui-action-cell">
+                  <a th:href="@{/departamentos/editar-departamento/{id}(id=${departamento.idDepartamento})}" class="btn btn-outline-primary btn-sm">Editar</a>
+                  <div class="dropdown cui-action-menu">
+                    <button class="btn btn-light btn-sm cui-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                      <i class="feather-more-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <form th:if="${departamento.estado}" th:action="@{/departamentos/eliminar-departamento}" method="post">
+                          <input type="hidden" name="idDepartamento" th:value="${departamento.idDepartamento}">
+                          <button type="submit" class="cui-document-action text-danger" data-cui-confirm="Esta accion desactivara el departamento seleccionado.">
+                            <i class="feather-slash"></i>Desactivar
+                          </button>
+                        </form>
+                      </li>
+                      <li th:unless="${departamento.estado}">
+                        <span class="dropdown-item text-muted"><i class="feather-info"></i>Sin acciones disponibles</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cui-empty-state" data-cui-empty-state th:hidden="${!#lists.isEmpty(listadepartamento)}">
+          <span class="cui-empty-icon"><i class="feather-grid"></i></span>
+          <h3>No hay departamentos registrados</h3>
+          <p>Crea el primer departamento para organizar usuarios y cargos.</p>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 </body>

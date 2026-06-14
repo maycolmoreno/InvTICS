@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="toolbar(searchPlaceholder, exportHref)" class="cui-data-grid-toolbar">
+    <div class="cui-search-control">
+        <i class="feather-search" aria-hidden="true"></i>
+        <input type="search"
+               class="form-control"
+               data-cui-grid-search
+               th:placeholder="${searchPlaceholder != null ? searchPlaceholder : 'Buscar...'}"
+               autocomplete="off">
+    </div>
+    <div class="cui-toolbar-actions">
+        <button type="button" class="btn btn-light cui-btn-soft" data-cui-filters-toggle>
+            <i class="feather-filter" aria-hidden="true"></i>
+            <span>Filtros</span>
+        </button>
+        <div class="dropdown">
+            <button type="button" class="btn btn-light cui-btn-soft dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="feather-columns" aria-hidden="true"></i>
+                <span>Columnas</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end cui-column-menu">
+                <span class="dropdown-header">Columnas visibles</span>
+                <div class="px-3 py-2 text-muted small">Configure columnas desde cada vista.</div>
+            </div>
+        </div>
+        <a th:if="${exportHref != null}" class="btn btn-outline-primary" th:href="${exportHref}">
+            <i class="feather-download" aria-hidden="true"></i>
+            <span>Exportar</span>
+        </a>
+    </div>
+</div>
+</body>
+</html>

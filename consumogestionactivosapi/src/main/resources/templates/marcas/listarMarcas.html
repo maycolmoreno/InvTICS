@@ -3,118 +3,99 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{plantilla/plantillaui}">
 <head>
-<meta charset="utf-8">
-<title>Marcas</title>
+    <meta charset="utf-8">
+    <title>Marcas</title>
 </head>
 <body>
 <div layout:fragment="contenidopaginas">
-  <div class="page-shell admin-shell">
-    <section class="operations-hero">
-      <div class="operations-hero-copy">
-        <div class="eyebrow">Catalogo Tecnico</div>
-        <h1>Marcas de activos</h1>
-      </div>
-      <div class="operations-hero-actions">
-        <a th:href="@{/marcas/nuevaMarcas}" class="btn btn-primary px-4 py-3">
-          <i class="feather-plus-circle me-2"></i>Nueva marca
-        </a>
-      </div>
-    </section>
+    <div class="cui-page">
+        <section class="cui-admin-header d-flex align-items-start justify-content-between gap-3 flex-wrap">
+            <div>
+                <p class="cui-eyebrow">Catalogo tecnico</p>
+                <h1>Marcas de activos</h1>
+                <p>Configuracion sobria para marcas usadas en el inventario tecnologico.</p>
+            </div>
+            <a th:href="@{/marcas/nuevaMarcas}" class="cui-btn cui-btn-primary">
+                <i class="feather-plus-circle" aria-hidden="true"></i>
+                <span>Nueva marca</span>
+            </a>
+        </section>
 
-    <section class="admin-summary-grid">
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Total marcas</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listarmarcas)}">0</div>
-      </article>
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Activas</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listarmarcas.?[estado])}">0</div>
-      </article>
-      <article class="admin-summary-card">
-        <div class="admin-summary-label">Inactivas</div>
-        <div class="admin-summary-value" th:text="${#lists.size(listarmarcas.?[!estado])}">0</div>
-      </article>
-    </section>
+        <section class="cui-kpi-grid">
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total marcas', value=${#lists.size(listarmarcas)}, meta='Catalogo total', icon='feather-tag', tone='primary')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Activas', value=${#lists.size(listarmarcas.?[estado])}, meta='Disponibles', icon='feather-check-circle', tone='success')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Inactivas', value=${#lists.size(listarmarcas.?[!estado])}, meta='Ocultas para operacion', icon='feather-slash', tone='danger')}"></div>
+        </section>
 
-    <section class="surface-card page-panel">
-      <div class="filter-bar">
-        <input id="searchInput" type="text" class="form-control form-control-sm" placeholder="Buscar marca..." style="max-width:220px">
-        <select id="filterEstado" class="form-select form-select-sm" style="max-width:150px">
-          <option value="">Todo estado</option>
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
-        </select>
-        <span class="row-counter"><span id="rowCount">0</span> registros</span>
-      </div>
-
-      <div class="card card-custodios">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead>
-              <tr>
-                <th>ID</th>
-                <th>Marca</th>
-                <th>Estado</th>
-                <th class="text-end">Acciones</th>
-              </tr>
-              </thead>
-              <tbody id="marcasTbody">
-              <tr class="fila-marca" th:each="marca : ${listarmarcas}"
-                  th:data-estado="${marca.estado ? 'Activo' : 'Inactivo'}">
-                <td><strong th:text="${marca.idMarca}">1</strong></td>
-                <td>
-                  <div class="fw-semibold" th:text="${marca.nombre}">Dell</div>
-                </td>
-                <td><span th:class="${marca.estado ? 'badge bg-soft-success text-success' : 'badge bg-soft-danger text-danger'}" th:text="${marca.estado ? 'Activo' : 'Inactivo'}">Activo</span></td>
-                <td>
-                  <div class="hstack gap-2 justify-content-end">
-                    <a th:href="@{/marcas/editarMarcas/{id}(id=${marca.idMarca})}" class="btn btn-light btn-sm">
-                      <i class="feather-edit-2 me-1"></i>Editar
-                    </a>
-                    <form th:if="${marca.estado}" th:action="@{/marcas/eliminar/{id}(id=${marca.idMarca})}" method="post" style="display:inline;" onsubmit="return confirm('¿Seguro que deseas desactivar esta marca?');">
-                      <button type="submit" class="btn btn-outline-danger btn-sm">
-                        <i class="feather-slash me-1"></i>Desactivar
-                      </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-              <tr th:if="${#lists.isEmpty(listarmarcas)}">
-                <td colspan="4">
-                  <div class="table-empty-state">
-                    <i class="feather-tag"></i>
-                    <div class="fw-semibold">No hay marcas registradas</div>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="pagination-bar">
-        <div class="page-size-wrap">Mostrar <select id="pageSizeSelect"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select> filas</div>
-        <div class="pagination-info" id="paginationInfo"></div>
-        <div class="pagination-nav" id="paginationNav"></div>
-      </div>
-    </section>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var searchInput=document.getElementById("searchInput"),filterEstado=document.getElementById("filterEstado"),rowCountEl=document.getElementById("rowCount"),pageSizeSelect=document.getElementById("pageSizeSelect"),paginationInfo=document.getElementById("paginationInfo"),paginationNav=document.getElementById("paginationNav");
-      var allRows=Array.from(document.querySelectorAll("#marcasTbody .fila-marca")),filteredRows=[],currentPage=1,pageSize=parseInt(pageSizeSelect.value,10);
-      function applyFilters(){var t=searchInput.value.trim().toLowerCase(),e=filterEstado.value;filteredRows=allRows.filter(function(r){if(t&&r.textContent.toLowerCase().indexOf(t)<0)return false;if(e&&r.getAttribute("data-estado")!==e)return false;return true});currentPage=1;renderPage()}
-      function renderPage(){var total=filteredRows.length,tp=Math.max(1,Math.ceil(total/pageSize));if(currentPage>tp)currentPage=tp;var s=(currentPage-1)*pageSize,e=Math.min(s+pageSize,total),ps=new Set(filteredRows.slice(s,e));allRows.forEach(function(r){r.style.display=ps.has(r)?"":"none"});rowCountEl.textContent=total;paginationInfo.innerHTML=total===0?"Sin resultados":"<strong>"+(s+1)+"</strong> \u2013 <strong>"+e+"</strong> de <strong>"+total+"</strong>";renderPaginationNav(tp)}
-      function renderPaginationNav(tp){var h='<button class="pg-btn" data-page="prev"'+(currentPage<=1?' disabled':'')+'>\u25C0</button>';buildPN(currentPage,tp).forEach(function(p){if(p==='...')h+='<span class="pg-ellipsis">\u2026</span>';else h+='<button class="pg-btn'+(p===currentPage?' active':'')+'" data-page="'+p+'">'+p+'</button>'});h+='<button class="pg-btn" data-page="next"'+(currentPage>=tp?' disabled':'')+'>\u25B6</button>';paginationNav.innerHTML=h}
-      function buildPN(c,t){if(t<=7)return Array.from({length:t},function(_,i){return i+1});var p=[1];if(c>3)p.push('...');for(var i=Math.max(2,c-1);i<=Math.min(t-1,c+1);i++)p.push(i);if(c<t-2)p.push('...');p.push(t);return p}
-      paginationNav.addEventListener("click",function(ev){var b=ev.target.closest(".pg-btn");if(!b||b.disabled)return;var v=b.dataset.page,tp=Math.max(1,Math.ceil(filteredRows.length/pageSize));if(v==="prev")currentPage=Math.max(1,currentPage-1);else if(v==="next")currentPage=Math.min(tp,currentPage+1);else currentPage=parseInt(v,10);renderPage()});
-      pageSizeSelect.addEventListener("change",function(){pageSize=parseInt(this.value,10);currentPage=1;renderPage()});
-      searchInput.addEventListener("input",applyFilters);filterEstado.addEventListener("change",applyFilters);applyFilters();
-    });
-    </script>
-  </div>
+        <section class="cui-data-grid" id="brandsAdminGrid" data-cui-grid>
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Administracion</p>
+                    <h2>Listado de marcas</h2>
+                </div>
+                <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+            </div>
+            <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar marca...', exportHref=null)}"></div>
+            <div class="cui-grid-filters">
+                <select class="form-select" data-cui-grid-filter data-filter-key="estado" data-cui-filter-persist>
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+            </div>
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Marca</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(listarmarcas)}">
+                            <td colspan="4">
+                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-tag', title='Sin marcas', message='No hay marcas registradas.')}"></div>
+                            </td>
+                        </tr>
+                        <tr th:each="marca : ${listarmarcas}" data-cui-grid-row
+                            th:attr="data-search=${#strings.toLowerCase(marca.nombre)},data-estado=${marca.estado ? 'activo' : 'inactivo'}">
+                            <td><span class="cui-row-title" th:text="${marca.idMarca}">1</span></td>
+                            <td th:text="${marca.nombre}">Dell</td>
+                            <td>
+                                <span class="cui-badge" th:classappend="${marca.estado} ? ' cui-badge-asignado' : ' cui-badge-dado-de-baja'" th:text="${marca.estado ? 'Activo' : 'Inactivo'}">Activo</span>
+                            </td>
+                            <td>
+                                <div class="cui-action-cell">
+                                    <a th:href="@{/marcas/editarMarcas/{id}(id=${marca.idMarca})}" class="btn btn-outline-primary btn-sm">Editar</a>
+                                    <div class="dropdown cui-action-menu">
+                                        <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                            <i class="feather-more-vertical" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <form th:if="${marca.estado}" th:action="@{/marcas/eliminar/{id}(id=${marca.idMarca})}" method="post">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                                <button type="submit" class="cui-document-action text-danger" data-cui-confirm="Seguro que deseas desactivar esta marca?">
+                                                    <i class="feather-slash" aria-hidden="true"></i>
+                                                    Desactivar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div hidden data-cui-empty-state>
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay marcas que coincidan con la busqueda visual.')}"></div>
+                </div>
+            </div>
+        </section>
+    </div>
 </div>
 </body>
 </html>

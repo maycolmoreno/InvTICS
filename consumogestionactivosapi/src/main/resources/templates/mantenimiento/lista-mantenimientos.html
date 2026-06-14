@@ -1,156 +1,149 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{plantilla/plantillaui}">
-<head><title>Historial Mantenimientos</title></head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Mantenimientos</title>
+</head>
 <body>
 <div layout:fragment="contenidopaginas">
-		<div class="page-shell">
-			<div class="operations-strip">
-				<div class="operations-hero">
-					<div class="eyebrow text-white-50">Mesa tecnica</div>
-					<h2>Mantenimientos</h2>
-					<div class="operations-badges">
-						<div class="operations-badge"><i class="feather-tool"></i><span th:text="${#lists.size(listamantenimientos)} + ' ordenes'">0 ordenes</span></div>
-						<div class="operations-badge"><i class="feather-clock"></i><span th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])} + ' en proceso'">0 en proceso</span></div>
-						<div class="operations-badge"><i class="feather-check-circle"></i><span th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'CERRADO'])} + ' cerradas'">0 cerradas</span></div>
-					</div>
-				</div>
-				<div class="surface-card insight-panel">
-					<div class="content-card-header mb-0">
-						<div>
-							<h2 class="content-card-title">Indicadores rapidos</h2>
-						</div>
-					</div>
-					<div class="insight-list">
-						<div class="insight-item">
-							<i class="feather-activity"></i>
-							<div>
-								<div class="signal-title">Preventivos</div>
-							</div>
-							<div class="insight-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'PREVENTIVO'])}">0</div>
-						</div>
-						<div class="insight-item">
-							<i class="feather-alert-octagon"></i>
-							<div>
-								<div class="signal-title">Correctivos</div>
-							</div>
-							<div class="insight-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO'])}">0</div>
-						</div>
-						<div class="insight-item">
-							<i class="feather-users"></i>
-							<div>
-								<div class="signal-title">Tecnicos con carga</div>
-							</div>
-							<div class="insight-value" th:text="${#lists.size(listamantenimientos.?[tecnicoNombre != null])}">0</div>
-						</div>
-					</div>
-				</div>
-			</div>
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Mantenimientos', subtitle='Mesa tecnica para consultar, ejecutar y cerrar ordenes de mantenimiento.')}"></div>
 
-			<div class="view-heading">
-				<div>
-					<div class="eyebrow">Operaciones de Mantenimiento</div>
-					<h1 class="view-title">Historial de Mantenimiento</h1>
-				</div>
-			<div class="d-flex gap-3 flex-wrap">
-				<a th:href="@{/mantenimiento/nuevo}" class="btn btn-primary px-4 py-3">Nuevo mantenimiento</a>
-				<a th:href="@{/mantenimiento/programado}" class="btn btn-light px-4 py-3">Mantenimiento programado</a>
-			</div>
-		</div>
+        <div class="cui-command-bar">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a th:href="@{/mantenimiento/programado}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-calendar" aria-hidden="true"></i>
+                    <span>Programados</span>
+                </a>
+                <a th:href="@{/mantenimiento/kanban}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-columns" aria-hidden="true"></i>
+                    <span>Kanban</span>
+                </a>
+            </div>
+            <a th:href="@{/mantenimiento/nuevo}" class="cui-btn cui-btn-primary">
+                <i class="feather-plus" aria-hidden="true"></i>
+                <span>Nuevo mantenimiento</span>
+            </a>
+        </div>
 
-		<div class="compact-kpi-grid">
-			<div class="surface-card compact-kpi">
-				<div class="metric-label">Total Ordenes</div>
-				<div class="compact-kpi-value" th:text="${#lists.size(listamantenimientos)}">0</div>
-			</div>
-			<div class="surface-card compact-kpi">
-				<div class="metric-label">Preventivos</div>
-				<div class="compact-kpi-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'PREVENTIVO'])}">0</div>
-			</div>
-			<div class="surface-card compact-kpi">
-				<div class="metric-label">Correctivos</div>
-				<div class="compact-kpi-value" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO'])}">0</div>
-			</div>
-		</div>
+        <section class="cui-kpi-grid">
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total ordenes', value=${#lists.size(listamantenimientos)}, meta='Historial registrado', icon='feather-tool', tone='primary')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='En proceso', value=${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])}, meta='Trabajo tecnico activo', icon='feather-clock', tone='warning')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Cerradas', value=${#lists.size(listamantenimientos.?[estadoInterno == 'CERRADO'])}, meta='Ordenes finalizadas', icon='feather-check-circle', tone='success')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Correctivos', value=${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO'])}, meta='Atencion por incidencia', icon='feather-alert-triangle', tone='danger')}"></div>
+        </section>
 
-		<div th:if="${exito}" class="flash-banner success" th:text="${exito}"></div>
+        <div th:if="${exito}" class="alert alert-success cui-alert" th:text="${exito}"></div>
 
-		<div class="card-surface-strong table-shell">
-			<div class="soft-header">
-				<div class="section-toolbar">
-					<div class="toolbar-pills">
-						<div class="toolbar-pill"><i class="feather-layers"></i><span>Total <strong th:text="${#lists.size(listamantenimientos)}">0</strong></span></div>
-						<div class="toolbar-pill"><i class="feather-loader"></i><span>En proceso <strong th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])}">0</strong></span></div>
-						<div class="toolbar-pill"><i class="feather-check"></i><span>Cerradas <strong th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'CERRADO'])}">0</strong></span></div>
-					</div>
-				</div>
-			</div>
-			<div class="content-card pt-0">
-			<div class="content-card-header">
-				<div>
-					<h2 class="content-card-title">Ordenes de Mantenimiento Recientes</h2>
-				</div>
-			</div>
-			<div class="table-responsive">
-				<table class="inventory-table">
-					<thead>
-						<tr>
-							<th>Equipo</th>
-							<th>Tecnico</th>
-							<th>Ultima Accion</th>
-							<th>Estado</th>
-							<th class="text-end">Accion</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="m : ${listamantenimientos}">
-							<td>
-								<div class="device-cell">
-									<div class="mini-thumb"><i class="feather-tool"></i></div>
-									<div>
-										<div th:if="${m.equipos != null and !#lists.isEmpty(m.equipos)}">
-											<div class="device-name" th:text="${m.equipos[0].descripcion ?: 'Orden de mantenimiento'}"></div>
-											<div class="device-meta" th:text="${m.equipos[0].codigoSap ?: '-'}"></div>
-											<div th:if="${m.totalEquipos != null and m.totalEquipos > 1}" class="device-meta text-primary fw-bold"
-												th:text="'+ ' + ${m.totalEquipos - 1} + ' equipo(s) mas'"></div>
-										</div>
-										<div th:unless="${m.equipos != null and !#lists.isEmpty(m.equipos)}">
-											<div class="device-name" th:text="${m.equipoDescripcion ?: 'Orden de mantenimiento'}"></div>
-											<div class="device-meta" th:text="${m.equipoCodigoSap ?: '-'}"></div>
-										</div>
-									</div>
-								</div>
-							</td>
-							<td>
-								<div class="muted-stack">
-									<div class="device-name" th:text="${m.tecnicoNombre ?: '-'}"></div>
-									<div class="device-meta" th:text="${m.custodioNombre ?: '-'}"></div>
-								</div>
-							</td>
-							<td>
-								<div class="muted-stack">
-									<div class="device-name" th:text="${m.tipoMantenimiento ?: '-'}"></div>
-									<div class="device-meta" th:text="${m.fechaMantenimiento ?: '-'}"></div>
-								</div>
-							</td>
-							<td>
-								<span class="status-pill"
-									th:with="estadoNormalizado=${m.estadoInterno != null ? #strings.toLowerCase(m.estadoInterno) : ''}"
-									th:classappend="${#strings.contains(estadoNormalizado, 'complet')} ? ' is-completed' : (${#strings.contains(estadoNormalizado, 'proceso')} ? ' is-progress' : ' is-warning')"
-									th:text="${m.estadoInterno ?: 'Pendiente'}"></span>
-							</td>
-							<td class="text-end">
-								<a class="btn btn-outline-primary" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver detalle</a>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			</div>
+        <section class="cui-data-grid" id="maintenanceGrid" data-cui-grid>
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Ordenes</p>
+                    <h2>Historial de mantenimiento</h2>
+                </div>
+                <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+            </div>
 
-			<div th:replace="~{plantilla/paginacion :: paginacion(rutaBase='/mantenimiento')}"></div>
+            <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar por equipo, tecnico, custodio o estado...', exportHref=@{/reportes/mantenimientos/excel})}"></div>
 
-		</div>
-	</div>
+            <div class="cui-grid-filters">
+                <select class="form-select" data-cui-grid-filter data-filter-key="estado" data-cui-filter-persist>
+                    <option value="">Todos los estados</option>
+                    <option value="EN_PROCESO">En proceso</option>
+                    <option value="CERRADO">Cerrado</option>
+                    <option value="PENDIENTE">Pendiente</option>
+                </select>
+                <select class="form-select" data-cui-grid-filter data-filter-key="tipo" data-cui-filter-persist>
+                    <option value="">Todos los tipos</option>
+                    <option value="PREVENTIVO">Preventivo</option>
+                    <option value="CORRECTIVO">Correctivo</option>
+                </select>
+            </div>
+
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Equipo</th>
+                            <th>Tecnico / Custodio</th>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${listamantenimientos == null or #lists.isEmpty(listamantenimientos)}">
+                            <td colspan="6">
+                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-tool', title='Sin mantenimientos', message='No hay ordenes de mantenimiento registradas.')}"></div>
+                            </td>
+                        </tr>
+                        <tr th:each="m : ${listamantenimientos}"
+                            data-cui-grid-row
+                            th:with="equipoNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden de mantenimiento') : (m.equipoDescripcion ?: 'Orden de mantenimiento')},
+                                     equipoCodigo=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].codigoSap ?: '-') : (m.equipoCodigoSap ?: '-')},
+                                     estadoTexto=${m.estadoInterno ?: 'PENDIENTE'},
+                                     tipoTexto=${m.tipoMantenimiento ?: '-'},
+                                     busqueda=${equipoNombre + ' ' + equipoCodigo + ' ' + (m.tecnicoNombre ?: '') + ' ' + (m.custodioNombre ?: '') + ' ' + estadoTexto + ' ' + tipoTexto}"
+                            th:attr="data-search=${#strings.toLowerCase(busqueda)},data-estado=${estadoTexto},data-tipo=${tipoTexto}">
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${equipoNombre}">Equipo</span>
+                                    <span class="cui-row-subtitle" th:text="${equipoCodigo}">Codigo</span>
+                                    <span th:if="${m.totalEquipos != null and m.totalEquipos > 1}" class="cui-row-subtitle text-primary fw-bold"
+                                          th:text="'+ ' + ${m.totalEquipos - 1} + ' equipo(s) mas'">+ 1 equipo</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${m.tecnicoNombre ?: '-'}">Tecnico</span>
+                                    <span class="cui-row-subtitle" th:text="${m.custodioNombre ?: '-'}">Custodio</span>
+                                </div>
+                            </td>
+                            <td th:text="${tipoTexto}">Tipo</td>
+                            <td th:text="${m.fechaMantenimiento ?: '-'}">Fecha</td>
+                            <td>
+                                <span class="cui-badge"
+                                      th:classappend="${estadoTexto == 'CERRADO'} ? ' cui-badge-asignado' : (${estadoTexto == 'EN_PROCESO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
+                                      th:text="${estadoTexto}">Estado</span>
+                            </td>
+                            <td>
+                                <div class="cui-action-cell">
+                                    <a class="btn btn-outline-primary btn-sm" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">
+                                        Ver detalle
+                                    </a>
+                                    <div class="dropdown cui-action-menu">
+                                        <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                            <i class="feather-more-vertical" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item" th:href="@{/mantenimiento/kanban}">
+                                                <i class="feather-columns" aria-hidden="true"></i>
+                                                Ver en kanban
+                                            </a>
+                                            <a class="dropdown-item" th:href="@{/mantenimiento/programado}">
+                                                <i class="feather-calendar" aria-hidden="true"></i>
+                                                Programados
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div hidden data-cui-empty-state>
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay mantenimientos que coincidan con los filtros aplicados.')}"></div>
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/grids/pagination :: pagination(rutaBase='/mantenimiento')}"></div>
+        </section>
+    </div>
 </div>
 </body>
 </html>

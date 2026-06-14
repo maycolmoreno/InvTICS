@@ -1,433 +1,204 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{plantilla/plantillaui}">
-
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
 <head>
-<title>Custodios</title>
+    <title>Custodios</title>
 </head>
-
 <body>
-	<div layout:fragment="contenidopaginas">
-		<div class="page-shell">
-			<div class="view-heading">
-				<div>
-					<div class="eyebrow">Gestion de Personal</div>
-					<h1 class="view-title">Custodios</h1>
-				</div>
-				<div class="d-flex gap-3 flex-wrap">
-					<a th:href="@{/custodios/nuevo-custodio}" class="btn btn-primary px-4 py-3">
-						<i class="feather-plus-circle me-2"></i>Nuevo Custodio
-					</a>
-				</div>
-			</div>
+<div layout:fragment="contenidopaginas">
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Custodios', subtitle='Directorio operacional de custodios con acceso al expediente y activos asignados.')}"></div>
 
-		<section class="admin-summary-grid">
-			<article class="admin-summary-card">
-				<div class="admin-summary-label">Total custodios</div>
-				<div class="admin-summary-value" th:text="${#lists.size(listarcustodios)}">0</div>
-			</article>
-			<article class="admin-summary-card">
-				<div class="admin-summary-label">Activos</div>
-				<div class="admin-summary-value" th:text="${#aggregates.sum(listarcustodios.![estado ? 1 : 0])}">0</div>
-			</article>
-			<article class="admin-summary-card">
-				<div class="admin-summary-label">Con ubicacion</div>
-				<div class="admin-summary-value" th:text="${#aggregates.sum(listarcustodios.![fkUbicacion != null ? 1 : 0])}">0</div>
-			</article>
-			<article class="admin-summary-card">
-				<div class="admin-summary-label">Departamentos</div>
-				<div class="admin-summary-value" id="kpiDeptos">0</div>
-			</article>
-		</section>
+        <div class="cui-command-bar">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a th:href="@{/custodias}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-clipboard" aria-hidden="true"></i>
+                    <span>Custodias</span>
+                </a>
+                <a th:href="@{/custodias/reporte}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-download" aria-hidden="true"></i>
+                    <span>Reporte</span>
+                </a>
+            </div>
+            <a th:href="@{/custodios/nuevo-custodio}" class="cui-btn cui-btn-primary">
+                <i class="feather-plus" aria-hidden="true"></i>
+                <span>Nuevo custodio</span>
+            </a>
+        </div>
 
-			<!-- FILTER BAR -->
-			<div class="filter-bar">
-				<div class="flex-grow-1" style="min-width:200px; max-width:340px;">
-					<div class="input-group">
-						<span class="input-group-text bg-white border-end-0 pe-2" style="border-color:#e4e4e7;">
-							<i class="feather feather-search" style="font-size:14px; color:#a1a1aa;"></i>
-						</span>
-						<input type="text" id="searchInput"
-							   class="form-control border-start-0 ps-1"
-							   placeholder="Buscar por nombre, cedula o correo..."
-							   autocomplete="off">
-					</div>
-				</div>
-				<div style="min-width:160px;">
-					<select id="filterDepartamento" class="form-select">
-						<option value="">Todos los departamentos</option>
-					</select>
-				</div>
-				<div style="min-width:140px;">
-					<select id="filterCargo" class="form-select">
-						<option value="">Todos los cargos</option>
-					</select>
-				</div>
-				<div style="min-width:140px;">
-					<select id="filterEstado" class="form-select">
-						<option value="">Todos los estados</option>
-						<option value="activo">Activo</option>
-						<option value="inactivo">Inactivo</option>
-					</select>
-				</div>
-				<div class="ms-auto row-counter">
-					Mostrando <strong id="rowCount">0</strong> custodios
-				</div>
-			</div>
+        <section class="cui-kpi-grid">
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total custodios', value=${#lists.size(listarcustodios)}, meta='Directorio registrado', icon='feather-users', tone='primary')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Activos', value=${#aggregates.sum(listarcustodios.![estado ? 1 : 0])}, meta='Con estado activo', icon='feather-check-circle', tone='success')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Con ubicacion', value=${#aggregates.sum(listarcustodios.![fkUbicacion != null ? 1 : 0])}, meta='Sucursal asociada', icon='feather-map-pin', tone='info')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Inactivos', value=${#aggregates.sum(listarcustodios.![estado ? 0 : 1])}, meta='No disponibles', icon='feather-user-x', tone='danger')}"></div>
+        </section>
 
-			<!-- TABLE -->
-			<div class="card card-custodios">
-				<div class="card-body p-0">
-					<div class="surface-card table-shell custodios-table">
-						<div class="table-responsive">
-							<table class="table align-middle mb-0" id="custodiosTable">
-								<thead>
-									<tr>
-										<th>Custodio</th>
-										<th>Cedula</th>
-										<th>Contacto</th>
-										<th>Departamento / Cargo</th>
-										<th>Sucursal</th>
-										<th>Ingreso</th>
-										<th>Estado</th>
-										<th>Acciones</th>
-									</tr>
-								</thead>
+        <section class="cui-data-grid" id="custodiansGrid" data-cui-grid>
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Gestion de personas</p>
+                    <h2>Listado de custodios</h2>
+                </div>
+                <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+            </div>
 
-								<tbody id="custodiosTbody">
-									<tr th:each="custodio : ${listarcustodios}"
-										class="fila-custodio"
-										th:attr="data-departamento=${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : ''},data-cargo=${custodio.fkCargo != null ? custodio.fkCargo.nombre : ''},data-estado=${custodio.estado ? 'activo' : 'inactivo'}">
-										<td>
-											<div class="custodio-name-cell">
-												<strong th:text="${custodio.nombre ?: '-'}">Nombre</strong>
-												<span th:text="${'ID: ' + custodio.idCustodio}">ID</span>
-											</div>
-										</td>
-										<td th:text="${custodio.cedula ?: '-'}">Cedula</td>
-										<td>
-											<div class="custodio-name-cell">
-												<span th:text="${custodio.correo ?: '-'}">Correo</span>
-												<span th:text="${custodio.telefono ?: '-'}">Telefono</span>
-											</div>
-										</td>
-										<td>
-											<div class="custodio-name-cell">
-												<strong th:text="${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : '-'}">Depto</strong>
-												<span th:text="${custodio.fkCargo != null ? custodio.fkCargo.nombre : '-'}">Cargo</span>
-											</div>
-										</td>
-										<td th:text="${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : 'Sin asignar'}">Sucursal</td>
-										<td th:text="${custodio.fechaIngreso ?: '-'}">Fecha</td>
-										<td>
-											<span class="status-pill"
-												th:classappend="${custodio.estado} ? ' is-online' : ' is-offline'">
-												<i class="feather-circle"></i>
-												<span th:text="${custodio.estado} ? 'Activo' : 'Inactivo'">Estado</span>
-											</span>
-										</td>
-										<td>
-											<div class="actions-inline">
-												<a class="btn btn-light btn-sm btn-soft-light"
-													th:href="@{/custodios/editar-custodio/{id}(id=${custodio.idCustodio})}">
-													<i class="feather-edit-2 me-1"></i>Editar
-												</a>
-												<button type="button" class="btn btn-light btn-sm btn-soft-light"
-													data-bs-toggle="modal"
-													data-bs-target="#modalToggleCustodio"
-													th:attr="data-id=${custodio.idCustodio}, data-estado=${custodio.estado}">
-													<i class="feather"
-														th:classappend="${custodio.estado} ? ' feather-trash-2 text-danger' : ' feather-check-circle text-success'"></i>
-													<span th:text="${custodio.estado} ? 'Desactivar' : 'Activar'">Toggle</span>
-												</button>
-											</div>
-										</td>
-									</tr>
-								</tbody>
+            <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar por nombre, cedula, correo, departamento o cargo...', exportHref=@{/custodias/reporte/excel})}"></div>
 
-							</table>
-						</div>
-					</div>
+            <div class="cui-grid-filters">
+                <select class="form-select" data-cui-grid-filter data-filter-key="estado" data-cui-filter-persist>
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+            </div>
 
-				<!-- PAGINATION BAR -->
-				<div class="pagination-bar" id="paginationBar">
-					<div class="page-size-wrap">
-						<span>Filas por pagina:</span>
-						<select id="pageSizeSelect">
-							<option value="5">5</option>
-							<option value="10" selected>10</option>
-							<option value="25">25</option>
-							<option value="50">50</option>
-						</select>
-					</div>
-					<div class="pagination-info" id="paginationInfo"></div>
-					<nav class="pagination-nav" id="paginationNav"></nav>
-				</div>
-			</div>
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Custodio</th>
+                            <th>Cedula</th>
+                            <th>Contacto</th>
+                            <th>Departamento / Cargo</th>
+                            <th>Sucursal</th>
+                            <th>Ingreso</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${listarcustodios == null or #lists.isEmpty(listarcustodios)}">
+                            <td colspan="8">
+                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-users', title='Sin custodios', message='No hay custodios registrados.')}"></div>
+                            </td>
+                        </tr>
+                        <tr th:each="custodio : ${listarcustodios}"
+                            data-cui-grid-row
+                            th:with="departamento=${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : '-'},
+                                     cargo=${custodio.fkCargo != null ? custodio.fkCargo.nombre : '-'},
+                                     ubicacion=${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : 'Sin asignar'},
+                                     estadoFiltro=${custodio.estado ? 'activo' : 'inactivo'},
+                                     busqueda=${(custodio.nombre ?: '') + ' ' + (custodio.cedula ?: '') + ' ' + (custodio.correo ?: '') + ' ' + departamento + ' ' + cargo + ' ' + ubicacion}"
+                            th:attr="data-search=${#strings.toLowerCase(busqueda)},data-estado=${estadoFiltro}">
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${custodio.nombre ?: '-'}">Nombre</span>
+                                    <span class="cui-row-subtitle" th:text="${'ID ' + custodio.idCustodio}">ID</span>
+                                </div>
+                            </td>
+                            <td th:text="${custodio.cedula ?: '-'}">Cedula</td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${custodio.correo ?: '-'}">Correo</span>
+                                    <span class="cui-row-subtitle" th:text="${custodio.telefono ?: '-'}">Telefono</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${departamento}">Departamento</span>
+                                    <span class="cui-row-subtitle" th:text="${cargo}">Cargo</span>
+                                </div>
+                            </td>
+                            <td th:text="${ubicacion}">Sucursal</td>
+                            <td th:text="${custodio.fechaIngreso ?: '-'}">Fecha</td>
+                            <td>
+                                <span class="cui-badge"
+                                      th:classappend="${custodio.estado} ? ' cui-badge-asignado' : ' cui-badge-dado-de-baja'"
+                                      th:text="${custodio.estado} ? 'Activo' : 'Inactivo'">Estado</span>
+                            </td>
+                            <td>
+                                <div class="cui-action-cell">
+                                    <a class="btn btn-outline-primary btn-sm" th:href="@{/custodias/expediente/{id}(id=${custodio.idCustodio})}">
+                                        Expediente
+                                    </a>
+                                    <div class="dropdown cui-action-menu">
+                                        <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                            <i class="feather-more-vertical" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item" th:href="@{/custodios/editar-custodio/{id}(id=${custodio.idCustodio})}">
+                                                <i class="feather-edit-2" aria-hidden="true"></i>
+                                                Editar
+                                            </a>
+                                            <button type="button"
+                                                    class="dropdown-item text-danger"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalToggleCustodio"
+                                                    th:attr="data-id=${custodio.idCustodio},data-estado=${custodio.estado}">
+                                                <i th:class="${custodio.estado} ? 'feather-trash-2' : 'feather-check-circle'" aria-hidden="true"></i>
+                                                <span th:text="${custodio.estado} ? 'Desactivar' : 'Activar'}">Cambiar estado</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-		<!-- MODAL -->
-		<div class="modal fade" id="modalToggleCustodio" tabindex="-1"
-			aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
+                <div hidden data-cui-empty-state>
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay custodios que coincidan con los filtros aplicados.')}"></div>
+                </div>
+            </div>
+        </section>
 
-					<div class="modal-header">
-						<h5 class="modal-title">Confirmar</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal"
-							aria-label="Close"></button>
-					</div>
+        <div class="modal fade" id="modalToggleCustodio" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar cambio de estado</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body" id="textoModalToggleCustodio">Esta seguro?</div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formToggleCustodio" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="idCustodio" id="idCustodioToggle">
+                            <button type="submit" class="btn" id="btnToggleCustodio">Confirmar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-					<div class="modal-body" id="textoModalToggleCustodio">¿Está
-						seguro?</div>
+<th:block layout:fragment="scripts">
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var modalToggleCustodio = document.getElementById("modalToggleCustodio");
+            if (!modalToggleCustodio) {
+                return;
+            }
 
-					<div class="modal-footer">
-						<button type="button" class="btn btn-light"
-							data-bs-dismiss="modal">No</button>
+            modalToggleCustodio.addEventListener("show.bs.modal", function (event) {
+                var button = event.relatedTarget;
+                var id = button.getAttribute("data-id");
+                var estadoActual = button.getAttribute("data-estado") === "true";
+                var form = document.getElementById("formToggleCustodio");
+                var btn = document.getElementById("btnToggleCustodio");
+                var texto = document.getElementById("textoModalToggleCustodio");
 
-						<form id="formToggleCustodio" method="post">
-							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-							<input type="hidden" name="idCustodio" id="idCustodioToggle">
-							<button type="submit" class="btn" id="btnToggleCustodio">Sí</button>
-						</form>
-					</div>
+                document.getElementById("idCustodioToggle").value = id;
 
-				</div>
-			</div>
-		</div>
-
-		<!-- SCRIPTS -->
-		<script>
-		document.addEventListener("DOMContentLoaded", function () {
-
-			/* ── MODAL TOGGLE ─────────────────────────────────────── */
-			const modalToggleCustodio = document.getElementById('modalToggleCustodio');
-			modalToggleCustodio.addEventListener('show.bs.modal', function (event) {
-				const button = event.relatedTarget;
-				const id = button.getAttribute('data-id');
-				const estadoActual = button.getAttribute('data-estado') === 'true';
-
-				document.getElementById('idCustodioToggle').value = id;
-				const form = document.getElementById('formToggleCustodio');
-				const btn = document.getElementById('btnToggleCustodio');
-
-				if (estadoActual) {
-					document.getElementById('textoModalToggleCustodio').innerText = "¿Está seguro de DESACTIVAR este custodio?";
-					form.action = "/custodios/eliminar-custodio";
-					btn.innerText = "Sí, desactivar";
-					btn.className = "btn btn-danger";
-				} else {
-					document.getElementById('textoModalToggleCustodio').innerText = "¿Está seguro de ACTIVAR este custodio?";
-					form.action = "/custodios/activar-custodio";
-					btn.innerText = "Sí, activar";
-					btn.className = "btn btn-success";
-				}
-			});
-
-			const modal = document.getElementById("modalToggleCustodio");
-			if (modal && modal.parentElement !== document.body) {
-				document.body.appendChild(modal);
-			}
-
-			/* ── FILTROS + PAGINACION ─────────────────────────────── */
-			const searchInput     = document.getElementById("searchInput");
-			const filterDepto     = document.getElementById("filterDepartamento");
-			const filterCargo     = document.getElementById("filterCargo");
-			const filterEstado    = document.getElementById("filterEstado");
-			const rowCountEl      = document.getElementById("rowCount");
-			const pageSizeSelect  = document.getElementById("pageSizeSelect");
-			const paginationInfo  = document.getElementById("paginationInfo");
-			const paginationNav   = document.getElementById("paginationNav");
-
-			const allRows = Array.from(document.querySelectorAll("#custodiosTbody .fila-custodio"));
-			let filteredRows = [];
-			let currentPage  = 1;
-			let pageSize     = parseInt(pageSizeSelect.value, 10);
-
-			/* Poblar filtros Departamento y Cargo con valores unicos */
-			const deptos = new Set();
-			const cargos = new Set();
-			const deptoCargos = {};          /* mapa departamento → Set(cargos) */
-			allRows.forEach(function (r) {
-				const d = (r.getAttribute("data-departamento") || "").trim();
-				const c = (r.getAttribute("data-cargo") || "").trim();
-				if (d) deptos.add(d);
-				if (c) cargos.add(c);
-				if (d) {
-					if (!deptoCargos[d]) deptoCargos[d] = new Set();
-					if (c) deptoCargos[d].add(c);
-				}
-			});
-			Array.from(deptos).sort().forEach(function (d) {
-				const o = document.createElement("option"); o.value = d; o.textContent = d;
-				filterDepto.appendChild(o);
-			});
-			Array.from(cargos).sort().forEach(function (c) {
-				const o = document.createElement("option"); o.value = c; o.textContent = c;
-				filterCargo.appendChild(o);
-			});
-
-			/* KPI departamentos */
-			document.getElementById("kpiDeptos").textContent = deptos.size;
-
-			/* ── Select2: búsqueda en dropdowns ───────────────────── */
-			if (typeof $ !== 'undefined' && $.fn.select2) {
-				$('#filterDepartamento').select2({ width: '100%' });
-				$('#filterCargo').select2({ width: '100%' });
-			}
-
-			/* ── Cascada: departamento → cargos ───────────────────── */
-			function actualizarCargos(deptoSeleccionado) {
-				var cargoActual = filterCargo.value;
-				/* Destruir Select2 antes de modificar opciones */
-				if (typeof $ !== 'undefined' && $.fn.select2) {
-					$('#filterCargo').select2('destroy');
-				}
-				/* Quitar opciones dinámicas (dejar solo la primera "Todos") */
-				while (filterCargo.options.length > 1) {
-					filterCargo.remove(1);
-				}
-				/* Determinar qué cargos mostrar */
-				var lista;
-				if (deptoSeleccionado && deptoCargos[deptoSeleccionado]) {
-					lista = Array.from(deptoCargos[deptoSeleccionado]).sort();
-				} else {
-					lista = Array.from(cargos).sort();
-				}
-				lista.forEach(function (c) {
-					var o = document.createElement("option");
-					o.value = c; o.textContent = c;
-					filterCargo.appendChild(o);
-				});
-				/* Restaurar selección previa si sigue disponible */
-				if (lista.indexOf(cargoActual) >= 0) {
-					filterCargo.value = cargoActual;
-				} else {
-					filterCargo.value = "";
-				}
-				/* Reinicializar Select2 */
-				if (typeof $ !== 'undefined' && $.fn.select2) {
-					$('#filterCargo').select2({ width: '100%' });
-					$('#filterCargo').on('change', applyFilters);
-				}
-			}
-
-			/* ── Filter logic ─────────────────────────────────────── */
-			function applyFilters() {
-				const term   = searchInput.value.trim().toLowerCase();
-				const depto  = filterDepto.value;
-				const cargo  = filterCargo.value;
-				const estado = filterEstado.value;
-
-				filteredRows = allRows.filter(function (row) {
-					if (term && row.textContent.toLowerCase().indexOf(term) < 0) return false;
-					if (depto && (row.getAttribute("data-departamento") || "") !== depto) return false;
-					if (cargo && (row.getAttribute("data-cargo") || "") !== cargo) return false;
-					if (estado && (row.getAttribute("data-estado") || "") !== estado) return false;
-					return true;
-				});
-
-				currentPage = 1;
-				renderPage();
-			}
-
-			/* ── Render current page ──────────────────────────────── */
-			function renderPage() {
-				const total      = filteredRows.length;
-				const totalPages = Math.max(1, Math.ceil(total / pageSize));
-				if (currentPage > totalPages) currentPage = totalPages;
-
-				const start = (currentPage - 1) * pageSize;
-				const end   = Math.min(start + pageSize, total);
-				const pageSet = new Set(filteredRows.slice(start, end));
-
-				allRows.forEach(function (row) {
-					row.style.display = pageSet.has(row) ? "" : "none";
-				});
-
-				rowCountEl.textContent = total;
-
-				if (total === 0) {
-					paginationInfo.innerHTML = "Sin resultados";
-				} else {
-					paginationInfo.innerHTML =
-						"<strong>" + (start + 1) + "</strong> – <strong>" + end +
-						"</strong> de <strong>" + total + "</strong>";
-				}
-
-				renderPaginationNav(totalPages);
-			}
-
-			/* ── Build pagination nav ─────────────────────────────── */
-			function renderPaginationNav(totalPages) {
-				let html = "";
-
-				html += '<button class="pg-btn" data-page="prev"' +
-						(currentPage <= 1 ? ' disabled' : '') + '>' +
-						'<i class="feather feather-chevron-left" style="font-size:14px;"></i></button>';
-
-				const pages = buildPageNumbers(currentPage, totalPages);
-				pages.forEach(function (p) {
-					if (p === '...') {
-						html += '<span class="pg-ellipsis">&hellip;</span>';
-					} else {
-						html += '<button class="pg-btn' +
-								(p === currentPage ? ' active' : '') +
-								'" data-page="' + p + '">' + p + '</button>';
-					}
-				});
-
-				html += '<button class="pg-btn" data-page="next"' +
-						(currentPage >= totalPages ? ' disabled' : '') + '>' +
-						'<i class="feather feather-chevron-right" style="font-size:14px;"></i></button>';
-
-				paginationNav.innerHTML = html;
-			}
-
-			function buildPageNumbers(current, total) {
-				if (total <= 7) return Array.from({length: total}, function (_, i) { return i + 1; });
-				const pages = [];
-				pages.push(1);
-				if (current > 3) pages.push('...');
-				for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
-					pages.push(i);
-				}
-				if (current < total - 2) pages.push('...');
-				pages.push(total);
-				return pages;
-			}
-
-			/* ── Pagination click handler ─────────────────────────── */
-			paginationNav.addEventListener("click", function (e) {
-				const btn = e.target.closest(".pg-btn");
-				if (!btn || btn.disabled) return;
-				const val = btn.dataset.page;
-				const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
-				if (val === "prev")      currentPage = Math.max(1, currentPage - 1);
-				else if (val === "next") currentPage = Math.min(totalPages, currentPage + 1);
-				else                     currentPage = parseInt(val, 10);
-				renderPage();
-			});
-
-			/* ── Page-size change ─────────────────────────────────── */
-			pageSizeSelect.addEventListener("change", function () {
-				pageSize    = parseInt(pageSizeSelect.value, 10);
-				currentPage = 1;
-				renderPage();
-			});
-
-			/* ── INIT ─────────────────────────────────────────────── */
-			applyFilters();
-			searchInput.addEventListener("input",   applyFilters);
-			$('#filterDepartamento').on('change', function () {
-				actualizarCargos(filterDepto.value);
-				applyFilters();
-			});
-			$('#filterCargo').on('change', applyFilters);
-			filterEstado.addEventListener("change", applyFilters);
-		});
-		</script>
-
-	</div>
+                if (estadoActual) {
+                    texto.textContent = "Esta seguro de desactivar este custodio?";
+                    form.action = "/custodios/eliminar-custodio";
+                    btn.textContent = "Si, desactivar";
+                    btn.className = "btn btn-danger";
+                } else {
+                    texto.textContent = "Esta seguro de activar este custodio?";
+                    form.action = "/custodios/activar-custodio";
+                    btn.textContent = "Si, activar";
+                    btn.className = "btn btn-success";
+                }
+            });
+        });
+    </script>
+</th:block>
 </body>
 </html>

@@ -6,227 +6,155 @@
     <title>Reportes y auditoria</title>
 </head>
 <body>
-<div layout:fragment="contenidopaginas" class="itam-page">
-    <div class="main-content">
-        <div class="itam-shell">
-            <div class="itam-hero">
-                <div>
-                    <p class="itam-eyebrow">Reportes</p>
-                    <h1 class="itam-title">Centro de reportes y auditoria</h1>
-                    <p class="itam-subtitle">Indicadores, exportables y trazabilidad operativa de activos, custodias y mantenimiento.</p>
-                </div>
-                <div class="itam-actions">
-                    <a th:href="@{/inventario/movimientos}" class="itam-btn">
-                        <i class="feather-clock"></i>
-                        <span>Auditoria</span>
-                    </a>
-                    <a th:href="@{/equipos/reporte-equipo/excel}" class="itam-btn primary">
-                        <i class="feather-download"></i>
-                        <span>Excel equipos</span>
-                    </a>
-                </div>
+<div layout:fragment="contenidopaginas">
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Centro de Inteligencia Operacional', subtitle='Consulta, auditoria y exportacion de informacion de activos, custodias, inventario y mantenimiento.')}"></div>
+
+        <div class="cui-command-bar">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a th:href="@{/inventario/movimientos}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-clock" aria-hidden="true"></i>
+                    <span>Auditoria</span>
+                </a>
+                <a th:href="@{/inventario/dashboard}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-grid" aria-hidden="true"></i>
+                    <span>Dashboard operativo</span>
+                </a>
             </div>
+            <a th:href="@{/equipos/reporte-equipo/excel}" class="cui-btn cui-btn-primary">
+                <i class="feather-download" aria-hidden="true"></i>
+                <span>Excel equipos</span>
+            </a>
+        </div>
 
-            <section class="itam-kpi-grid">
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon"><i class="feather-monitor"></i></div>
-                    <p class="itam-kpi-value" th:text="${totalEquipos}">0</p>
-                    <p class="itam-kpi-label">Total equipos</p>
-                    <div class="itam-kpi-note">Parque tecnologico</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon success"><i class="feather-check-circle"></i></div>
-                    <p class="itam-kpi-value" th:text="${equiposActivos}">0</p>
-                    <p class="itam-kpi-label">Equipos activos</p>
-                    <div class="itam-kpi-note">Disponibles en sistema</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon warning"><i class="feather-tool"></i></div>
-                    <p class="itam-kpi-value" th:text="${totalMantenimientos}">0</p>
-                    <p class="itam-kpi-label">Mantenimientos</p>
-                    <div class="itam-kpi-note">Ordenes registradas</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon danger"><i class="feather-alert-circle"></i></div>
-                    <p class="itam-kpi-value" th:text="${mantenimientosAbiertos}">0</p>
-                    <p class="itam-kpi-label">Abiertos</p>
-                    <div class="itam-kpi-note">Pendientes de cierre</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon neutral"><i class="feather-users"></i></div>
-                    <p class="itam-kpi-value" th:text="${totalCustodios}">0</p>
-                    <p class="itam-kpi-label">Custodios</p>
-                    <div class="itam-kpi-note" th:text="${totalCustodias + ' actas'}">0 actas</div>
-                </article>
-            </section>
+        <section class="cui-kpi-grid">
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total equipos', value=${totalEquipos}, meta='Parque tecnologico', icon='feather-monitor', tone='primary')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Equipos activos', value=${equiposActivos}, meta='Disponibles en sistema', icon='feather-check-circle', tone='success')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Mantenimientos', value=${totalMantenimientos}, meta='Ordenes registradas', icon='feather-tool', tone='warning')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Abiertos', value=${mantenimientosAbiertos}, meta='Pendientes de cierre', icon='feather-alert-circle', tone='danger')}"></div>
+            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Custodios', value=${totalCustodios}, meta=${totalCustodias + ' actas'}, icon='feather-users', tone='info')}"></div>
+        </section>
 
-            <section class="itam-grid-3 mb-3">
-                <a th:href="@{/equipos/reporte-equipo}" class="itam-panel text-decoration-none">
-                    <div class="itam-panel-body">
-                        <div class="itam-asset-top">
-                            <div class="itam-asset-icon"><i class="feather-monitor"></i></div>
-                            <div>
-                                <p class="itam-asset-code">Inventario general</p>
-                                <p class="itam-asset-name">Equipos, estado, marca, categoria y exportable.</p>
-                            </div>
-                            <span class="itam-badge">Equipos</span>
-                        </div>
-                    </div>
-                </a>
-                <a th:href="@{/reportes/mantenimientos}" class="itam-panel text-decoration-none">
-                    <div class="itam-panel-body">
-                        <div class="itam-asset-top">
-                            <div class="itam-asset-icon"><i class="feather-tool"></i></div>
-                            <div>
-                                <p class="itam-asset-code">Mantenimientos</p>
-                                <p class="itam-asset-name">Filtros por estado, tipo, tecnico y Excel.</p>
-                            </div>
-                            <span class="itam-badge warning">Tecnico</span>
-                        </div>
-                    </div>
-                </a>
-                <a th:href="@{/custodias/reporte}" class="itam-panel text-decoration-none">
-                    <div class="itam-panel-body">
-                        <div class="itam-asset-top">
-                            <div class="itam-asset-icon"><i class="feather-clipboard"></i></div>
-                            <div>
-                                <p class="itam-asset-code">Custodias</p>
-                                <p class="itam-asset-name">Actas, vigencias, firmas y exportable.</p>
-                            </div>
-                            <span class="itam-badge success">Actas</span>
-                        </div>
-                    </div>
-                </a>
-            </section>
-
-            <section class="itam-grid-3 mb-3">
-                <a th:href="@{/inventario/dashboard}" class="itam-panel text-decoration-none">
-                    <div class="itam-panel-body">
-                        <div class="itam-list-item">
-                            <span class="itam-dot success"></span>
-                            <div>
-                                <p class="itam-item-title">Dashboard operativo</p>
-                                <p class="itam-item-meta mb-0">Lectura ejecutiva de inventario.</p>
-                            </div>
-                            <i class="feather-chevron-right"></i>
-                        </div>
-                    </div>
-                </a>
-                <a th:href="@{/inventario/movimientos}" class="itam-panel text-decoration-none">
-                    <div class="itam-panel-body">
-                        <div class="itam-list-item">
-                            <span class="itam-dot warning"></span>
-                            <div>
-                                <p class="itam-item-title">Auditoria de movimientos</p>
-                                <p class="itam-item-meta mb-0">Timeline logistico de activos y consumibles.</p>
-                            </div>
-                            <i class="feather-chevron-right"></i>
-                        </div>
-                    </div>
-                </a>
-                <a th:href="@{/mantenimiento/kanban}" class="itam-panel text-decoration-none">
-                    <div class="itam-panel-body">
-                        <div class="itam-list-item">
-                            <span class="itam-dot"></span>
-                            <div>
-                                <p class="itam-item-title">Kanban mantenimiento</p>
-                                <p class="itam-item-meta mb-0">Ordenes por estado operativo.</p>
-                            </div>
-                            <i class="feather-chevron-right"></i>
-                        </div>
-                    </div>
-                </a>
-            </section>
-
-            <div class="itam-grid-2">
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Distribucion de equipos</h2>
-                        <span class="itam-badge neutral">Activos TI</span>
-                    </div>
-                    <div class="itam-panel-body">
-                        <div class="row g-3">
-                            <div class="col-lg-4">
-                                <canvas id="chartCategoria" height="230"></canvas>
-                            </div>
-                            <div class="col-lg-4">
-                                <canvas id="chartMarca" height="230"></canvas>
-                            </div>
-                            <div class="col-lg-4">
-                                <canvas id="chartEstado" height="230"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Mantenimiento</h2>
-                        <span class="itam-badge warning">Control tecnico</span>
-                    </div>
-                    <div class="itam-panel-body">
-                        <div class="row g-3">
-                            <div class="col-lg-6">
-                                <canvas id="chartMntMes" height="210"></canvas>
-                            </div>
-                            <div class="col-lg-6">
-                                <canvas id="chartMntTecnico" height="210"></canvas>
-                            </div>
-                            <div class="col-lg-6">
-                                <canvas id="chartMntTipo" height="210"></canvas>
-                            </div>
-                            <div class="col-lg-6">
-                                <canvas id="chartMntEstado" height="210"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <section class="itam-panel" th:if="${metricasTecnicos != null && !metricasTecnicos.isEmpty()}">
-                <div class="itam-panel-head">
-                    <h2 class="itam-panel-title">Cumplimiento por tecnico</h2>
-                    <span class="itam-badge success">Planificacion</span>
+        <section class="cui-report-grid">
+            <article class="cui-report-card">
+                <span class="cui-report-icon"><i class="feather-monitor" aria-hidden="true"></i></span>
+                <span class="cui-badge cui-badge-info">Operativo</span>
+                <h3>Reporte de activos</h3>
+                <p>Inventario, estado, marca, categoria y exportable.</p>
+                <div class="cui-report-actions">
+                    <a th:href="@{/equipos/reporte-equipo}" class="btn btn-outline-primary btn-sm">Ver reporte</a>
+                    <a th:href="@{/equipos/reporte-equipo/excel}" class="btn btn-light btn-sm">Excel</a>
                 </div>
-                <div class="itam-panel-body">
-                    <div class="itam-table-wrap">
-                        <table class="itam-table">
-                            <thead>
-                            <tr>
-                                <th>Tecnico</th>
-                                <th>Total</th>
-                                <th>Completadas</th>
-                                <th>Pendientes</th>
-                                <th>En progreso</th>
-                                <th>Vencidas</th>
-                                <th>% completadas</th>
-                                <th>% a tiempo</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="m : ${metricasTecnicos}">
-                                <td th:text="${m.tecnicoNombre}">Tecnico</td>
-                                <td th:text="${m.totalActividades}">0</td>
-                                <td><span class="itam-badge success" th:text="${m.completadas}">0</span></td>
-                                <td><span class="itam-badge warning" th:text="${m.pendientes}">0</span></td>
-                                <td><span class="itam-badge" th:text="${m.enProgreso}">0</span></td>
-                                <td><span class="itam-badge danger" th:text="${m.vencidas}">0</span></td>
-                                <td th:text="${#numbers.formatDecimal(m.porcentajeCompletadas,1,1)} + '%'">0%</td>
-                                <td th:text="${#numbers.formatDecimal(m.porcentajeCumplimientoATiempo,1,1)} + '%'">0%</td>
-                            </tr>
-                            </tbody>
-                        </table>
+            </article>
+            <article class="cui-report-card">
+                <span class="cui-report-icon"><i class="feather-clipboard" aria-hidden="true"></i></span>
+                <span class="cui-badge cui-badge-asignado">Auditoria</span>
+                <h3>Reporte de custodias</h3>
+                <p>Actas, vigencias, responsables y trazabilidad documental.</p>
+                <div class="cui-report-actions">
+                    <a th:href="@{/custodias/reporte}" class="btn btn-outline-primary btn-sm">Ver reporte</a>
+                    <a th:href="@{/custodias/reporte/excel}" class="btn btn-light btn-sm">Excel</a>
+                </div>
+            </article>
+            <article class="cui-report-card">
+                <span class="cui-report-icon"><i class="feather-tool" aria-hidden="true"></i></span>
+                <span class="cui-badge cui-badge-en-reparacion">Tecnico</span>
+                <h3>Reporte de mantenimientos</h3>
+                <p>Estado, tipo, tecnico, fechas y proxima intervencion.</p>
+                <div class="cui-report-actions">
+                    <a th:href="@{/reportes/mantenimientos}" class="btn btn-outline-primary btn-sm">Ver reporte</a>
+                    <a th:href="@{/reportes/mantenimientos/excel}" class="btn btn-light btn-sm">Excel</a>
+                </div>
+            </article>
+            <article class="cui-report-card">
+                <span class="cui-report-icon"><i class="feather-activity" aria-hidden="true"></i></span>
+                <span class="cui-badge cui-badge-muted">Exportaciones</span>
+                <h3>Inventario y movimientos</h3>
+                <p>Dashboard operativo y timeline logistico de inventario.</p>
+                <div class="cui-report-actions">
+                    <a th:href="@{/inventario/movimientos}" class="btn btn-outline-primary btn-sm">Auditoria</a>
+                    <a th:href="@{/inventario/dashboard}" class="btn btn-light btn-sm">Dashboard</a>
+                </div>
+            </article>
+        </section>
+
+        <div class="cui-workspace-grid mt-4">
+            <section class="cui-exp-card">
+                <div class="cui-exp-card-header">
+                    <h2>Distribucion de equipos</h2>
+                    <span class="cui-badge cui-badge-info">Activos TI</span>
+                </div>
+                <div class="cui-exp-card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-4"><canvas id="chartCategoria" height="230"></canvas></div>
+                        <div class="col-lg-4"><canvas id="chartMarca" height="230"></canvas></div>
+                        <div class="col-lg-4"><canvas id="chartEstado" height="230"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cui-exp-card">
+                <div class="cui-exp-card-header">
+                    <h2>Mantenimiento</h2>
+                    <span class="cui-badge cui-badge-en-reparacion">Control tecnico</span>
+                </div>
+                <div class="cui-exp-card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-6"><canvas id="chartMntMes" height="210"></canvas></div>
+                        <div class="col-lg-6"><canvas id="chartMntTecnico" height="210"></canvas></div>
+                        <div class="col-lg-6"><canvas id="chartMntTipo" height="210"></canvas></div>
+                        <div class="col-lg-6"><canvas id="chartMntEstado" height="210"></canvas></div>
                     </div>
                 </div>
             </section>
         </div>
+
+        <section class="cui-data-grid mt-4" th:if="${metricasTecnicos != null and !metricasTecnicos.isEmpty()}">
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Planificacion</p>
+                    <h2>Cumplimiento por tecnico</h2>
+                </div>
+                <div class="cui-data-grid-meta" th:text="${#lists.size(metricasTecnicos) + ' registros'}">0 registros</div>
+            </div>
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Tecnico</th>
+                            <th>Total</th>
+                            <th>Completadas</th>
+                            <th>Pendientes</th>
+                            <th>En progreso</th>
+                            <th>Vencidas</th>
+                            <th>% completadas</th>
+                            <th>% a tiempo</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="m : ${metricasTecnicos}">
+                            <td th:text="${m.tecnicoNombre}">Tecnico</td>
+                            <td th:text="${m.totalActividades}">0</td>
+                            <td><span class="cui-badge cui-badge-asignado" th:text="${m.completadas}">0</span></td>
+                            <td><span class="cui-badge cui-badge-en-reparacion" th:text="${m.pendientes}">0</span></td>
+                            <td><span class="cui-badge cui-badge-info" th:text="${m.enProgreso}">0</span></td>
+                            <td><span class="cui-badge cui-badge-critico" th:text="${m.vencidas}">0</span></td>
+                            <td th:text="${#numbers.formatDecimal(m.porcentajeCompletadas,1,1)} + '%'">0%</td>
+                            <td th:text="${#numbers.formatDecimal(m.porcentajeCumplimientoATiempo,1,1)} + '%'">0%</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script th:inline="javascript">
     /*<![CDATA[*/
     (function() {
-        const PALETA = ['#4f46e5','#22c55e','#f59e0b','#ef4444','#64748b','#06b6d4','#8b5cf6','#14b8a6','#f97316','#0f172a'];
+        const PALETA = ['#1d4ed8','#16a34a','#d97706','#dc2626','#6b7280','#0891b2','#7c3aed','#14b8a6','#f97316','#111827'];
         function colorPaleta(n) {
             const c = [];
             for (let i = 0; i < n; i++) c.push(PALETA[i % PALETA.length]);
@@ -250,7 +178,7 @@
         const marcaValues = /*[[${marcasValores}]]*/ [];
         chartOrEmpty('chartMarca', {
             type: 'bar',
-            data: { labels: marcaLabels, datasets: [{ label: 'Equipos', data: marcaValues, backgroundColor: '#4f46e5' }] },
+            data: { labels: marcaLabels, datasets: [{ label: 'Equipos', data: marcaValues, backgroundColor: '#1d4ed8' }] },
             options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }
         });
 
@@ -266,7 +194,7 @@
         const mesValues = /*[[${mntMesValores}]]*/ [];
         chartOrEmpty('chartMntMes', {
             type: 'line',
-            data: { labels: mesLabels, datasets: [{ label: 'Mantenimientos', data: mesValues, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,.12)', fill: true, tension: .3 }] },
+            data: { labels: mesLabels, datasets: [{ label: 'Mantenimientos', data: mesValues, borderColor: '#1d4ed8', backgroundColor: 'rgba(29,78,216,.12)', fill: true, tension: .3 }] },
             options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
         });
 

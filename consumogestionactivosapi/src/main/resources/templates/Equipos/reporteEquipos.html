@@ -1,125 +1,102 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{plantilla/plantillaui}">
-
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
 <head>
-<title>Equipos</title>
+    <title>Reporte de equipos</title>
 </head>
-
 <body>
-	<div layout:fragment="contenidopaginas">
+<div layout:fragment="contenidopaginas">
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Reporte de activos', subtitle='Consulta exportable del inventario tecnologico registrado.')}"></div>
 
+        <div class="cui-command-bar">
+            <a th:href="@{/reportes}" class="cui-btn cui-btn-secondary">
+                <i class="feather-arrow-left" aria-hidden="true"></i>
+                <span>Reportes</span>
+            </a>
+            <a th:href="@{/equipos/reporte-equipo/excel}" class="cui-btn cui-btn-primary">
+                <i class="feather-download" aria-hidden="true"></i>
+                <span>Descargar Excel</span>
+            </a>
+        </div>
 
-		<div class="page-header">
-			<div class="page-header-left d-flex align-items-center">
-				<div class="page-header-title">
-					<h5 class="m-b-10">Reporte Equipos</h5>
-				</div>
-				<ul class="breadcrumb">
-					<li class="breadcrumb-item"><a
-						th:href="@{/equipos/reporte-equipo}">Inicio</a></li>
-					<li class="breadcrumb-item">Equipos</li>
-				</ul>
-			</div>
-
-			<div class="page-header-right ms-auto">
-				<div class="page-header-right-items">
-					<div
-						class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
-
-						<a class="btn btn-success d-flex align-items-center gap-2"
-							th:href="@{/equipos/reporte-equipo/excel}">
-							<i class="bi bi-filetype-xlsx"></i> <span>Descargar Excel</span>
-						</a>
-
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- TABLE -->
-		<div class="main-content">
-			<div class="row">
-				<div class="col-lg-12">
-					<div class="card stretch stretch-full">
-
-						<div class="card-body p-0">
-
-							<div class="table-responsive">
-
-								<table class="table table-hover" id="proposalList">
-									<thead>
-										<tr>
-											<th>ID</th>
-											<th>Cod. Interno</th>
-											<th>MODELO</th>
-											<th>SERIAL</th>
-											<th>PROCESADOR</th>
-											<th>RAM (GB)</th>
-											<th>ALMACENAMIENTO (GB)</th>
-
-											<th>LIC. WINDOWS</th>
-
-											<th>MAC</th>
-											<th>FECHA COMPRA</th>
-											<th>PRECIO COMPRA</th>
-
-											<th>ESTADO EQUIPO</th>
-											<th>OBSERVACIÓN</th>
-
-											<th>MARCA</th>
-											<th>CATEGORÍA</th>
-
-											<th>ESTADO</th>
-
-										</tr>
-									</thead>
-
-									<tbody>
-										<tr th:each="equipo : ${listarequipos}" class="single-item">
-											<td th:text="${equipo.idEquipo}"></td>
-
-											<td th:text="${equipo.codigoSap} ?: '-'"></td>
-											<td th:text="${equipo.modelo} ?: '-'"></td>
-											<td th:text="${equipo.serial} ?: '-'"></td>
-											<td th:text="${equipo.procesador} ?: '-'"></td>
-											<td th:text="${equipo.memoriaRamGb} ?: '-'"></td>
-											<td th:text="${equipo.capacidadAlmacenamientoGb} ?: '-'"></td>
-											<td th:text="${equipo.sistemaOperativo} ?: '-'"></td>
-
-											<td
-												th:text="${equipo.licenciaWindowsActivada != null && equipo.licenciaWindowsActivada} ? 'Sí' : 'No'"></td>
-
-											<td th:text="${equipo.mac} ?: '-'"></td>
-											<td th:text="${equipo.fechaCompra} ?: '-'"></td>
-											<td th:text="${equipo.precioCompra} ?: '-'"></td>
-
-											<td th:text="${equipo.estadoEquipo} ?: '-'"></td>
-											<td th:text="${equipo.observacionEquipo} ?: '-'"></td>
-
-											<!-- ✅ NOMBRES (no IDs) -->
-										
-											<td
-												th:text="${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'}"></td>
-											<td
-												th:text="${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : '-'}"></td>
-										<td>
-												<div th:if="${equipo.estado}"
-													class="badge bg-soft-success text-success">Activo</div>
-												<div th:unless="${equipo.estado}"
-													class="badge bg-soft-danger text-danger">Inactivo</div>
-											</td>
-									</tr>
-									</tbody>
-
-								</table>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+        <section class="cui-data-grid" id="assetReportGrid" data-cui-grid>
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Exportaciones</p>
+                    <h2>Inventario de activos</h2>
+                </div>
+                <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+            </div>
+            <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar por codigo, modelo, serial, marca o categoria...', exportHref=@{/equipos/reporte-equipo/excel})}"></div>
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Activo</th>
+                            <th>Hardware</th>
+                            <th>MAC</th>
+                            <th>Compra</th>
+                            <th>Estado tecnico</th>
+                            <th>Marca / Categoria</th>
+                            <th>Estado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${listarequipos == null or #lists.isEmpty(listarequipos)}">
+                            <td colspan="8">
+                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-monitor', title='Sin equipos', message='No hay equipos disponibles para el reporte.')}"></div>
+                            </td>
+                        </tr>
+                        <tr th:each="equipo : ${listarequipos}"
+                            data-cui-grid-row
+                            th:with="marca=${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'},
+                                     categoria=${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : '-'},
+                                     busqueda=${(equipo.codigoSap ?: '') + ' ' + (equipo.modelo ?: '') + ' ' + (equipo.serial ?: '') + ' ' + marca + ' ' + categoria + ' ' + (equipo.estadoEquipo ?: '')}"
+                            th:attr="data-search=${#strings.toLowerCase(busqueda)}">
+                            <td th:text="${equipo.idEquipo}">1</td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${equipo.codigoSap ?: '-'}">Codigo</span>
+                                    <span class="cui-row-subtitle" th:text="${equipo.serial ?: '-'}">Serial</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${equipo.modelo ?: '-'}">Modelo</span>
+                                    <span class="cui-row-subtitle" th:text="${(equipo.procesador ?: '-') + ' / RAM ' + (equipo.memoriaRamGb ?: '-') + 'GB / ' + (equipo.capacidadAlmacenamientoGb ?: '-') + 'GB'}">Hardware</span>
+                                </div>
+                            </td>
+                            <td th:text="${equipo.mac ?: '-'}">MAC</td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span th:text="${equipo.fechaCompra ?: '-'}">Fecha</span>
+                                    <span class="cui-row-subtitle" th:text="${equipo.precioCompra ?: '-'}">Precio</span>
+                                </div>
+                            </td>
+                            <td th:text="${equipo.estadoEquipo ?: '-'}">Estado tecnico</td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${marca}">Marca</span>
+                                    <span class="cui-row-subtitle" th:text="${categoria}">Categoria</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="cui-badge" th:classappend="${equipo.estado} ? ' cui-badge-asignado' : ' cui-badge-dado-de-baja'" th:text="${equipo.estado ? 'Activo' : 'Inactivo'}">Estado</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div hidden data-cui-empty-state>
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay equipos que coincidan con la busqueda visual.')}"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
 </body>
 </html>

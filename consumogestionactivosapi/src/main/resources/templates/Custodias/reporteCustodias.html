@@ -1,143 +1,115 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{plantilla/plantillaui}">
-
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
 <head>
-<title>Custodias</title>
+    <title>Reporte de custodias</title>
 </head>
-
 <body>
-	<div layout:fragment="contenidopaginas">
+<div layout:fragment="contenidopaginas">
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Reporte de custodias', subtitle='Consulta documental de custodias, responsables y activos asociados.')}"></div>
 
-		<div class="page-header">
-			<div class="page-header-left d-flex align-items-center">
-				<div class="page-header-title">
-					<h5 class="m-b-10">Reporte Custodias</h5>
-				</div>
-				<ul class="breadcrumb">
-					<li class="breadcrumb-item"><a th:href="@{/custodias/reporte}">Inicio</a>
-					</li>
-					<li class="breadcrumb-item">Custodias</li>
-				</ul>
-			</div>
+        <div class="cui-command-bar">
+            <a th:href="@{/reportes}" class="cui-btn cui-btn-secondary">
+                <i class="feather-arrow-left" aria-hidden="true"></i>
+                <span>Reportes</span>
+            </a>
+            <a class="cui-btn cui-btn-primary"
+               th:href="@{/custodias/reporte/excel(custodioId=${custodioSeleccionado}, equipoId=${equipoSeleccionado})}">
+                <i class="feather-download" aria-hidden="true"></i>
+                <span>Descargar Excel</span>
+            </a>
+        </div>
 
-			<div class="page-header-right ms-auto">
-				<div class="page-header-right-items">
-					<div
-						class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
+        <section class="cui-data-grid" id="custodyReportGrid" data-cui-grid>
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Auditoria documental</p>
+                    <h2>Custodias</h2>
+                </div>
+                <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+            </div>
 
-						<a class="btn btn-success d-flex align-items-center gap-2"
-							th:href="@{/custodias/reporte/excel(custodioId=${custodioSeleccionado}, equipoId=${equipoSeleccionado})}">
-							<i class="bi bi-filetype-xlsx"></i> <span>Descargar Excel</span>
-						</a>
+            <form th:action="@{/custodias/reporte}" method="get" class="cui-data-grid-toolbar">
+                <div class="cui-search-control">
+                    <i class="feather-search" aria-hidden="true"></i>
+                    <input type="search" class="form-control" data-cui-grid-search placeholder="Buscar por custodio, cedula, activo o serial..." autocomplete="off">
+                </div>
+                <div class="cui-toolbar-actions">
+                    <select class="form-select" name="custodioId" onchange="this.form.submit()">
+                        <option value="" th:selected="${custodioSeleccionado == null || custodioSeleccionado == 0}">Todos los custodios</option>
+                        <option th:each="c : ${listaCustodios}" th:value="${c.idCustodio}" th:text="${c.nombre}" th:selected="${custodioSeleccionado != null && custodioSeleccionado == c.idCustodio}"></option>
+                    </select>
+                    <select class="form-select" name="equipoId" onchange="this.form.submit()">
+                        <option value="" th:selected="${equipoSeleccionado == null || equipoSeleccionado == 0}">Todos los equipos</option>
+                        <option th:each="e : ${listaEquipos}" th:value="${e.idEquipo}" th:text="${e.codigoSap + ' - ' + e.modelo}" th:selected="${equipoSeleccionado != null && equipoSeleccionado == e.idEquipo}"></option>
+                    </select>
+                </div>
+            </form>
 
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- TABLE -->
-		<div class="main-content">
-			<div class="row">
-				<div class="col-lg-12">
-					<div class="card stretch stretch-full">
-
-						<!-- FILTROS -->
-						<form th:action="@{/custodias/reporte}" method="get"
-							class="d-inline-flex gap-2 align-items-center ms-4 mt-4 mb-3 px-3 py-2 rounded bg-light">
-
-							<label class="form-label m-0 fw-semibold">Custodio:</label> <select
-								class="form-control" name="custodioId"
-								onchange="this.form.submit()">
-								<option value=""
-									th:selected="${custodioSeleccionado == null || custodioSeleccionado == 0}">
-									Todos</option>
-								<option th:each="c : ${listaCustodios}"
-									th:value="${c.idCustodio}" th:text="${c.nombre}"
-									th:selected="${custodioSeleccionado != null && custodioSeleccionado == c.idCustodio}">
-								</option>
-							</select> <label class="form-label m-0 fw-semibold ms-2">Equipo:</label> <select
-								class="form-control" name="equipoId"
-								onchange="this.form.submit()">
-								<option value=""
-									th:selected="${equipoSeleccionado == null || equipoSeleccionado == 0}">
-									Todos</option>
-								<option th:each="e : ${listaEquipos}" th:value="${e.idEquipo}"
-									th:text="${e.codigoSap + ' - ' + e.modelo}"
-									th:selected="${equipoSeleccionado != null && equipoSeleccionado == e.idEquipo}">
-								</option>
-							</select>
-
-						</form>
-
-						<div class="card-body p-0">
-							<div class="table-responsive">
-
-								<table class="table table-hover" id="proposalList">
-									<thead>
-										<tr>
-
-											<th>CUSTODIO</th>
-											<th>CÉDULA</th>
-
-											<th>FECHA INICIO</th>
-											<th>FECHA FIN</th>
-
-											<th>Cod. Interno</th>
-											<th>TIPO</th>
-											<th>MODELO</th>
-											<th>SERIAL</th>
-
-											<th>OBSERVACIÓN</th>
-										</tr>
-									</thead>
-
-									<tbody>
-										<tr th:each="c : ${listaCustodias}" class="single-item">
-
-											<!-- Custodio -->
-											<td
-												th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : '-'}"></td>
-											<td
-												th:text="${c.fkCustodio != null ? c.fkCustodio.cedula : '-'}"></td>
-
-											<td th:text="${c.fechaInicio} ?: '-'"></td>
-											<td th:text="${c.fechaFin} ?: '-'"></td>
-
-
-
-
-											<!-- Equipo -->
-
-											<td
-												th:text="${c.fkEquipo != null ? c.fkEquipo.codigoSap : '-'}"></td>
-											<td
-												th:text="${c.fkEquipo != null && c.fkEquipo.fkCategoria != null ? c.fkEquipo.fkCategoria.nombre : '-'}"></td>
-											<td th:text="${c.fkEquipo != null ? c.fkEquipo.modelo : '-'}"></td>
-											<td th:text="${c.fkEquipo != null ? c.fkEquipo.serial : '-'}"></td>
-
-											<td th:text="${c.observacion} ?: '-'"></td>
-
-										</tr>
-
-										<tr
-											th:if="${listaCustodias == null || #lists.isEmpty(listaCustodias)}">
-											<td colspan="9" class="text-center py-4 text-muted">No
-												hay registros para los filtros seleccionados.</td>
-										</tr>
-
-									</tbody>
-								</table>
-
-							</div>
-						</div>
-
-					</div>
-				</div>
-			</div>
-		</div>
-
-	</div>
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Custodio</th>
+                            <th>Periodo</th>
+                            <th>Activo</th>
+                            <th>Modelo / Serial</th>
+                            <th>Observacion</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${listaCustodias == null or #lists.isEmpty(listaCustodias)}">
+                            <td colspan="5">
+                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-clipboard', title='Sin custodias', message='No hay registros para los filtros seleccionados.')}"></div>
+                            </td>
+                        </tr>
+                        <tr th:each="c : ${listaCustodias}"
+                            data-cui-grid-row
+                            th:with="custodioNombre=${c.fkCustodio != null ? c.fkCustodio.nombre : '-'},
+                                     cedula=${c.fkCustodio != null ? c.fkCustodio.cedula : '-'},
+                                     codigo=${c.fkEquipo != null ? c.fkEquipo.codigoSap : '-'},
+                                     tipo=${c.fkEquipo != null and c.fkEquipo.fkCategoria != null ? c.fkEquipo.fkCategoria.nombre : '-'},
+                                     modelo=${c.fkEquipo != null ? c.fkEquipo.modelo : '-'},
+                                     serial=${c.fkEquipo != null ? c.fkEquipo.serial : '-'},
+                                     busqueda=${custodioNombre + ' ' + cedula + ' ' + codigo + ' ' + tipo + ' ' + modelo + ' ' + serial + ' ' + (c.observacion ?: '')}"
+                            th:attr="data-search=${#strings.toLowerCase(busqueda)}">
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${custodioNombre}">Custodio</span>
+                                    <span class="cui-row-subtitle" th:text="${cedula}">Cedula</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:text="${c.fechaInicio ?: '-'}">Inicio</span>
+                                <span> -> </span>
+                                <span th:text="${c.fechaFin ?: 'Vigente'}">Fin</span>
+                            </td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${codigo}">Codigo</span>
+                                    <span class="cui-row-subtitle" th:text="${tipo}">Tipo</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${modelo}">Modelo</span>
+                                    <span class="cui-row-subtitle" th:text="${serial}">Serial</span>
+                                </div>
+                            </td>
+                            <td th:text="${c.observacion ?: '-'}">Observacion</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div hidden data-cui-empty-state>
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay custodias que coincidan con la busqueda visual.')}"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
 </body>
 </html>
