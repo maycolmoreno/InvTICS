@@ -21,11 +21,17 @@
             </a>
         </section>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total marcas', value=${#lists.size(listarmarcas)}, meta='Catalogo total', icon='feather-tag', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Activas', value=${#lists.size(listarmarcas.?[estado])}, meta='Disponibles', icon='feather-check-circle', tone='success')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Inactivas', value=${#lists.size(listarmarcas.?[!estado])}, meta='Ocultas para operacion', icon='feather-slash', tone='danger')}"></div>
-        </section>
+        <div class="cui-summary-strip">
+            <div class="cui-summary-item">
+                <span class="cui-summary-label">Activas</span>
+                <strong class="cui-summary-value success" th:text="${#lists.size(listarmarcas.?[estado])}">0</strong>
+            </div>
+            <span class="cui-summary-sep" aria-hidden="true">·</span>
+            <div class="cui-summary-item">
+                <span class="cui-summary-label">Inactivas</span>
+                <strong class="cui-summary-value danger" th:text="${#lists.size(listarmarcas.?[!estado])}">0</strong>
+            </div>
+        </div>
 
         <section class="cui-data-grid" id="brandsAdminGrid" data-cui-grid>
             <div class="cui-data-grid-header">

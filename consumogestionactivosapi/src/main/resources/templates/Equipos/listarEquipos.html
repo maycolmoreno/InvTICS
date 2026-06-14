@@ -12,10 +12,6 @@
 
         <div class="cui-command-bar">
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a th:href="@{/equipos/reporte-equipo}" class="cui-btn cui-btn-secondary">
-                    <i class="feather-download" aria-hidden="true"></i>
-                    <span>Exportar</span>
-                </a>
                 <a th:href="@{/importar}" class="cui-btn cui-btn-secondary">
                     <i class="feather-upload" aria-hidden="true"></i>
                     <span>Importar</span>
@@ -26,13 +22,6 @@
                 <span>Nuevo equipo</span>
             </a>
         </div>
-
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total equipos', value=${totalElementos != null ? totalElementos : #lists.size(listarequipos)}, meta='Inventario registrado', icon='feather-monitor', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Activos visibles', value=${#lists.size(listarequipos.?[estado == true])}, meta='Pagina actual', icon='feather-check-circle', tone='success')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Con novedad', value=${#lists.size(listarequipos.?[estadoEquipo != null and (#strings.toLowerCase(estadoEquipo).contains('mantenimiento') or #strings.toLowerCase(estadoEquipo).contains('falla') or #strings.toLowerCase(estadoEquipo).contains('repar'))])}, meta='Mantenimiento o reparacion', icon='feather-alert-triangle', tone='warning')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Inactivos', value=${#lists.size(listarequipos.?[estado == false])}, meta='Fuera de uso operativo', icon='feather-x-circle', tone='danger')}"></div>
-        </section>
 
         <section class="cui-data-grid" id="assetsGrid" data-cui-grid>
             <div class="cui-data-grid-header">

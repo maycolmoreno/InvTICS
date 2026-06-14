@@ -21,12 +21,6 @@
             </a>
         </section>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Roles disponibles', value=${#lists.size(listarroles)}, meta='Catalogo total', icon='feather-shield', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Roles activos', value=${#lists.size(listarroles.?[estado])}, meta='Habilitados', icon='feather-check-circle', tone='success')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Roles inactivos', value=${#lists.size(listarroles.?[!estado])}, meta='Deshabilitados', icon='feather-slash', tone='danger')}"></div>
-        </section>
-
         <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorEliminar}">
             <strong>Error:</strong> <span th:text="${errorEliminar}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>

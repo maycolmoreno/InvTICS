@@ -231,3 +231,52 @@
     width: 92vw;
   }
 }
+
+/* --- KPI grid (expediente / dashboard cards) -------------------- */
+.cui-kpi-grid {
+  display: grid;
+  gap: var(--cui-space-4);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-bottom: var(--cui-space-4);
+}
+
+/* --- Summary strip ------------------------------------------------ */
+.cui-summary-strip {
+  align-items: center;
+  border-bottom: 1px solid var(--cui-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cui-space-5);
+  margin-bottom: var(--cui-space-4);
+  padding: var(--cui-space-2) 0 var(--cui-space-3);
+}
+
+.cui-summary-item {
+  align-items: baseline;
+  display: flex;
+  gap: var(--cui-space-2);
+}
+
+.cui-summary-label {
+  color: var(--cui-text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cui-summary-value {
+  color: var(--cui-text-main);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.cui-summary-value.warning { color: var(--cui-warning); }
+.cui-summary-value.danger  { color: var(--cui-danger); }
+.cui-summary-value.success { color: var(--cui-success); }
+
+.cui-summary-sep {
+  color: var(--cui-border);
+  user-select: none;
+}

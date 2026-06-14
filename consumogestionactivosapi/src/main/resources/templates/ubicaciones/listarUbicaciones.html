@@ -23,17 +23,17 @@
       </div>
     </section>
 
-    <section class="row g-3 mb-4">
-      <div class="col-md-4">
-        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Total ubicaciones', ${#lists.size(listaubicacion)}, 'Catalogo geografico', 'feather-map-pin', 'primary')}"></div>
-      </div>
-      <div class="col-md-4">
-        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Activas', ${#aggregates.sum(listaubicacion.![estado ? 1 : 0])}, 'Disponibles para operaciones', 'feather-check-circle', 'success')}"></div>
-      </div>
-      <div class="col-md-4">
-        <div th:replace="~{fragments/components/kpi-card :: kpiCard('Con coordenadas', ${#aggregates.sum(listaubicacion.![latitud != null and !#strings.isEmpty(latitud) and longitud != null and !#strings.isEmpty(longitud) ? 1 : 0])}, 'Listas para mapa', 'feather-navigation', 'info')}"></div>
-      </div>
-    </section>
+    <div class="cui-summary-strip">
+        <div class="cui-summary-item">
+            <span class="cui-summary-label">Activas</span>
+            <strong class="cui-summary-value success" th:text="${#aggregates.sum(listaubicacion.![estado ? 1 : 0])}">0</strong>
+        </div>
+        <span class="cui-summary-sep" aria-hidden="true">·</span>
+        <div class="cui-summary-item">
+            <span class="cui-summary-label">Con coordenadas</span>
+            <strong class="cui-summary-value" th:text="${#aggregates.sum(listaubicacion.![latitud != null and !#strings.isEmpty(latitud) and longitud != null and !#strings.isEmpty(longitud) ? 1 : 0])}">0</strong>
+        </div>
+    </div>
 
     <section class="cui-data-grid" data-cui-grid>
       <div class="cui-data-grid-header">

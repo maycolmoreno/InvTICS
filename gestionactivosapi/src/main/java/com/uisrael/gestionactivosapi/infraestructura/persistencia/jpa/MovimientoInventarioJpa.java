@@ -78,4 +78,8 @@ public class MovimientoInventarioJpa implements Serializable {
 
     @Column(name = "observacion", columnDefinition = "TEXT")
     private String observacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_recepcion_lote")
+    private RecepcionLoteJpa recepcionLote;
 }

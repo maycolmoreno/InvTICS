@@ -88,33 +88,6 @@
                     </div>
                 </section>
 
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Ultimas bajas</h2>
-                        <span class="itam-badge neutral" th:text="${#lists.size(movimientos) + ' eventos'}">0 eventos</span>
-                    </div>
-                    <div class="itam-panel-body">
-                        <div class="itam-list" th:if="${!#lists.isEmpty(movimientos)}">
-                            <div class="itam-list-item align-items-start" th:each="m : ${movimientos}">
-                                <span class="itam-dot danger"></span>
-                                <div>
-                                    <p class="itam-item-title" th:text="${m.equipoCodigo ?: 'Activo'}">CR-LAP-0001</p>
-                                    <p class="itam-item-meta">
-                                        <span th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">11/06/2026</span>
-                                        <span> &middot; </span>
-                                        <span th:text="${m.observacion ?: 'Sin observacion'}">Motivo</span>
-                                    </p>
-                                    <p class="itam-item-meta mb-0" th:if="${m.estadoAnterior != null || m.estadoNuevo != null}">
-                                        <span th:text="${m.estadoAnterior ?: 'Sin estado'}">Anterior</span>
-                                        <span> -> </span>
-                                        <span th:text="${m.estadoNuevo ?: 'Sin estado'}">Nuevo</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="itam-empty" th:if="${#lists.isEmpty(movimientos)}">Sin bajas registradas en los movimientos recientes.</div>
-                    </div>
-                </section>
             </div>
         </div>
     </div>

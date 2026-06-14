@@ -26,11 +26,6 @@
         <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
         <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Activos disponibles', value=${#lists.size(activosEnBodega)}, meta='En bodega para traslado', icon='feather-monitor', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Consumibles', value=${#lists.size(stock)}, meta='Items con stock', icon='feather-package', tone='success')}"></div>
-        </section>
-
         <div class="cui-workspace-grid">
             <section class="cui-form-panel">
                 <div class="cui-form-panel-header">
@@ -158,24 +153,9 @@
                             <td><span class="cui-badge cui-badge-en-bodega">En bodega</span></td>
                             <td>
                                 <div class="cui-action-cell">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" disabled>
-                                        Disponible
-                                    </button>
-                                    <div class="dropdown cui-action-menu">
-                                        <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
-                                            <i class="feather-more-vertical" aria-hidden="true"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a class="dropdown-item" th:href="@{/inventario/movimientos}">
-                                                <i class="feather-clock" aria-hidden="true"></i>
-                                                Ver movimientos
-                                            </a>
-                                            <a class="dropdown-item" th:href="@{/activos/equipos/{id}/expediente(id=${a.idEquipo})}">
-                                                <i class="feather-monitor" aria-hidden="true"></i>
-                                                Expediente
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <a class="btn btn-outline-primary btn-sm" th:href="@{/activos/equipos/{id}/expediente(id=${a.idEquipo})}">
+                                        Expediente
+                                    </a>
                                 </div>
                             </td>
                         </tr>

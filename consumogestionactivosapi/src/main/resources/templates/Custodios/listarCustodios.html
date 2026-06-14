@@ -27,13 +27,6 @@
             </a>
         </div>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total custodios', value=${#lists.size(listarcustodios)}, meta='Directorio registrado', icon='feather-users', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Activos', value=${#aggregates.sum(listarcustodios.![estado ? 1 : 0])}, meta='Con estado activo', icon='feather-check-circle', tone='success')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Con ubicacion', value=${#aggregates.sum(listarcustodios.![fkUbicacion != null ? 1 : 0])}, meta='Sucursal asociada', icon='feather-map-pin', tone='info')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Inactivos', value=${#aggregates.sum(listarcustodios.![estado ? 0 : 1])}, meta='No disponibles', icon='feather-user-x', tone='danger')}"></div>
-        </section>
-
         <section class="cui-data-grid" id="custodiansGrid" data-cui-grid>
             <div class="cui-data-grid-header">
                 <div>

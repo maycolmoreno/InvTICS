@@ -27,12 +27,6 @@
             </a>
         </div>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total actas', value=${#lists.size(actas)}, meta='Documentos derivados', icon='feather-file-text', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Activas', value=${#lists.size(actas.?[activa == true])}, meta='Custodias vigentes', icon='feather-check-circle', tone='success')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Cerradas', value=${#lists.size(actas.?[activa == false])}, meta='Responsabilidad cerrada', icon='feather-lock', tone='warning')}"></div>
-        </section>
-
         <div th:if="${exito}" class="alert alert-success cui-alert" th:text="${exito}"></div>
         <div th:if="${error}" class="alert alert-danger cui-alert" th:text="${error}"></div>
 
@@ -189,10 +183,6 @@
                                                     <i class="feather-upload" aria-hidden="true"></i>
                                                     Subir acta firmada
                                                 </button>
-                                                <a class="dropdown-item" th:href="@{/custodias/expediente/{id}(id=${acta.idCustodio})}">
-                                                    <i class="feather-clock" aria-hidden="true"></i>
-                                                    Ver historial
-                                                </a>
                                             </div>
                                         </div>
                                     </div>

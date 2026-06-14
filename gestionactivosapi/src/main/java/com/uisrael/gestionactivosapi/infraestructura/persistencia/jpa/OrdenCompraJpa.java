@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,10 +54,17 @@ public class OrdenCompraJpa extends AuditableEntity implements Serializable {
     @Column(name = "estado", length = 30, nullable = false)
     private EstadoOrdenCompra estado = EstadoOrdenCompra.EMITIDA;
 
+    @Column(name = "fecha_vencimiento")
+    private LocalDate fechaVencimiento;
+
     @Column(name = "observacion", columnDefinition = "TEXT")
     private String observacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_bodega_destino")
     private BodegaJpa bodegaDestino;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Integer version;
 }

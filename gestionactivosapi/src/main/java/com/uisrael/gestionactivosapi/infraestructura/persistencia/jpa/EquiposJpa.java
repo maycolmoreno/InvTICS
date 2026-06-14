@@ -113,4 +113,15 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @Column(name = "etiquetado")
     private Boolean etiquetado;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_orden_compra_detalle")
+    private OrdenCompraDetalleJpa detalleOc;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_recepcion_lote")
+    private RecepcionLoteJpa recepcionLote;
+
+    @Column(name = "condicion_al_recibir", length = 30)
+    private String condicionAlRecibir;
+
 }

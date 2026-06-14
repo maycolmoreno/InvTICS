@@ -27,65 +27,25 @@
                 </div>
             </div>
 
-            <section class="itam-kpi-grid">
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon"><i class="feather-clipboard"></i></div>
-                    <p class="itam-kpi-value" th:text="${totalMantenimientos}">0</p>
-                    <p class="itam-kpi-label">Total ordenes</p>
-                    <div class="itam-kpi-note">Mantenimientos registrados</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon neutral"><i class="feather-clock"></i></div>
-                    <p class="itam-kpi-value" th:text="${#lists.size(pendientes)}">0</p>
-                    <p class="itam-kpi-label">Pendientes</p>
-                    <div class="itam-kpi-note">Por iniciar</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon warning"><i class="feather-tool"></i></div>
-                    <p class="itam-kpi-value" th:text="${#lists.size(enProceso)}">0</p>
-                    <p class="itam-kpi-label">En proceso</p>
-                    <div class="itam-kpi-note">Trabajo activo</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon danger"><i class="feather-alert-triangle"></i></div>
-                    <p class="itam-kpi-value" th:text="${#lists.size(esperandoRepuesto)}">0</p>
-                    <p class="itam-kpi-label">Esperando repuesto</p>
-                    <div class="itam-kpi-note">Bloqueadas</div>
-                </article>
-                <article class="itam-kpi">
-                    <div class="itam-kpi-icon success"><i class="feather-check-circle"></i></div>
-                    <p class="itam-kpi-value" th:text="${#lists.size(finalizados)}">0</p>
-                    <p class="itam-kpi-label">Finalizadas</p>
-                    <div class="itam-kpi-note">Cerradas</div>
-                </article>
-            </section>
-
             <section class="itam-filter-band">
                 <div>
-                    <label class="form-label">Buscar</label>
                     <input id="kanbanSearch" class="form-control" type="search" placeholder="Equipo, custodio, tecnico o tipo">
                 </div>
                 <div>
-                    <label class="form-label">Tipo</label>
                     <select id="kanbanTypeFilter" class="form-select">
-                        <option value="">Todos</option>
+                        <option value="">Todos los tipos</option>
                         <option value="preventivo">Preventivo</option>
                         <option value="correctivo">Correctivo</option>
                         <option value="revision">Revision</option>
                     </select>
                 </div>
                 <div>
-                    <label class="form-label">Prioridad</label>
                     <select id="kanbanPriorityFilter" class="form-select">
-                        <option value="">Todas</option>
+                        <option value="">Todas las prioridades</option>
                         <option value="vencido">Vencido</option>
                         <option value="hoy">Hoy</option>
                         <option value="proximo">Proximo</option>
                     </select>
-                </div>
-                <div>
-                    <label class="form-label">Vista</label>
-                    <span class="itam-badge neutral w-100 justify-content-center">Kanban</span>
                 </div>
             </section>
 

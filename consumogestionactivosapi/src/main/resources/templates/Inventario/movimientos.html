@@ -23,13 +23,6 @@
             </div>
         </div>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Eventos', value=${#lists.size(movimientos)}, meta='Movimientos registrados', icon='feather-activity', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Traslados', value=${#lists.size(movimientos.?[tipoMovimiento == 'TRASLADO'])}, meta='Cambios logisticos', icon='feather-truck', tone='warning')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Bajas', value=${#lists.size(movimientos.?[tipoMovimiento == 'BAJA'])}, meta='Cierre de ciclo', icon='feather-x-circle', tone='danger')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Asignaciones', value=${#lists.size(movimientos.?[tipoMovimiento == 'ASIGNACION'])}, meta='Entregas a custodios', icon='feather-user-check', tone='success')}"></div>
-        </section>
-
         <div class="cui-workspace-grid">
             <section class="cui-data-grid" id="movementsGrid" data-cui-grid>
                 <div class="cui-data-grid-header">
@@ -62,12 +55,11 @@
                                 <th>Bodega / Custodio</th>
                                 <th>Estados</th>
                                 <th>Cantidad</th>
-                                <th class="text-end">Acciones</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:if="${movimientos == null or #lists.isEmpty(movimientos)}">
-                                <td colspan="6">
+                                <td colspan="5">
                                     <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin movimientos', message='No hay movimientos registrados.')}"></div>
                                 </td>
                             </tr>
@@ -103,28 +95,6 @@
                                 <td>
                                     <span th:if="${m.cantidad != null}" class="cui-badge cui-badge-muted" th:text="${'x' + m.cantidad}">x1</span>
                                     <span th:unless="${m.cantidad != null}" class="text-muted">-</span>
-                                </td>
-                                <td>
-                                    <div class="cui-action-cell">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" disabled>
-                                            Ver detalle
-                                        </button>
-                                        <div class="dropdown cui-action-menu">
-                                            <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
-                                                <i class="feather-more-vertical" aria-hidden="true"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" th:href="@{/inventario/stock}">
-                                                    <i class="feather-archive" aria-hidden="true"></i>
-                                                    Ver stock
-                                                </a>
-                                                <a class="dropdown-item" th:href="@{/inventario/dashboard}">
-                                                    <i class="feather-grid" aria-hidden="true"></i>
-                                                    Dashboard operativo
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </td>
                             </tr>
                             </tbody>

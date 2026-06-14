@@ -27,12 +27,22 @@
             </a>
         </div>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total ordenes', value=${#lists.size(listamantenimientos)}, meta='Historial registrado', icon='feather-tool', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='En proceso', value=${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])}, meta='Trabajo tecnico activo', icon='feather-clock', tone='warning')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Cerradas', value=${#lists.size(listamantenimientos.?[estadoInterno == 'CERRADO'])}, meta='Ordenes finalizadas', icon='feather-check-circle', tone='success')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Correctivos', value=${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO'])}, meta='Atencion por incidencia', icon='feather-alert-triangle', tone='danger')}"></div>
-        </section>
+        <div class="cui-summary-strip">
+            <div class="cui-summary-item">
+                <span class="cui-summary-label">Pendientes</span>
+                <strong class="cui-summary-value" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'PENDIENTE'])}">0</strong>
+            </div>
+            <span class="cui-summary-sep" aria-hidden="true">·</span>
+            <div class="cui-summary-item">
+                <span class="cui-summary-label">En proceso</span>
+                <strong class="cui-summary-value warning" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])}">0</strong>
+            </div>
+            <span class="cui-summary-sep" aria-hidden="true">·</span>
+            <div class="cui-summary-item">
+                <span class="cui-summary-label">Correctivos abiertos</span>
+                <strong class="cui-summary-value danger" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO' and estadoInterno != 'CERRADO'])}">0</strong>
+            </div>
+        </div>
 
         <div th:if="${exito}" class="alert alert-success cui-alert" th:text="${exito}"></div>
 

@@ -64,12 +64,6 @@
                         <span class="cui-nav-text">Custodias</span>
                     </a>
                 </li>
-                <li th:if="${sesionUsuario.tieneModulo('CUSTODIAS')}">
-                    <span class="cui-nav-link is-disabled" aria-disabled="true" title="Se consolidara como biblioteca documental en un sprint posterior">
-                        <span class="cui-nav-icon"><i class="feather-file-text"></i></span>
-                        <span class="cui-nav-text">Documentos</span>
-                    </span>
-                </li>
             </ul>
         </div>
 
@@ -142,10 +136,25 @@
                         <span class="cui-nav-text">Checklist</span>
                     </a>
                 </li>
+                <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}" class="cui-nav-group">
+                    <button type="button" class="cui-nav-toggle" aria-expanded="false">
+                        <span class="cui-nav-icon"><i class="feather-clipboard"></i></span>
+                        <span class="cui-nav-text">Planificacion</span>
+                        <span class="cui-nav-arrow"><i class="feather-chevron-right"></i></span>
+                    </button>
+                    <ul class="cui-nav-submenu">
+                        <li>
+                            <a th:href="@{/planificacion}" class="cui-nav-link">Actividades</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/planificacion/metricas}" class="cui-nav-link">Metricas</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
 
-        <div class="cui-nav-section" th:if="${sesionUsuario.tieneAlgunModulo('INVENTARIO','REPORTES','NOTIFICACIONES')}">
+        <div class="cui-nav-section" th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">
             <div class="cui-nav-label">Centro Operacional</div>
             <ul class="cui-nav-list">
                 <li th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">
@@ -154,16 +163,10 @@
                         <span class="cui-nav-text">Operacion</span>
                     </a>
                 </li>
-                <li th:if="${sesionUsuario.tieneModulo('REPORTES')}">
-                    <a th:href="@{/reportes}" class="cui-nav-link">
-                        <span class="cui-nav-icon"><i class="feather-bar-chart-2"></i></span>
-                        <span class="cui-nav-text">Reportes</span>
-                    </a>
-                </li>
-                <li th:if="${sesionUsuario.tieneModulo('NOTIFICACIONES')}">
-                    <a th:href="@{/notificaciones}" class="cui-nav-link">
-                        <span class="cui-nav-icon"><i class="feather-alert-circle"></i></span>
-                        <span class="cui-nav-text">Notificaciones</span>
+                <li th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">
+                    <a th:href="@{/ubicaciones-tecnicos/tiempo-real}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-map-pin"></i></span>
+                        <span class="cui-nav-text">Ubicacion tecnicos</span>
                     </a>
                 </li>
             </ul>
