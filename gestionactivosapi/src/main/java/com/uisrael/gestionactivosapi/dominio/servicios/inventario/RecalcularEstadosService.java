@@ -45,16 +45,20 @@ public class RecalcularEstadosService {
 
         boolean todosCerrados = !detalles.isEmpty() && detalles.stream().allMatch(this::estaCerrado);
         if (todosCerrados) {
-            ordenStateMachine.validarTransicion(orden.getEstado(), EstadoOrdenCompra.RECIBIDA);
-            orden.setEstado(EstadoOrdenCompra.RECIBIDA);
+            if (orden.getEstado() != EstadoOrdenCompra.RECIBIDA) {
+                ordenStateMachine.validarTransicion(orden.getEstado(), EstadoOrdenCompra.RECIBIDA);
+                orden.setEstado(EstadoOrdenCompra.RECIBIDA);
+            }
             return EstadoOrdenCompra.RECIBIDA;
         }
 
         boolean hayRecepcionParcial = detalles.stream()
                 .anyMatch(d -> d.getEstado() == EstadoOrdenCompraDetalle.PARCIAL);
         if (hayRecepcionParcial) {
-            ordenStateMachine.validarTransicion(orden.getEstado(), EstadoOrdenCompra.RECEPCION_PARCIAL);
-            orden.setEstado(EstadoOrdenCompra.RECEPCION_PARCIAL);
+            if (orden.getEstado() != EstadoOrdenCompra.RECEPCION_PARCIAL) {
+                ordenStateMachine.validarTransicion(orden.getEstado(), EstadoOrdenCompra.RECEPCION_PARCIAL);
+                orden.setEstado(EstadoOrdenCompra.RECEPCION_PARCIAL);
+            }
             return EstadoOrdenCompra.RECEPCION_PARCIAL;
         }
 

@@ -73,4 +73,13 @@ public class RecepcionLoteJpa extends AuditableEntity implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_custodio_receptor")
     private CustodiosJpa custodioReceptor;
+
+    @Column(name = "uuid", length = 60, nullable = false, unique = true)
+    private String uuid;
+
+    @Column(name = "recepcionado_por", length = 100, nullable = false)
+    private String recepcionadoPor;
+
+    @Column(name = "recepcionado_en", nullable = false)
+    private LocalDateTime recepcionadoEn;
 }
