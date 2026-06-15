@@ -30,6 +30,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.Recepc
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.BodegaResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
@@ -43,6 +44,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/inventario")
 public class InventarioControlador {
+
+	private static final String DEPARTAMENTO_TIC = "TECNOLOGÍAS E INNOVACIÓN";
 
 	private final ICustodiasServicio servicioCustodias;
 	private final ICustodiosServicio custodiosServicio;
@@ -58,6 +61,29 @@ public class InventarioControlador {
 
 	@PostMapping("/bodegas")
 	public String crearBodega(@ModelAttribute BodegaRequestDTO request, RedirectAttributes redirect) {
+		Integer custodioId = request.getCustodioResponsableId();
+		if (custodioId == null) {
+			redirect.addFlashAttribute("error", "Debe seleccionar un custodio responsable.");
+			return "redirect:/inventario/ingreso-bodega";
+		}
+		try {
+			CustodiosResponseDTO custodio = custodiosServicio.obtenerPorId(custodioId);
+			if (!custodio.isEstado()) {
+				redirect.addFlashAttribute("error", "El custodio responsable debe estar activo.");
+				return "redirect:/inventario/ingreso-bodega";
+			}
+			String depto = custodio.getFkCargo() != null && custodio.getFkCargo().getFkDepartamento() != null
+					? custodio.getFkCargo().getFkDepartamento().getNombre()
+					: null;
+			if (!DEPARTAMENTO_TIC.equalsIgnoreCase(depto)) {
+				redirect.addFlashAttribute("error",
+						"El custodio responsable debe pertenecer al departamento TECNOLOGÍAS E INNOVACIÓN.");
+				return "redirect:/inventario/ingreso-bodega";
+			}
+		} catch (Exception ex) {
+			redirect.addFlashAttribute("error", "No se pudo verificar el custodio: " + ex.getMessage());
+			return "redirect:/inventario/ingreso-bodega";
+		}
 		try {
 			inventarioOperacionServicio.crearBodega(request);
 			redirect.addFlashAttribute("success", "Bodega creada correctamente.");

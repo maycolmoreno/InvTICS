@@ -158,6 +158,19 @@
 										<label class="form-label">Direccion</label>
 										<input class="form-control" th:field="*{direccion}" placeholder="Direccion">
 									</div>
+									<div class="col-12">
+										<label class="form-label">Custodio responsable <span class="text-danger">*</span></label>
+										<select class="form-select" th:field="*{custodioResponsableId}" required>
+											<option value="">Seleccione custodio</option>
+											<option th:each="c : ${custodios}"
+													th:if="${c.estado and c.fkCargo != null and c.fkCargo.fkDepartamento != null and #strings.equalsIgnoreCase(c.fkCargo.fkDepartamento.nombre, 'TECNOLOGÍAS E INNOVACIÓN')}"
+													th:value="${c.idCustodio}"
+													th:text="${c.nombre}">
+												Custodio
+											</option>
+										</select>
+										<div class="form-text text-muted">Solo custodios activos del departamento TECNOLOGÍAS E INNOVACIÓN.</div>
+									</div>
 									<div class="col-12 text-end">
 										<button class="btn btn-primary" type="submit">Guardar bodega</button>
 									</div>

@@ -56,6 +56,13 @@
                     <i class="feather-wrench" aria-hidden="true"></i>
                     <span>Crear mantenimiento</span>
                 </a>
+                <button th:if="${equipo.estado}"
+                        type="button"
+                        class="cui-btn cui-btn-secondary"
+                        data-cui-drawer-open="#drawerTrasladarActivoExp">
+                    <i class="feather-truck" aria-hidden="true"></i>
+                    <span>Trasladar</span>
+                </button>
                 <div class="dropdown cui-action-menu">
                     <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                         <i class="feather-more-vertical" aria-hidden="true"></i>
@@ -452,6 +459,51 @@
                 </section>
             </main>
         </div>
+
+        <!-- Drawer: Trasladar activo desde expediente -->
+        <aside class="cui-drawer" id="drawerTrasladarActivoExp" aria-hidden="true" aria-label="Trasladar activo">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Trasladar activo</div>
+                    <div class="small text-muted">Mover equipo a otra bodega</div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/inventario/traslados/activos}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="equipoId" th:value="${equipo.idEquipo}">
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Equipo</label>
+                        <div class="form-control bg-light fw-semibold"
+                             th:text="${codigoActivo + ' · ' + modeloActivo}">—</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Bodega destino <span class="text-danger">*</span></label>
+                        <select class="form-select" name="bodegaDestinoId" required>
+                            <option value="">Seleccione bodega destino</option>
+                            <option th:each="b : ${bodegas}"
+                                    th:value="${b.idBodega}"
+                                    th:text="${b.nombre}">Bodega</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion</label>
+                        <textarea class="form-control" name="observacion" rows="3"></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="cui-btn cui-btn-primary" type="submit">
+                            <i class="feather-truck" aria-hidden="true"></i>
+                            <span>Trasladar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
     </div>
 </div>
 </body>

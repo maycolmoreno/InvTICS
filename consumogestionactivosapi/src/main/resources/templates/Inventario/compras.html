@@ -56,7 +56,6 @@
             <div class="cui-grid-filters">
                 <select class="form-select" data-cui-grid-filter data-filter-key="estado" data-cui-filter-persist>
                     <option value="">Todos los estados</option>
-                    <option value="BORRADOR">Borrador</option>
                     <option value="EMITIDA">Emitida</option>
                     <option value="RECEPCION_PARCIAL">Recepcion parcial</option>
                     <option value="RECIBIDA">Recibida</option>
@@ -73,18 +72,22 @@
                             <th>Proveedor</th>
                             <th>Bodega destino</th>
                             <th>Estado</th>
+                            <th style="min-width:140px">Progreso</th>
                             <th class="text-end">Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:if="${ordenesCompra == null or #lists.isEmpty(ordenesCompra)}">
-                            <td colspan="5">
+                            <td colspan="6">
                                 <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-shopping-bag', title='Sin ordenes de compra', message='Todavia no hay ordenes de compra registradas.')}"></div>
                             </td>
                         </tr>
                         <tr th:each="oc : ${ordenesCompra}"
                             data-cui-grid-row
-                            th:with="estadoTexto=${oc.estado ?: 'PENDIENTE'},
+                            th:with="estadoTexto=${oc.estado ?: 'EMITIDA'},
+                                     totalLineas=${#lists.size(oc.detalles)},
+                                     lineasCompletas=${#lists.size(oc.detalles.?[estado == 'COMPLETO'])},
+                                     pct=${totalLineas > 0 ? (lineasCompletas * 100 / totalLineas) : 0},
                                      busqueda=${(oc.numeroOc ?: '') + ' ' + (oc.proveedor ?: '') + ' ' + (oc.bodegaDestinoNombre ?: '') + ' ' + estadoTexto}"
                             th:attr="data-search=${#strings.toLowerCase(busqueda)},data-estado=${estadoTexto}">
                             <td>
@@ -99,6 +102,21 @@
                                 <span class="cui-badge"
                                       th:classappend="${estadoTexto == 'RECIBIDA'} ? ' cui-badge-asignado' : (${estadoTexto == 'RECEPCION_PARCIAL'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
                                       th:text="${estadoTexto}">Estado</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height:6px;"
+                                         th:title="${lineasCompletas} + ' de ' + ${totalLineas} + ' lineas recibidas'">
+                                        <div class="progress-bar"
+                                             role="progressbar"
+                                             th:style="'width:' + ${pct} + '%'"
+                                             th:attr="aria-valuenow=${pct}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-nowrap text-muted"
+                                           th:text="${lineasCompletas} + '/' + ${totalLineas}">0/0</small>
+                                </div>
                             </td>
                             <td>
                                 <div class="cui-action-cell">

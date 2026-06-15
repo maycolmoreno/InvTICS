@@ -24,6 +24,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.MarcasRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;import com.uisrael.consumogestionactivosapi.modelo.dto.response.PaginaResponse;import com.uisrael.consumogestionactivosapi.service.EquiposExcelService;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
+import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class EquiposControlador {
 	private final IMarcasServicio servicioMarcas;
 	private final ICategoriaEquiposServicio servicioCategoriaEquipos;
 	private final EquiposExcelService equiposExcelService;
+	private final IInventarioOperacionServicio inventarioOperacionServicio;
 
 	@GetMapping
 	public String listarEquipos(Model model,
@@ -48,6 +50,8 @@ public class EquiposControlador {
 		model.addAttribute("totalPaginas", pagina.getTotalPaginas());
 		model.addAttribute("totalElementos", pagina.getTotalElementos());
 		model.addAttribute("tamanioPagina", pagina.getTamanioPagina());
+		var bodegas = inventarioOperacionServicio.listarBodegas();
+		model.addAttribute("bodegas", bodegas != null ? bodegas : List.of());
 
 		return "Equipos/listarEquipos";
 	}

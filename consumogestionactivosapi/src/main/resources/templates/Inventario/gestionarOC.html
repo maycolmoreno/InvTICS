@@ -63,15 +63,13 @@
                             <th>Item</th>
                             <th>Tipo</th>
                             <th>Estado</th>
-                            <th class="text-center">Solicitado</th>
-                            <th class="text-center">Recibido</th>
-                            <th class="text-center">Pendiente</th>
+                            <th style="min-width:160px">Progreso</th>
                             <th class="text-end">Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:if="${oc.detalles == null or #lists.isEmpty(oc.detalles)}">
-                            <td colspan="7">
+                            <td colspan="5">
                                 <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-list', title='Sin detalles', message='Esta orden no tiene lineas de detalle registradas.')}"></div>
                             </td>
                         </tr>
@@ -94,11 +92,20 @@
                                       th:classappend="${det.estado == 'COMPLETO'} ? ' cui-badge-asignado' : (${det.estado == 'PARCIAL'} ? ' cui-badge-en-reparacion' : (${det.estado == 'CANCELADO'} ? ' cui-badge-baja' : ''))"
                                       th:text="${det.estado ?: 'PENDIENTE'}">PENDIENTE</span>
                             </td>
-                            <td class="text-center" th:text="${det.cantidadSolicitada ?: 0}">0</td>
-                            <td class="text-center" th:text="${det.cantidadRecibida ?: 0}">0</td>
-                            <td class="text-center">
-                                <strong th:text="${det.pendiente}"
-                                        th:classappend="${det.pendiente > 0} ? 'text-warning' : 'text-success'">0</strong>
+                            <td th:with="pct=${det.cantidadSolicitada > 0 ? ((det.cantidadRecibida ?: 0) * 100 / det.cantidadSolicitada) : 0}">
+                                <div class="progress mb-1" style="height:5px;">
+                                    <div class="progress-bar"
+                                         role="progressbar"
+                                         th:style="'width:' + ${pct} + '%'"
+                                         th:attr="aria-valuenow=${pct}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"></div>
+                                </div>
+                                <div class="d-flex justify-content-between small">
+                                    <span th:text="${det.cantidadRecibida ?: 0} + ' recibido'">0 recibido</span>
+                                    <span th:text="${det.pendiente} + ' pend.'"
+                                          th:classappend="${det.pendiente > 0} ? 'text-warning' : 'text-success'">0 pend.</span>
+                                </div>
                             </td>
                             <td>
                                 <div class="cui-action-cell" th:if="${det.recibible}">
@@ -259,6 +266,8 @@
                     <form th:action="@{/inventario/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/activo(idOC=${oc.idOrdenCompra},idDetalle=${det.idOrdenCompraDetalle})}"
                           method="post" class="row g-3">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                        <!-- 1. Datos obligatorios -->
                         <div class="col-12">
                             <label class="form-label">Bodega destino <span class="text-danger">*</span></label>
                             <select class="form-select" name="idBodegaDestino" required>
@@ -309,6 +318,94 @@
                             <input type="text" class="form-control" name="recepcionadoPor"
                                    placeholder="Nombre de quien recibe" required>
                         </div>
+
+                        <!-- 2. Datos técnicos (colapsable) -->
+                        <div class="col-12 border-top pt-2">
+                            <button class="btn btn-link btn-sm px-0 text-muted small fw-semibold text-decoration-none"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    th:attr="data-bs-target='#colTecnico-' + ${det.idOrdenCompraDetalle}"
+                                    aria-expanded="false">
+                                <i class="feather-cpu me-1" aria-hidden="true"></i>
+                                Datos tecnicos <span class="opacity-50 fw-normal">(opcional)</span>
+                                <i class="feather-chevron-down ms-1" aria-hidden="true"></i>
+                            </button>
+                            <div class="collapse" th:id="'colTecnico-' + ${det.idOrdenCompraDetalle}">
+                                <div class="row g-2 pt-2">
+                                    <div class="col-12">
+                                        <label class="form-label small">Procesador</label>
+                                        <input type="text" class="form-control form-control-sm" name="procesador"
+                                               placeholder="Ej. Intel Core i7-1165G7">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small">RAM (GB)</label>
+                                        <input type="number" class="form-control form-control-sm" name="memoriaRamGb"
+                                               min="1" placeholder="Ej. 16">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small">Almacenamiento (GB)</label>
+                                        <input type="number" class="form-control form-control-sm" name="capacidadAlmacenamientoGb"
+                                               min="1" placeholder="Ej. 512">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small">Direccion MAC</label>
+                                        <input type="text" class="form-control form-control-sm" name="mac"
+                                               placeholder="Ej. AA:BB:CC:DD:EE:FF">
+                                    </div>
+                                    <div class="col-12 d-flex align-items-center gap-2 pt-1">
+                                        <input type="checkbox" class="form-check-input" name="licenciaWindowsActivada"
+                                               th:id="'licWin-' + ${det.idOrdenCompraDetalle}" value="true">
+                                        <label class="form-check-label small"
+                                               th:for="'licWin-' + ${det.idOrdenCompraDetalle}">
+                                            Licencia Windows activada
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Datos financieros (colapsable) -->
+                        <div class="col-12 border-top pt-2">
+                            <button class="btn btn-link btn-sm px-0 text-muted small fw-semibold text-decoration-none"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    th:attr="data-bs-target='#colFinanciero-' + ${det.idOrdenCompraDetalle}"
+                                    aria-expanded="false">
+                                <i class="feather-dollar-sign me-1" aria-hidden="true"></i>
+                                Datos financieros <span class="opacity-50 fw-normal">(opcional)</span>
+                                <i class="feather-chevron-down ms-1" aria-hidden="true"></i>
+                            </button>
+                            <div class="collapse" th:id="'colFinanciero-' + ${det.idOrdenCompraDetalle}">
+                                <div class="row g-2 pt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small">Fecha de compra</label>
+                                        <input type="date" class="form-control form-control-sm" name="fechaCompra">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small">Vencimiento garantia</label>
+                                        <input type="date" class="form-control form-control-sm" name="fechaGarantia">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small">Precio de compra</label>
+                                        <input type="number" class="form-control form-control-sm" name="precioCompra"
+                                               step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Etiquetado fisico -->
+                        <div class="col-12 border-top pt-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="checkbox" class="form-check-input" name="etiquetado"
+                                       th:id="'etiquetado-' + ${det.idOrdenCompraDetalle}" value="true">
+                                <label class="form-check-label"
+                                       th:for="'etiquetado-' + ${det.idOrdenCompraDetalle}">
+                                    Etiqueta fisica adherida al equipo
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="col-12">
                             <label class="form-label">Observacion</label>
                             <textarea class="form-control" name="observacion" rows="2"></textarea>

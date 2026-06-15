@@ -51,6 +51,7 @@ public class ActivosExperienciaControlador {
         model.addAttribute("historialCustodias", custodias);
         model.addAttribute("mantenimientos", mantenimientos);
         model.addAttribute("movimientos", movimientos);
+        model.addAttribute("bodegas", safeList(inventarioOperacionServicio.listarBodegas()));
         return "Activos/expedienteActivo";
     }
 

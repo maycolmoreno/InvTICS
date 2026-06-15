@@ -8,7 +8,7 @@
 <body>
 <div layout:fragment="contenidopaginas">
     <div class="cui-page">
-        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Recepcion', subtitle='Ingreso controlado de activos y consumibles desde una orden de compra.')}"></div>
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Recepcion', subtitle='Bandeja de ordenes de compra pendientes. La recepcion se gestiona linea por linea desde cada OC.')}"></div>
 
         <div class="cui-command-bar">
             <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -26,176 +26,97 @@
         <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
         <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
 
-        <section class="cui-process-grid">
-            <article class="cui-process-step">
-                <span class="cui-badge cui-badge-en-bodega">1. OC</span>
-                <strong>Seleccionar</strong>
-                <span>Documento trazador</span>
-            </article>
-            <article class="cui-process-step">
-                <span class="cui-badge cui-badge-en-bodega">2. Verificar</span>
-                <strong>Validar</strong>
-                <span>Item recibido</span>
-            </article>
-            <article class="cui-process-step">
-                <span class="cui-badge cui-badge-en-bodega">3. Registrar</span>
-                <strong>Capturar</strong>
-                <span>Datos tecnicos</span>
-            </article>
-            <article class="cui-process-step">
-                <span class="cui-badge cui-badge-en-transito">4. Codigo</span>
-                <strong>Generar</strong>
-                <span>Codigo CRESIO</span>
-            </article>
-            <article class="cui-process-step">
-                <span class="cui-badge cui-badge-en-reparacion">5. Etiquetar</span>
-                <strong>Adherir</strong>
-                <span>Etiqueta fisica</span>
-            </article>
-            <article class="cui-process-step">
-                <span class="cui-badge cui-badge-asignado">6. Confirmar</span>
-                <strong>Ingresar</strong>
-                <span>Activo a bodega</span>
-            </article>
-        </section>
+        <div th:with="pendientes=${ordenesCompra.?[estado != 'RECIBIDA' and estado != 'CANCELADA']}">
 
-        <div class="cui-workspace-grid">
-            <section class="cui-form-panel">
-                <div class="cui-form-panel-header">
-                    <h2 class="cui-form-panel-title">Recepcion de activo</h2>
-                    <span class="cui-badge cui-badge-en-transito">Codigo CRESIO</span>
+            <div class="cui-summary-strip">
+                <div class="cui-summary-item">
+                    <span class="cui-summary-label">OC pendientes</span>
+                    <strong class="cui-summary-value warning" th:text="${#lists.size(pendientes)}">0</strong>
                 </div>
-                <form th:action="@{/inventario/recepcion/activos}" th:object="${recepcionActivoRequest}" method="post" class="row g-3">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <div class="col-md-6">
-                        <label class="form-label">OC</label>
-                        <select class="form-select" th:field="*{ordenCompraId}" required>
-                            <option value="">Seleccione</option>
-                            <option th:each="oc : ${ordenesCompra}" th:value="${oc.idOrdenCompra}" th:text="${oc.numeroOc}">OC</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Bodega</label>
-                        <select class="form-select" th:field="*{bodegaId}" required>
-                            <option value="">Seleccione</option>
-                            <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Categoria</label>
-                        <select class="form-select" th:field="*{categoriaId}" required>
-                            <option value="">Seleccione</option>
-                            <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}">Categoria</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Marca</label>
-                        <select class="form-select" th:field="*{marcaId}" required>
-                            <option value="">Seleccione</option>
-                            <option th:each="m : ${marcas}" th:value="${m.idMarca}" th:text="${m.nombre}">Marca</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Modelo</label>
-                        <input class="form-control" th:field="*{modelo}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Serial</label>
-                        <input class="form-control" th:field="*{serial}" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">RAM GB</label>
-                        <input class="form-control" th:field="*{memoriaRamGb}" type="number" min="0">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Almacenamiento GB</label>
-                        <input class="form-control" th:field="*{capacidadAlmacenamientoGb}" type="number" min="0">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Fecha compra</label>
-                        <input class="form-control" th:field="*{fechaCompra}" type="date">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">MAC</label>
-                        <input class="form-control" th:field="*{mac}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Garantia</label>
-                        <input class="form-control" th:field="*{fechaGarantia}" type="date">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Procesador</label>
-                        <input class="form-control" th:field="*{procesador}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Precio</label>
-                        <input class="form-control" th:field="*{precioCompra}" type="number" step="0.01" min="0">
-                    </div>
-                    <div class="col-12">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" th:field="*{etiquetado}">
-                            <label class="form-check-label">Codigo CR adherido al equipo</label>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Observacion</label>
-                        <textarea class="form-control" th:field="*{observacion}" rows="2"></textarea>
-                    </div>
-                    <div class="col-12 d-flex justify-content-end">
-                        <button class="cui-btn cui-btn-primary" type="submit">
-                            <i class="feather-package" aria-hidden="true"></i>
-                            <span>Ingresar activo</span>
-                        </button>
-                    </div>
-                </form>
-            </section>
+                <span class="cui-summary-sep" aria-hidden="true">·</span>
+                <div class="cui-summary-item">
+                    <span class="cui-summary-label">En recepcion parcial</span>
+                    <strong class="cui-summary-value danger"
+                            th:text="${#lists.size(pendientes.?[estado == 'RECEPCION_PARCIAL'])}">0</strong>
+                </div>
+            </div>
 
-            <section class="cui-form-panel">
-                <div class="cui-form-panel-header">
-                    <h2 class="cui-form-panel-title">Recepcion de consumible</h2>
-                    <span class="cui-badge cui-badge-asignado">Stock</span>
+            <section class="cui-data-grid">
+                <div class="cui-data-grid-header">
+                    <div>
+                        <p class="cui-eyebrow">Cola de trabajo</p>
+                        <h2>Ordenes pendientes de recepcion</h2>
+                    </div>
                 </div>
-                <form th:action="@{/inventario/recepcion/consumibles}" th:object="${recepcionConsumibleRequest}" method="post" class="row g-3">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <div class="col-md-6">
-                        <label class="form-label">OC</label>
-                        <select class="form-select" th:field="*{ordenCompraId}" required>
-                            <option value="">Seleccione</option>
-                            <option th:each="oc : ${ordenesCompra}" th:value="${oc.idOrdenCompra}" th:text="${oc.numeroOc}">OC</option>
-                        </select>
+                <div class="cui-data-grid-body">
+                    <div class="table-responsive">
+                        <table class="table cui-table">
+                            <thead>
+                            <tr>
+                                <th>Orden</th>
+                                <th>Proveedor</th>
+                                <th>Bodega destino</th>
+                                <th>Estado</th>
+                                <th class="text-center">Lineas pendientes</th>
+                                <th style="min-width:130px">Progreso</th>
+                                <th class="text-end">Accion</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(pendientes)}">
+                                <td colspan="7">
+                                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-check-circle', title='Sin pendientes', message='Todas las ordenes de compra han sido recibidas o canceladas.')}"></div>
+                                </td>
+                            </tr>
+                            <tr th:each="oc : ${pendientes}"
+                                th:with="lineasTotal=${#lists.size(oc.detalles)},
+                                         lineasCompletas=${#lists.size(oc.detalles.?[estado == 'COMPLETO'])},
+                                         lineasPend=${lineasTotal - lineasCompletas},
+                                         pct=${lineasTotal > 0 ? (lineasCompletas * 100 / lineasTotal) : 0}">
+                                <td>
+                                    <div class="cui-row-stack">
+                                        <span class="cui-row-title" th:text="${oc.numeroOc}">OC-001</span>
+                                        <span class="cui-row-subtitle"
+                                              th:text="${oc.fechaEmision != null ? oc.fechaEmision : 'Sin fecha'}">Fecha</span>
+                                    </div>
+                                </td>
+                                <td th:text="${oc.proveedor ?: '—'}">Proveedor</td>
+                                <td th:text="${oc.bodegaDestinoNombre ?: '—'}">Bodega</td>
+                                <td>
+                                    <span class="cui-badge"
+                                          th:classappend="${oc.estado == 'RECEPCION_PARCIAL'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'"
+                                          th:text="${oc.estado ?: '—'}">Estado</span>
+                                </td>
+                                <td class="text-center">
+                                    <span th:text="${lineasPend} + ' de ' + ${lineasTotal}"
+                                          th:classappend="${lineasPend > 0} ? 'text-warning fw-semibold' : 'text-success'">—</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height:6px;"
+                                             th:title="${lineasCompletas} + ' de ' + ${lineasTotal} + ' lineas completadas'">
+                                            <div class="progress-bar"
+                                                 role="progressbar"
+                                                 th:style="'width:' + ${pct} + '%'"
+                                                 th:attr="aria-valuenow=${pct}"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                        </div>
+                                        <small class="text-nowrap text-muted" th:text="${pct} + '%'">0%</small>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <a th:href="@{/inventario/ordenes-compra/{id}/gestionar(id=${oc.idOrdenCompra})}"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="feather-package" aria-hidden="true"></i>
+                                        Gestionar
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Bodega</label>
-                        <select class="form-select" th:field="*{bodegaId}" required>
-                            <option value="">Seleccione</option>
-                            <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
-                        </select>
-                    </div>
-                    <div class="col-md-8">
-                        <label class="form-label">Consumible</label>
-                        <select class="form-select" th:field="*{consumibleId}" required>
-                            <option value="">Seleccione</option>
-                            <option th:each="c : ${consumibles}" th:value="${c.idConsumible}" th:text="${c.nombre}">Consumible</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Cantidad</label>
-                        <input class="form-control" th:field="*{cantidad}" type="number" min="1" required>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Observacion</label>
-                        <textarea class="form-control" th:field="*{observacion}" rows="3"></textarea>
-                    </div>
-                    <div class="col-12">
-                        <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-info', title='Recepcion trazable', message='La recepcion valida cantidades contra la OC y registra movimiento de inventario.')}"></div>
-                    </div>
-                    <div class="col-12 d-flex justify-content-end">
-                        <button class="cui-btn cui-btn-primary" type="submit">
-                            <i class="feather-plus-circle" aria-hidden="true"></i>
-                            <span>Actualizar stock</span>
-                        </button>
-                    </div>
-                </form>
+                </div>
             </section>
         </div>
     </div>
