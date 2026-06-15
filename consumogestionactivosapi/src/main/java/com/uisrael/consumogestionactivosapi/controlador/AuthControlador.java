@@ -4,6 +4,7 @@ import java.util.Base64;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +21,9 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class AuthControlador {
 
+	@Value("${app.setup.enabled:true}")
+	private boolean setupEnabled;
+
 	private final SesionUsuario sesionUsuario;
 	private final RestClient publicRestClient;
 
@@ -30,6 +34,7 @@ public class AuthControlador {
 	}
 
 	private boolean setupNecesario() {
+		if (!setupEnabled) return false;
 		try {
 			Map<String, Object> resp = publicRestClient
 					.get()

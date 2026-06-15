@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.uisrael.consumogestionactivosapi.exception.GlobalExceptionHandler;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.OrdenCompraResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.RecepcionLoteResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
@@ -48,6 +49,62 @@ class InventarioControladorTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controlador)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
+    }
+
+    @Nested
+    class CrearOrdenCompra {
+
+        @Test
+        void exito_redirige_a_compras_con_flash_success() throws Exception {
+            when(inventarioOperacionServicio.crearOrdenCompra(any()))
+                    .thenReturn(new OrdenCompraResponseDTO());
+
+            mockMvc.perform(post("/inventario/ordenes-compra")
+                            .param("numeroOc", "OC-2026-001")
+                            .param("proveedor", "TechCorp")
+                            .param("bodegaDestinoId", "1")
+                            .param("detalles[0].tipoItem", "ACTIVO")
+                            .param("detalles[0].descripcion", "Laptop Dell")
+                            .param("detalles[0].cantidadSolicitada", "3"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/inventario/compras"))
+                    .andExpect(flash().attributeExists("success"));
+        }
+
+        @Test
+        void error_del_backend_redirige_con_flash_error() throws Exception {
+            when(inventarioOperacionServicio.crearOrdenCompra(any()))
+                    .thenThrow(new RuntimeException("Numero de OC duplicado"));
+
+            mockMvc.perform(post("/inventario/ordenes-compra")
+                            .param("numeroOc", "OC-DUP")
+                            .param("bodegaDestinoId", "1")
+                            .param("detalles[0].tipoItem", "STOCK")
+                            .param("detalles[0].descripcion", "Toner HP")
+                            .param("detalles[0].cantidadSolicitada", "10"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/inventario/compras"))
+                    .andExpect(flash().attributeExists("error"));
+        }
+
+        @Test
+        void multiples_detalles_se_envian_correctamente() throws Exception {
+            when(inventarioOperacionServicio.crearOrdenCompra(any()))
+                    .thenReturn(new OrdenCompraResponseDTO());
+
+            mockMvc.perform(post("/inventario/ordenes-compra")
+                            .param("numeroOc", "OC-2026-002")
+                            .param("bodegaDestinoId", "2")
+                            .param("detalles[0].tipoItem", "ACTIVO")
+                            .param("detalles[0].descripcion", "Monitor LG")
+                            .param("detalles[0].cantidadSolicitada", "5")
+                            .param("detalles[1].tipoItem", "CONSUMIBLE")
+                            .param("detalles[1].descripcion", "Toner Canon")
+                            .param("detalles[1].cantidadSolicitada", "20"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/inventario/compras"))
+                    .andExpect(flash().attributeExists("success"));
+        }
     }
 
     @Nested

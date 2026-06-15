@@ -10,7 +10,7 @@ public class OrdenCompraRequestDTO {
     private LocalDate fechaEmision;
     private String observacion;
     private Integer bodegaDestinoId;
-    private List<Object> detalles = new ArrayList<>();
+    private List<OrdenCompraDetalleRequestDTO> detalles = new ArrayList<>();
 
     public String getNumeroOc() { return numeroOc; }
     public void setNumeroOc(String numeroOc) { this.numeroOc = numeroOc; }
@@ -22,6 +22,6 @@ public class OrdenCompraRequestDTO {
     public void setObservacion(String observacion) { this.observacion = observacion; }
     public Integer getBodegaDestinoId() { return bodegaDestinoId; }
     public void setBodegaDestinoId(Integer bodegaDestinoId) { this.bodegaDestinoId = bodegaDestinoId; }
-    public List<Object> getDetalles() { return detalles; }
-    public void setDetalles(List<Object> detalles) { this.detalles = detalles; }
+    public List<OrdenCompraDetalleRequestDTO> getDetalles() { return detalles; }
+    public void setDetalles(List<OrdenCompraDetalleRequestDTO> detalles) { this.detalles = detalles; }
 }

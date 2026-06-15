@@ -102,8 +102,8 @@
                             </td>
                             <td>
                                 <div class="cui-action-cell" th:if="${det.recibible}">
-                                    <!-- Stock: abrir drawer -->
-                                    <button th:if="${det.tipoItem == 'STOCK'}"
+                                    <!-- Stock / Consumible: abrir drawer -->
+                                    <button th:if="${det.tipoItem == 'STOCK' or det.tipoItem == 'CONSUMIBLE'}"
                                             type="button"
                                             class="btn btn-outline-primary btn-sm"
                                             th:attr="data-cui-drawer-open='#drawer-stock-' + ${det.idOrdenCompraDetalle}">
@@ -177,7 +177,7 @@
         </section>
 
         <!-- Drawers de recepción de STOCK (uno por detalle) -->
-        <th:block th:each="det : ${oc.detalles}" th:if="${det.tipoItem == 'STOCK' and det.recibible}">
+        <th:block th:each="det : ${oc.detalles}" th:if="${(det.tipoItem == 'STOCK' or det.tipoItem == 'CONSUMIBLE') and det.recibible}">
             <aside class="cui-drawer"
                    th:id="'drawer-stock-' + ${det.idOrdenCompraDetalle}"
                    aria-hidden="true"

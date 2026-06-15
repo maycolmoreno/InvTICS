@@ -56,7 +56,15 @@ import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.Consum
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.MovimientoInventarioResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.OrdenCompraDetalleResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.OrdenCompraResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.RecepcionLoteResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.StockConsumibleResponseDTO;
+import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoOrdenCompraDetalle;
+import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoRecepcionLote;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.RecepcionLoteJpa;
+import com.uisrael.gestionactivosapi.infraestructura.repositorios.IRecepcionLoteJpaRepositorio;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
+import java.util.UUID;
 
 @Service
 public class InventarioService {
@@ -73,6 +81,7 @@ public class InventarioService {
     private final IMarcasJpaRepositorio marcasRepo;
     private final ICustodiosJpaRepositorio custodiosRepo;
     private final IMantenimientosJpaRepositorio mantenimientosRepo;
+    private final IRecepcionLoteJpaRepositorio recepcionLoteRepo;
 
     public InventarioService(IBodegaJpaRepositorio bodegaRepo,
             IConsumibleJpaRepositorio consumibleRepo,
@@ -85,7 +94,8 @@ public class InventarioService {
             ICategoriaEquiposJpaRepositorio categoriaRepo,
             IMarcasJpaRepositorio marcasRepo,
             ICustodiosJpaRepositorio custodiosRepo,
-            IMantenimientosJpaRepositorio mantenimientosRepo) {
+            IMantenimientosJpaRepositorio mantenimientosRepo,
+            IRecepcionLoteJpaRepositorio recepcionLoteRepo) {
         this.bodegaRepo = bodegaRepo;
         this.consumibleRepo = consumibleRepo;
         this.ordenRepo = ordenRepo;
@@ -98,6 +108,7 @@ public class InventarioService {
         this.marcasRepo = marcasRepo;
         this.custodiosRepo = custodiosRepo;
         this.mantenimientosRepo = mantenimientosRepo;
+        this.recepcionLoteRepo = recepcionLoteRepo;
     }
 
     public List<BodegaResponseDTO> listarBodegas() {
@@ -137,6 +148,114 @@ public class InventarioService {
 
     public List<OrdenCompraResponseDTO> listarOrdenesCompra() {
         return ordenRepo.findAll().stream().map(this::toOrdenResponse).toList();
+    }
+
+    public OrdenCompraResponseDTO obtenerOrdenCompra(Integer id) {
+        return toOrdenResponse(buscarOrden(id));
+    }
+
+    public List<RecepcionLoteResponseDTO> listarRecepcionesPorOrden(Integer idOrdenCompra) {
+        buscarOrden(idOrdenCompra);
+        return recepcionLoteRepo.findByOrdenCompra_IdOrdenCompra(idOrdenCompra)
+                .stream().map(RecepcionLoteResponseDTO::from).toList();
+    }
+
+    @Transactional
+    public RecepcionLoteResponseDTO registrarRecepcionStockPorDetalle(Integer idOC, Integer idDetalle,
+            RegistrarRecepcionStockRequestDTO request) {
+        OrdenCompraJpa orden = buscarOrden(idOC);
+        OrdenCompraDetalleJpa detalle = buscarDetalleDeOrden(idOC, idDetalle);
+        if (detalle.getTipoItem() == TipoItemInventario.ACTIVO) {
+            throw new IllegalArgumentException("Este detalle es de tipo ACTIVO; use el endpoint de recepcion de activo");
+        }
+        int recibidoActual = detalle.getCantidadRecibida() == null ? 0 : detalle.getCantidadRecibida();
+        int pendiente = detalle.getCantidadSolicitada() - recibidoActual;
+        if (request.getCantidad() > pendiente) {
+            throw new IllegalArgumentException("La cantidad excede el pendiente: " + pendiente);
+        }
+        BodegaJpa bodega = buscarBodega(request.getIdBodegaDestino());
+        if (detalle.getConsumible() != null) {
+            StockConsumibleBodegaJpa stock = stockRepo
+                    .findByBodega_IdBodegaAndConsumible_IdConsumible(bodega.getIdBodega(),
+                            detalle.getConsumible().getIdConsumible())
+                    .orElseGet(() -> {
+                        StockConsumibleBodegaJpa nuevo = new StockConsumibleBodegaJpa();
+                        nuevo.setBodega(bodega);
+                        nuevo.setConsumible(detalle.getConsumible());
+                        nuevo.setCantidad(0);
+                        return nuevo;
+                    });
+            stock.setCantidad(stock.getCantidad() + request.getCantidad());
+            stockRepo.save(stock);
+            registrarMovimiento(TipoMovimientoInventario.INGRESO_CONSUMIBLE, null, detalle.getConsumible(),
+                    request.getCantidad(), null, bodega, null, orden, null, null, request.getObservacion());
+        }
+        detalle.setCantidadRecibida(recibidoActual + request.getCantidad());
+        actualizarEstadoDetalle(detalle);
+        detalleRepo.save(detalle);
+        actualizarEstadoOrden(orden);
+        RecepcionLoteJpa lote = crearLote(orden, detalle, request.getCantidad(), detalle.getTipoItem(),
+                bodega, request.getRecepcionadoPor(), request.getObservacion());
+        return RecepcionLoteResponseDTO.from(lote);
+    }
+
+    @Transactional
+    public RecepcionLoteResponseDTO registrarRecepcionActivoPorDetalle(Integer idOC, Integer idDetalle,
+            RegistrarRecepcionActivoRequestDTO request) {
+        OrdenCompraJpa orden = buscarOrden(idOC);
+        OrdenCompraDetalleJpa detalle = buscarDetalleDeOrden(idOC, idDetalle);
+        if (detalle.getTipoItem() != TipoItemInventario.ACTIVO) {
+            throw new IllegalArgumentException("Este detalle no es de tipo ACTIVO");
+        }
+        int recibidoActual = detalle.getCantidadRecibida() == null ? 0 : detalle.getCantidadRecibida();
+        if (recibidoActual + 1 > detalle.getCantidadSolicitada()) {
+            throw new IllegalArgumentException("La recepcion excede la cantidad solicitada: " + detalle.getCantidadSolicitada());
+        }
+        BodegaJpa bodega = buscarBodega(request.getIdBodegaDestino());
+        CategoriaEquiposJpa categoria = buscarCategoria(request.getIdCategoria());
+        MarcasJpa marca = buscarMarca(request.getIdMarca());
+        if (equiposRepo.existsBySerialIgnoreCase(request.getSerial())) {
+            throw new IllegalArgumentException("Ya existe un activo con serial " + request.getSerial());
+        }
+        if (request.getMac() != null && !request.getMac().isBlank()
+                && equiposRepo.existsByMacIgnoreCase(request.getMac())) {
+            throw new IllegalArgumentException("Ya existe un activo con MAC " + request.getMac());
+        }
+        String codigoCresio = generarCodigoCresio(categoria);
+        EquiposJpa equipo = new EquiposJpa();
+        equipo.setCodigoSap(codigoCresio);
+        equipo.setCodigoCresio(codigoCresio);
+        equipo.setModelo(request.getModelo());
+        equipo.setSerial(request.getSerial());
+        equipo.setProcesador(request.getProcesador());
+        equipo.setMemoriaRamGb(request.getMemoriaRamGb());
+        equipo.setCapacidadAlmacenamientoGb(request.getCapacidadAlmacenamientoGb());
+        equipo.setLicenciaWindowsActivada(request.getLicenciaWindowsActivada());
+        equipo.setMac(request.getMac());
+        equipo.setFechaCompra(request.getFechaCompra() == null ? LocalDate.now() : request.getFechaCompra());
+        equipo.setFechaAdquisicion(equipo.getFechaCompra());
+        equipo.setFechaGarantia(request.getFechaGarantia());
+        equipo.setPrecioCompra(request.getPrecioCompra());
+        equipo.setEstadoEquipo("OPERATIVO");
+        equipo.setEstadoInventario(EstadoInventarioActivo.EN_BODEGA.name());
+        equipo.setObservacionEquipo(request.getObservacion());
+        equipo.setEstado(true);
+        equipo.setFkCategoria(categoria);
+        equipo.setFkMarcas(marca);
+        equipo.setBodegaActual(bodega);
+        equipo.setOrdenCompra(orden);
+        equipo.setDetalleOc(detalle);
+        equipo.setEtiquetado(Boolean.TRUE.equals(request.getEtiquetado()));
+        EquiposJpa guardado = equiposRepo.save(equipo);
+        detalle.setCantidadRecibida(recibidoActual + 1);
+        actualizarEstadoDetalle(detalle);
+        detalleRepo.save(detalle);
+        actualizarEstadoOrden(orden);
+        RecepcionLoteJpa lote = crearLote(orden, detalle, 1, TipoItemInventario.ACTIVO,
+                bodega, request.getRecepcionadoPor(), request.getObservacion());
+        registrarMovimiento(TipoMovimientoInventario.INGRESO_ACTIVO, guardado, null, 1, null, bodega, null, orden,
+                null, EstadoInventarioActivo.EN_BODEGA.name(), request.getObservacion());
+        return RecepcionLoteResponseDTO.from(lote);
     }
 
     @Transactional
@@ -544,6 +663,7 @@ public class InventarioService {
                 .findFirst()
                 .ifPresent(d -> {
                     d.setCantidadRecibida((d.getCantidadRecibida() == null ? 0 : d.getCantidadRecibida()) + 1);
+                    actualizarEstadoDetalle(d);
                     detalleRepo.save(d);
                 });
     }
@@ -568,6 +688,7 @@ public class InventarioService {
                 .findFirst()
                 .ifPresent(d -> {
                     d.setCantidadRecibida((d.getCantidadRecibida() == null ? 0 : d.getCantidadRecibida()) + cantidad);
+                    actualizarEstadoDetalle(d);
                     detalleRepo.save(d);
                 });
     }
@@ -599,9 +720,63 @@ public class InventarioService {
     private void marcarOrdenRecibidaParcial(OrdenCompraJpa orden) {
         orden.setFechaRecepcion(LocalDate.now());
         if (orden.getEstado() != EstadoOrdenCompra.RECIBIDA) {
-            orden.setEstado(EstadoOrdenCompra.RECIBIDA_PARCIAL);
+            orden.setEstado(EstadoOrdenCompra.RECEPCION_PARCIAL);
         }
         ordenRepo.save(orden);
+    }
+
+    private void actualizarEstadoDetalle(OrdenCompraDetalleJpa detalle) {
+        int recibido = detalle.getCantidadRecibida() == null ? 0 : detalle.getCantidadRecibida();
+        if (recibido >= detalle.getCantidadSolicitada()) {
+            detalle.setEstado(EstadoOrdenCompraDetalle.COMPLETO);
+        } else if (recibido > 0) {
+            detalle.setEstado(EstadoOrdenCompraDetalle.PARCIAL);
+        }
+    }
+
+    private void actualizarEstadoOrden(OrdenCompraJpa orden) {
+        List<OrdenCompraDetalleJpa> detalles = detalleRepo.findByOrdenCompra_IdOrdenCompra(orden.getIdOrdenCompra());
+        boolean todoCompleto = !detalles.isEmpty()
+                && detalles.stream().allMatch(d -> d.getEstado() == EstadoOrdenCompraDetalle.COMPLETO);
+        if (todoCompleto) {
+            orden.setEstado(EstadoOrdenCompra.RECIBIDA);
+            orden.setFechaRecepcion(LocalDate.now());
+        } else {
+            if (orden.getEstado() != EstadoOrdenCompra.RECIBIDA) {
+                orden.setEstado(EstadoOrdenCompra.RECEPCION_PARCIAL);
+            }
+            if (orden.getFechaRecepcion() == null) {
+                orden.setFechaRecepcion(LocalDate.now());
+            }
+        }
+        ordenRepo.save(orden);
+    }
+
+    private OrdenCompraDetalleJpa buscarDetalleDeOrden(Integer idOC, Integer idDetalle) {
+        OrdenCompraDetalleJpa detalle = detalleRepo.findById(idDetalle)
+                .orElseThrow(() -> new IllegalArgumentException("Detalle no encontrado: " + idDetalle));
+        if (!detalle.getOrdenCompra().getIdOrdenCompra().equals(idOC)) {
+            throw new IllegalArgumentException("El detalle no pertenece a la orden de compra indicada");
+        }
+        return detalle;
+    }
+
+    private RecepcionLoteJpa crearLote(OrdenCompraJpa orden, OrdenCompraDetalleJpa detalle,
+            Integer cantidad, TipoItemInventario tipoItem, BodegaJpa bodega,
+            String recepcionadoPor, String observacion) {
+        RecepcionLoteJpa lote = new RecepcionLoteJpa();
+        lote.setOrdenCompra(orden);
+        lote.setOrdenCompraDetalle(detalle);
+        lote.setFechaRecepcion(LocalDateTime.now());
+        lote.setCantidadRecibida(cantidad);
+        lote.setTipoItem(tipoItem);
+        lote.setEstado(EstadoRecepcionLote.REGISTRADO);
+        lote.setObservacion(observacion);
+        lote.setBodegaDestino(bodega);
+        lote.setRecepcionadoPor(recepcionadoPor);
+        lote.setRecepcionadoEn(LocalDateTime.now());
+        lote.setUuid(UUID.randomUUID().toString());
+        return recepcionLoteRepo.save(lote);
     }
 
     private void registrarMovimiento(TipoMovimientoInventario tipo, EquiposJpa equipo, ConsumibleJpa consumible,

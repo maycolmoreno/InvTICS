@@ -512,9 +512,7 @@ public class CustodiasControlador {
 		CustodiasResponseDTO cabecera = lista.stream()
 				.min(Comparator.comparing(CustodiasResponseDTO::getIdCustodiaEquipo)).orElse(lista.get(0));
 
-		String tipoMov = (String) session.getAttribute("ACTA_TIPO_MOVIMIENTO");
-		if (tipoMov == null || tipoMov.isBlank())
-			tipoMov = "ASIGNACION";
+		String tipoMov = nvl((String) session.getAttribute("ACTA_TIPO_MOVIMIENTO"), "ASIGNACION");
 
 		model.addAttribute("cabecera", cabecera);
 		model.addAttribute("detalles", lista);
@@ -527,37 +525,11 @@ public class CustodiasControlador {
 	public void descargarActaEntregaPdf(HttpSession session, HttpServletResponse response) throws IOException {
 		@SuppressWarnings("unchecked")
 		List<CustodiasResponseDTO> lista = (List<CustodiasResponseDTO>) session.getAttribute("ACTA_ENTREGA_RECIENTE");
-
 		if (lista == null || lista.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 			return;
 		}
-
-		String tipoMov = (String) session.getAttribute("ACTA_TIPO_MOVIMIENTO");
-		if (tipoMov == null || tipoMov.isBlank())
-			tipoMov = "ASIGNACION";
-
-		String nombreEntrega = sesionUsuario.getNombre();
-		String deptoEntrega = sesionUsuario.getDepartamento();
-		if ("TRASLADO".equals(tipoMov)) {
-			CustodiosResponseDTO origen = buscarCustodioOrigenTraslado(lista);
-			if (origen != null) {
-				nombreEntrega = origen.getNombre();
-				deptoEntrega = origen.getFkDepartamento() != null ? origen.getFkDepartamento().getNombre() : "";
-			}
-		}
-		byte[] pdfBytes = custodiasPdfService.generarActaEntregaPdfBytes(lista, nombreEntrega, deptoEntrega, tipoMov);
-
-		// Guardar PDF en disco y registrar ruta en BD
-		guardarYRegistrarActa(pdfBytes, tipoMov, lista);
-
-		String nombreArchivo = obtenerNombreArchivoPdf(tipoMov);
-		response.setContentType("application/pdf");
-		response.setHeader("Content-Disposition", "inline; filename=" + nombreArchivo);
-		response.getOutputStream().write(pdfBytes);
-		response.getOutputStream().flush();
-
-		enviarCorreoActaEntrega(lista, pdfBytes, tipoMov);
+		escribirActaEntregaPdf(lista, nvl((String) session.getAttribute("ACTA_TIPO_MOVIMIENTO"), "ASIGNACION"), response);
 	}
 
 	@GetMapping("/acta-entrega/pdf/acta/{idCustodio}")
@@ -565,13 +537,10 @@ public class CustodiasControlador {
 			@RequestParam(required = false) String tipo, @RequestParam(required = false) String fecha,
 			HttpServletResponse response) throws IOException {
 		List<CustodiasResponseDTO> lista = filtrarPorActa(idCustodio, tipo, fecha);
-
 		if (lista.isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 			return;
 		}
-
-		// Si ya tiene PDF guardado, servir desde disco
 		String rutaExistente = lista.get(0).getRutaActaPdf();
 		if (rutaExistente != null && !rutaExistente.isBlank() && actaStorageService.existeActa(rutaExistente)) {
 			byte[] pdfGuardado = actaStorageService.leerActaPdf(rutaExistente);
@@ -581,32 +550,7 @@ public class CustodiasControlador {
 			response.getOutputStream().flush();
 			return;
 		}
-
-		String tipoMov = lista.get(0).getTipoMovimiento();
-		if (tipoMov == null || tipoMov.isBlank())
-			tipoMov = "ASIGNACION";
-
-		String nombreEntrega = sesionUsuario.getNombre();
-		String deptoEntrega = sesionUsuario.getDepartamento();
-		if ("TRASLADO".equals(tipoMov)) {
-			CustodiosResponseDTO origen = buscarCustodioOrigenTraslado(lista);
-			if (origen != null) {
-				nombreEntrega = origen.getNombre();
-				deptoEntrega = origen.getFkDepartamento() != null ? origen.getFkDepartamento().getNombre() : "";
-			}
-		}
-		byte[] pdfBytes = custodiasPdfService.generarActaEntregaPdfBytes(lista, nombreEntrega, deptoEntrega, tipoMov);
-
-		// Guardar PDF en disco y registrar ruta
-		guardarYRegistrarActa(pdfBytes, tipoMov, lista);
-
-		String nombreArchivo = obtenerNombreArchivoPdf(tipoMov);
-		response.setContentType("application/pdf");
-		response.setHeader("Content-Disposition", "inline; filename=" + nombreArchivo);
-		response.getOutputStream().write(pdfBytes);
-		response.getOutputStream().flush();
-
-		enviarCorreoActaEntrega(lista, pdfBytes, tipoMov);
+		escribirActaEntregaPdf(lista, nvl(lista.get(0).getTipoMovimiento(), "ASIGNACION"), response);
 	}
 
 //=========================================================
@@ -622,23 +566,10 @@ public class CustodiasControlador {
 			return "redirect:/custodias";
 		}
 
-		String tipoMov = lista.get(0).getTipoMovimiento();
-		if (tipoMov == null || tipoMov.isBlank())
-			tipoMov = "ASIGNACION";
+		String tipoMov = nvl(lista.get(0).getTipoMovimiento(), "ASIGNACION");
 
 		try {
-			String nombreEntrega = sesionUsuario.getNombre();
-			String deptoEntrega = sesionUsuario.getDepartamento();
-			if ("TRASLADO".equals(tipoMov)) {
-				CustodiosResponseDTO origen = buscarCustodioOrigenTraslado(lista);
-				if (origen != null) {
-					nombreEntrega = origen.getNombre();
-					deptoEntrega = origen.getFkDepartamento() != null ? origen.getFkDepartamento().getNombre() : "";
-				}
-			}
-			byte[] pdfBytes = custodiasPdfService.generarActaEntregaPdfBytes(lista, nombreEntrega, deptoEntrega,
-					tipoMov);
-			enviarCorreoActaEntrega(lista, pdfBytes, tipoMov);
+			enviarCorreoActaEntrega(lista, generarPdfActaEntrega(lista, tipoMov), tipoMov);
 
 			String correo = lista.get(0).getFkCustodio().getCorreo();
 			if (correo != null && !correo.isBlank()) {
@@ -794,6 +725,34 @@ public class CustodiasControlador {
 
 	private String nvl(String s) {
 		return s == null ? "" : s;
+	}
+
+	private String nvl(String s, String fallback) {
+		return (s == null || s.isBlank()) ? fallback : s;
+	}
+
+	private byte[] generarPdfActaEntrega(List<CustodiasResponseDTO> lista, String tipoMov) throws IOException {
+		String nombreEntrega = sesionUsuario.getNombre();
+		String deptoEntrega = sesionUsuario.getDepartamento();
+		if ("TRASLADO".equals(tipoMov)) {
+			CustodiosResponseDTO origen = buscarCustodioOrigenTraslado(lista);
+			if (origen != null) {
+				nombreEntrega = origen.getNombre();
+				deptoEntrega = origen.getFkDepartamento() != null ? origen.getFkDepartamento().getNombre() : "";
+			}
+		}
+		return custodiasPdfService.generarActaEntregaPdfBytes(lista, nombreEntrega, deptoEntrega, tipoMov);
+	}
+
+	private void escribirActaEntregaPdf(List<CustodiasResponseDTO> lista, String tipoMov,
+			HttpServletResponse response) throws IOException {
+		byte[] pdfBytes = generarPdfActaEntrega(lista, tipoMov);
+		guardarYRegistrarActa(pdfBytes, tipoMov, lista);
+		response.setContentType("application/pdf");
+		response.setHeader("Content-Disposition", "inline; filename=" + obtenerNombreArchivoPdf(tipoMov));
+		response.getOutputStream().write(pdfBytes);
+		response.getOutputStream().flush();
+		enviarCorreoActaEntrega(lista, pdfBytes, tipoMov);
 	}
 
 	private void cargarFormularioNuevaCustodia(Model model, CustodiasRequestDTO custodia, String error) {

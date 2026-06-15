@@ -68,7 +68,7 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
 
     @Override
     public OrdenCompraResponseDTO obtenerOrdenCompra(Integer id) {
-        return clienteWeb.get().uri("/ordenes-compra/{id}", id).retrieve().body(OrdenCompraResponseDTO.class);
+        return clienteWeb.get().uri("/inventario/ordenes-compra/{id}", id).retrieve().body(OrdenCompraResponseDTO.class);
     }
 
     @Override
@@ -158,7 +158,7 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
     @Override
     public List<RecepcionLoteResponseDTO> listarRecepciones(Integer idOrdenCompra) {
         return clienteWeb.get()
-                .uri("/ordenes-compra/{idOC}/recepciones", idOrdenCompra)
+                .uri("/inventario/ordenes-compra/{idOC}/recepciones", idOrdenCompra)
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<RecepcionLoteResponseDTO>>() {});
     }
@@ -167,7 +167,7 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
     public RecepcionLoteResponseDTO registrarRecepcionStock(Integer idOrdenCompra, Integer idDetalle,
                                                             RegistrarRecepcionStockRequestDTO request) {
         return clienteWeb.post()
-                .uri("/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/stock", idOrdenCompra, idDetalle)
+                .uri("/inventario/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/stock", idOrdenCompra, idDetalle)
                 .body(request)
                 .retrieve()
                 .body(RecepcionLoteResponseDTO.class);
@@ -177,7 +177,7 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
     public RecepcionLoteResponseDTO registrarRecepcionActivo(Integer idOrdenCompra, Integer idDetalle,
                                                              RegistrarRecepcionActivoRequestDTO request) {
         return clienteWeb.post()
-                .uri("/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/activo", idOrdenCompra, idDetalle)
+                .uri("/inventario/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/activo", idOrdenCompra, idDetalle)
                 .body(request)
                 .retrieve()
                 .body(RecepcionLoteResponseDTO.class);

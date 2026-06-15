@@ -28,7 +28,10 @@ import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.Activo
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.BodegaResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.ConsumibleResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.MovimientoInventarioResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.OrdenCompraResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.RecepcionLoteResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.StockConsumibleResponseDTO;
 
 import jakarta.validation.Valid;
@@ -71,6 +74,34 @@ public class InventarioControlador {
     @PostMapping("/ordenes-compra")
     public ResponseEntity<OrdenCompraResponseDTO> crearOrdenCompra(@Valid @RequestBody OrdenCompraRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(inventarioService.crearOrdenCompra(request));
+    }
+
+    @GetMapping("/ordenes-compra/{id}")
+    public ResponseEntity<OrdenCompraResponseDTO> obtenerOrdenCompra(@PathVariable Integer id) {
+        return ResponseEntity.ok(inventarioService.obtenerOrdenCompra(id));
+    }
+
+    @GetMapping("/ordenes-compra/{idOC}/recepciones")
+    public List<RecepcionLoteResponseDTO> listarRecepciones(@PathVariable Integer idOC) {
+        return inventarioService.listarRecepcionesPorOrden(idOC);
+    }
+
+    @PostMapping("/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/stock")
+    public ResponseEntity<RecepcionLoteResponseDTO> recibirStockPorDetalle(
+            @PathVariable Integer idOC,
+            @PathVariable Integer idDetalle,
+            @Valid @RequestBody RegistrarRecepcionStockRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(inventarioService.registrarRecepcionStockPorDetalle(idOC, idDetalle, request));
+    }
+
+    @PostMapping("/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/activo")
+    public ResponseEntity<RecepcionLoteResponseDTO> recibirActivoPorDetalle(
+            @PathVariable Integer idOC,
+            @PathVariable Integer idDetalle,
+            @Valid @RequestBody RegistrarRecepcionActivoRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(inventarioService.registrarRecepcionActivoPorDetalle(idOC, idDetalle, request));
     }
 
     @PostMapping("/ordenes-compra/{id}/confirmar-recepcion")
