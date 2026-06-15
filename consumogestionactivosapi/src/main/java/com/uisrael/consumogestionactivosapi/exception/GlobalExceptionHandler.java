@@ -1,5 +1,7 @@
 package com.uisrael.consumogestionactivosapi.exception;
 
+import java.net.http.HttpTimeoutException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.ErrorResponseDTO;
 import com.uisrael.consumogestionactivosapi.util.WebClientHelper;
@@ -43,13 +47,31 @@ public class GlobalExceptionHandler {
 	public Object handleResourceAccessException(ResourceAccessException ex,
 			HttpServletRequest request) {
 
-		log.error("Error de conexión con backend en {}: {}", request.getRequestURI(), ex.getMessage());
-		String message = "No se pudo conectar con el servicio backend. Intente nuevamente.";
+		String message;
+		Throwable cause = ex.getCause();
+		if (cause instanceof HttpTimeoutException) {
+			log.warn("Timeout en backend [{}]: {}", request.getRequestURI(), ex.getMessage());
+			message = "El servicio tardó demasiado en responder. Intente nuevamente en unos momentos.";
+		} else {
+			log.error("Error de conexión con backend [{}]: {}", request.getRequestURI(), ex.getMessage());
+			message = "No se pudo conectar con el servicio backend. Intente nuevamente.";
+		}
 
 		if (esPeticionApi(request)) {
 			return respuestaJson(503, message, request);
 		}
 		return vistaError(503, message);
+	}
+
+	@ExceptionHandler(BackendException.class)
+	public Object handleBackendException(BackendException ex, HttpServletRequest request) {
+
+		log.warn("Error de backend en {}: {}", request.getRequestURI(), ex.getMessage());
+
+		if (esPeticionApi(request)) {
+			return respuestaJson(400, ex.getMessage(), request);
+		}
+		return vistaError(400, ex.getMessage());
 	}
 
 	@ExceptionHandler(Exception.class)

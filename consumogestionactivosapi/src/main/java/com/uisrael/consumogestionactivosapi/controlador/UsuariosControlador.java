@@ -21,6 +21,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponse
 import com.uisrael.consumogestionactivosapi.service.IDepartamentosServicio;
 import com.uisrael.consumogestionactivosapi.service.IRolesServicio;
 import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.util.CedulaEcuatorianaUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -80,7 +81,7 @@ public class UsuariosControlador {
                 servicioUsuarios.nuevoUsuario(nuevousuario);
             }
             return "redirect:/usuarios";
-        } catch (RuntimeException e) {
+        } catch (BackendException e) {
             model.addAttribute("errorGeneral", e.getMessage());
             model.addAttribute("nuevousuario", nuevousuario);
             List<RolesResponseDTO> roles = servicioRoles.listarRol();
@@ -129,7 +130,7 @@ public class UsuariosControlador {
         try {
             servicioUsuarios.eliminarUsuario(id);
             return "redirect:/usuarios";
-        } catch (RuntimeException e) {
+        } catch (BackendException e) {
             List<UsuariosResponseDTO> contenidoBD = servicioUsuarios.listarUsuario();
             model.addAttribute("listarusuarios", contenidoBD);
             model.addAttribute("errorEliminar", e.getMessage());

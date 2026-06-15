@@ -43,6 +43,7 @@ import com.uisrael.consumogestionactivosapi.service.IMantenimientoManualServicio
 import com.uisrael.consumogestionactivosapi.service.IMantenimientoProgramadoServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 
 import lombok.RequiredArgsConstructor;
@@ -186,7 +187,7 @@ public class MantenimientoControlador {
         MantenimientoManualResponseDTO creado;
         try {
             creado = mantenimientoManualServicio.crear(request);
-        } catch (RuntimeException ex) {
+        } catch (BackendException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/mantenimiento/nuevo";
         }

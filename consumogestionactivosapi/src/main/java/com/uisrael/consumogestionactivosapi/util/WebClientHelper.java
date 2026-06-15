@@ -2,6 +2,7 @@ package com.uisrael.consumogestionactivosapi.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 
 import org.springframework.web.client.RestClientResponseException;
 
@@ -46,7 +47,7 @@ public final class WebClientHelper {
 		}
 	}
 
-	public static RuntimeException manejarError(RestClientResponseException ex) {
-		return new RuntimeException(extraerMensajeError(ex));
+	public static BackendException manejarError(RestClientResponseException ex) {
+		return new BackendException(extraerMensajeError(ex));
 	}
 }

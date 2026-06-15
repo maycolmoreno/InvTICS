@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.RolesRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.ModuloResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.RolesResponseDTO;
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.service.IModulosServicio;
 import com.uisrael.consumogestionactivosapi.service.IRolesServicio;
 
@@ -53,7 +54,7 @@ public class RolesControlador {
 				servicioRoles.nuevoRol(nuevorol);
 			}
 			return "redirect:/roles";
-		} catch (RuntimeException e) {
+		} catch (BackendException e) {
 			model.addAttribute("errorNombre", e.getMessage());
 			model.addAttribute("nuevorol", nuevorol);
 			return nuevorol.getIdRol() > 0 ? "roles/editarRol" : "roles/nuevoRol";
@@ -72,7 +73,7 @@ public class RolesControlador {
 		try {
 			servicioRoles.eliminarRol(id);
 			return "redirect:/roles";
-		} catch (RuntimeException e) {
+		} catch (BackendException e) {
 			List<RolesResponseDTO> contenidoBD = servicioRoles.listarRol();
 			model.addAttribute("listarroles", contenidoBD);
 			model.addAttribute("errorEliminar", e.getMessage());
@@ -96,7 +97,7 @@ public class RolesControlador {
 		try {
 			servicioModulos.actualizarModulosRol(id, moduloIds != null ? moduloIds : List.of());
 			redirectAttributes.addFlashAttribute("exito", "Permisos actualizados correctamente.");
-		} catch (RuntimeException e) {
+		} catch (BackendException e) {
 			redirectAttributes.addFlashAttribute("error", "Error al actualizar permisos: " + e.getMessage());
 		}
 		return "redirect:/roles/permisos/" + id;

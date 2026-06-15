@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CategoriaEquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CategoriaEquiposResponseDTO;
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,7 @@ public class CategoriaEquiposControlador {
 				servicioCategoriaEquipos.nuevoCategoriaEquipo(nuevacategoria);
 			}
 			return "redirect:/categorias-equipo";
-		} catch (RuntimeException e) {
+		} catch (BackendException e) {
 			model.addAttribute("errorNombre", e.getMessage());
 			model.addAttribute("nuevacategoria", nuevacategoria);
 			return nuevacategoria.getIdCategoria() > 0 ? "categorias_equipo/editarCategoria"
@@ -68,7 +69,7 @@ public class CategoriaEquiposControlador {
 		try {
 			servicioCategoriaEquipos.eliminarCategoriaEquipo(id);
 			return "redirect:/categorias-equipo";
-		} catch (RuntimeException e) {
+		} catch (BackendException e) {
 			List<CategoriaEquiposResponseDTO> contenidoBD = servicioCategoriaEquipos.listarCategoriaEquipo();
 			model.addAttribute("listarcategorias", contenidoBD);
 			model.addAttribute("errorEliminar", e.getMessage());

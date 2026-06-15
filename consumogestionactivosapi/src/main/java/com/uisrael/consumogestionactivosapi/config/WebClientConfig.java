@@ -30,12 +30,22 @@ public class WebClientConfig {
 		this.sesionUsuario = sesionUsuario;
 	}
 
+	@Bean
+	JdkClientHttpRequestFactory httpRequestFactory() {
+		HttpClient httpClient = HttpClient.newBuilder()
+				.connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
+				.build();
+		JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
+		factory.setReadTimeout(Duration.ofSeconds(readTimeoutSeconds));
+		return factory;
+	}
+
 	@Primary
 	@Bean
-	RestClient restClient() {
+	RestClient restClient(JdkClientHttpRequestFactory httpRequestFactory) {
 		return RestClient.builder()
 			.baseUrl(apiBaseUrl)
-			.requestFactory(buildFactory())
+			.requestFactory(httpRequestFactory)
 			.requestInterceptor((request, body, execution) -> {
 				if (sesionUsuario.isAutenticado()) {
 					String authHeader = sesionUsuario.getAuthorizationHeader();
@@ -49,20 +59,11 @@ public class WebClientConfig {
 	}
 
 	@Bean("publicRestClient")
-	RestClient publicRestClient() {
+	RestClient publicRestClient(JdkClientHttpRequestFactory httpRequestFactory) {
 		return RestClient.builder()
 			.baseUrl(apiBaseUrl)
-			.requestFactory(buildFactory())
+			.requestFactory(httpRequestFactory)
 			.build();
-	}
-
-	private JdkClientHttpRequestFactory buildFactory() {
-		HttpClient httpClient = HttpClient.newBuilder()
-				.connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
-				.build();
-		JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
-		factory.setReadTimeout(Duration.ofSeconds(readTimeoutSeconds));
-		return factory;
 	}
 
 }

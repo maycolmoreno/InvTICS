@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.MarcasRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MarcasResponseDTO;
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -91,7 +92,7 @@ public class MarcasControlador {
 		try {
 			servicioMarcas.eliminarMarca(id);
 			return "redirect:/marcas";
-		} catch (RuntimeException e) {
+		} catch (BackendException e) {
 			List<MarcasResponseDTO> contenidoBD = servicioMarcas.listarMarca();
 			model.addAttribute("listarmarca", contenidoBD);
 			model.addAttribute("errorEliminar", e.getMessage());

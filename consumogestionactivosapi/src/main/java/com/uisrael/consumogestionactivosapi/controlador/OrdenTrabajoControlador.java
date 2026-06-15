@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestClientResponseException;
 
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.OrdenCrearRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.OrdenGuardarRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.OrdenCrearResponseDTO;
@@ -43,7 +44,7 @@ public class OrdenTrabajoControlador {
         } catch (RestClientResponseException ex) {
             return ResponseEntity.status(ex.getStatusCode())
                     .body(extraerMensaje(ex.getResponseBodyAsString()));
-        } catch (RuntimeException ex) {
+        } catch (BackendException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ex.getMessage() != null ? ex.getMessage() : "No se pudo iniciar mantenimiento.");
         }

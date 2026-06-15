@@ -32,6 +32,7 @@ import com.uisrael.consumogestionactivosapi.service.IDepartamentosServicio;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
 import com.uisrael.consumogestionactivosapi.service.IModulosServicio;
 import com.uisrael.consumogestionactivosapi.service.IRolesServicio;
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -285,7 +286,7 @@ public class ApiRelacionesControlador {
         try {
             servicioModulos.actualizarModulosRol(rolId, moduloIds != null ? moduloIds : List.of());
             return ResponseEntity.ok(Map.of("mensaje", "Permisos actualizados"));
-        } catch (RuntimeException e) {
+        } catch (BackendException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
