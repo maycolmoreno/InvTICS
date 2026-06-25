@@ -12,10 +12,6 @@
 
         <div class="cui-command-bar">
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a th:href="@{/inventario/recepcion}" class="cui-btn cui-btn-secondary">
-                    <i class="feather-plus-circle" aria-hidden="true"></i>
-                    <span>Recibir</span>
-                </a>
                 <a th:href="@{/inventario/movimientos}" class="cui-btn cui-btn-secondary">
                     <i class="feather-clock" aria-hidden="true"></i>
                     <span>Movimientos</span>
@@ -25,27 +21,6 @@
 
         <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
         <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
-
-        <div th:with="totalArticulos=${#lists.size(stock)},
-                      bajos=${#lists.size(stock.?[cantidad != null and cantidad > 0 and cantidad <= 10])},
-                      sinStock=${#lists.size(stock.?[cantidad == null or cantidad == 0])}">
-            <div class="cui-summary-strip">
-                <div class="cui-summary-item">
-                    <span class="cui-summary-label">Articulos</span>
-                    <strong class="cui-summary-value" th:text="${totalArticulos}">0</strong>
-                </div>
-                <span class="cui-summary-sep" aria-hidden="true">·</span>
-                <div class="cui-summary-item">
-                    <span class="cui-summary-label">Nivel bajo</span>
-                    <strong class="cui-summary-value warning" th:text="${bajos}">0</strong>
-                </div>
-                <span class="cui-summary-sep" aria-hidden="true">·</span>
-                <div class="cui-summary-item">
-                    <span class="cui-summary-label">Sin stock</span>
-                    <strong class="cui-summary-value danger" th:text="${sinStock}">0</strong>
-                </div>
-            </div>
-        </div>
 
         <section class="cui-data-grid" id="stockGrid" data-cui-grid>
             <div class="cui-data-grid-header">
@@ -117,7 +92,7 @@
                                     <button type="button"
                                             class="btn btn-outline-primary btn-sm"
                                             th:disabled="${cantidad == 0}"
-                                            onclick="stockAbrirEntregar(this)"
+                                            data-action="stock-entregar"
                                             data-cui-drawer-open="#drawerEntregarStock">
                                         <i class="feather-user-check" aria-hidden="true"></i>
                                         Entregar
@@ -125,7 +100,7 @@
                                     <button type="button"
                                             class="btn btn-outline-secondary btn-sm"
                                             th:disabled="${cantidad == 0}"
-                                            onclick="stockAbrirTrasladar(this)"
+                                            data-action="stock-trasladar"
                                             data-cui-drawer-open="#drawerTrasladarStock">
                                         <i class="feather-send" aria-hidden="true"></i>
                                         Trasladar
@@ -263,43 +238,37 @@
 
         <script>
         (function () {
-            function precargar(btn, mapa) {
-                var row = btn.closest('tr');
-                Object.entries(mapa).forEach(function (par) {
-                    var el = document.getElementById(par[0]);
-                    if (!el) return;
-                    var valor = row.dataset[par[1]] || '';
-                    if (el.tagName === 'INPUT') {
-                        el.value = valor;
-                    } else {
-                        el.textContent = valor || '—';
-                    }
-                });
+            function set(id, valor, esInput) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                if (esInput) { el.value = valor; } else { el.textContent = valor || '—'; }
             }
 
-            window.stockAbrirEntregar = function (btn) {
-                precargar(btn, {
-                    'ent-consumible-id':      'consumibleId',
-                    'ent-bodega-id':          'bodegaId',
-                    'ent-consumible-nombre':  'consumibleNombre',
-                    'ent-bodega-nombre':      'bodegaNombre',
-                    'ent-disponible':         'cantidad'
-                });
-                var max = btn.closest('tr').dataset.cantidad;
-                document.getElementById('ent-cantidad').setAttribute('max', max);
-            };
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                var row = btn.closest('tr');
+                if (!row) return;
+                var d = row.dataset;
 
-            window.stockAbrirTrasladar = function (btn) {
-                precargar(btn, {
-                    'tras-consumible-id':      'consumibleId',
-                    'tras-bodega-origen-id':   'bodegaId',
-                    'tras-consumible-nombre':  'consumibleNombre',
-                    'tras-bodega-nombre':      'bodegaNombre',
-                    'tras-disponible':         'cantidad'
-                });
-                var max = btn.closest('tr').dataset.cantidad;
-                document.getElementById('tras-cantidad').setAttribute('max', max);
-            };
+                if (btn.dataset.action === 'stock-entregar') {
+                    set('ent-consumible-id',     d.consumibleId,    true);
+                    set('ent-bodega-id',          d.bodegaId,        true);
+                    set('ent-consumible-nombre',  d.consumibleNombre);
+                    set('ent-bodega-nombre',      d.bodegaNombre);
+                    set('ent-disponible',         d.cantidad);
+                    document.getElementById('ent-cantidad').setAttribute('max', d.cantidad || 1);
+                }
+
+                if (btn.dataset.action === 'stock-trasladar') {
+                    set('tras-consumible-id',     d.consumibleId,    true);
+                    set('tras-bodega-origen-id',  d.bodegaId,        true);
+                    set('tras-consumible-nombre', d.consumibleNombre);
+                    set('tras-bodega-nombre',     d.bodegaNombre);
+                    set('tras-disponible',        d.cantidad);
+                    document.getElementById('tras-cantidad').setAttribute('max', d.cantidad || 1);
+                }
+            });
         }());
         </script>
     </div>

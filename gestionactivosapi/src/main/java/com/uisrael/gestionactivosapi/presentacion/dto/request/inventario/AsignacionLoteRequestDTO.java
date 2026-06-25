@@ -1,0 +1,34 @@
+package com.uisrael.gestionactivosapi.presentacion.dto.request.inventario;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
+public class AsignacionLoteRequestDTO {
+
+    @NotEmpty
+    private List<Integer> equipoIds;
+
+    @NotNull
+    private Integer custodioId;
+
+    private LocalDate fechaInicio;
+    private String observacion;
+    private String condicionEntrega;
+    private String realizadoPor;
+
+    public List<Integer> getEquipoIds() { return equipoIds; }
+    public void setEquipoIds(List<Integer> equipoIds) { this.equipoIds = equipoIds; }
+    public Integer getCustodioId() { return custodioId; }
+    public void setCustodioId(Integer custodioId) { this.custodioId = custodioId; }
+    public LocalDate getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
+    public String getObservacion() { return observacion; }
+    public void setObservacion(String observacion) { this.observacion = observacion; }
+    public String getCondicionEntrega() { return condicionEntrega; }
+    public void setCondicionEntrega(String condicionEntrega) { this.condicionEntrega = condicionEntrega; }
+    public String getRealizadoPor() { return realizadoPor; }
+    public void setRealizadoPor(String realizadoPor) { this.realizadoPor = realizadoPor; }
+}

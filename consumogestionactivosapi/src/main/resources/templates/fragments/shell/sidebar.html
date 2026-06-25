@@ -14,7 +14,7 @@
         <div class="cui-nav-section">
             <ul class="cui-nav-list">
                 <li>
-                    <a th:href="@{/inicio}" class="cui-nav-link">
+                    <a th:href="@{/inventario/dashboard}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-grid"></i></span>
                         <span class="cui-nav-text">Dashboard</span>
                     </a>
@@ -77,9 +77,9 @@
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{/inventario/recepcion}" class="cui-nav-link">
-                        <span class="cui-nav-icon"><i class="feather-package"></i></span>
-                        <span class="cui-nav-text">Recepcion</span>
+                    <a th:href="@{/inventario/asignaciones}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-user-check"></i></span>
+                        <span class="cui-nav-text">Asignaciones</span>
                     </a>
                 </li>
                 <li>
@@ -101,9 +101,21 @@
                     </a>
                 </li>
                 <li>
+                    <a th:href="@{/inventario/reparaciones}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-tool"></i></span>
+                        <span class="cui-nav-text">Reparaciones</span>
+                    </a>
+                </li>
+                <li>
                     <a th:href="@{/inventario/bajas}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-archive"></i></span>
                         <span class="cui-nav-text">Bajas</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/inventario/catalogos}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-book"></i></span>
+                        <span class="cui-nav-text">Catalogos</span>
                     </a>
                 </li>
             </ul>
@@ -161,6 +173,12 @@
                     <a th:href="@{/inventario/dashboard}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-command"></i></span>
                         <span class="cui-nav-text">Operacion</span>
+                    </a>
+                </li>
+                <li th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">
+                    <a th:href="@{/inventario/trabajo}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-inbox"></i></span>
+                        <span class="cui-nav-text">Bandejas</span>
                     </a>
                 </li>
                 <li th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">

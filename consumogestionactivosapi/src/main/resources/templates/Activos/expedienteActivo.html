@@ -47,16 +47,38 @@
                     </span>
                 </div>
             </div>
-            <div class="cui-entity-actions">
+            <div class="cui-entity-actions"
+                 th:with="enBodega=${equipo.estado and custodiaActual == null},
+                           asignado=${equipo.estado and custodiaActual != null},
+                           enReparacion=${#strings.containsIgnoreCase(estadoTecnico, 'repar') or #strings.containsIgnoreCase(estadoTecnico, 'mantenimiento')}">
                 <a th:href="@{/equipos}" class="cui-btn cui-btn-secondary">
                     <i class="feather-arrow-left" aria-hidden="true"></i>
                     <span>Listado</span>
                 </a>
-                <a th:href="@{/mantenimiento/nuevo(equipoId=${equipo.idEquipo})}" class="cui-btn cui-btn-primary">
-                    <i class="feather-wrench" aria-hidden="true"></i>
-                    <span>Crear mantenimiento</span>
+                <!-- Accion primaria contextual segun estado -->
+                <button th:if="${enBodega}"
+                        type="button"
+                        class="cui-btn cui-btn-primary"
+                        data-cui-drawer-open="#drawerAsignarActivoExp">
+                    <i class="feather-user-check" aria-hidden="true"></i>
+                    <span>Asignar</span>
+                </button>
+                <a th:if="${asignado and !enReparacion}"
+                   th:href="@{/custodias/cerrar-custodia/{id}(id=${custodiaActual.idCustodio})}"
+                   class="cui-btn cui-btn-primary">
+                    <i class="feather-corner-down-left" aria-hidden="true"></i>
+                    <span>Registrar devolucion</span>
                 </a>
-                <button th:if="${equipo.estado}"
+                <!-- Registrar etiqueta: visible solo si no esta etiquetado -->
+                <button th:if="${equipo.estado and !activoEtiquetado}"
+                        type="button"
+                        class="cui-btn cui-btn-warning"
+                        data-cui-drawer-open="#drawerEtiquetaActivoExp">
+                    <i class="feather-tag" aria-hidden="true"></i>
+                    <span>Registrar etiqueta</span>
+                </button>
+                <!-- Accion secundaria -->
+                <button th:if="${equipo.estado and !enReparacion}"
                         type="button"
                         class="cui-btn cui-btn-secondary"
                         data-cui-drawer-open="#drawerTrasladarActivoExp">
@@ -72,18 +94,30 @@
                             <i class="feather-edit-2" aria-hidden="true"></i>
                             Editar activo
                         </a>
-                        <a class="dropdown-item" th:if="${custodiaActual == null and equipo.estado}" th:href="@{/custodias/nueva-custodia}">
-                            <i class="feather-user-check" aria-hidden="true"></i>
-                            Asignar activo
-                        </a>
+                        <button type="button" class="dropdown-item" th:if="${equipo.estado and activoEtiquetado}"
+                                data-cui-drawer-open="#drawerEtiquetaActivoExp">
+                            <i class="feather-tag" aria-hidden="true"></i>
+                            Actualizar etiqueta
+                        </button>
                         <a class="dropdown-item" th:if="${custodiaActual != null}" th:href="@{/custodias/expediente/{id}(id=${custodiaActual.idCustodio})}">
                             <i class="feather-users" aria-hidden="true"></i>
                             Expediente custodio
                         </a>
-                        <a class="dropdown-item text-danger" th:if="${equipo.estado}" th:href="@{/inventario/bajas}">
-                            <i class="feather-x-circle" aria-hidden="true"></i>
-                            Gestionar baja
+                        <a class="dropdown-item" th:if="${equipo.estado}" th:href="@{/mantenimiento/nuevo(equipoId=${equipo.idEquipo})}">
+                            <i class="feather-wrench" aria-hidden="true"></i>
+                            Crear mantenimiento
                         </a>
+                        <button type="button" class="dropdown-item" th:if="${equipo.estado}"
+                                data-cui-drawer-open="#drawerReparacionActivoExp">
+                            <i class="feather-tool" aria-hidden="true"></i>
+                            Enviar a reparacion
+                        </button>
+                        <div class="dropdown-divider" th:if="${equipo.estado}"></div>
+                        <button type="button" class="dropdown-item text-danger" th:if="${equipo.estado}"
+                                data-cui-drawer-open="#drawerBajaActivoExp">
+                            <i class="feather-x-circle" aria-hidden="true"></i>
+                            Dar de baja
+                        </button>
                     </div>
                 </div>
             </div>
@@ -459,6 +493,229 @@
                 </section>
             </main>
         </div>
+
+        <!-- Drawer: Asignar activo desde expediente -->
+        <aside class="cui-drawer" id="drawerAsignarActivoExp" aria-hidden="true" aria-label="Asignar activo">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Asignar activo</div>
+                    <div class="small text-muted">Entregar equipo a un custodio</div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/inventario/asignaciones/activos}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="equipoId" th:value="${equipo.idEquipo}">
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Equipo</label>
+                        <div class="form-control bg-light fw-semibold"
+                             th:text="${codigoActivo + ' · ' + modeloActivo}">—</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Custodio <span class="text-danger">*</span></label>
+                        <select class="form-select" name="custodioId" required>
+                            <option value="">Seleccione custodio</option>
+                            <option th:each="c : ${custodios}"
+                                    th:if="${c.estado}"
+                                    th:value="${c.idCustodio}"
+                                    th:text="${c.nombre + (c.fkDepartamento != null ? ' · ' + c.fkDepartamento.nombre : '')}">Custodio</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Fecha inicio <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" name="fechaInicio"
+                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Condicion de entrega</label>
+                        <select class="form-select" name="condicionEntrega">
+                            <option value="">Seleccione condicion</option>
+                            <option value="BUENO">Bueno</option>
+                            <option value="REGULAR">Regular</option>
+                            <option value="MALO">Malo</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion</label>
+                        <textarea class="form-control" name="observacion" rows="2"></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="cui-btn cui-btn-primary" type="submit">
+                            <i class="feather-user-check" aria-hidden="true"></i>
+                            <span>Asignar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Drawer: Enviar a reparacion desde expediente -->
+        <aside class="cui-drawer" id="drawerReparacionActivoExp" aria-hidden="true" aria-label="Enviar a reparacion">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Enviar a reparacion</div>
+                    <div class="small text-muted">Registrar salida del activo hacia taller tecnico</div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/inventario/reparaciones/enviar}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="equipoId" th:value="${equipo.idEquipo}">
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Equipo</label>
+                        <div class="form-control bg-light fw-semibold"
+                             th:text="${codigoActivo + ' · ' + modeloActivo}">—</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Proveedor tecnico</label>
+                        <input type="text" class="form-control" name="proveedorTecnico" placeholder="Ej: SERTEC S.A.">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Motivo <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="motivo" placeholder="Ej: Pantalla rota" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Fecha de envio</label>
+                        <input type="date" class="form-control" name="fechaEnvio"
+                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion</label>
+                        <textarea class="form-control" name="observacion" rows="2"></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="cui-btn cui-btn-primary" type="submit">
+                            <i class="feather-tool" aria-hidden="true"></i>
+                            <span>Enviar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Drawer: Registrar etiqueta fisica desde expediente -->
+        <aside class="cui-drawer" id="drawerEtiquetaActivoExp" aria-hidden="true" aria-label="Registrar etiqueta">
+            <div class="cui-drawer-header">
+                <div>
+                    <p class="cui-eyebrow">Activo</p>
+                    <h2 class="cui-drawer-title">Registrar etiqueta fisica</h2>
+                </div>
+                <button type="button" class="cui-icon-btn" data-cui-drawer-close aria-label="Cerrar">
+                    <i class="feather-x" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/inventario/activos/{id}/etiqueta(id=${equipo.idEquipo})}"
+                      method="post" class="cui-drawer-form">
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-2 p-3 border rounded"
+                             th:classappend="${activoEtiquetado} ? ' bg-light' : ''">
+                            <input type="checkbox" class="form-check-input" id="etiquetadoExp"
+                                   name="etiquetado" value="true"
+                                   th:checked="${activoEtiquetado}">
+                            <label class="form-check-label fw-semibold" for="etiquetadoExp">
+                                Etiqueta fisica adherida al equipo
+                            </label>
+                        </div>
+                        <div th:if="${activoEtiquetado}" class="mt-2">
+                            <span class="cui-badge cui-badge-success">
+                                <i class="feather-check" aria-hidden="true"></i>
+                                Ya etiquetado
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="codigoCresioEtqExp">Codigo CRESIO <span class="text-muted">(opcional — solo si cambia)</span></label>
+                        <input type="text" class="form-control" id="codigoCresioEtqExp"
+                               name="codigoCresio" th:value="${equipo.codigoSap}"
+                               placeholder="CR-LAP-0001">
+                        <div class="form-text">Deja en blanco para mantener el codigo actual.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="observacionEtqExp">Observacion</label>
+                        <textarea class="form-control" id="observacionEtqExp" name="observacion" rows="2"
+                                  placeholder="Ej: Etiqueta fisica colocada en la parte posterior del equipo."></textarea>
+                    </div>
+                    <div class="cui-drawer-footer">
+                        <button type="button" class="cui-btn cui-btn-ghost" data-cui-drawer-close>Cancelar</button>
+                        <button type="submit" class="cui-btn cui-btn-primary">
+                            <i class="feather-tag" aria-hidden="true"></i>
+                            Confirmar etiqueta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Drawer: Dar de baja desde expediente -->
+        <aside class="cui-drawer" id="drawerBajaActivoExp" aria-hidden="true" aria-label="Dar de baja">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Dar de baja</div>
+                    <div class="small text-muted">Retirar el activo del inventario operativo</div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/inventario/bajas/activos}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="equipoId" th:value="${equipo.idEquipo}">
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Equipo</label>
+                        <div class="form-control bg-light fw-semibold"
+                             th:text="${codigoActivo + ' · ' + modeloActivo}">—</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Motivo de baja <span class="text-danger">*</span></label>
+                        <select class="form-select" name="motivo" required>
+                            <option value="">Seleccione motivo</option>
+                            <option value="OBSOLESCENCIA">Obsolescencia</option>
+                            <option value="DANO_IRREPARABLE">Dano irreparable</option>
+                            <option value="ROBO_HURTO">Robo / Hurto</option>
+                            <option value="PERDIDA">Perdida</option>
+                            <option value="DONACION">Donacion</option>
+                            <option value="OTRO">Otro</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Fecha de baja</label>
+                        <input type="date" class="form-control" name="fechaBaja"
+                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Autorizado por</label>
+                        <input type="text" class="form-control" name="autorizadoPor" placeholder="Nombre del autorizador">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion</label>
+                        <textarea class="form-control" name="observacion" rows="2"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <div class="alert alert-warning py-2 small">
+                            <i class="feather-alert-triangle me-1" aria-hidden="true"></i>
+                            Esta accion es irreversible. El activo quedara como DADO_DE_BAJA.
+                        </div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="cui-btn" style="background:var(--cui-danger,#dc3545);color:#fff;border-color:var(--cui-danger,#dc3545)" type="submit">
+                            <i class="feather-x-circle" aria-hidden="true"></i>
+                            <span>Confirmar baja</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
 
         <!-- Drawer: Trasladar activo desde expediente -->
         <aside class="cui-drawer" id="drawerTrasladarActivoExp" aria-hidden="true" aria-label="Trasladar activo">

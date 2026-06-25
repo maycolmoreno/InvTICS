@@ -7,6 +7,7 @@ public class BajaActivoRequestDTO {
     private LocalDate fechaBaja;
     private String motivo;
     private String observacion;
+    private String autorizadoPor;
 
     public Integer getEquipoId() { return equipoId; }
     public void setEquipoId(Integer equipoId) { this.equipoId = equipoId; }
@@ -16,4 +17,6 @@ public class BajaActivoRequestDTO {
     public void setMotivo(String motivo) { this.motivo = motivo; }
     public String getObservacion() { return observacion; }
     public void setObservacion(String observacion) { this.observacion = observacion; }
+    public String getAutorizadoPor() { return autorizadoPor; }
+    public void setAutorizadoPor(String autorizadoPor) { this.autorizadoPor = autorizadoPor; }
 }

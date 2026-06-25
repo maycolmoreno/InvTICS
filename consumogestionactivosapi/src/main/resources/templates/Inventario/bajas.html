@@ -66,6 +66,10 @@
                                 </select>
                             </div>
                             <div class="col-12">
+                                <label class="form-label">Autorizado por</label>
+                                <input class="form-control" th:field="*{autorizadoPor}" placeholder="Nombre del responsable que autoriza la baja">
+                            </div>
+                            <div class="col-12">
                                 <label class="form-label">Observacion</label>
                                 <textarea class="form-control" th:field="*{observacion}" rows="4" required></textarea>
                             </div>

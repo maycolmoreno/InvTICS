@@ -134,6 +134,32 @@
                     ordering: true
                 });
             }
+
+            function cresioInitSelect2(scope) {
+                var $scope = scope ? $(scope) : $(document);
+                $scope.find('select.form-select:not([data-select2-selector])').each(function () {
+                    var $sel = $(this);
+                    if ($sel.hasClass('select2-hidden-accessible')) return;
+                    $sel.select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        dropdownParent: document.body,
+                        language: { noResults: function () { return 'Sin resultados'; } }
+                    });
+                });
+            }
+
+            cresioInitSelect2();
+
+            var _drawerOpen = window.CresioDrawer && window.CresioDrawer.open;
+            if (_drawerOpen) {
+                window.CresioDrawer.open = function (target) {
+                    _drawerOpen(target);
+                    setTimeout(function () {
+                        cresioInitSelect2(document.querySelector(target || '#cuiDrawer'));
+                    }, 60);
+                };
+            }
         });
     </script>
     <th:block layout:fragment="scripts"></th:block>

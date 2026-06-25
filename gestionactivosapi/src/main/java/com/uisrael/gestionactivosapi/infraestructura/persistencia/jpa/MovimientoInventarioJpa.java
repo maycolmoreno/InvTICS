@@ -1,6 +1,7 @@
 package com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.TipoMovimientoInventario;
@@ -82,4 +83,16 @@ public class MovimientoInventarioJpa implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_recepcion_lote")
     private RecepcionLoteJpa recepcionLote;
+
+    @Column(name = "condicion", length = 50)
+    private String condicion;
+
+    @Column(name = "realizado_por", length = 200)
+    private String realizadoPor;
+
+    @Column(name = "motivo", columnDefinition = "TEXT")
+    private String motivo;
+
+    @Column(name = "fecha_efectiva")
+    private LocalDate fechaEfectiva;
 }

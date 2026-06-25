@@ -7,6 +7,7 @@ public class ConsumibleResponseDTO {
     private String descripcion;
     private String unidadMedida;
     private boolean estado;
+    private Integer stockTotal;
 
     public Integer getIdConsumible() { return idConsumible; }
     public void setIdConsumible(Integer idConsumible) { this.idConsumible = idConsumible; }
@@ -20,4 +21,6 @@ public class ConsumibleResponseDTO {
     public void setUnidadMedida(String unidadMedida) { this.unidadMedida = unidadMedida; }
     public boolean isEstado() { return estado; }
     public void setEstado(boolean estado) { this.estado = estado; }
+    public Integer getStockTotal() { return stockTotal; }
+    public void setStockTotal(Integer stockTotal) { this.stockTotal = stockTotal; }
 }

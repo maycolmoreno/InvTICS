@@ -3,133 +3,166 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{plantilla/plantillaui}">
 <head>
-    <title>Inventario operativo</title>
+    <title>Centro Operacional de Inventario</title>
 </head>
 <body>
 <div layout:fragment="contenidopaginas" class="itam-page">
     <div class="main-content">
         <div class="itam-shell">
-            <div class="itam-hero">
-                <div>
-                    <p class="itam-eyebrow">Centro Operacional</p>
-                    <h1 class="itam-title">Estado del parque TIC</h1>
-                    <p class="itam-subtitle">Monitoreo de activos, logistica y soporte tecnico. Señales que requieren atencion del equipo TI.</p>
-                    <p class="itam-kpi-note"><strong th:text="${totalActivos}">0</strong> activos registrados en el parque tecnologico.</p>
-                </div>
-            </div>
+            <div th:replace="~{fragments/shell/page-header :: pageHeader(
+                    title='Centro Operacional de Inventario',
+                    subtitle='Pendientes, riesgos y movimientos que requieren atencion del equipo TI.')}"></div>
 
-            <div class="itam-kpi-grid">
-                <div class="itam-kpi">
-                    <div class="itam-kpi-icon warning"><i class="feather-tool"></i></div>
-                    <p class="itam-kpi-value" th:text="${activosEnReparacion}">0</p>
-                    <p class="itam-kpi-label">En reparacion</p>
-                    <div class="itam-kpi-note">Requieren seguimiento</div>
+            <section class="cui-command-bar" aria-label="Acceso rapido">
+                <form th:action="@{/equipos}" method="get" class="cui-search">
+                    <i class="feather-search" aria-hidden="true"></i>
+                    <input type="search" name="q" placeholder="Buscar activo, serial, custodio u OC...">
+                </form>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <a th:each="accion, stat : ${centro.quickActions}"
+                       th:if="${stat.index < 2}"
+                       th:href="${accion.href}"
+                       class="cui-btn"
+                       th:classappend="${accion.variante == 'primary'} ? ' cui-btn-primary' : ' cui-btn-secondary'">
+                        <i th:class="${accion.icono}" aria-hidden="true"></i>
+                        <span th:text="${accion.titulo}">Accion</span>
+                    </a>
                 </div>
-                <div class="itam-kpi">
-                    <div class="itam-kpi-icon warning"><i class="feather-shopping-bag"></i></div>
-                    <p class="itam-kpi-value" th:text="${ocPendientes}">0</p>
-                    <p class="itam-kpi-label">OC pendientes</p>
-                    <div class="itam-kpi-note">Emitidas o parciales</div>
-                </div>
-                <div class="itam-kpi">
-                    <div class="itam-kpi-icon danger"><i class="feather-alert-triangle"></i></div>
-                    <p class="itam-kpi-value" th:text="${consumiblesCriticos}">0</p>
-                    <p class="itam-kpi-label">Stock critico</p>
-                    <div class="itam-kpi-note">Cantidad menor o igual a 5</div>
-                </div>
-                <div class="itam-kpi">
-                    <div class="itam-kpi-icon neutral"><i class="feather-user-x"></i></div>
-                    <p class="itam-kpi-value" th:text="${equiposSinCustodio}">0</p>
-                    <p class="itam-kpi-label">Sin custodio</p>
-                    <div class="itam-kpi-note">Pendientes de asignacion</div>
-                </div>
-                <div class="itam-kpi">
-                    <div class="itam-kpi-icon warning"><i class="feather-calendar"></i></div>
-                    <p class="itam-kpi-value" th:text="${proximosMantenimientos}">0</p>
-                    <p class="itam-kpi-label">Mant. proximos</p>
-                    <div class="itam-kpi-note">Programados o por vencer</div>
-                </div>
-            </div>
+            </section>
 
-            <div class="itam-grid-2">
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Distribucion por estado</h2>
-                        <span class="itam-badge neutral">Activos</span>
+            <section class="cui-risk-panel">
+                <div class="cui-risk-header">
+                    <div>
+                        <p class="cui-eyebrow">Hoy</p>
+                        <h2 class="cui-row-title">Pendientes principales</h2>
                     </div>
-                    <div class="itam-panel-body">
-                        <div th:each="item, iter : ${distribucionEstados}" class="itam-state-row">
-                            <div class="itam-state-name" th:text="${item.key}">Estado</div>
-                            <div class="itam-bar"
-                                 th:classappend="${iter.index == 0 ? ' success' : (iter.index == 2 ? ' warning' : (iter.index == 3 ? ' danger' : ''))}">
-                                <span th:style="'width:' + ${T(java.lang.Math).min(100, (item.value * 100) / baseDistribucion)} + '%'"></span>
-                            </div>
-                            <strong th:text="${item.value}">0</strong>
+                    <span class="cui-badge cui-badge-info" th:text="${centro.pendientesHoy + ' pendientes'}">0 pendientes</span>
+                </div>
+                <div class="cui-detail-grid">
+                    <a th:each="bandeja, stat : ${centro.bandejas}"
+                       th:if="${stat.index < 4}"
+                       th:href="${bandeja.href}"
+                       class="cui-detail-item">
+                        <span th:text="${bandeja.titulo}">Bandeja</span>
+                        <strong th:text="${bandeja.cantidad}">0</strong>
+                    </a>
+                </div>
+            </section>
+
+            <div class="cui-expediente-layout">
+                <main>
+                    <section class="cui-exp-card mb-4">
+                        <div class="cui-exp-card-header">
+                            <h2 class="cui-row-title">Bandejas de trabajo</h2>
+                            <span class="cui-badge cui-badge-muted">Operacion</span>
                         </div>
-                    </div>
-                </section>
+                        <div class="cui-exp-card-body">
+                            <div class="cui-data-grid" th:if="${!#lists.isEmpty(centro.bandejas)}">
+                                <div class="table-responsive">
+                                    <table class="table cui-table">
+                                        <thead>
+                                        <tr>
+                                            <th>Bandeja</th>
+                                            <th>Prioridad</th>
+                                            <th class="text-end">Pendientes</th>
+                                            <th class="text-end">Accion</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="bandeja : ${centro.bandejas}">
+                                            <td>
+                                                <div class="cui-row-stack">
+                                                    <span class="cui-row-title">
+                                                        <i th:class="${bandeja.icono}" aria-hidden="true"></i>
+                                                        <span th:text="${bandeja.titulo}">Bandeja</span>
+                                                    </span>
+                                                    <span class="cui-row-subtitle" th:text="${bandeja.descripcion}">Descripcion</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span th:replace="~{fragments/components/status-badge :: statusBadge(label=${bandeja.prioridad}, state=${bandeja.prioridad})}"></span>
+                                            </td>
+                                            <td class="text-end">
+                                                <strong th:text="${bandeja.cantidad}">0</strong>
+                                            </td>
+                                            <td class="text-end">
+                                                <a th:href="${bandeja.href}" class="cui-btn cui-btn-secondary">
+                                                    <span th:text="${bandeja.accionTexto}">Abrir</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(centro.bandejas)}"
+                                 th:replace="~{fragments/components/empty-state :: empty(icon='feather-inbox', title='Sin bandejas disponibles', message='No hay pendientes operativos para mostrar.')}"></div>
+                        </div>
+                    </section>
 
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Stock critico</h2>
-                        <a th:href="@{/inventario/stock}" class="itam-badge warning">Ver stock</a>
-                    </div>
-                    <div class="itam-panel-body">
-                        <div class="itam-list" th:if="${!#lists.isEmpty(stockCritico)}">
-                            <div class="itam-list-item" th:each="s : ${stockCritico}">
-                                <span class="itam-dot" th:classappend="${s.cantidad <= 2 ? ' danger' : ' warning'}"></span>
+                    <section class="cui-exp-card">
+                        <div class="cui-exp-card-header">
+                            <h2 class="cui-row-title">Timeline reciente</h2>
+                            <a th:href="@{/inventario/movimientos}" class="cui-badge cui-badge-info">Ver movimientos</a>
+                        </div>
+                        <div class="cui-exp-card-body">
+                            <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(centro.movimientosRecientes)}">
+                                <article class="cui-activity-item" th:each="movimiento : ${centro.movimientosRecientes}">
+                                    <span class="cui-activity-dot"></span>
+                                    <div>
+                                        <strong th:text="${movimiento.titulo}">Movimiento</strong>
+                                        <p th:text="${movimiento.detalle}">Detalle</p>
+                                        <span class="cui-activity-time"
+                                              th:text="${movimiento.fecha != null ? #temporals.format(movimiento.fecha, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">Fecha</span>
+                                    </div>
+                                </article>
+                            </div>
+                            <div th:if="${#lists.isEmpty(centro.movimientosRecientes)}"
+                                 th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin movimientos recientes', message='Cuando exista actividad de inventario aparecera en este timeline.')}"></div>
+                        </div>
+                    </section>
+                </main>
+
+                <aside>
+                    <section class="cui-risk-panel mb-4">
+                        <div class="cui-risk-header">
+                            <div>
+                                <p class="cui-eyebrow">Riesgos</p>
+                                <h2 class="cui-row-title">Atencion operativa</h2>
+                            </div>
+                        </div>
+                        <div class="cui-risk-list" th:if="${!#lists.isEmpty(centro.riesgos)}">
+                            <a th:each="riesgo : ${centro.riesgos}" th:href="${riesgo.href}" class="cui-risk-item">
+                                <span class="cui-risk-dot" th:classappend="${riesgo.severidad == 'alta'} ? ' is-danger' : ' is-warning'"></span>
                                 <div>
-                                    <p class="itam-item-title" th:text="${s.consumibleNombre}">Consumible</p>
-                                    <p class="itam-item-meta" th:text="${s.bodegaNombre}">Bodega</p>
+                                    <strong th:text="${riesgo.titulo}">Riesgo</strong>
+                                    <p th:text="${riesgo.descripcion}">Descripcion</p>
                                 </div>
-                                <span class="itam-badge" th:classappend="${s.cantidad <= 2 ? ' danger' : ' warning'}" th:text="${s.cantidad}">0</span>
+                            </a>
+                        </div>
+                        <div th:if="${#lists.isEmpty(centro.riesgos)}"
+                             th:replace="~{fragments/components/empty-state :: empty(icon='feather-check-circle', title='Sin riesgos visibles', message='No hay alertas operativas con los datos actuales.')}"></div>
+                    </section>
+
+                    <section class="cui-exp-card">
+                        <div class="cui-exp-card-header">
+                            <h2 class="cui-row-title">Quick Actions</h2>
+                        </div>
+                        <div class="cui-exp-card-body">
+                            <div class="cui-action-list">
+                                <a th:each="accion : ${centro.quickActions}"
+                                   th:href="${accion.href}"
+                                   class="cui-action-row">
+                                    <i th:class="${accion.icono}" aria-hidden="true"></i>
+                                    <span>
+                                        <strong th:text="${accion.titulo}">Accion</strong>
+                                        <small th:text="${accion.descripcion}">Descripcion</small>
+                                    </span>
+                                </a>
                             </div>
                         </div>
-                        <div class="itam-empty" th:if="${#lists.isEmpty(stockCritico)}">No hay consumibles criticos en la bodega principal.</div>
-                    </div>
-                </section>
-            </div>
-
-            <div class="itam-grid-2">
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">OC pendientes</h2>
-                        <a th:href="@{/inventario/compras}" class="itam-badge">Compras</a>
-                    </div>
-                    <div class="itam-panel-body">
-                        <div class="itam-list" th:if="${!#lists.isEmpty(ordenesPendientes)}">
-                            <div class="itam-list-item" th:each="oc : ${ordenesPendientes}">
-                                <span class="itam-dot warning"></span>
-                                <div>
-                                    <p class="itam-item-title" th:text="${oc.numeroOc}">OC</p>
-                                    <p class="itam-item-meta" th:text="${oc.proveedor ?: 'Sin proveedor'}">Proveedor</p>
-                                </div>
-                                <span class="itam-badge warning" th:text="${oc.estado}">Estado</span>
-                            </div>
-                        </div>
-                        <div class="itam-empty" th:if="${#lists.isEmpty(ordenesPendientes)}">No hay ordenes pendientes.</div>
-                    </div>
-                </section>
-
-                <section class="itam-panel">
-                    <div class="itam-panel-head">
-                        <h2 class="itam-panel-title">Ultimos movimientos</h2>
-                        <a th:href="@{/inventario/movimientos}" class="itam-badge">Timeline</a>
-                    </div>
-                    <div class="itam-panel-body">
-                        <div class="itam-timeline" th:if="${!#lists.isEmpty(movimientos)}">
-                            <div class="itam-timeline-item" th:each="m : ${movimientos}">
-                                <div class="itam-timeline-icon"><i class="feather-activity"></i></div>
-                                <div class="itam-timeline-card">
-                                    <p class="itam-item-title" th:text="${m.tipoMovimiento}">Movimiento</p>
-                                    <p class="itam-item-meta" th:text="${(m.equipoCodigo ?: m.consumibleNombre ?: 'Item') + ' · ' + (m.custodioNombre ?: m.bodegaDestinoNombre ?: m.bodegaOrigenNombre ?: 'Sin responsable')}">Detalle</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="itam-empty" th:if="${#lists.isEmpty(movimientos)}">Todavia no hay movimientos registrados.</div>
-                    </div>
-                </section>
-
+                    </section>
+                </aside>
             </div>
         </div>
     </div>

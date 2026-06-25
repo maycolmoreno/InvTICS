@@ -1,5 +1,6 @@
 package com.uisrael.gestionactivosapi.presentacion.dto.response.inventario;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.TipoMovimientoInventario;
@@ -22,6 +23,10 @@ public class MovimientoInventarioResponseDTO {
     private String estadoAnterior;
     private String estadoNuevo;
     private String observacion;
+    private String condicion;
+    private String realizadoPor;
+    private String motivo;
+    private LocalDate fechaEfectiva;
 
     public Integer getIdMovimientoInventario() { return idMovimientoInventario; }
     public void setIdMovimientoInventario(Integer idMovimientoInventario) { this.idMovimientoInventario = idMovimientoInventario; }
@@ -57,4 +62,12 @@ public class MovimientoInventarioResponseDTO {
     public void setEstadoNuevo(String estadoNuevo) { this.estadoNuevo = estadoNuevo; }
     public String getObservacion() { return observacion; }
     public void setObservacion(String observacion) { this.observacion = observacion; }
+    public String getCondicion() { return condicion; }
+    public void setCondicion(String condicion) { this.condicion = condicion; }
+    public String getRealizadoPor() { return realizadoPor; }
+    public void setRealizadoPor(String realizadoPor) { this.realizadoPor = realizadoPor; }
+    public String getMotivo() { return motivo; }
+    public void setMotivo(String motivo) { this.motivo = motivo; }
+    public LocalDate getFechaEfectiva() { return fechaEfectiva; }
+    public void setFechaEfectiva(LocalDate fechaEfectiva) { this.fechaEfectiva = fechaEfectiva; }
 }

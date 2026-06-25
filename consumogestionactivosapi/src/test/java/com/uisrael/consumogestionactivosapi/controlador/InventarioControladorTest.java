@@ -1,8 +1,11 @@
 package com.uisrael.consumogestionactivosapi.controlador;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -18,13 +21,22 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.uisrael.consumogestionactivosapi.exception.GlobalExceptionHandler;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ActivoInventarioResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.BodegaResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ConsumibleResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.OrdenCompraResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.RecepcionLoteResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.StockConsumibleResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
 import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
+import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
+
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class InventarioControladorTest {
@@ -34,6 +46,7 @@ class InventarioControladorTest {
     @Mock private IInventarioOperacionServicio inventarioOperacionServicio;
     @Mock private IMarcasServicio marcasServicio;
     @Mock private ICategoriaEquiposServicio categoriaEquiposServicio;
+    @Mock private SesionUsuario sesionUsuario;
 
     private MockMvc mockMvc;
 
@@ -44,11 +57,103 @@ class InventarioControladorTest {
                 custodiosServicio,
                 inventarioOperacionServicio,
                 marcasServicio,
-                categoriaEquiposServicio);
+                categoriaEquiposServicio,
+                sesionUsuario);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controlador)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
+    }
+
+    @Nested
+    class Asignaciones {
+
+        @Test
+        void lote_envia_activo_y_consumible_con_bodega_de_stock() throws Exception {
+            ActivoInventarioResponseDTO activo = new ActivoInventarioResponseDTO();
+            activo.setCodigoCresio("CR-LAP-001");
+            when(inventarioOperacionServicio.asignarActivosLote(any())).thenReturn(List.of(activo));
+            when(inventarioOperacionServicio.asignarConsumible(any())).thenReturn(new StockConsumibleResponseDTO());
+
+            mockMvc.perform(post("/inventario/asignaciones/lote")
+                            .param("custodioId", "7")
+                            .param("equipoIds", "11")
+                            .param("consumibleStockKeys", "3_5")
+                            .param("cantidad_3_5", "2")
+                            .param("condicionEntrega", "BUENO")
+                            .param("fechaInicio", "2026-06-24")
+                            .param("realizadoPor", "admin"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/inventario/asignaciones"))
+                    .andExpect(flash().attributeExists("success"));
+
+            verify(inventarioOperacionServicio).asignarActivosLote(argThat(req ->
+                    req.getEquipoIds().equals(List.of(11)) && req.getCustodioId().equals(7)));
+            verify(inventarioOperacionServicio).asignarConsumible(argThat(req ->
+                    req.getConsumibleId().equals(3)
+                            && req.getBodegaId().equals(5)
+                            && req.getCantidad().equals(2)
+                            && req.getCustodioId().equals(7)));
+        }
+
+        @Test
+        void lote_sin_items_redirige_con_error_claro() throws Exception {
+            mockMvc.perform(post("/inventario/asignaciones/lote")
+                            .param("custodioId", "7")
+                            .param("condicionEntrega", "BUENO")
+                            .param("fechaInicio", "2026-06-24"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/inventario/asignaciones"))
+                    .andExpect(flash().attributeExists("error"));
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        void vista_oculta_activos_con_custodia_y_consumibles_inactivos() throws Exception {
+            ActivoInventarioResponseDTO libre = new ActivoInventarioResponseDTO();
+            libre.setIdEquipo(11);
+            libre.setEtiquetado(true);
+            ActivoInventarioResponseDTO conCustodia = new ActivoInventarioResponseDTO();
+            conCustodia.setIdEquipo(22);
+            conCustodia.setEtiquetado(true);
+            when(inventarioOperacionServicio.listarActivosEnBodega()).thenReturn(List.of(libre, conCustodia));
+
+            EquiposResponseDTO equipo = new EquiposResponseDTO();
+            equipo.setIdEquipo(22);
+            CustodiasResponseDTO custodia = new CustodiasResponseDTO();
+            custodia.setEstado(true);
+            custodia.setFkEquipo(equipo);
+            when(servicioCustodias.listarCustodias()).thenReturn(List.of(custodia));
+
+            ConsumibleResponseDTO activo = new ConsumibleResponseDTO();
+            activo.setIdConsumible(3);
+            activo.setEstado(true);
+            ConsumibleResponseDTO inactivo = new ConsumibleResponseDTO();
+            inactivo.setIdConsumible(4);
+            inactivo.setEstado(false);
+            when(inventarioOperacionServicio.listarConsumibles()).thenReturn(List.of(activo, inactivo));
+
+            BodegaResponseDTO bodega = new BodegaResponseDTO();
+            bodega.setIdBodega(5);
+            bodega.setEstado(true);
+            when(inventarioOperacionServicio.listarBodegas()).thenReturn(List.of(bodega));
+
+            StockConsumibleResponseDTO stockActivo = new StockConsumibleResponseDTO();
+            stockActivo.setConsumibleId(3);
+            StockConsumibleResponseDTO stockInactivo = new StockConsumibleResponseDTO();
+            stockInactivo.setConsumibleId(4);
+            when(inventarioOperacionServicio.listarStockPorBodega(5)).thenReturn(List.of(stockActivo, stockInactivo));
+
+            var result = mockMvc.perform(get("/inventario/asignaciones"))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            List<ActivoInventarioResponseDTO> activos = (List<ActivoInventarioResponseDTO>) result.getModelAndView().getModel().get("activosEnBodega");
+            List<StockConsumibleResponseDTO> stock = (List<StockConsumibleResponseDTO>) result.getModelAndView().getModel().get("stockConsumibles");
+
+            org.junit.jupiter.api.Assertions.assertEquals(List.of(11), activos.stream().map(ActivoInventarioResponseDTO::getIdEquipo).toList());
+            org.junit.jupiter.api.Assertions.assertEquals(List.of(3), stock.stream().map(StockConsumibleResponseDTO::getConsumibleId).toList());
+        }
     }
 
     @Nested

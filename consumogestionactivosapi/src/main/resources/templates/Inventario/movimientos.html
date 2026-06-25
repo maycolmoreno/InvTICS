@@ -33,17 +33,39 @@
                     <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
                 </div>
 
-                <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar por codigo, consumible, custodio, bodega o tipo...', exportHref=null)}"></div>
-
-                <div class="cui-grid-filters">
-                    <select class="form-select" data-cui-grid-filter data-filter-key="tipo" data-cui-filter-persist>
-                        <option value="">Todos los tipos</option>
-                        <option value="INGRESO_ACTIVO">Ingreso activo</option>
-                        <option value="ASIGNACION">Asignacion</option>
-                        <option value="TRASLADO">Traslado</option>
-                        <option value="BAJA">Baja</option>
-                    </select>
-                </div>
+                <form th:action="@{/inventario/movimientos}" method="get"
+                      class="cui-grid-filters d-flex flex-wrap gap-2 align-items-end">
+                    <div>
+                        <label class="form-label small text-muted mb-1">Tipo</label>
+                        <select class="form-select" name="tipo" style="width:170px">
+                            <option value="">Todos los tipos</option>
+                            <option value="INGRESO_ACTIVO" th:selected="${filtroTipo == 'INGRESO_ACTIVO'}">Ingreso activo</option>
+                            <option value="ASIGNACION"     th:selected="${filtroTipo == 'ASIGNACION'}">Asignacion</option>
+                            <option value="TRASLADO"       th:selected="${filtroTipo == 'TRASLADO'}">Traslado</option>
+                            <option value="REPARACION"     th:selected="${filtroTipo == 'REPARACION'}">Reparacion</option>
+                            <option value="BAJA"           th:selected="${filtroTipo == 'BAJA'}">Baja</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label small text-muted mb-1">Desde</label>
+                        <input type="date" name="fechaDesde" class="form-control" style="width:150px"
+                               th:value="${filtroFechaDesde}">
+                    </div>
+                    <div>
+                        <label class="form-label small text-muted mb-1">Hasta</label>
+                        <input type="date" name="fechaHasta" class="form-control" style="width:150px"
+                               th:value="${filtroFechaHasta}">
+                    </div>
+                    <div>
+                        <label class="form-label small text-muted mb-1">Código activo</label>
+                        <input type="text" name="equipoCodigo" class="form-control" style="width:160px"
+                               th:value="${filtroEquipoCodigo}" placeholder="CR-LAP-0001">
+                    </div>
+                    <div class="d-flex gap-1 align-self-end">
+                        <button type="submit" class="cui-btn cui-btn-secondary">Filtrar</button>
+                        <a th:href="@{/inventario/movimientos}" class="cui-btn cui-btn-secondary">Limpiar</a>
+                    </div>
+                </form>
 
                 <div class="cui-data-grid-body">
                     <div class="table-responsive">
@@ -104,6 +126,29 @@
                     <div hidden data-cui-empty-state>
                         <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay movimientos que coincidan con los filtros aplicados.')}"></div>
                     </div>
+
+                    <!-- Paginación server-side -->
+                    <div th:if="${pagina != null and pagina.totalPages > 1}"
+                         class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
+                        <span class="text-muted small">
+                            <strong th:text="${pagina.totalElements}">0</strong> movimientos en total
+                        </span>
+                        <div class="d-flex gap-1">
+                            <a th:if="${!pagina.first}"
+                               th:href="@{/inventario/movimientos(page=${pagina.number - 1},size=${pagina.size},tipo=${filtroTipo},fechaDesde=${filtroFechaDesde},fechaHasta=${filtroFechaHasta},equipoCodigo=${filtroEquipoCodigo})}"
+                               class="cui-btn cui-btn-secondary btn-sm">← Anterior</a>
+                            <span class="cui-btn cui-btn-secondary btn-sm disabled"
+                                  th:text="${'Pág. ' + (pagina.number + 1) + ' / ' + pagina.totalPages}">Pág. 1 / 1</span>
+                            <a th:if="${!pagina.last}"
+                               th:href="@{/inventario/movimientos(page=${pagina.number + 1},size=${pagina.size},tipo=${filtroTipo},fechaDesde=${filtroFechaDesde},fechaHasta=${filtroFechaHasta},equipoCodigo=${filtroEquipoCodigo})}"
+                               class="cui-btn cui-btn-secondary btn-sm">Siguiente →</a>
+                        </div>
+                    </div>
+                    <div th:if="${pagina != null and pagina.totalPages <= 1}"
+                         class="px-3 py-2 border-top">
+                        <span class="text-muted small"
+                              th:text="${pagina.totalElements + ' movimiento(s) encontrado(s)'}">0 movimientos</span>
+                    </div>
                 </div>
             </section>
 
@@ -112,19 +157,18 @@
                     <h2 class="cui-form-panel-title">Timeline reciente</h2>
                     <span class="cui-badge cui-badge-en-bodega">Lectura rapida</span>
                 </div>
-                <div class="cui-timeline" th:if="${movimientos != null and !#lists.isEmpty(movimientos)}">
-                    <article class="cui-timeline-item" th:each="m, stat : ${movimientos}" th:if="${stat.index < 8}">
+                <div class="cui-timeline" th:if="${movimientosRecientes != null and !#lists.isEmpty(movimientosRecientes)}">
+                    <article class="cui-timeline-item" th:each="m : ${movimientosRecientes}">
                         <span class="cui-timeline-marker"
                               th:classappend="${m.tipoMovimiento == 'BAJA'} ? ' is-danger' : (${m.tipoMovimiento == 'TRASLADO'} ? ' is-warning' : ' is-success')"></span>
                         <div class="cui-row-stack">
                             <span class="cui-row-title" th:text="${m.tipoMovimiento}">Movimiento</span>
                             <span class="cui-row-subtitle" th:text="${m.equipoCodigo ?: (m.consumibleNombre ?: 'Inventario')}">Referencia</span>
-                            <span class="cui-row-subtitle" th:if="${m.observacion != null}" th:text="${m.observacion}">Observacion</span>
                         </div>
                         <span class="cui-row-subtitle" th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM HH:mm') : '-'}">Fecha</span>
                     </article>
                 </div>
-                <div th:if="${movimientos == null or #lists.isEmpty(movimientos)}"
+                <div th:if="${movimientosRecientes == null or #lists.isEmpty(movimientosRecientes)}"
                      th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin actividad', message='No hay actividad reciente para mostrar.')}"></div>
             </section>
         </div>

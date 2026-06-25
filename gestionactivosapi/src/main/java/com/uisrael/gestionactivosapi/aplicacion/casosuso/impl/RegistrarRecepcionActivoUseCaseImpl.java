@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.comandos.RegistrarRecepcionActivoCommand;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IRegistrarRecepcionActivoUseCase;
+import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoInventarioActivo;
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoRecepcionLote;
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.TipoItemInventario;
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.TipoMovimientoInventario;
@@ -131,7 +132,7 @@ public class RegistrarRecepcionActivoUseCaseImpl implements IRegistrarRecepcionA
         equipo.setSerial(command.getSerial());
         equipo.setCondicionAlRecibir(command.getCondicionAlRecibir());
         equipo.setEstadoEquipo("NUEVO");
-        equipo.setEstadoInventario("EN_BODEGA");
+        equipo.setEstadoInventario(EstadoInventarioActivo.EN_BODEGA.name());
         equipo.setEstado(true);
         equipo.setBodegaActual(bodega);
         equipo.setOrdenCompra(oc);
@@ -159,8 +160,11 @@ public class RegistrarRecepcionActivoUseCaseImpl implements IRegistrarRecepcionA
         movimiento.setBodegaDestino(bodega);
         movimiento.setOrdenCompra(oc);
         movimiento.setRecepcionLote(loteGuardado);
-        movimiento.setEstadoNuevo("EN_BODEGA");
+        movimiento.setEstadoNuevo(EstadoInventarioActivo.EN_BODEGA.name());
         movimiento.setObservacion(command.getObservacion());
+        movimiento.setCondicion(command.getCondicionAlRecibir());
+        movimiento.setRealizadoPor(command.getRecepcionadoPor());
+        movimiento.setFechaEfectiva(ahora.toLocalDate());
         movimientoRepo.save(movimiento);
 
         // 8. Actualizar cantidadRecibida del detalle

@@ -1,8 +1,0 @@
-target/
-bin/
-.git/
-.idea/
-*.iml
-uploads/
-*.log
-.env

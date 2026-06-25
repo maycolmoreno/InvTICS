@@ -200,7 +200,7 @@ Una de las características más valiosas del sistema es su **capacidad de traba
 │                 ⚙️ API Backend (Java 17)                        │
 │          Spring Boot + Spring Security + JWT                    │
 │          Arquitectura Hexagonal (Clean Architecture)            │
-│          Puerto: 8083                                           │
+│          Puerto: 8084                                           │
 ├─────────────────────────────────────────────────────────────────┤
 │  🗄️ PostgreSQL  │  📧 SMTP Gmail  │  🔥 Firebase FCM  │  📁 FS │
 │  Base de datos   │  Envío correos  │  Push notif.       │ PDFs   │
@@ -219,7 +219,6 @@ Una de las características más valiosas del sistema es su **capacidad de traba
 | Reportes PDF | OpenPDF | 1.3.39 |
 | Reportes Excel | Apache POI | 5.2.5 |
 | Push Notifications | Firebase Cloud Messaging | - |
-| Contenedores | Docker + Docker Compose | - |
 
 ---
 
@@ -284,17 +283,16 @@ Una de las características más valiosas del sistema es su **capacidad de traba
 
 | Componente | Requerimiento |
 |---|---|
-| **Servidor API** | Java 17, 2GB RAM mínimo, Docker disponible |
+| **Servidor API** | Java 17, 2GB RAM mínimo |
 | **Base de datos** | PostgreSQL 15+, 10GB disco inicial |
 | **Servidor Web** | Java 17, 1GB RAM mínimo |
-| **Red** | Puertos 8081 (web) y 8083 (API) accesibles |
+| **Red** | Puertos 8081 (web) y 8084 (API) accesibles |
 | **Email** | Cuenta SMTP Gmail con contraseña de aplicación |
 | **Firebase** | Proyecto FCM configurado para push notifications |
 | **Dispositivos** | Android 6.0+ con GPS y cámara |
 
 ### Despliegue
 
-- **Docker Compose** incluido para orquestación de contenedores
 - **Flyway** gestiona migraciones automáticas de base de datos en producción
 - **Perfiles de configuración**: `dev` y `prod` separados
 - **Variables de entorno** para credenciales sensibles (DB, SMTP, Firebase)
@@ -325,7 +323,7 @@ Una de las características más valiosas del sistema es su **capacidad de traba
 5. ✅ **Supervisión y métricas** en tiempo real para la toma de decisiones
 6. ✅ **Seguridad y auditoría** con roles, permisos y trazabilidad completa
 
-El sistema está listo técnicamente para producción, con arquitectura robusta (Clean Architecture), base de datos con migraciones versionadas, contenedorización Docker y separación clara de perfiles dev/prod.
+El sistema está listo técnicamente para producción, con arquitectura robusta (Clean Architecture), base de datos PostgreSQL local/servidor con migraciones versionadas y separación clara de perfiles dev/prod.
 
 ---
 

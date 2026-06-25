@@ -8,16 +8,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AsignacionConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BajaActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.OrdenCompraRequestDTO;
-import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RecepcionActivoRequestDTO;
-import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RecepcionConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoConsumibleRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.BodegaResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ConsumibleResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.ICategoriaEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio;
@@ -38,7 +39,10 @@ public class InventarioExperienciaControlador {
     @GetMapping("/compras")
     public String compras(Model model) {
         model.addAttribute("ordenesCompra", safeList(inventarioOperacionServicio.listarOrdenesCompra()));
-        model.addAttribute("bodegas", safeList(inventarioOperacionServicio.listarBodegas()));
+        model.addAttribute("bodegas", bodegasActivas());
+        model.addAttribute("consumibles", safeList(inventarioOperacionServicio.listarConsumibles()).stream()
+                .filter(ConsumibleResponseDTO::isEstado)
+                .toList());
         model.addAttribute("ordenCompraRequest", new OrdenCompraRequestDTO());
         return "Inventario/compras";
     }
@@ -48,7 +52,7 @@ public class InventarioExperienciaControlador {
         var oc = inventarioOperacionServicio.obtenerOrdenCompra(id);
         model.addAttribute("oc", oc);
         model.addAttribute("recepciones", safeList(inventarioOperacionServicio.listarRecepciones(id)));
-        model.addAttribute("bodegas", safeList(inventarioOperacionServicio.listarBodegas()));
+        model.addAttribute("bodegas", bodegasActivas());
         model.addAttribute("marcas", marcasServicio.listarMarca());
         model.addAttribute("categorias", categoriaEquiposServicio.listarCategoriaEquipo());
         model.addAttribute("recepcionStockRequest", new RegistrarRecepcionStockRequestDTO());
@@ -57,20 +61,13 @@ public class InventarioExperienciaControlador {
     }
 
     @GetMapping("/recepcion")
-    public String recepcion(Model model) {
-        model.addAttribute("ordenesCompra", safeList(inventarioOperacionServicio.listarOrdenesCompra()));
-        model.addAttribute("bodegas", safeList(inventarioOperacionServicio.listarBodegas()));
-        model.addAttribute("consumibles", safeList(inventarioOperacionServicio.listarConsumibles()));
-        model.addAttribute("marcas", marcasServicio.listarMarca());
-        model.addAttribute("categorias", categoriaEquiposServicio.listarCategoriaEquipo());
-        model.addAttribute("recepcionActivoRequest", new RecepcionActivoRequestDTO());
-        model.addAttribute("recepcionConsumibleRequest", new RecepcionConsumibleRequestDTO());
-        return "Inventario/recepcion";
+    public String recepcion() {
+        return "redirect:/inventario/compras";
     }
 
     @GetMapping("/stock")
     public String stock(Model model) {
-        var bodegas = safeList(inventarioOperacionServicio.listarBodegas());
+        var bodegas = bodegasActivas();
         Integer bodegaSeleccionadaId = bodegas.isEmpty() ? null : bodegas.get(0).getIdBodega();
         model.addAttribute("bodegas", bodegas);
         model.addAttribute("stock", bodegaSeleccionadaId == null
@@ -84,18 +81,41 @@ public class InventarioExperienciaControlador {
     }
 
     @GetMapping("/movimientos")
-    public String movimientos(Model model) {
-        model.addAttribute("movimientos", safeList(inventarioOperacionServicio.listarMovimientosRecientes()));
-        model.addAttribute("bodegas", safeList(inventarioOperacionServicio.listarBodegas()));
+    public String movimientos(
+            @RequestParam(defaultValue = "0")  Integer page,
+            @RequestParam(defaultValue = "50") Integer size,
+            @RequestParam(required = false) String tipo,
+            @RequestParam(required = false) String fechaDesde,
+            @RequestParam(required = false) String fechaHasta,
+            @RequestParam(required = false) String equipoCodigo,
+            Model model) {
+        try {
+            var pagina = inventarioOperacionServicio.buscarMovimientos(page, size, tipo, fechaDesde, fechaHasta, equipoCodigo);
+            model.addAttribute("pagina", pagina);
+            model.addAttribute("movimientos", pagina.getContent() != null ? pagina.getContent() : List.of());
+            model.addAttribute("movimientosRecientes", pagina.getContent() != null
+                    ? pagina.getContent().stream().limit(10).toList() : List.of());
+        } catch (Exception ex) {
+            model.addAttribute("pagina", null);
+            model.addAttribute("movimientos", List.of());
+            model.addAttribute("movimientosRecientes", List.of());
+            model.addAttribute("error", "No se pudieron cargar los movimientos.");
+        }
+        model.addAttribute("filtroTipo", tipo);
+        model.addAttribute("filtroFechaDesde", fechaDesde);
+        model.addAttribute("filtroFechaHasta", fechaHasta);
+        model.addAttribute("filtroEquipoCodigo", equipoCodigo);
+        model.addAttribute("bodegas", bodegasActivas());
         return "Inventario/movimientos";
     }
 
     @GetMapping("/traslados")
     public String traslados(Model model) {
-        var bodegas = safeList(inventarioOperacionServicio.listarBodegas());
+        var bodegas = bodegasActivas();
         Integer bodegaSeleccionadaId = bodegas.isEmpty() ? null : bodegas.get(0).getIdBodega();
         model.addAttribute("bodegas", bodegas);
         model.addAttribute("activosEnBodega", safeList(inventarioOperacionServicio.listarActivosEnBodega()));
+        model.addAttribute("activosEnTransito", safeList(inventarioOperacionServicio.listarActivosEnTransito()));
         model.addAttribute("stock", bodegaSeleccionadaId == null
                 ? List.of()
                 : safeList(inventarioOperacionServicio.listarStockPorBodega(bodegaSeleccionadaId)));
@@ -117,5 +137,11 @@ public class InventarioExperienciaControlador {
 
     private <T> List<T> safeList(List<T> value) {
         return value == null ? new ArrayList<>() : value;
+    }
+
+    private List<BodegaResponseDTO> bodegasActivas() {
+        return safeList(inventarioOperacionServicio.listarBodegas()).stream()
+                .filter(BodegaResponseDTO::isEstado)
+                .toList();
     }
 }

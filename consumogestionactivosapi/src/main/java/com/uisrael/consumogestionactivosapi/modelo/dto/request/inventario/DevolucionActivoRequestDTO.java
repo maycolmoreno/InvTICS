@@ -8,6 +8,9 @@ public class DevolucionActivoRequestDTO {
     private LocalDate fechaDevolucion;
     private String estadoInventarioDestino;
     private String observacion;
+    private String estadoFisicoRetorno;
+    private String motivo;
+    private String realizadoPor;
 
     public Integer getEquipoId() { return equipoId; }
     public void setEquipoId(Integer equipoId) { this.equipoId = equipoId; }
@@ -19,4 +22,10 @@ public class DevolucionActivoRequestDTO {
     public void setEstadoInventarioDestino(String estadoInventarioDestino) { this.estadoInventarioDestino = estadoInventarioDestino; }
     public String getObservacion() { return observacion; }
     public void setObservacion(String observacion) { this.observacion = observacion; }
+    public String getEstadoFisicoRetorno() { return estadoFisicoRetorno; }
+    public void setEstadoFisicoRetorno(String estadoFisicoRetorno) { this.estadoFisicoRetorno = estadoFisicoRetorno; }
+    public String getMotivo() { return motivo; }
+    public void setMotivo(String motivo) { this.motivo = motivo; }
+    public String getRealizadoPor() { return realizadoPor; }
+    public void setRealizadoPor(String realizadoPor) { this.realizadoPor = realizadoPor; }
 }

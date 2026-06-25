@@ -21,26 +21,74 @@
                     <span>Movimientos</span>
                 </a>
             </div>
-            <button type="button" class="cui-btn cui-btn-primary" data-cui-drawer-open="#drawerNuevoTraslado">
-                <i class="feather-plus" aria-hidden="true"></i>
-                <span>Nuevo traslado</span>
-            </button>
         </div>
 
         <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
         <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
 
-        <div class="cui-summary-strip">
-            <div class="cui-summary-item">
-                <span class="cui-summary-label">Activos en bodega</span>
-                <strong class="cui-summary-value" th:text="${#lists.size(activosEnBodega)}">0</strong>
+        <!-- Tabla: Activos en tránsito -->
+        <section class="cui-data-grid mb-4" id="activosTransitoGrid" data-cui-grid
+                 th:if="${activosEnTransito != null and not #lists.isEmpty(activosEnTransito)}">
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Pendientes de confirmacion</p>
+                    <h2>Activos en transito <span class="cui-badge cui-badge-warning" th:text="${#lists.size(activosEnTransito)}">0</span></h2>
+                </div>
+                <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
             </div>
-            <span class="cui-summary-sep" aria-hidden="true">·</span>
-            <div class="cui-summary-item">
-                <span class="cui-summary-label">Items de stock</span>
-                <strong class="cui-summary-value" th:text="${#lists.size(stock)}">0</strong>
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Modelo</th>
+                            <th>Bodega origen</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="a : ${activosEnTransito}"
+                            data-cui-grid-row
+                            th:attr="data-equipo-id=${a.idEquipo},
+                                     data-equipo-label=${(a.codigoCresio ?: 'Sin codigo') + ' · ' + (a.modelo ?: 'Sin modelo')},
+                                     data-bodega-destino-id=${a.bodegaDestinoId ?: ''},
+                                     data-bodega-destino-nombre=${a.bodegaDestinoNombre ?: ''},
+                                     data-despachador=${a.despachadorNombre ?: ''}">
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${a.codigoCresio ?: 'Sin codigo'}">CR-LAP-0001</span>
+                                    <span class="cui-row-subtitle"
+                                          th:text="${a.bodegaDestinoNombre != null ? ('→ ' + a.bodegaDestinoNombre) : ('ID ' + a.idEquipo)}">Destino</span>
+                                </div>
+                            </td>
+                            <td th:text="${a.modelo ?: 'Sin modelo'}">Modelo</td>
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span th:text="${a.bodegaNombre ?: 'Sin bodega'}">Bodega</span>
+                                    <span class="cui-row-subtitle" th:if="${a.despachadorNombre != null}"
+                                          th:text="${'Despachado por: ' + a.despachadorNombre}">Despachador</span>
+                                </div>
+                            </td>
+                            <td><span class="cui-badge cui-badge-warning">En transito</span></td>
+                            <td>
+                                <div class="cui-action-cell">
+                                    <button type="button"
+                                            class="btn btn-outline-success btn-sm"
+                                            data-action="confirmar-llegada"
+                                            data-cui-drawer-open="#drawerConfirmarLlegada">
+                                        <i class="feather-check-circle" aria-hidden="true"></i>
+                                        Confirmar llegada
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        </section>
 
         <!-- Tabla: Activos en bodega -->
         <section class="cui-data-grid" id="activosBodegaGrid" data-cui-grid>
@@ -92,7 +140,7 @@
                                 <div class="cui-action-cell">
                                     <button type="button"
                                             class="btn btn-outline-primary btn-sm"
-                                            onclick="trasladoAbrirActivo(this)"
+                                            data-action="trasladar-activo"
                                             data-cui-drawer-open="#drawerTrasladarActivo">
                                         <i class="feather-truck" aria-hidden="true"></i>
                                         Trasladar
@@ -161,117 +209,51 @@
             </div>
         </aside>
 
-        <!-- Drawer: Nuevo traslado (global) -->
-        <aside class="cui-drawer" id="drawerNuevoTraslado" aria-hidden="true" aria-label="Nuevo traslado">
+        <!-- Drawer: Confirmar llegada de activo en tránsito -->
+        <aside class="cui-drawer" id="drawerConfirmarLlegada" aria-hidden="true" aria-label="Confirmar llegada">
             <div class="cui-drawer-header">
                 <div>
-                    <div class="fw-bold">Nuevo traslado</div>
-                    <div class="small text-muted">Seleccione el tipo de traslado</div>
+                    <div class="fw-bold">Confirmar llegada</div>
+                    <div class="small text-muted">El activo ha llegado a la bodega destino</div>
                 </div>
                 <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
                     <i class="feather-x"></i>
                 </button>
             </div>
             <div class="cui-drawer-body">
-                <!-- Selector de tipo -->
-                <div class="mb-4">
-                    <div class="btn-group w-100" role="group" aria-label="Tipo de traslado">
-                        <input type="radio" class="btn-check" name="tipoTraslado" id="tipoActivo" value="ACTIVO" checked>
-                        <label class="btn btn-outline-primary" for="tipoActivo">
-                            <i class="feather-monitor" aria-hidden="true"></i>
-                            Activo TIC
-                        </label>
-                        <input type="radio" class="btn-check" name="tipoTraslado" id="tipoStock" value="STOCK">
-                        <label class="btn btn-outline-primary" for="tipoStock">
-                            <i class="feather-package" aria-hidden="true"></i>
-                            Consumible
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Formulario traslado de activo -->
-                <form id="formNuevoTrasladoActivo"
-                      th:action="@{/inventario/traslados/activos}" method="post" class="row g-3">
+                <form th:action="@{/inventario/traslados/activos/confirmar}" method="post" class="row g-3">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <div class="col-12">
-                        <label class="form-label">Activo en bodega <span class="text-danger">*</span></label>
-                        <select class="form-select" name="equipoId" required>
-                            <option value="">Seleccione activo</option>
-                            <option th:each="a : ${activosEnBodega}"
-                                    th:value="${a.idEquipo}"
-                                    th:text="${(a.codigoCresio ?: 'Sin codigo') + ' — ' + (a.modelo ?: 'Sin modelo') + ' / ' + (a.bodegaNombre ?: '')}">
-                                Activo
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Bodega destino <span class="text-danger">*</span></label>
-                        <select class="form-select" name="bodegaDestinoId" required>
-                            <option value="">Seleccione bodega</option>
-                            <option th:each="b : ${bodegas}"
-                                    th:value="${b.idBodega}"
-                                    th:text="${b.nombre}">Bodega</option>
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Observacion</label>
-                        <textarea class="form-control" name="observacion" rows="3"></textarea>
-                    </div>
-                    <div class="col-12 d-flex justify-content-end gap-2">
-                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
-                        <button class="cui-btn cui-btn-primary" type="submit">
-                            <i class="feather-truck" aria-hidden="true"></i>
-                            <span>Trasladar activo</span>
-                        </button>
-                    </div>
-                </form>
+                    <input type="hidden" name="equipoId" id="cl-equipo-id">
 
-                <!-- Formulario traslado de consumible -->
-                <form id="formNuevoTrasladoStock" hidden
-                      th:action="@{/inventario/traslados/consumibles}" method="post" class="row g-3">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <div class="col-12">
-                        <label class="form-label">Consumible <span class="text-danger">*</span></label>
-                        <select class="form-select" name="consumibleId" required>
-                            <option value="">Seleccione consumible</option>
-                            <option th:each="s : ${stock}"
-                                    th:value="${s.consumibleId}"
-                                    th:text="${s.consumibleNombre + ' (' + (s.cantidad ?: 0) + ' disp.)'}">
-                                Consumible
-                            </option>
-                        </select>
+                        <label class="form-label text-muted small">Equipo</label>
+                        <div class="form-control bg-light fw-semibold" id="cl-equipo-label">—</div>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Bodega origen <span class="text-danger">*</span></label>
-                        <select class="form-select" name="bodegaOrigenId" required>
-                            <option value="">Seleccione bodega origen</option>
-                            <option th:each="b : ${bodegas}"
-                                    th:value="${b.idBodega}"
-                                    th:text="${b.nombre}">Bodega</option>
-                        </select>
+                        <label class="form-label text-muted small">Bodega destino</label>
+                        <input type="hidden" name="bodegaDestinoId" id="cl-bodega-destino-id">
+                        <div id="cl-bodega-destino-display" class="form-control bg-light fw-semibold">—</div>
+                        <div id="cl-bodega-destino-select-wrap" hidden>
+                            <label class="form-label mt-2">Seleccionar bodega de llegada <span class="text-danger">*</span></label>
+                            <select class="form-select" id="cl-bodega-destino-select">
+                                <option value="">Seleccione bodega destino</option>
+                                <option th:each="b : ${bodegas}"
+                                        th:value="${b.idBodega}"
+                                        th:text="${b.nombre}">Bodega</option>
+                            </select>
+                            <div class="form-text text-warning">La bodega destino no vino registrada en el traslado. Seleccione manualmente.</div>
+                        </div>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Bodega destino <span class="text-danger">*</span></label>
-                        <select class="form-select" name="bodegaDestinoId" required>
-                            <option value="">Seleccione bodega destino</option>
-                            <option th:each="b : ${bodegas}"
-                                    th:value="${b.idBodega}"
-                                    th:text="${b.nombre}">Bodega</option>
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Cantidad <span class="text-danger">*</span></label>
-                        <input class="form-control" type="number" name="cantidad" min="1" value="1" required>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Observacion</label>
+                        <label class="form-label">Observacion de llegada</label>
                         <textarea class="form-control" name="observacion" rows="2"></textarea>
                     </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
-                        <button class="cui-btn cui-btn-primary" type="submit">
-                            <i class="feather-send" aria-hidden="true"></i>
-                            <span>Trasladar consumible</span>
+                        <button class="cui-btn cui-btn-primary" type="submit"
+                                data-cui-confirm="Confirma que el activo ha llegado a la bodega destino?">
+                            <i class="feather-check-circle" aria-hidden="true"></i>
+                            <span>Confirmar llegada</span>
                         </button>
                     </div>
                 </form>
@@ -280,35 +262,59 @@
 
         <script>
         (function () {
-            window.trasladoAbrirActivo = function (btn) {
+            function set(id, valor, esInput) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                if (esInput) { el.value = valor; } else { el.textContent = valor || '—'; }
+            }
+
+            // Sincronizar select de fallback con el hidden input de bodegaDestinoId
+            var selFallback = document.getElementById('cl-bodega-destino-select');
+            if (selFallback) {
+                selFallback.addEventListener('change', function () {
+                    var hid = document.getElementById('cl-bodega-destino-id');
+                    if (hid) hid.value = selFallback.value;
+                });
+            }
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('[data-action]');
+                if (!btn) return;
                 var row = btn.closest('tr');
-                var idEl    = document.getElementById('ta-equipo-id');
-                var labelEl = document.getElementById('ta-equipo-label');
-                var bodegaEl = document.getElementById('ta-bodega-nombre');
-                if (idEl)     idEl.value           = row.dataset.equipoId    || '';
-                if (labelEl)  labelEl.textContent   = row.dataset.equipoLabel || '—';
-                if (bodegaEl) bodegaEl.textContent  = row.dataset.bodegaNombre || '—';
-            };
+                if (!row) return;
+                var d = row.dataset;
 
-            document.addEventListener('DOMContentLoaded', function () {
-                var radios = document.querySelectorAll('input[name="tipoTraslado"]');
-                var formActivo = document.getElementById('formNuevoTrasladoActivo');
-                var formStock  = document.getElementById('formNuevoTrasladoStock');
-
-                function actualizarFormulario() {
-                    var tipo = document.querySelector('input[name="tipoTraslado"]:checked');
-                    if (!tipo) return;
-                    if (tipo.value === 'ACTIVO') {
-                        formActivo.hidden = false;
-                        formStock.hidden  = true;
-                    } else {
-                        formActivo.hidden = true;
-                        formStock.hidden  = false;
-                    }
+                if (btn.dataset.action === 'trasladar-activo') {
+                    set('ta-equipo-id',    d.equipoId,    true);
+                    set('ta-equipo-label', d.equipoLabel);
+                    set('ta-bodega-nombre', d.bodegaNombre);
                 }
 
-                radios.forEach(function (r) { r.addEventListener('change', actualizarFormulario); });
-                actualizarFormulario();
+                if (btn.dataset.action === 'confirmar-llegada') {
+                    set('cl-equipo-id',    d.equipoId, true);
+                    set('cl-equipo-label', d.equipoLabel);
+
+                    var destId   = d.bodegaDestinoId;
+                    var destNom  = d.bodegaDestinoNombre;
+                    var hidId    = document.getElementById('cl-bodega-destino-id');
+                    var display  = document.getElementById('cl-bodega-destino-display');
+                    var selWrap  = document.getElementById('cl-bodega-destino-select-wrap');
+                    var selEl    = document.getElementById('cl-bodega-destino-select');
+
+                    if (destId && destId !== '') {
+                        hidId.value = destId;
+                        display.textContent = destNom || ('Bodega ID ' + destId);
+                        display.hidden  = false;
+                        selWrap.hidden  = true;
+                        selEl.removeAttribute('required');
+                        selEl.value = '';
+                    } else {
+                        hidId.value = '';
+                        display.hidden  = true;
+                        selWrap.hidden  = false;
+                        selEl.setAttribute('required', 'required');
+                    }
+                }
             });
         }());
         </script>

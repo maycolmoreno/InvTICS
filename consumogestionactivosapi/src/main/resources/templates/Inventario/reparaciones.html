@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Reparaciones</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Reparaciones', subtitle='Activos en proceso de reparacion tecnica. Envio y retorno con trazabilidad completa.')}"></div>
+
+        <div class="cui-command-bar">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a th:href="@{/inventario/asignaciones}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-user-check" aria-hidden="true"></i>
+                    <span>Asignaciones</span>
+                </a>
+                <a th:href="@{/inventario/movimientos}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-clock" aria-hidden="true"></i>
+                    <span>Movimientos</span>
+                </a>
+            </div>
+            <button type="button" class="cui-btn cui-btn-primary" data-cui-drawer-open="#drawerEnviarReparacion">
+                <i class="feather-tool" aria-hidden="true"></i>
+                <span>Enviar a reparacion</span>
+            </button>
+        </div>
+
+        <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
+
+        <div class="cui-summary-strip">
+            <div class="cui-summary-item">
+                <span class="cui-summary-label">En reparacion</span>
+                <strong class="cui-summary-value warning"
+                        th:text="${#lists.size(activosEnReparacion)}">0</strong>
+            </div>
+        </div>
+
+        <section class="cui-data-grid" id="reparacionesGrid" data-cui-grid>
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Taller tecnico</p>
+                    <h2>Activos en reparacion</h2>
+                </div>
+                <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+            </div>
+
+            <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar por codigo, modelo o serial...', exportHref=null)}"></div>
+
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Modelo</th>
+                            <th>Serial</th>
+                            <th>OC</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${activosEnReparacion == null or #lists.isEmpty(activosEnReparacion)}">
+                            <td colspan="5">
+                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-tool', title='Sin activos en reparacion', message='No hay activos en proceso de reparacion actualmente.')}"></div>
+                            </td>
+                        </tr>
+                        <tr th:each="activo : ${activosEnReparacion}"
+                            data-cui-grid-row
+                            th:with="busqueda=${(activo.codigoCresio ?: '') + ' ' + (activo.modelo ?: '') + ' ' + (activo.serial ?: '')}"
+                            th:attr="data-search=${#strings.toLowerCase(busqueda)},
+                                     data-equipo-id=${activo.idEquipo},
+                                     data-codigo=${activo.codigoCresio},
+                                     data-modelo=${activo.modelo},
+                                     data-serial=${activo.serial}">
+                            <td>
+                                <span class="fw-semibold" th:text="${activo.codigoCresio ?: '—'}">—</span>
+                            </td>
+                            <td th:text="${activo.modelo ?: '—'}">—</td>
+                            <td th:text="${activo.serial ?: '—'}">—</td>
+                            <td th:text="${activo.numeroOc ?: '—'}">—</td>
+                            <td class="text-end">
+                                <button type="button"
+                                        class="cui-btn cui-btn-primary btn-sm"
+                                        onclick="repAbrirDrawerRetornar(this)">
+                                    <i class="feather-corner-up-left" aria-hidden="true"></i>
+                                    Retornar
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div hidden data-cui-empty-state>
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay activos que coincidan con la busqueda.')}"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Drawer: Enviar a reparacion -->
+        <aside class="cui-drawer" id="drawerEnviarReparacion" aria-hidden="true" aria-label="Enviar a reparacion">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Enviar a reparacion</div>
+                    <div class="small text-muted">Completa los datos del servicio tecnico</div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/inventario/reparaciones/enviar}"
+                      th:object="${enviarReparacionRequest}"
+                      method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="col-12">
+                        <label class="form-label">Activo <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{equipoId}" required>
+                            <option value="">Seleccione</option>
+                            <option th:each="a : ${activosEnBodega}"
+                                    th:value="${a.idEquipo}"
+                                    th:text="${(a.codigoCresio ?: 'Sin codigo') + ' — ' + (a.modelo ?: 'Sin modelo')}">
+                            </option>
+                        </select>
+                        <div class="form-text text-muted">Solo activos EN BODEGA o ASIGNADOS.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Motivo <span class="text-danger">*</span></label>
+                        <input class="form-control" th:field="*{motivo}" placeholder="Falla reportada" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Proveedor tecnico</label>
+                        <input class="form-control" th:field="*{proveedorTecnico}" placeholder="Empresa o tecnico responsable">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Fecha de envio</label>
+                        <input class="form-control" th:field="*{fechaEnvio}" type="date"
+                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion</label>
+                        <textarea class="form-control" th:field="*{observacion}" rows="3"
+                                  placeholder="Detalles adicionales"></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <button class="cui-btn cui-btn-primary" type="submit">
+                            <i class="feather-tool" aria-hidden="true"></i>
+                            <span>Enviar a reparacion</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Drawer: Retornar de reparacion -->
+        <aside class="cui-drawer" id="drawerRetornarReparacion" aria-hidden="true" aria-label="Retornar de reparacion">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Retornar de reparacion</div>
+                    <div class="small text-muted">
+                        Activo: <strong id="rep-codigo">—</strong>
+                        &nbsp;·&nbsp;
+                        <span id="rep-modelo">—</span>
+                    </div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/inventario/reparaciones/retornar}"
+                      th:object="${retornarReparacionRequest}"
+                      method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" th:field="*{equipoId}" id="rep-equipo-id">
+                    <div class="col-12">
+                        <label class="form-label">Bodega destino <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{bodegaDestinoId}" required>
+                            <option value="">Seleccione</option>
+                            <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Estado fisico al retorno <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{condicion}" required>
+                            <option value="">Seleccione</option>
+                            <option value="NUEVO">Nuevo</option>
+                            <option value="BUENO">Bueno</option>
+                            <option value="REGULAR">Regular</option>
+                            <option value="DANADO">Danado</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Fecha de retorno</label>
+                        <input class="form-control" th:field="*{fechaRetorno}" type="date"
+                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion</label>
+                        <textarea class="form-control" th:field="*{observacion}" rows="3"
+                                  placeholder="Trabajo realizado, piezas reemplazadas, etc."></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <button class="cui-btn cui-btn-primary" type="submit">
+                            <i class="feather-corner-up-left" aria-hidden="true"></i>
+                            <span>Retornar a bodega</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+    </div>
+</div>
+<th:block layout:fragment="scripts">
+<script>
+window.repAbrirDrawerRetornar = function (btn) {
+    var row = btn.closest('tr');
+    var d = row.dataset;
+    document.getElementById('rep-equipo-id').value    = d.equipoId  || '';
+    document.getElementById('rep-codigo').textContent = d.codigo    || '—';
+    document.getElementById('rep-modelo').textContent = d.modelo    || '—';
+    if (window.CresioDrawer) {
+        window.CresioDrawer.open('#drawerRetornarReparacion');
+    }
+};
+</script>
+</th:block>
+</body>
+</html>

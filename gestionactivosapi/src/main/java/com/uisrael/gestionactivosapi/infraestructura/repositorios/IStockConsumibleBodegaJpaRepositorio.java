@@ -12,4 +12,6 @@ public interface IStockConsumibleBodegaJpaRepositorio extends JpaRepository<Stoc
             Integer idBodega, Integer idConsumible);
 
     List<StockConsumibleBodegaJpa> findByBodega_IdBodega(Integer idBodega);
+
+    List<StockConsumibleBodegaJpa> findByConsumible_IdConsumible(Integer idConsumible);
 }

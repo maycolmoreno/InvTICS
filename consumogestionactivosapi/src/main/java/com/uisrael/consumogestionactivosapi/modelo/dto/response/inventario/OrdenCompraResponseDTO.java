@@ -11,6 +11,7 @@ public class OrdenCompraResponseDTO {
     private LocalDate fechaEmision;
     private LocalDate fechaRecepcion;
     private String estado;
+    private Integer bodegaDestinoId;
     private String bodegaDestinoNombre;
     private List<OrdenCompraDetalleResponseDTO> detalles = new ArrayList<>();
 
@@ -26,6 +27,8 @@ public class OrdenCompraResponseDTO {
     public void setFechaRecepcion(LocalDate fechaRecepcion) { this.fechaRecepcion = fechaRecepcion; }
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+    public Integer getBodegaDestinoId() { return bodegaDestinoId; }
+    public void setBodegaDestinoId(Integer bodegaDestinoId) { this.bodegaDestinoId = bodegaDestinoId; }
     public String getBodegaDestinoNombre() { return bodegaDestinoNombre; }
     public void setBodegaDestinoNombre(String bodegaDestinoNombre) { this.bodegaDestinoNombre = bodegaDestinoNombre; }
     public List<OrdenCompraDetalleResponseDTO> getDetalles() { return detalles; }
