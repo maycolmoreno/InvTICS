@@ -118,17 +118,31 @@ public class MantenimientoControlador {
         List<ActividadManualRequestDTO> actividades = actividadesBase();
         List<CustodiasResponseDTO> custodiasActivas = custodiasServicio.listarCustodias().stream()
                 .filter(CustodiasResponseDTO::isEstado)
-                .filter(c -> c.getFkCustodio() != null && c.getFkEquipo() != null)
+                .filter(c -> idCustodio(c) != null && c.getFkEquipo() != null)
                 .toList();
         Map<Integer, String> custodiosPorEquipo = custodiasActivas.stream()
                 .collect(Collectors.groupingBy(
                         c -> c.getFkEquipo().getIdEquipo(),
                         LinkedHashMap::new,
-                        Collectors.mapping(c -> String.valueOf(c.getFkCustodio().getIdCustodio()),
+                        Collectors.mapping(c -> String.valueOf(idCustodio(c)),
                                 Collectors.collectingAndThen(Collectors.toList(), ids -> String.join(",", ids)))));
 
+        List<CustodiosResponseDTO> custodiosActivos = custodiosServicio.listarCustodios().stream()
+                .filter(CustodiosResponseDTO::isEstado).toList();
+        List<CustodiosResponseDTO> custodiosAdmin = custodiosActivos.stream()
+                .filter(c -> c.getFkUbicacion() == null).toList();
+        boolean custodiosAdminFallback = custodiosAdmin.isEmpty();
+        if (custodiosAdminFallback) {
+            custodiosAdmin = custodiosActivos;
+        }
+        List<CustodiosResponseDTO> custodiosFarmacia = custodiosAdminFallback
+                ? List.of()
+                : custodiosActivos.stream().filter(c -> c.getFkUbicacion() != null).toList();
+
         model.addAttribute("listaequipos", equiposServicio.listarEquipos());
-        model.addAttribute("listacustodios", custodiosServicio.listarCustodios().stream().filter(CustodiosResponseDTO::isEstado).toList());
+        model.addAttribute("custodiosAdmin", custodiosAdmin);
+        model.addAttribute("custodiosAdminFallback", custodiosAdminFallback);
+        model.addAttribute("custodiosFarmacia", custodiosFarmacia);
         model.addAttribute("listaubicaciones", ubicacionesServicio.listarUbicaciones().stream().filter(UbicacionesResponseDTO::isEstado).toList());
         model.addAttribute("actividades", actividades);
         model.addAttribute("totalActividades", actividades.size());
@@ -293,15 +307,15 @@ public class MantenimientoControlador {
         // Datos para el toggle Administrativo/Farmacia
         List<CustodiasResponseDTO> custodiasActivas = custodiasServicio.listarCustodias().stream()
                 .filter(CustodiasResponseDTO::isEstado)
-                .filter(c -> c.getFkCustodio() != null && c.getFkEquipo() != null)
+                .filter(c -> idCustodio(c) != null && c.getFkEquipo() != null)
                 .toList();
         Map<Integer, String> custodiosPorEquipo = custodiasActivas.stream()
                 .collect(Collectors.groupingBy(
                         c -> c.getFkEquipo().getIdEquipo(),
                         LinkedHashMap::new,
-                        Collectors.mapping(c -> String.valueOf(c.getFkCustodio().getIdCustodio()),
+                        Collectors.mapping(c -> String.valueOf(idCustodio(c)),
                                 Collectors.collectingAndThen(Collectors.toList(), ids -> String.join(",", ids)))));
-        model.addAttribute("listacustodios", custodiosServicio.listarCustodios().stream().filter(CustodiosResponseDTO::isEstado).toList());
+        model.addAttribute("custodiosActivos", custodiosServicio.listarCustodios().stream().filter(CustodiosResponseDTO::isEstado).toList());
         model.addAttribute("listaubicaciones", ubicacionesServicio.listarUbicaciones().stream().filter(UbicacionesResponseDTO::isEstado).toList());
         model.addAttribute("custodiosPorEquipo", custodiosPorEquipo);
 
@@ -406,6 +420,16 @@ public class MantenimientoControlador {
                 .collect(Collectors.toSet());
 
         return !equiposAsignados.isEmpty() && equiposAsignados.containsAll(equipoIds);
+    }
+
+    private Integer idCustodio(CustodiasResponseDTO custodia) {
+        if (custodia == null) {
+            return null;
+        }
+        if (custodia.getFkCustodio() != null) {
+            return custodia.getFkCustodio().getIdCustodio();
+        }
+        return custodia.getIdCustodio() > 0 ? custodia.getIdCustodio() : null;
     }
 
     private boolean custodioCoincide(CustodiasResponseDTO custodia, Integer custodioId) {

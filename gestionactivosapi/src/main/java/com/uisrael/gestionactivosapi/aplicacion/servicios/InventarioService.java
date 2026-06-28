@@ -27,6 +27,7 @@ import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CategoriaE
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ConsumibleJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiosJpa;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.DepartamentosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.EquiposJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.MarcasJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.MovimientoInventarioJpa;
@@ -58,6 +59,7 @@ import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.OrdenCo
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.TrasladoActivoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.TrasladoConsumibleRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.ActivoInventarioResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.AsignacionActivosResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.BodegaResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.ConsumibleResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.MovimientoInventarioResponseDTO;
@@ -69,11 +71,20 @@ import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoOrdenCom
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoRecepcionLote;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.RecepcionLoteJpa;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IRecepcionLoteJpaRepositorio;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AdoptarInventarioInicialRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.ConfirmarLlegadaActivoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.EnviarReparacionRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RetornarReparacionRequestDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.CargosResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.CategoriaEquiposResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.CustodiasResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.CustodiosResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.DepartamentosResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.EquiposResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.MarcasResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.UbicacionesResponseDTO;
 import java.util.UUID;
 
 @Service
@@ -379,44 +390,14 @@ public class InventarioService {
 
     @Transactional
     public ActivoInventarioResponseDTO asignarActivo(AsignacionActivoRequestDTO request) {
-        EquiposJpa equipo = buscarEquipo(request.getEquipoId());
-        if (!EstadoInventarioActivo.EN_BODEGA.name().equals(equipo.getEstadoInventario())) {
-            throw new IllegalArgumentException("El activo no esta disponible en bodega");
-        }
-        if (custodiasRepo.existsByFkEquipo_IdEquipoAndEstadoTrue(equipo.getIdEquipo())) {
-            throw new IllegalArgumentException("El activo ya tiene una custodia activa");
-        }
-        if (!Boolean.TRUE.equals(equipo.getEtiquetado())) {
-            throw new IllegalArgumentException("El activo debe estar etiquetado antes de asignarse");
-        }
-        if (equipo.getBodegaActual() == null) {
-            throw new IllegalArgumentException("El activo no tiene bodega de origen registrada");
-        }
-
-        CustodiosJpa custodio = buscarColaboradorActivo(request.getCustodioId());
-        buscarBodegaActiva(equipo.getBodegaActual().getIdBodega());
-        BodegaJpa bodegaOrigen = equipo.getBodegaActual();
-        String estadoAnterior = equipo.getEstadoInventario();
-
-        CustodiasJpa custodia = new CustodiasJpa();
-        custodia.setFkEquipo(equipo);
-        custodia.setFkCustodio(custodio);
-        custodia.setFechaInicio(request.getFechaInicio() == null ? LocalDate.now() : request.getFechaInicio());
-        custodia.setObservacion(request.getObservacion());
-        custodia.setEstado(true);
-        custodia.setTipoMovimiento("ASIGNACION");
-        custodiasRepo.save(custodia);
-
-        equipo.setEstadoInventario(EstadoInventarioActivo.ASIGNADO.name());
-        equipo.setBodegaActual(null);
-        EquiposJpa guardado = equiposRepo.save(equipo);
-
-        registrarMovimiento(TipoMovimientoInventario.ASIGNACION_ACTIVO, guardado, null, 1,
-                bodegaOrigen, null, custodio, guardado.getOrdenCompra(), estadoAnterior,
-                EstadoInventarioActivo.ASIGNADO.name(), request.getObservacion(),
-                request.getCondicionEntrega(), request.getRealizadoPor(), null,
-                request.getFechaInicio() != null ? request.getFechaInicio() : LocalDate.now());
-        return toActivoResponse(guardado);
+        AsignacionLoteRequestDTO lote = new AsignacionLoteRequestDTO();
+        lote.setEquipoIds(List.of(request.getEquipoId()));
+        lote.setCustodioId(request.getCustodioId());
+        lote.setFechaInicio(request.getFechaInicio());
+        lote.setCondicionEntrega(request.getCondicionEntrega());
+        lote.setRealizadoPor(request.getRealizadoPor());
+        lote.setObservacion(request.getObservacion());
+        return asignarActivosLote(lote).getActivos().get(0);
     }
 
     @Transactional
@@ -857,7 +838,7 @@ public class InventarioService {
     }
 
     @Transactional
-    public List<ActivoInventarioResponseDTO> asignarActivosLote(AsignacionLoteRequestDTO request) {
+    public AsignacionActivosResponseDTO asignarActivosLote(AsignacionLoteRequestDTO request) {
         if (request.getEquipoIds() == null || request.getEquipoIds().isEmpty()) {
             throw new IllegalArgumentException("Debe indicar al menos un activo para asignar");
         }
@@ -875,9 +856,22 @@ public class InventarioService {
                         "El activo " + (equipo.getCodigoCresio() != null ? equipo.getCodigoCresio() : idEquipo)
                         + " no tiene etiqueta física asignada");
             }
+            if (custodiasRepo.existsByFkEquipo_IdEquipoAndEstadoTrue(equipo.getIdEquipo())) {
+                throw new IllegalArgumentException(
+                        "El activo " + (equipo.getCodigoCresio() != null ? equipo.getCodigoCresio() : idEquipo)
+                        + " ya tiene una custodia activa");
+            }
+            if (equipo.getBodegaActual() == null) {
+                throw new IllegalArgumentException(
+                        "El activo " + (equipo.getCodigoCresio() != null ? equipo.getCodigoCresio() : idEquipo)
+                        + " no tiene bodega de origen registrada");
+            }
+            buscarBodegaActiva(equipo.getBodegaActual().getIdBodega());
             equipos.add(equipo);
         }
-        List<ActivoInventarioResponseDTO> resultados = new ArrayList<>();
+        AsignacionActivosResponseDTO response = new AsignacionActivosResponseDTO();
+        List<ActivoInventarioResponseDTO> activos = new ArrayList<>();
+        List<com.uisrael.gestionactivosapi.presentacion.dto.response.CustodiasResponseDTO> custodias = new ArrayList<>();
         for (EquiposJpa equipo : equipos) {
             BodegaJpa bodegaOrigen = equipo.getBodegaActual();
             String estadoAnterior = equipo.getEstadoInventario();
@@ -888,7 +882,7 @@ public class InventarioService {
             custodia.setObservacion(request.getObservacion());
             custodia.setEstado(true);
             custodia.setTipoMovimiento("ASIGNACION");
-            custodiasRepo.save(custodia);
+            CustodiasJpa custodiaGuardada = custodiasRepo.save(custodia);
             equipo.setEstadoInventario(EstadoInventarioActivo.ASIGNADO.name());
             equipo.setBodegaActual(null);
             EquiposJpa guardado = equiposRepo.save(equipo);
@@ -897,9 +891,12 @@ public class InventarioService {
                     estadoAnterior, EstadoInventarioActivo.ASIGNADO.name(),
                     request.getObservacion(), request.getCondicionEntrega(), request.getRealizadoPor(), null,
                     request.getFechaInicio() != null ? request.getFechaInicio() : LocalDate.now());
-            resultados.add(toActivoResponse(guardado));
+            activos.add(toActivoResponse(guardado));
+            custodias.add(toCustodiaResponse(custodiaGuardada));
         }
-        return resultados;
+        response.setActivos(activos);
+        response.setCustodias(custodias);
+        return response;
     }
 
     private void registrarMovimiento(TipoMovimientoInventario tipo, EquiposJpa equipo, ConsumibleJpa consumible,
@@ -924,6 +921,86 @@ public class InventarioService {
         movimiento.setMotivo(motivo);
         movimiento.setFechaEfectiva(fechaEfectiva);
         movimientoRepo.save(movimiento);
+    }
+
+    public List<ActivoInventarioResponseDTO> listarSinInventario() {
+        return equiposRepo.findByEstadoInventarioIsNullAndEstadoTrue()
+                .stream()
+                .map(this::toActivoResponse)
+                .toList();
+    }
+
+    @Transactional
+    public ActivoInventarioResponseDTO adoptarInventarioInicial(Integer id, AdoptarInventarioInicialRequestDTO request) {
+        EquiposJpa equipo = buscarEquipo(id);
+        if (equipo.getEstadoInventario() != null) {
+            String visible = equipo.getEstadoInventario().isBlank() ? "(valor vacío inválido)" : equipo.getEstadoInventario();
+            throw new IllegalArgumentException("El activo ya tiene estado de inventario asignado: " + visible);
+        }
+        BodegaJpa bodega = buscarBodegaActiva(request.getBodegaId());
+
+        String codigoCresio = request.getCodigoCresio() != null ? request.getCodigoCresio().trim() : null;
+        if (codigoCresio != null && !codigoCresio.isBlank()) {
+            if (equiposRepo.existsByCodigoCresioIgnoreCaseAndIdEquipoNot(codigoCresio, id)) {
+                throw new IllegalArgumentException("El codigo " + codigoCresio + " ya esta en uso por otro activo");
+            }
+            equipo.setCodigoCresio(codigoCresio);
+        } else if (equipo.getCodigoCresio() == null && equipo.getCodigoSap() != null) {
+            equipo.setCodigoCresio(equipo.getCodigoSap());
+        }
+
+        equipo.setBodegaActual(bodega);
+        equipo.setEtiquetado(Boolean.TRUE.equals(request.getEtiquetado()));
+        equipo.setCondicionAlRecibir(request.getCondicionFisica());
+
+        String obsInicial = "[INVENTARIO_INICIAL]";
+        if (request.getObservacion() != null && !request.getObservacion().isBlank()) {
+            obsInicial += " " + request.getObservacion();
+        }
+        String obsActual = equipo.getObservacionEquipo();
+        equipo.setObservacionEquipo(obsActual != null ? obsActual + " " + obsInicial : obsInicial);
+
+        if (request.getCustodioId() != null) {
+            if (!Boolean.TRUE.equals(equipo.getEtiquetado())) {
+                throw new IllegalArgumentException("El activo debe estar etiquetado antes de asignarse a un custodio");
+            }
+            CustodiosJpa custodio = buscarColaboradorActivo(request.getCustodioId());
+            if (custodiasRepo.existsByFkEquipo_IdEquipoAndEstadoTrue(equipo.getIdEquipo())) {
+                throw new IllegalStateException("El activo ya tiene una custodia activa.");
+            }
+            // Paso 1: ingresar a bodega (entidad pasa por EN_BODEGA, audit veraz)
+            equipo.setEstadoInventario(EstadoInventarioActivo.EN_BODEGA.name());
+            equiposRepo.save(equipo);
+            registrarMovimiento(TipoMovimientoInventario.INGRESO_ACTIVO, equipo, null, 1,
+                    null, bodega, null, null, null, EstadoInventarioActivo.EN_BODEGA.name(),
+                    obsInicial, request.getCondicionFisica(), null, "INVENTARIO_INICIAL", LocalDate.now());
+
+            // Paso 2: asignar al custodio desde la bodega
+            equipo.setBodegaActual(null);
+            equipo.setEstadoInventario(EstadoInventarioActivo.ASIGNADO.name());
+            EquiposJpa guardado = equiposRepo.save(equipo);
+
+            CustodiasJpa custodia = new CustodiasJpa();
+            custodia.setFkEquipo(guardado);
+            custodia.setFkCustodio(custodio);
+            custodia.setFechaInicio(LocalDate.now());
+            custodia.setObservacion("Inventario inicial: " + (request.getObservacion() != null ? request.getObservacion() : ""));
+            custodia.setEstado(true);
+            custodia.setTipoMovimiento("INVENTARIO_INICIAL");
+            custodiasRepo.save(custodia);
+
+            registrarMovimiento(TipoMovimientoInventario.ASIGNACION_ACTIVO, guardado, null, 1,
+                    bodega, null, custodio, null, EstadoInventarioActivo.EN_BODEGA.name(),
+                    EstadoInventarioActivo.ASIGNADO.name(), obsInicial, request.getCondicionFisica(), null, null, LocalDate.now());
+            return toActivoResponse(guardado);
+        } else {
+            equipo.setEstadoInventario(EstadoInventarioActivo.EN_BODEGA.name());
+            EquiposJpa guardado = equiposRepo.save(equipo);
+            registrarMovimiento(TipoMovimientoInventario.INGRESO_ACTIVO, guardado, null, 1,
+                    null, bodega, null, null, null, EstadoInventarioActivo.EN_BODEGA.name(),
+                    obsInicial, request.getCondicionFisica(), null, "INVENTARIO_INICIAL", LocalDate.now());
+            return toActivoResponse(guardado);
+        }
     }
 
     @Transactional
@@ -1033,6 +1110,106 @@ public class InventarioService {
             return "Baja: " + motivo;
         }
         return "Baja: " + motivo + " | " + observacion;
+    }
+
+    private CustodiasResponseDTO toCustodiaResponse(CustodiasJpa custodia) {
+        CustodiasResponseDTO dto = new CustodiasResponseDTO();
+        dto.setIdCustodiaEquipo(custodia.getIdCustodiaEquipo());
+        dto.setFechaInicio(custodia.getFechaInicio());
+        dto.setFechaFin(custodia.getFechaFin());
+        dto.setObservacion(custodia.getObservacion());
+        dto.setEstado(custodia.isEstado());
+        dto.setTipoMovimiento(custodia.getTipoMovimiento());
+        dto.setRutaActaPdf(custodia.getRutaActaPdf());
+        dto.setRutaActaFirmada(custodia.getRutaActaFirmada());
+        if (custodia.getFkEquipo() != null) {
+            dto.setFkEquipo(toEquipoResponse(custodia.getFkEquipo()));
+        }
+        if (custodia.getFkCustodio() != null) {
+            dto.setFkCustodio(toCustodioResponse(custodia.getFkCustodio()));
+            dto.setIdCustodio(custodia.getFkCustodio().getIdCustodio());
+        }
+        return dto;
+    }
+
+    private EquiposResponseDTO toEquipoResponse(EquiposJpa equipo) {
+        EquiposResponseDTO dto = new EquiposResponseDTO();
+        dto.setIdEquipo(equipo.getIdEquipo());
+        dto.setCodigoSap(equipo.getCodigoCresio() != null ? equipo.getCodigoCresio() : equipo.getCodigoSap());
+        dto.setModelo(equipo.getModelo());
+        dto.setSerial(equipo.getSerial());
+        dto.setProcesador(equipo.getProcesador());
+        dto.setMemoriaRamGb(equipo.getMemoriaRamGb());
+        dto.setCapacidadAlmacenamientoGb(equipo.getCapacidadAlmacenamientoGb());
+        dto.setLicenciaWindowsActivada(equipo.getLicenciaWindowsActivada());
+        dto.setMac(equipo.getMac());
+        dto.setFechaCompra(equipo.getFechaCompra());
+        dto.setPrecioCompra(equipo.getPrecioCompra());
+        dto.setEstadoEquipo(equipo.getEstadoEquipo());
+        dto.setObservacionEquipo(equipo.getObservacionEquipo());
+        dto.setEstado(equipo.isEstado());
+        dto.setFechaAdquisicion(equipo.getFechaAdquisicion());
+        dto.setValorActual(equipo.getValorActual());
+        dto.setDescripcion(equipo.getDescripcion());
+        if (equipo.getFkMarcas() != null) {
+            MarcasResponseDTO marca = new MarcasResponseDTO();
+            marca.setIdMarca(equipo.getFkMarcas().getIdMarca());
+            marca.setNombre(equipo.getFkMarcas().getNombre());
+            marca.setEstado(equipo.getFkMarcas().isEstado());
+            dto.setFkMarca(marca);
+        }
+        if (equipo.getFkCategoria() != null) {
+            CategoriaEquiposResponseDTO categoria = new CategoriaEquiposResponseDTO();
+            categoria.setIdCategoria(equipo.getFkCategoria().getIdCategoria());
+            categoria.setNombre(equipo.getFkCategoria().getNombre());
+            categoria.setEstado(equipo.getFkCategoria().isEstado());
+            dto.setFkCategoria(categoria);
+        }
+        return dto;
+    }
+
+    private CustodiosResponseDTO toCustodioResponse(CustodiosJpa custodio) {
+        CustodiosResponseDTO dto = new CustodiosResponseDTO();
+        dto.setIdCustodio(custodio.getIdCustodio());
+        dto.setNombre(custodio.getNombre());
+        dto.setCedula(custodio.getCedula());
+        dto.setCorreo(custodio.getCorreo());
+        dto.setTelefono(custodio.getTelefono());
+        dto.setFechaIngreso(custodio.getFechaIngreso());
+        dto.setEstado(custodio.isEstado());
+        if (custodio.getFkCargo() != null) {
+            CargosResponseDTO cargo = new CargosResponseDTO();
+            cargo.setIdCargo(custodio.getFkCargo().getIdCargo());
+            cargo.setNombre(custodio.getFkCargo().getNombre());
+            cargo.setEstado(custodio.getFkCargo().isEstado());
+            cargo.setFkDepartamento(toDepartamentoResponse(custodio.getFkCargo().getFkDepartamento()));
+            dto.setFkCargo(cargo);
+            dto.setFkDepartamento(cargo.getFkDepartamento());
+        }
+        if (custodio.getFkUbicacion() != null) {
+            UbicacionesResponseDTO ubicacion = new UbicacionesResponseDTO();
+            ubicacion.setIdUbicacion(custodio.getFkUbicacion().getIdUbicacion());
+            ubicacion.setNombre(custodio.getFkUbicacion().getNombre());
+            ubicacion.setAgencia(custodio.getFkUbicacion().getAgencia());
+            ubicacion.setEstado(custodio.getFkUbicacion().isEstado());
+            ubicacion.setCiudad(custodio.getFkUbicacion().getCiudad());
+            ubicacion.setDireccion(custodio.getFkUbicacion().getDireccion());
+            ubicacion.setFkDepartamento(toDepartamentoResponse(custodio.getFkUbicacion().getFkDepartamento()));
+            dto.setFkUbicacion(ubicacion);
+        }
+        return dto;
+    }
+
+    private DepartamentosResponseDTO toDepartamentoResponse(DepartamentosJpa departamento) {
+        if (departamento == null) {
+            return null;
+        }
+        DepartamentosResponseDTO dto = new DepartamentosResponseDTO();
+        dto.setIdDepartamento(departamento.getIdDepartamento());
+        dto.setNombre(departamento.getNombre());
+        dto.setTipo(departamento.getTipo());
+        dto.setEstado(departamento.isEstado());
+        return dto;
     }
 
     private BodegaResponseDTO toBodegaResponse(BodegaJpa bodega) {

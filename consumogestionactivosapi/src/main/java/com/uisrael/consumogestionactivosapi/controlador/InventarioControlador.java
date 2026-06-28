@@ -1,5 +1,6 @@
 package com.uisrael.consumogestionactivosapi.controlador;
 
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +35,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.Devolu
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.EnviarReparacionRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.OrdenCompraRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RetornarReparacionRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AdoptarInventarioInicialRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.ConfirmarLlegadaActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarEtiquetaRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoActivoRequestDTO;
@@ -40,6 +43,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.Trasla
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ActivoInventarioResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.AsignacionActivosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.BodegaResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ConsumibleResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.StockConsumibleResponseDTO;
@@ -48,6 +52,8 @@ import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
 import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
+import com.uisrael.consumogestionactivosapi.service.ActaStorageService;
+import com.uisrael.consumogestionactivosapi.service.CustodiasPdfService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.client.RestClientResponseException;
@@ -82,6 +88,8 @@ public class InventarioControlador {
 	private final IInventarioOperacionServicio inventarioOperacionServicio;
 	private final IMarcasServicio marcasServicio;
 	private final ICategoriaEquiposServicio categoriaEquiposServicio;
+	private final CustodiasPdfService custodiasPdfService;
+	private final ActaStorageService actaStorageService;
 	private final SesionUsuario sesionUsuario;
 
 	@GetMapping("/catalogos")
@@ -214,11 +222,11 @@ public class InventarioControlador {
 	public List<Map<String, Object>> buscarCustodios(
 			@RequestParam(name = "q", defaultValue = "") String q) {
 		try {
-			String busq = q.toLowerCase().trim();
+			String busq = sinTildes(q.toLowerCase().trim());
 			return custodiosServicio.listarCustodios().stream()
 				.filter(c -> c != null && c.isEstado())
 				.filter(c -> busq.isEmpty()
-					|| (c.getNombre() != null && c.getNombre().toLowerCase().contains(busq))
+					|| (c.getNombre() != null && sinTildes(c.getNombre().toLowerCase()).contains(busq))
 					|| (c.getCedula() != null && c.getCedula().contains(busq)))
 				.limit(12)
 				.map(c -> {
@@ -234,6 +242,12 @@ public class InventarioControlador {
 		}
 	}
 
+	private static String sinTildes(String s) {
+		if (s == null) return "";
+		return Normalizer.normalize(s, Normalizer.Form.NFD)
+			.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+	}
+
 	@PostMapping("/asignaciones/lote")
 	public String asignarLote(
 			@RequestParam Integer custodioId,
@@ -244,60 +258,68 @@ public class InventarioControlador {
 			@RequestParam(required = false) String realizadoPor,
 			@RequestParam(required = false) String observacion,
 			@RequestParam Map<String, String> params,
-			RedirectAttributes redirect) {
+			RedirectAttributes redirect,
+			HttpSession session) {
 
-		List<String> exitos = new ArrayList<>();
-		List<String> errores = new ArrayList<>();
-		LocalDate fecha = LocalDate.parse(fechaInicio);
-
-		if ((equipoIds == null || equipoIds.isEmpty())
-				&& (consumibleStockKeys == null || consumibleStockKeys.isEmpty())) {
-			redirect.addFlashAttribute("error", "Seleccione al menos un activo o consumible para asignar.");
+		if (equipoIds == null || equipoIds.isEmpty()) {
+			redirect.addFlashAttribute("error", "Seleccione al menos un activo para asignar. Para entregar consumibles use el módulo Stock.");
 			return "redirect:/inventario/asignaciones";
 		}
 
-		if (equipoIds != null && !equipoIds.isEmpty()) {
-			AsignacionLoteRequestDTO lote = new AsignacionLoteRequestDTO();
-			lote.setEquipoIds(equipoIds);
-			lote.setCustodioId(custodioId);
-			lote.setFechaInicio(fecha);
-			lote.setCondicionEntrega(condicionEntrega);
-			lote.setRealizadoPor(realizadoPor);
-			lote.setObservacion(observacion);
-			try {
-				var asignados = inventarioOperacionServicio.asignarActivosLote(lote);
-				asignados.forEach(a -> exitos.add(a.getCodigoCresio() != null ? a.getCodigoCresio() : "activo"));
-			} catch (Exception ex) {
-				errores.add(mensajeError(ex));
-			}
+		boolean hayConsumiblesIgnorados = consumibleStockKeys != null && !consumibleStockKeys.isEmpty();
+
+		LocalDate fecha;
+		try {
+			fecha = LocalDate.parse(fechaInicio);
+		} catch (Exception e) {
+			redirect.addFlashAttribute("error", "Fecha de inicio inválida: " + fechaInicio);
+			return "redirect:/inventario/asignaciones";
 		}
 
-		if (consumibleStockKeys != null) {
-			for (String key : consumibleStockKeys) {
-				String[] partes = key.split("_", 2);
-				if (partes.length != 2) continue;
-				AsignacionConsumibleRequestDTO req = new AsignacionConsumibleRequestDTO();
-				req.setConsumibleId(Integer.valueOf(partes[0]));
-				req.setCustodioId(custodioId);
-				req.setBodegaId(Integer.valueOf(partes[1]));
-				req.setCantidad(Integer.valueOf(params.getOrDefault("cantidad_" + key, "1")));
-				req.setObservacion(observacion);
-				try {
-					inventarioOperacionServicio.asignarConsumible(req);
-					exitos.add("consumible asignado");
-				} catch (Exception ex) {
-					errores.add(mensajeError(ex));
-				}
+		List<String> errores = new ArrayList<>();
+		AsignacionActivosResponseDTO asignacion = null;
+		String advertenciaActa = null;
+
+		AsignacionLoteRequestDTO lote = new AsignacionLoteRequestDTO();
+		lote.setEquipoIds(equipoIds);
+		lote.setCustodioId(custodioId);
+		lote.setFechaInicio(fecha);
+		lote.setCondicionEntrega(condicionEntrega);
+		lote.setRealizadoPor(realizadoPor);
+		lote.setObservacion(observacion);
+		try {
+			asignacion = inventarioOperacionServicio.asignarActivosLote(lote);
+			try {
+				registrarActaAsignacion(asignacion != null ? asignacion.getCustodias() : null, realizadoPor, fecha);
+			} catch (Exception actaEx) {
+				advertenciaActa = "Asignacion registrada, pero no se pudo generar el acta: " + mensajeError(actaEx);
 			}
+		} catch (Exception ex) {
+			errores.add(mensajeError(ex));
 		}
 
 		if (!errores.isEmpty()) {
 			redirect.addFlashAttribute("error", "Errores en la asignacion: " + String.join("; ", errores));
+			return "redirect:/inventario/asignaciones";
 		}
-		if (!exitos.isEmpty()) {
-			redirect.addFlashAttribute("success",
-					"Asignacion registrada. Activos: " + String.join(", ", exitos) + ".");
+
+		int totalAsignados = (asignacion != null && asignacion.getActivos() != null)
+				? asignacion.getActivos().size() : equipoIds.size();
+		String msgExito = "Asignación registrada exitosamente. " + totalAsignados + " activo(s) asignado(s).";
+		String advertencia = advertenciaActa;
+		if (hayConsumiblesIgnorados) {
+			String msgConsumibles = "Los consumibles seleccionados no se procesaron: use el módulo Stock para entregarlos.";
+			advertencia = advertencia != null ? advertencia + " | " + msgConsumibles : msgConsumibles;
 		}
+		if (advertencia != null) {
+			redirect.addFlashAttribute("warning", advertencia);
+		}
+		redirect.addFlashAttribute("success", msgExito);
+		return "redirect:/inventario/asignaciones";
+	}
+
+	@GetMapping("/asignaciones/resultado")
+	public String resultadoAsignacion(RedirectAttributes redirect) {
 		return "redirect:/inventario/asignaciones";
 	}
 
@@ -305,6 +327,18 @@ public class InventarioControlador {
 	public String asignarActivo(@ModelAttribute AsignacionActivoRequestDTO request, RedirectAttributes redirect) {
 		try {
 			var activo = inventarioOperacionServicio.asignarActivo(request);
+			try {
+				LocalDate fecha = request.getFechaInicio() != null ? request.getFechaInicio() : LocalDate.now();
+				List<CustodiasResponseDTO> custodias = servicioCustodias.listarCustodias().stream()
+						.filter(c -> c != null && c.isEstado()
+								&& c.getFkEquipo() != null
+								&& request.getEquipoId().equals(c.getFkEquipo().getIdEquipo()))
+						.toList();
+				registrarActaAsignacion(custodias, request.getRealizadoPor(), fecha);
+			} catch (Exception actaEx) {
+				redirect.addFlashAttribute("warning",
+						"Asignación registrada, pero no se pudo generar el acta: " + mensajeError(actaEx));
+			}
 			redirect.addFlashAttribute("success", "Activo " + activo.getCodigoCresio() + " asignado correctamente.");
 		} catch (Exception ex) {
 			redirect.addFlashAttribute("error", "No se pudo asignar el activo: " + mensajeError(ex));
@@ -324,14 +358,16 @@ public class InventarioControlador {
 	}
 
 	@PostMapping("/devoluciones/activos")
-	public String devolverActivo(@ModelAttribute DevolucionActivoRequestDTO request, RedirectAttributes redirect) {
+	public String devolverActivo(@ModelAttribute DevolucionActivoRequestDTO request,
+			@RequestParam(required = false) String returnTo,
+			RedirectAttributes redirect) {
 		try {
 			var activo = inventarioOperacionServicio.devolverActivo(request);
 			redirect.addFlashAttribute("success", "Activo " + activo.getCodigoCresio() + " devuelto correctamente.");
 		} catch (Exception ex) {
 			redirect.addFlashAttribute("error", "No se pudo devolver el activo: " + ex.getMessage());
 		}
-		return "redirect:/inventario/stock";
+		return redirectLocal(returnTo, "/inventario/stock");
 	}
 
 	@PostMapping("/devoluciones/consumibles")
@@ -393,14 +429,23 @@ public class InventarioControlador {
 	}
 
 	@PostMapping("/bajas/activos")
-	public String darBajaActivo(@ModelAttribute BajaActivoRequestDTO request, RedirectAttributes redirect) {
+	public String darBajaActivo(@ModelAttribute BajaActivoRequestDTO request,
+			@RequestParam(required = false) String returnTo,
+			RedirectAttributes redirect) {
 		try {
 			var activo = inventarioOperacionServicio.darBajaActivo(request);
 			redirect.addFlashAttribute("success", "Activo " + activo.getCodigoCresio() + " dado de baja correctamente.");
 		} catch (Exception ex) {
 			redirect.addFlashAttribute("error", "No se pudo dar de baja el activo: " + ex.getMessage());
 		}
-		return "redirect:/inventario/bajas";
+		return redirectLocal(returnTo, "/inventario/bajas");
+	}
+
+	private String redirectLocal(String returnTo, String fallback) {
+		if (returnTo != null && returnTo.startsWith("/") && !returnTo.startsWith("//")) {
+			return "redirect:" + returnTo;
+		}
+		return "redirect:" + fallback;
 	}
 
 	@GetMapping("/reparaciones")
@@ -565,6 +610,34 @@ public class InventarioControlador {
 		return "Sin custodio";
 	}
 
+	private void registrarActaAsignacion(List<CustodiasResponseDTO> custodias,
+			String realizadoPor, LocalDate fecha) throws Exception {
+		if (custodias == null || custodias.isEmpty()) {
+			throw new IllegalStateException("la API no devolvio custodias para el acta");
+		}
+		int idCustodio = custodias.stream()
+				.mapToInt(c -> c.getFkCustodio() != null
+						? c.getFkCustodio().getIdCustodio()
+						: c.getIdCustodio())
+				.filter(id -> id > 0)
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("la custodia no contiene custodio valido"));
+		CustodiasResponseDTO cabecera = custodias.get(0);
+		List<Integer> idsCustodias = custodias.stream()
+				.map(CustodiasResponseDTO::getIdCustodiaEquipo)
+				.filter(id -> id > 0)
+				.toList();
+		if (idsCustodias.isEmpty()) {
+			throw new IllegalStateException("la API no devolvio identificadores de custodia");
+		}
+		LocalDate fechaActa = cabecera.getFechaInicio() != null ? cabecera.getFechaInicio() : fecha;
+		String nombreEntrega = realizadoPor != null && !realizadoPor.isBlank() ? realizadoPor : usuarioActual();
+		byte[] pdfBytes = custodiasPdfService.generarActaEntregaPdfBytes(
+				custodias, nombreEntrega, DEPARTAMENTO_TIC, "ASIGNACION");
+		String nombreArchivo = actaStorageService.guardarActaPdf(pdfBytes, "ASIGNACION", idCustodio, fechaActa);
+		actaStorageService.registrarRutaEnCustodias(idsCustodias, nombreArchivo);
+	}
+
 	private void cargarModeloAsignaciones(Model model) {
 		Set<Integer> equiposConCustodiaActiva = equiposConCustodiaActiva();
 		try {
@@ -575,7 +648,6 @@ public class InventarioControlador {
 					.toList());
 		}
 		catch (Exception e) { model.addAttribute("activosEnBodega", List.of()); }
-		// custodios eliminados del modelo — ahora se cargan via AJAX en /custodios/buscar
 		Set<Integer> consumiblesActivos = consumiblesActivos();
 		List<BodegaResponseDTO> bodegas;
 		try { bodegas = inventarioOperacionServicio.listarBodegas(); }
@@ -592,6 +664,11 @@ public class InventarioControlador {
 		model.addAttribute("stockConsumibles", stockConsumibles.stream()
 				.filter(s -> s != null && consumiblesActivos.contains(s.getConsumibleId()))
 				.toList());
+		String nombreCompleto = usuarioActual();
+		model.addAttribute("usuarioActual", nombreCompleto != null ? nombreCompleto : "");
+	}
+
+	private String usuarioActual() {
 		String nombreCompleto = sesionUsuario.getNombre();
 		if (nombreCompleto == null || nombreCompleto.isBlank()) {
 			nombreCompleto = sesionUsuario.getNombreUsuario();
@@ -599,7 +676,7 @@ public class InventarioControlador {
 		if (nombreCompleto == null || nombreCompleto.isBlank()) {
 			nombreCompleto = sesionUsuario.getCorreo();
 		}
-		model.addAttribute("usuarioActual", nombreCompleto != null ? nombreCompleto : "");
+		return nombreCompleto != null ? nombreCompleto : "";
 	}
 
 	private Set<Integer> equiposConCustodiaActiva() {
@@ -630,6 +707,41 @@ public class InventarioControlador {
 		model.addAttribute("custodios", custodiosServicio.listarCustodios());
 		model.addAttribute("bodegaRequest", new BodegaRequestDTO());
 		model.addAttribute("consumibleRequest", new ConsumibleRequestDTO());
+	}
+
+	@GetMapping("/inventario-inicial")
+	public String inventarioInicial(Model model) {
+		try {
+			model.addAttribute("equiposSinInventario", inventarioOperacionServicio.listarSinInventario());
+		} catch (Exception e) {
+			model.addAttribute("equiposSinInventario", new java.util.ArrayList<>());
+			model.addAttribute("errorCarga", "No se pudieron cargar los equipos: " + mensajeError(e));
+		}
+		try {
+			model.addAttribute("bodegas", inventarioOperacionServicio.listarBodegas());
+		} catch (Exception e) {
+			model.addAttribute("bodegas", new java.util.ArrayList<>());
+		}
+		try {
+			model.addAttribute("custodios", custodiosServicio.listarCustodios());
+		} catch (Exception e) {
+			model.addAttribute("custodios", new java.util.ArrayList<>());
+		}
+		return "Inventario/inventarioInicial";
+	}
+
+	@PostMapping("/activos/{id}/adoptar")
+	public String adoptarInventarioInicial(@PathVariable Integer id,
+			@ModelAttribute AdoptarInventarioInicialRequestDTO request,
+			RedirectAttributes redirect) {
+		try {
+			var activo = inventarioOperacionServicio.adoptarInventarioInicial(id, request);
+			redirect.addFlashAttribute("success",
+					"Activo adoptado correctamente" + (activo.getCodigoCresio() != null ? ": " + activo.getCodigoCresio() : "."));
+		} catch (Exception ex) {
+			redirect.addFlashAttribute("error", "No se pudo adoptar el activo: " + mensajeError(ex));
+		}
+		return "redirect:/inventario/inventario-inicial";
 	}
 
 }
