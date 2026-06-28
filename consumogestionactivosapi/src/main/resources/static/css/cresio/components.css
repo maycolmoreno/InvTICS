@@ -8,6 +8,34 @@
   padding: 0 var(--cui-space-4);
 }
 
+.cui-btn-sm {
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 30px;
+  padding: 0 var(--cui-space-3);
+}
+
+/* Hardware tag: códigos de activo (CRES-XXXX) */
+.inv-code {
+  color: var(--cui-primary);
+  font-family: 'JetBrains Mono', 'Roboto Mono', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* Hardware tag: seriales de hardware */
+.inv-serial {
+  background: var(--cui-primary-subtle);
+  border-radius: var(--cui-radius-sm);
+  color: var(--cui-primary-dark);
+  font-family: 'JetBrains Mono', 'Roboto Mono', ui-monospace, monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+}
+
 .cui-btn-primary {
   background: var(--cui-primary);
   border: 1px solid var(--cui-primary);
@@ -52,6 +80,139 @@
   background: #b91c1c;
   border-color: #b91c1c;
   color: #fff;
+}
+
+/* ── View toggle (Lista / Kanban) ────────────────────────── */
+.cui-view-toggle {
+  border: 1px solid var(--cui-border);
+  border-radius: var(--cui-radius-md);
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.cui-view-toggle-btn {
+  align-items: center;
+  background: var(--cui-surface);
+  border: none;
+  color: var(--cui-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 600;
+  gap: 6px;
+  padding: 6px 12px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.cui-view-toggle-btn + .cui-view-toggle-btn {
+  border-left: 1px solid var(--cui-border);
+}
+
+.cui-view-toggle-btn.is-active {
+  background: var(--cui-primary-subtle);
+  color: var(--cui-primary);
+}
+
+.cui-view-toggle-btn:hover:not(.is-active) {
+  background: var(--cui-surface-raised);
+  color: var(--cui-text-main);
+}
+
+/* ── Kanban board (mantenimientos) ───────────────────────── */
+.mnt-kanban-board {
+  display: grid;
+  gap: var(--cui-space-4);
+  grid-template-columns: repeat(3, 1fr);
+  padding: var(--cui-space-4) var(--cui-space-5) var(--cui-space-5);
+}
+
+@media (max-width: 768px) {
+  .mnt-kanban-board {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mnt-kanban-col {
+  background: var(--cui-surface-raised);
+  border: 1px solid var(--cui-border);
+  border-radius: var(--cui-radius-lg);
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+}
+
+.mnt-kanban-col-header {
+  align-items: center;
+  border-bottom: 1px solid var(--cui-border);
+  display: flex;
+  justify-content: space-between;
+  padding: var(--cui-space-3) var(--cui-space-4);
+}
+
+.mnt-kanban-col-count {
+  color: var(--cui-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mnt-kanban-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cui-space-2);
+  padding: var(--cui-space-3);
+}
+
+.mnt-kanban-card {
+  background: var(--cui-surface);
+  border: 1px solid var(--cui-border);
+  border-radius: var(--cui-radius-md);
+  box-shadow: var(--cui-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cui-space-2);
+  padding: var(--cui-space-3);
+}
+
+.mnt-kanban-card-title {
+  color: var(--cui-text-main);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.mnt-kanban-card-sub {
+  color: var(--cui-text-muted);
+  font-size: 11.5px;
+}
+
+.mnt-kanban-card-footer {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--cui-space-1);
+}
+
+.mnt-kanban-card-date {
+  color: var(--cui-text-muted);
+  font-size: 11px;
+}
+
+.mnt-kanban-card-link {
+  color: var(--cui-primary);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mnt-kanban-card-link:hover {
+  text-decoration: underline;
+}
+
+.mnt-kanban-empty {
+  color: var(--cui-text-muted);
+  font-size: 12px;
+  padding: var(--cui-space-5);
+  text-align: center;
 }
 
 /* Icono-botón: versión canónica cui-icon-btn; cui-icon-button es alias */

@@ -11,16 +11,6 @@
         <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Mantenimientos', subtitle='Mesa tecnica para consultar, ejecutar y cerrar ordenes de mantenimiento.')}"></div>
 
         <div class="cui-command-bar">
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a th:href="@{/mantenimiento/programado}" class="cui-btn cui-btn-secondary">
-                    <i class="feather-calendar" aria-hidden="true"></i>
-                    <span>Programados</span>
-                </a>
-                <a th:href="@{/mantenimiento/kanban}" class="cui-btn cui-btn-secondary">
-                    <i class="feather-columns" aria-hidden="true"></i>
-                    <span>Kanban</span>
-                </a>
-            </div>
             <a th:href="@{/mantenimiento/nuevo}" class="cui-btn cui-btn-primary">
                 <i class="feather-plus" aria-hidden="true"></i>
                 <span>Nuevo mantenimiento</span>
@@ -42,6 +32,11 @@
                 <span class="cui-summary-label">Correctivos abiertos</span>
                 <strong class="cui-summary-value danger" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO' and estadoInterno != 'CERRADO'])}">0</strong>
             </div>
+            <span class="cui-summary-sep" aria-hidden="true">·</span>
+            <div class="cui-summary-item" th:classappend="${!#lists.isEmpty(vencidosProximos)} ? ' is-warning' : ''">
+                <span class="cui-summary-label">Programados vencidos</span>
+                <strong class="cui-summary-value" th:text="${#lists.size(vencidosProximos)}">0</strong>
+            </div>
         </div>
 
         <div th:if="${exito}" class="alert alert-success cui-alert" th:text="${exito}"></div>
@@ -55,9 +50,32 @@
                 <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
             </div>
 
-            <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar por equipo, tecnico, custodio o estado...', exportHref=@{/reportes/mantenimientos/excel})}"></div>
+            <div class="cui-data-grid-toolbar">
+                <div class="cui-search-control">
+                    <i class="feather-search" aria-hidden="true"></i>
+                    <input type="search" class="form-control" data-cui-grid-search
+                           placeholder="Buscar por equipo, tecnico, custodio o estado..."
+                           autocomplete="off">
+                </div>
+                <div class="cui-toolbar-actions">
+                    <div class="cui-view-toggle" id="mntViewToggle" role="group" aria-label="Modo de vista">
+                        <button type="button" class="cui-view-toggle-btn is-active" data-view="lista" aria-pressed="true">
+                            <i class="feather-list" aria-hidden="true"></i>
+                            <span>Lista</span>
+                        </button>
+                        <button type="button" class="cui-view-toggle-btn" data-view="kanban" aria-pressed="false">
+                            <i class="feather-columns" aria-hidden="true"></i>
+                            <span>Kanban</span>
+                        </button>
+                        <button type="button" class="cui-view-toggle-btn" data-view="programados" aria-pressed="false">
+                            <i class="feather-calendar" aria-hidden="true"></i>
+                            <span>Programados</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-            <div class="cui-grid-filters">
+            <div class="cui-grid-filters" id="mntGridFilters">
                 <select class="form-select" data-cui-grid-filter data-filter-key="estado" data-cui-filter-persist>
                     <option value="">Todos los estados</option>
                     <option value="EN_PROCESO">En proceso</option>
@@ -71,7 +89,8 @@
                 </select>
             </div>
 
-            <div class="cui-data-grid-body">
+            <!-- ── Vista lista ───────────────────────────────────────── -->
+            <div class="cui-data-grid-body" id="mntListaView">
                 <div class="table-responsive">
                     <table class="table cui-table">
                         <thead>
@@ -103,7 +122,7 @@
                                     <span class="cui-row-title" th:text="${equipoNombre}">Equipo</span>
                                     <span class="cui-row-subtitle" th:text="${equipoCodigo}">Codigo</span>
                                     <span th:if="${m.totalEquipos != null and m.totalEquipos > 1}" class="cui-row-subtitle text-primary fw-bold"
-                                          th:text="'+ ' + ${m.totalEquipos - 1} + ' equipo(s) mas'">+ 1 equipo</span>
+                                          th:text="'+ ' + ${m.totalEquipos - 1} + ' equipo(s) mas'"></span>
                                 </div>
                             </td>
                             <td>
@@ -121,39 +140,406 @@
                             </td>
                             <td>
                                 <div class="cui-action-cell">
-                                    <a class="cui-btn cui-btn-secondary" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">
-                                        Ver detalle
-                                    </a>
-                                    <div class="dropdown cui-action-menu">
-                                        <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
-                                            <i class="feather-more-vertical" aria-hidden="true"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a class="dropdown-item" th:href="@{/mantenimiento/kanban}">
-                                                <i class="feather-columns" aria-hidden="true"></i>
-                                                Ver en kanban
-                                            </a>
-                                            <a class="dropdown-item" th:href="@{/mantenimiento/programado}">
-                                                <i class="feather-calendar" aria-hidden="true"></i>
-                                                Programados
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <a class="cui-btn cui-btn-sm cui-btn-secondary" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver detalle</a>
                                 </div>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-
                 <div hidden data-cui-empty-state>
                     <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-search', title='Sin resultados', message='No hay mantenimientos que coincidan con los filtros aplicados.')}"></div>
                 </div>
             </div>
 
+            <!-- ── Vista kanban ──────────────────────────────────────── -->
+            <div id="mntKanbanView" hidden class="mnt-kanban-board">
+                <div class="mnt-kanban-col">
+                    <div class="mnt-kanban-col-header">
+                        <span class="cui-badge cui-badge-en-bodega">Pendiente</span>
+                        <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == null or estadoInterno == 'PENDIENTE'])} + ' ordenes'">0 ordenes</span>
+                    </div>
+                    <div class="mnt-kanban-cards">
+                        <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == null or estadoInterno == 'PENDIENTE'])}">Sin ordenes pendientes</p>
+                        <article class="mnt-kanban-card"
+                                 th:each="m : ${listamantenimientos.?[estadoInterno == null or estadoInterno == 'PENDIENTE']}"
+                                 th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')}">
+                            <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
+                            <div class="mnt-kanban-card-sub" th:text="${m.custodioNombre ?: '—'}">Custodio</div>
+                            <div>
+                                <span class="cui-badge" th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'" th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
+                            </div>
+                            <div class="mnt-kanban-card-footer">
+                                <span class="mnt-kanban-card-date" th:text="${m.fechaMantenimiento ?: '—'}">Fecha</span>
+                                <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver</a>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                <div class="mnt-kanban-col">
+                    <div class="mnt-kanban-col-header">
+                        <span class="cui-badge cui-badge-en-reparacion">En proceso</span>
+                        <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])} + ' ordenes'">0 ordenes</span>
+                    </div>
+                    <div class="mnt-kanban-cards">
+                        <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])}">Sin ordenes en proceso</p>
+                        <article class="mnt-kanban-card"
+                                 th:each="m : ${listamantenimientos.?[estadoInterno == 'EN_PROCESO']}"
+                                 th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')}">
+                            <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
+                            <div class="mnt-kanban-card-sub" th:text="${m.tecnicoNombre ?: '—'}">Tecnico</div>
+                            <div>
+                                <span class="cui-badge" th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'" th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
+                            </div>
+                            <div class="mnt-kanban-card-footer">
+                                <span class="mnt-kanban-card-date" th:text="${m.fechaMantenimiento ?: '—'}">Fecha</span>
+                                <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver</a>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                <div class="mnt-kanban-col">
+                    <div class="mnt-kanban-col-header">
+                        <span class="cui-badge cui-badge-asignado">Cerrado</span>
+                        <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'CERRADO'])} + ' ordenes'">0 ordenes</span>
+                    </div>
+                    <div class="mnt-kanban-cards">
+                        <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == 'CERRADO'])}">Sin ordenes cerradas</p>
+                        <article class="mnt-kanban-card"
+                                 th:each="m : ${listamantenimientos.?[estadoInterno == 'CERRADO']}"
+                                 th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')}">
+                            <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
+                            <div class="mnt-kanban-card-sub" th:text="${m.tecnicoNombre ?: '—'}">Tecnico</div>
+                            <div>
+                                <span class="cui-badge" th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'" th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
+                            </div>
+                            <div class="mnt-kanban-card-footer">
+                                <span class="mnt-kanban-card-date" th:text="${m.fechaMantenimiento ?: '—'}">Fecha</span>
+                                <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver</a>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Vista programados ─────────────────────────────────── -->
+            <div id="mntProgramadosView" hidden class="cui-data-grid-body">
+                <div class="d-flex justify-content-end px-4 pb-3">
+                    <button type="button" class="cui-btn cui-btn-primary"
+                            data-cui-drawer-open="#drawerProgramado">
+                        <i class="feather-plus" aria-hidden="true"></i>
+                        <span>Programar mantenimiento</span>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Equipo</th>
+                            <th>Técnico</th>
+                            <th>Frecuencia</th>
+                            <th>Próxima ejecución</th>
+                            <th>Último mantenimiento</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${listaprogramados == null or #lists.isEmpty(listaprogramados)}">
+                            <td colspan="7">
+                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-calendar', title='Sin programados', message='No hay mantenimientos programados. Usa el botón Programar para crear uno.')}"></div>
+                            </td>
+                        </tr>
+                        <tr th:each="p : ${listaprogramados}">
+                            <td>
+                                <div class="cui-row-stack">
+                                    <span class="cui-row-title" th:text="${p.equipoCodigoSap ?: 'Sin código'}">—</span>
+                                    <span class="cui-row-subtitle" th:text="${p.equipoDescripcion ?: ''}"></span>
+                                </div>
+                            </td>
+                            <td th:text="${p.tecnicoNombre ?: '—'}">—</td>
+                            <td th:text="${p.frecuenciaDias + ' días'}">—</td>
+                            <td th:text="${p.fechaProximoMantenimiento != null ? #temporals.format(p.fechaProximoMantenimiento, 'dd/MM/yyyy') : '—'}">—</td>
+                            <td th:text="${p.fechaUltimoMantenimiento != null ? #temporals.format(p.fechaUltimoMantenimiento, 'dd/MM/yyyy') : '—'}">—</td>
+                            <td>
+                                <span class="cui-badge"
+                                      th:with="vencido=${p.fechaProximoMantenimiento != null and p.fechaProximoMantenimiento.isBefore(T(java.time.LocalDate).now().plusDays(1))},
+                                               proximo=${p.fechaProximoMantenimiento != null and p.fechaProximoMantenimiento.isBefore(T(java.time.LocalDate).now().plusDays(8))}"
+                                      th:classappend="${vencido} ? ' cui-badge-dado-de-baja' : (${proximo} ? ' cui-badge-en-reparacion' : ' cui-badge-asignado')"
+                                      th:text="${vencido} ? 'Vencido' : (${proximo} ? 'Próximo' : 'Activo')">Activo</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="cui-action-cell">
+                                    <form th:action="@{/mantenimiento/programado/desactivar}" method="post">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                        <input type="hidden" name="idProgramado" th:value="${p.idProgramado}">
+                                        <button type="submit" class="cui-icon-btn" title="Desactivar"
+                                                onclick="return confirm('¿Desactivar este mantenimiento programado?')">
+                                            <i class="feather-trash-2" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div th:replace="~{fragments/grids/pagination :: pagination(rutaBase='/mantenimiento')}"></div>
         </section>
+
+        <!-- ── Drawer: nuevo programado ─────────────────────────────── -->
+        <aside class="cui-drawer" id="drawerProgramado" aria-hidden="true" aria-label="Programar mantenimiento">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Programar mantenimiento</div>
+                    <div class="small text-muted">Planifica un mantenimiento preventivo periódico</div>
+                </div>
+                <button type="button" class="cui-icon-btn" data-cui-drawer-close aria-label="Cerrar">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/mantenimiento/programado/guardar}" method="post" id="formProgramado" class="d-flex flex-column gap-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" id="modoSeleccionProg" name="modoSeleccion" value="ADMINISTRATIVO">
+
+                    <div class="d-flex gap-2">
+                        <button type="button" id="btnModoAdminProg" class="cui-btn cui-btn-primary" onclick="cambiarModoProg('ADMINISTRATIVO')">
+                            <i class="feather-users" aria-hidden="true"></i> Administrativo
+                        </button>
+                        <button type="button" id="btnModoFarmaciaProg" class="cui-btn cui-btn-secondary" onclick="cambiarModoProg('FARMACIA')">
+                            <i class="feather-shopping-bag" aria-hidden="true"></i> Farmacia
+                        </button>
+                    </div>
+
+                    <div id="grupoSucursalProg" hidden>
+                        <label class="form-label fw-semibold">Sucursal</label>
+                        <select id="ubicacionIdProg" name="ubicacionId" class="form-select">
+                            <option value="">Selecciona una sucursal</option>
+                            <option th:each="ubi : ${listaubicaciones}"
+                                    th:value="${ubi.idUbicacion}"
+                                    th:text="${ubi.nombre + (ubi.ciudad != null ? ' - ' + ubi.ciudad : '')}"></option>
+                        </select>
+                    </div>
+
+                    <div id="grupoCustodioProg">
+                        <label class="form-label fw-semibold">Custodio</label>
+                        <select id="custodioIdProg" name="custodioId" class="form-select">
+                            <option value="">Selecciona un custodio</option>
+                            <option th:each="c : ${custodiosActivos}"
+                                    th:value="${c.idCustodio}"
+                                    th:text="${c.nombre}"
+                                    th:attr="data-ubicacion-id=${c.fkUbicacion != null ? c.fkUbicacion.idUbicacion : ''}"></option>
+                        </select>
+                        <div class="form-text">Selecciona un custodio para filtrar equipos.</div>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-semibold">Equipo <span class="text-danger">*</span></label>
+                        <select id="equipoIdProg" name="equipoId" class="form-select" required>
+                            <option value="">Selecciona un equipo</option>
+                            <option th:each="e : ${listaequipos}"
+                                    th:value="${e.idEquipo}"
+                                    th:text="${(e.codigoSap ?: 'Cod. Interno') + ' - ' + (e.modelo ?: 'Equipo')}"
+                                    th:attr="data-custodios=${custodiosPorEquipo[e.idEquipo] ?: ''}"></option>
+                        </select>
+                        <div id="equipoHintProg" class="form-text">Selecciona un custodio para filtrar equipos.</div>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-semibold">Técnico responsable <span class="text-danger">*</span></label>
+                        <select name="tecnicoId" class="form-select" required>
+                            <option value="">Selecciona un técnico</option>
+                            <option th:each="u : ${listausuarios}" th:value="${u.idUsuario}" th:text="${u.nombre}"></option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-semibold">Frecuencia</label>
+                        <select name="frecuenciaDias" class="form-select">
+                            <option value="30">30 días</option>
+                            <option value="60">60 días</option>
+                            <option value="90">90 días</option>
+                            <option value="180">180 días</option>
+                            <option value="365">365 días</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-semibold">Fecha próxima ejecución</label>
+                        <input type="date" name="fechaProximaEjecucion" class="form-control">
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-semibold">Observaciones</label>
+                        <textarea name="observaciones" class="form-control" rows="3" maxlength="500"
+                                  placeholder="Observaciones adicionales (opcional)"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="cui-drawer-footer">
+                <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                <button type="submit" form="formProgramado" class="cui-btn cui-btn-primary">
+                    <i class="feather-save" aria-hidden="true"></i>
+                    Guardar programación
+                </button>
+            </div>
+        </aside>
+
     </div>
 </div>
+
+<th:block layout:fragment="scripts">
+<script>
+(function () {
+    /* ── View toggle ── */
+    var toggle       = document.getElementById('mntViewToggle');
+    var listaView    = document.getElementById('mntListaView');
+    var kanbanView   = document.getElementById('mntKanbanView');
+    var progView     = document.getElementById('mntProgramadosView');
+    var gridFilters  = document.getElementById('mntGridFilters');
+    if (!toggle) return;
+
+    var STORAGE_KEY = 'mnt.viewMode';
+    var savedMode   = sessionStorage.getItem(STORAGE_KEY) || 'lista';
+
+    function applyView(mode) {
+        toggle.querySelectorAll('.cui-view-toggle-btn').forEach(function (btn) {
+            var active = btn.dataset.view === mode;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-pressed', String(active));
+        });
+        listaView.hidden   = mode !== 'lista';
+        kanbanView.hidden  = mode !== 'kanban';
+        progView.hidden    = mode !== 'programados';
+        if (gridFilters) gridFilters.hidden = mode === 'programados';
+        sessionStorage.setItem(STORAGE_KEY, mode);
+    }
+
+    toggle.addEventListener('click', function (e) {
+        var btn = e.target.closest('.cui-view-toggle-btn');
+        if (btn) applyView(btn.dataset.view);
+    });
+
+    applyView(savedMode);
+
+    /* ── Drawer programado: modo toggle ── */
+    var modoInput      = document.getElementById('modoSeleccionProg');
+    var btnAdmin       = document.getElementById('btnModoAdminProg');
+    var btnFarmacia    = document.getElementById('btnModoFarmaciaProg');
+    var grupoSucursal  = document.getElementById('grupoSucursalProg');
+    var grupoCustodio  = document.getElementById('grupoCustodioProg');
+    var ubicacionSelect = document.getElementById('ubicacionIdProg');
+    var custodioSelect = document.getElementById('custodioIdProg');
+    var equipoSelect   = document.getElementById('equipoIdProg');
+    var equipoHint     = document.getElementById('equipoHintProg');
+    var modoActual     = 'ADMINISTRATIVO';
+
+    window.cambiarModoProg = function (modo) {
+        modoActual = modo;
+        if (modoInput) modoInput.value = modo;
+        if (custodioSelect) custodioSelect.value = '';
+        if (equipoSelect)   equipoSelect.value   = '';
+        if (ubicacionSelect) ubicacionSelect.value = '';
+
+        if (modo === 'ADMINISTRATIVO') {
+            if (btnAdmin)    btnAdmin.className    = 'cui-btn cui-btn-primary';
+            if (btnFarmacia) btnFarmacia.className = 'cui-btn cui-btn-secondary';
+            if (grupoSucursal) grupoSucursal.hidden = true;
+            if (grupoCustodio) grupoCustodio.hidden = false;
+            restoreAllCustodioOptions();
+            hideAllEquipoOptions();
+            if (equipoHint) equipoHint.textContent = 'Selecciona un custodio para filtrar equipos.';
+        } else {
+            if (btnAdmin)    btnAdmin.className    = 'cui-btn cui-btn-secondary';
+            if (btnFarmacia) btnFarmacia.className = 'cui-btn cui-btn-primary';
+            if (grupoSucursal) grupoSucursal.hidden = false;
+            if (grupoCustodio) grupoCustodio.hidden = false;
+            hideAllCustodioOptions();
+            hideAllEquipoOptions();
+            if (equipoHint) equipoHint.textContent = 'Selecciona una sucursal para filtrar equipos.';
+        }
+    };
+
+    function refreshEquiposByCustodio() {
+        var custodioId = custodioSelect ? custodioSelect.value : '';
+        if (equipoSelect) equipoSelect.value = '';
+        var visibles = 0;
+        if (equipoSelect) Array.from(equipoSelect.options).forEach(function (opt) {
+            if (!opt.value) return;
+            var custodios = (opt.getAttribute('data-custodios') || '').split(',').map(function (v) { return v.trim(); }).filter(Boolean);
+            var visible = custodioId ? custodios.indexOf(custodioId) !== -1 : false;
+            opt.hidden = !visible; opt.disabled = !visible;
+            if (visible) visibles++;
+        });
+        if (equipoHint) equipoHint.textContent = !custodioId ? 'Selecciona un custodio para filtrar equipos.'
+            : (visibles === 0 ? 'El custodio no tiene equipos asignados.' : visibles + ' equipo(s) disponible(s).');
+    }
+
+    function refreshEquiposBySucursal() {
+        var ubiId = ubicacionSelect ? ubicacionSelect.value : '';
+        if (equipoSelect) equipoSelect.value = '';
+        var custodiosEnSucursal = [];
+        if (custodioSelect) Array.from(custodioSelect.options).forEach(function (opt) {
+            if (!opt.value) return;
+            if ((opt.getAttribute('data-ubicacion-id') || '') === ubiId) custodiosEnSucursal.push(opt.value);
+        });
+        var visibles = 0;
+        if (equipoSelect) Array.from(equipoSelect.options).forEach(function (opt) {
+            if (!opt.value) return;
+            var custodios = (opt.getAttribute('data-custodios') || '').split(',').map(function (v) { return v.trim(); }).filter(Boolean);
+            var visible = ubiId ? custodios.some(function (c) { return custodiosEnSucursal.indexOf(c) !== -1; }) : false;
+            opt.hidden = !visible; opt.disabled = !visible;
+            if (visible) visibles++;
+        });
+        if (equipoHint) equipoHint.textContent = !ubiId ? 'Selecciona una sucursal para filtrar equipos.'
+            : (visibles === 0 ? 'La sucursal no tiene equipos registrados.' : visibles + ' equipo(s) disponible(s).');
+    }
+
+    function refreshCustodiosBySucursal() {
+        var ubiId = ubicacionSelect ? ubicacionSelect.value : '';
+        if (custodioSelect) {
+            custodioSelect.value = '';
+            Array.from(custodioSelect.options).forEach(function (opt) {
+                if (!opt.value) return;
+                var visible = ubiId ? (opt.getAttribute('data-ubicacion-id') || '') === ubiId : false;
+                opt.hidden = !visible; opt.disabled = !visible;
+            });
+        }
+    }
+
+    function restoreAllCustodioOptions() {
+        if (custodioSelect) Array.from(custodioSelect.options).forEach(function (opt) { opt.hidden = false; opt.disabled = false; });
+    }
+
+    function hideAllCustodioOptions() {
+        if (custodioSelect) Array.from(custodioSelect.options).forEach(function (opt) {
+            if (!opt.value) return;
+            opt.hidden = true; opt.disabled = true; opt.selected = false;
+        });
+    }
+
+    function hideAllEquipoOptions() {
+        if (equipoSelect) Array.from(equipoSelect.options).forEach(function (opt) {
+            if (!opt.value) return;
+            opt.hidden = true; opt.disabled = true; opt.selected = false;
+        });
+    }
+
+    if (custodioSelect) custodioSelect.addEventListener('change', function () {
+        if (modoActual === 'ADMINISTRATIVO') refreshEquiposByCustodio();
+    });
+    if (ubicacionSelect) ubicacionSelect.addEventListener('change', function () {
+        if (modoActual !== 'FARMACIA') return;
+        refreshCustodiosBySucursal();
+        refreshEquiposBySucursal();
+    });
+
+    hideAllEquipoOptions();
+}());
+</script>
+</th:block>
 </body>
 </html>

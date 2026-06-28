@@ -123,18 +123,6 @@
                     </a>
                 </li>
                 <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
-                    <a th:href="@{/mantenimiento/kanban}" class="cui-nav-link">
-                        <span class="cui-nav-icon"><i class="feather-columns"></i></span>
-                        <span class="cui-nav-text">Kanban</span>
-                    </a>
-                </li>
-                <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
-                    <a th:href="@{/mantenimiento/programado}" class="cui-nav-link">
-                        <span class="cui-nav-icon"><i class="feather-calendar"></i></span>
-                        <span class="cui-nav-text">Programados</span>
-                    </a>
-                </li>
-                <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
                     <a th:href="@{/planificacion}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-clock"></i></span>
                         <span class="cui-nav-text">Planificacion</span>

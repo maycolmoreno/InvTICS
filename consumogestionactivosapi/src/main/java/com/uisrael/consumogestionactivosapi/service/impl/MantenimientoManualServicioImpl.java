@@ -70,6 +70,9 @@ public class MantenimientoManualServicioImpl implements IMantenimientoManualServ
 				partHeaders.setContentDispositionFormData("files", filename);
 				parts.add("files", new HttpEntity<>(resource, partHeaders));
 			}
+			if (parts.isEmpty()) {
+				return List.of();
+			}
 			return clienteWeb.post().uri("/mantenimiento/{id}/imagenes/upload", idMantenimiento)
 					.contentType(MediaType.MULTIPART_FORM_DATA).body(parts).retrieve()
 					.body(new ParameterizedTypeReference<List<ImagenMantenimientoRequestDTO>>() {

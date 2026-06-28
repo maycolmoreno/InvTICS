@@ -82,9 +82,35 @@ public class MantenimientoControlador {
         model.addAttribute("totalPaginas", pagina.getTotalPaginas());
         model.addAttribute("totalElementos", pagina.getTotalElementos());
         model.addAttribute("tamanioPagina", pagina.getTamanioPagina());
-        model.addAttribute("listaequipos", equiposServicio.listarEquipos());
-        model.addAttribute("listacustodios", custodiosServicio.listarCustodios());
-        model.addAttribute("listaubicaciones", ubicacionesServicio.listarUbicaciones());
+
+        List<com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO> ubicaciones =
+                ubicacionesServicio.listarUbicaciones();
+        model.addAttribute("listaubicaciones", ubicaciones);
+
+        List<EquiposResponseDTO> equipos = equiposServicio.listarEquipos();
+        model.addAttribute("listaequipos", equipos);
+
+        List<CustodiosResponseDTO> custodios = custodiosServicio.listarCustodios();
+        model.addAttribute("listacustodios", custodios);
+        model.addAttribute("custodiosActivos", custodios.stream().filter(CustodiosResponseDTO::isEstado).toList());
+
+        List<CustodiasResponseDTO> custodiasActivas = custodiasServicio.listarCustodias().stream()
+                .filter(CustodiasResponseDTO::isEstado)
+                .filter(c -> idCustodio(c) != null && c.getFkEquipo() != null)
+                .toList();
+        Map<Integer, String> custodiosPorEquipo = custodiasActivas.stream()
+                .collect(Collectors.groupingBy(
+                        c -> c.getFkEquipo().getIdEquipo(),
+                        LinkedHashMap::new,
+                        Collectors.mapping(c -> String.valueOf(idCustodio(c)),
+                                Collectors.collectingAndThen(Collectors.toList(), ids -> String.join(",", ids)))));
+        model.addAttribute("custodiosPorEquipo", custodiosPorEquipo);
+
+        model.addAttribute("listausuarios", usuariosServicio.listarUsuario().stream()
+                .filter(com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponseDTO::isEstado).toList());
+        model.addAttribute("listaprogramados", mantenimientoProgramadoServicio.listarTodos());
+        model.addAttribute("vencidosProximos", mantenimientoProgramadoServicio.listarVencidosYProximos());
+
         return "mantenimiento/lista-mantenimientos";
     }
 
@@ -326,7 +352,7 @@ public class MantenimientoControlador {
     public String guardarProgramado(MantenimientoProgramadoRequestDTO request, RedirectAttributes redirectAttributes) {
         mantenimientoProgramadoServicio.guardar(request);
         redirectAttributes.addFlashAttribute("exito", "Programacion guardada correctamente");
-        return "redirect:/mantenimiento/programado";
+        return "redirect:/mantenimiento";
     }
 
     @PostMapping("/programado/desactivar")

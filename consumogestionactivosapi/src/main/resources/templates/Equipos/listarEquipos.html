@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{plantilla/plantillaui}">
 <head>
-    <title>Equipos</title>
+    <title>Activos TI</title>
 </head>
 <body>
 <div layout:fragment="contenidopaginas">
@@ -37,9 +37,11 @@
             <div class="cui-grid-filters">
                 <select class="form-select" data-cui-grid-filter data-filter-key="estado" data-cui-filter-persist>
                     <option value="">Todos los estados</option>
-                    <option value="activo">Activo</option>
-                    <option value="inactivo">Inactivo</option>
-                    <option value="novedad">Con novedad</option>
+                    <option value="en_bodega">En bodega</option>
+                    <option value="asignado">Asignado</option>
+                    <option value="en_reparacion">En reparación</option>
+                    <option value="en_transito">En tránsito</option>
+                    <option value="dado_de_baja">Dado de baja</option>
                 </select>
             </div>
 
@@ -48,19 +50,17 @@
                     <table class="table cui-table">
                         <thead>
                         <tr>
-                            <th>Codigo</th>
-                            <th>Categoria</th>
+                            <th>Código</th>
+                            <th>Categoría</th>
                             <th>Marca / Modelo</th>
                             <th>Serial</th>
                             <th>Estado</th>
-                            <th>MAC</th>
-                            <th>Compra</th>
                             <th class="text-end">Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:if="${listarequipos == null or #lists.isEmpty(listarequipos)}">
-                            <td colspan="8">
+                            <td colspan="6">
                                 <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-monitor', title='Sin equipos', message='No hay equipos registrados en el inventario.')}"></div>
                             </td>
                         </tr>
@@ -68,13 +68,14 @@
                             data-cui-grid-row
                             th:with="categoria=${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : 'Equipo'},
                                      marca=${equipo.fkMarca != null ? equipo.fkMarca.nombre : '-'},
-                                     estadoTexto=${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : (equipo.estado ? 'Activo' : 'Inactivo')},
-                                     estadoFiltro=${!equipo.estado ? 'inactivo' : ((#strings.contains(#strings.toLowerCase(estadoTexto), 'repar') or #strings.contains(#strings.toLowerCase(estadoTexto), 'mantenimiento') or #strings.contains(#strings.toLowerCase(estadoTexto), 'falla')) ? 'novedad' : 'activo')},
-                                     busqueda=${(equipo.codigoSap ?: '') + ' ' + (equipo.serial ?: '') + ' ' + (equipo.modelo ?: '') + ' ' + marca + ' ' + categoria + ' ' + estadoTexto}"
+                                     estadoEquipo=${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : (equipo.estado ? 'EN_BODEGA' : 'DADO_DE_BAJA')},
+                                     estadoFiltro=${#strings.toLowerCase(estadoEquipo)},
+                                     estadoLabel=${estadoFiltro == 'asignado' ? 'Asignado' : (estadoFiltro == 'en_bodega' ? 'En bodega' : (estadoFiltro == 'en_reparacion' ? 'En reparación' : (estadoFiltro == 'en_transito' ? 'En tránsito' : (estadoFiltro == 'dado_de_baja' ? 'Dado de baja' : estadoEquipo))))},
+                                     busqueda=${(equipo.codigoSap ?: '') + ' ' + (equipo.serial ?: '') + ' ' + (equipo.modelo ?: '') + ' ' + marca + ' ' + categoria + ' ' + estadoEquipo}"
                             th:attr="data-search=${#strings.toLowerCase(busqueda)},data-estado=${estadoFiltro},data-equipo-id=${equipo.idEquipo},data-equipo-label=${(equipo.codigoSap ?: 'Sin codigo') + ' · ' + (equipo.modelo ?: 'Sin modelo')}">
                             <td>
                                 <div class="cui-row-stack">
-                                    <span class="cui-row-title" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Sin codigo'}">Codigo</span>
+                                    <span class="inv-code" th:text="${equipo.codigoSap != null and !#strings.isEmpty(equipo.codigoSap) ? equipo.codigoSap : 'Sin código'}">Codigo</span>
                                     <span class="cui-row-subtitle" th:text="${'ID ' + equipo.idEquipo}">ID</span>
                                 </div>
                             </td>
@@ -85,29 +86,29 @@
                                     <span class="cui-row-subtitle" th:text="${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : '-'}">Modelo</span>
                                 </div>
                             </td>
-                            <td th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : '-'}">Serial</td>
+                            <td>
+                                <span class="inv-serial" th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : '—'}">—</span>
+                            </td>
                             <td>
                                 <span class="cui-badge"
-                                      th:classappend="${estadoFiltro == 'inactivo'} ? ' cui-badge-dado-de-baja' : (${estadoFiltro == 'novedad'} ? ' cui-badge-en-reparacion' : ' cui-badge-asignado')"
-                                      th:text="${estadoTexto}">Estado</span>
+                                      th:classappend="${estadoFiltro == 'asignado' ? ' cui-badge-asignado' : (estadoFiltro == 'en_bodega' ? ' cui-badge-en-bodega' : (estadoFiltro == 'en_reparacion' ? ' cui-badge-en-reparacion' : (estadoFiltro == 'en_transito' ? ' cui-badge-en-transito' : (estadoFiltro == 'dado_de_baja' ? ' cui-badge-dado-de-baja' : ' cui-badge-muted'))))}"
+                                      th:text="${estadoLabel}">Estado</span>
                             </td>
-                            <td th:text="${equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : '-'}">MAC</td>
-                            <td th:text="${equipo.fechaCompra != null ? #temporals.format(equipo.fechaCompra, 'dd/MM/yyyy') : '-'}">-</td>
                             <td>
                                 <div class="cui-action-cell">
-                                    <a th:href="@{/activos/equipos/{id}/expediente(id=${equipo.idEquipo})}" class="btn btn-outline-primary btn-sm">
+                                    <a th:href="@{/activos/equipos/{id}/expediente(id=${equipo.idEquipo})}" class="cui-btn cui-btn-sm cui-btn-primary">
                                         Expediente
                                     </a>
                                     <button th:if="${equipo.estado}"
                                             type="button"
-                                            class="btn btn-outline-secondary btn-sm"
+                                            class="cui-icon-btn"
                                             onclick="equipoAbrirTrasladar(this)"
-                                            data-cui-drawer-open="#drawerTrasladarEquipo">
+                                            data-cui-drawer-open="#drawerTrasladarEquipo"
+                                            aria-label="Trasladar activo">
                                         <i class="feather-truck" aria-hidden="true"></i>
-                                        Trasladar
                                     </button>
                                     <div class="dropdown cui-action-menu">
-                                        <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                        <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                                             <i class="feather-more-vertical" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
@@ -151,13 +152,13 @@
                         <h5 class="modal-title">Confirmar cambio de estado</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
-                    <div class="modal-body" id="textoModalToggle">Esta seguro?</div>
+                    <div class="modal-body" id="textoModalToggle">¿Esta seguro?</div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="cui-btn cui-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <form id="formEstadoEquipo" method="post">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <input type="hidden" name="idEquipo" id="idEquipoToggle">
-                            <button type="submit" class="btn" id="btnToggle">Confirmar</button>
+                            <button type="submit" class="cui-btn" id="btnToggle">Confirmar</button>
                         </form>
                     </div>
                 </div>
@@ -169,7 +170,7 @@
                     <div class="fw-bold">Trasladar activo</div>
                     <div class="small text-muted">Mover equipo a otra bodega</div>
                 </div>
-                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                <button type="button" class="cui-icon-btn" data-cui-drawer-close aria-label="Cerrar panel">
                     <i class="feather-x"></i>
                 </button>
             </div>
@@ -221,30 +222,28 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             var modalToggle = document.getElementById("modalToggleEquipo");
-            if (!modalToggle) {
-                return;
-            }
+            if (!modalToggle) return;
 
             modalToggle.addEventListener("show.bs.modal", function (event) {
                 var button = event.relatedTarget;
-                var id = button.getAttribute("data-id");
+                var id     = button.getAttribute("data-id");
                 var estado = button.getAttribute("data-estado") === "true";
-                var form = document.getElementById("formEstadoEquipo");
-                var texto = document.getElementById("textoModalToggle");
-                var btn = document.getElementById("btnToggle");
+                var form   = document.getElementById("formEstadoEquipo");
+                var texto  = document.getElementById("textoModalToggle");
+                var btn    = document.getElementById("btnToggle");
 
                 document.getElementById("idEquipoToggle").value = id;
 
                 if (estado) {
-                    form.action = "/equipos/eliminar-equipo";
-                    texto.textContent = "Esta seguro de desactivar este equipo?";
-                    btn.textContent = "Si, desactivar";
-                    btn.className = "btn btn-outline-danger";
+                    form.action      = "/equipos/eliminar-equipo";
+                    texto.textContent = "¿Esta seguro de desactivar este equipo?";
+                    btn.textContent  = "Si, desactivar";
+                    btn.className    = "cui-btn cui-btn-danger";
                 } else {
-                    form.action = "/equipos/activar-equipo";
-                    texto.textContent = "Esta seguro de activar este equipo?";
-                    btn.textContent = "Si, activar";
-                    btn.className = "btn btn-primary";
+                    form.action      = "/equipos/activar-equipo";
+                    texto.textContent = "¿Esta seguro de activar este equipo?";
+                    btn.textContent  = "Si, activar";
+                    btn.className    = "cui-btn cui-btn-primary";
                 }
             });
         });
