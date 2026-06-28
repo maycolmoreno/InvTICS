@@ -1,8 +1,13 @@
 package com.uisrael.consumogestionactivosapi.controlador;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +19,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseD
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoManualResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ActivoInventarioResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.MovimientoInventarioResponseDTO;
+import com.uisrael.consumogestionactivosapi.service.ActaStorageService;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
@@ -32,6 +38,7 @@ public class ActivosExperienciaControlador {
     private final ICustodiosServicio custodiosServicio;
     private final IMantenimientoManualServicio mantenimientoManualServicio;
     private final IInventarioOperacionServicio inventarioOperacionServicio;
+    private final ActaStorageService actaStorageService;
 
     @GetMapping("/equipos/{idEquipo}/expediente")
     public String expedienteActivo(@PathVariable Integer idEquipo, Model model) {
@@ -75,6 +82,7 @@ public class ActivosExperienciaControlador {
         java.util.function.Supplier<List<ActivoInventarioResponseDTO>>[] fuentes =
                 new java.util.function.Supplier[]{
                         inventarioOperacionServicio::listarActivosEnBodega,
+                        inventarioOperacionServicio::listarActivosAsignados,
                         inventarioOperacionServicio::listarActivosEnReparacion,
                         inventarioOperacionServicio::listarActivosEnTransito
                 };
@@ -88,6 +96,21 @@ public class ActivosExperienciaControlador {
             } catch (Exception ignored) {}
         }
         return false;
+    }
+
+    @GetMapping("/actas/{nombreArchivo:.+}")
+    public ResponseEntity<byte[]> descargarActa(@PathVariable String nombreArchivo) throws IOException {
+        if (nombreArchivo == null || !nombreArchivo.endsWith(".pdf")) {
+            return ResponseEntity.badRequest().build();
+        }
+        byte[] bytes = actaStorageService.leerActaPdf(nombreArchivo);
+        if (bytes == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + nombreArchivo + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(bytes);
     }
 
     private <T> List<T> safeList(List<T> value) {

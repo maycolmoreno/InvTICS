@@ -31,9 +31,11 @@ import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.Retorna
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.TrasladoActivoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.TrasladoConsumibleRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.ActivoInventarioResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.AsignacionActivosResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.BodegaResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.ConsumibleResponseDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.MovimientoInventarioResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AdoptarInventarioInicialRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarEtiquetaRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
@@ -166,13 +168,18 @@ public class InventarioControlador {
         return inventarioService.listarActivosPorEstado("EN_REPARACION");
     }
 
+    @GetMapping("/activos/asignados")
+    public List<ActivoInventarioResponseDTO> listarActivosAsignados() {
+        return inventarioService.listarActivosPorEstado("ASIGNADO");
+    }
+
     @GetMapping("/activos/en-transito")
     public List<ActivoInventarioResponseDTO> listarActivosEnTransito() {
         return inventarioService.listarActivosEnTransito();
     }
 
     @PostMapping("/asignaciones/activos/lote")
-    public ResponseEntity<List<ActivoInventarioResponseDTO>> asignarActivosLote(
+    public ResponseEntity<AsignacionActivosResponseDTO> asignarActivosLote(
             @Valid @RequestBody AsignacionLoteRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(inventarioService.asignarActivosLote(request));
@@ -243,5 +250,17 @@ public class InventarioControlador {
             @PathVariable Integer id,
             @RequestBody RegistrarEtiquetaRequestDTO request) {
         return ResponseEntity.ok(inventarioService.registrarEtiqueta(id, request));
+    }
+
+    @GetMapping("/activos/sin-inventario")
+    public ResponseEntity<List<ActivoInventarioResponseDTO>> listarSinInventario() {
+        return ResponseEntity.ok(inventarioService.listarSinInventario());
+    }
+
+    @PatchMapping("/activos/{id}/adoptar")
+    public ResponseEntity<ActivoInventarioResponseDTO> adoptarInventarioInicial(
+            @PathVariable Integer id,
+            @RequestBody AdoptarInventarioInicialRequestDTO request) {
+        return ResponseEntity.ok(inventarioService.adoptarInventarioInicial(id, request));
     }
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -17,8 +18,10 @@ import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoOrdenCom
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.TipoItemInventario;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.BodegaJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ConsumibleJpa;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.EquiposJpa;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.MovimientoInventarioJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.OrdenCompraDetalleJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.OrdenCompraJpa;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IBodegaJpaRepositorio;
@@ -35,6 +38,7 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.IOrdenCompraJp
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IRecepcionLoteJpaRepositorio;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IStockConsumibleBodegaJpaRepositorio;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AsignacionActivoRequestDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AsignacionLoteRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AsignacionConsumibleRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.OrdenCompraDetalleRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.OrdenCompraRequestDTO;
@@ -50,7 +54,9 @@ class InventarioServiceTest {
     private IOrdenCompraJpaRepositorio ordenRepo;
     private IOrdenCompraDetalleJpaRepositorio detalleRepo;
     private IEquiposJpaRepositorio equiposRepo;
+    private ICustodiasJpaRepositorio custodiasRepo;
     private ICustodiosJpaRepositorio custodiosRepo;
+    private IMovimientoInventarioJpaRepositorio movimientoRepo;
     private InventarioService service;
 
     @BeforeEach
@@ -60,16 +66,18 @@ class InventarioServiceTest {
         ordenRepo = mock(IOrdenCompraJpaRepositorio.class);
         detalleRepo = mock(IOrdenCompraDetalleJpaRepositorio.class);
         equiposRepo = mock(IEquiposJpaRepositorio.class);
+        custodiasRepo = mock(ICustodiasJpaRepositorio.class);
         custodiosRepo = mock(ICustodiosJpaRepositorio.class);
+        movimientoRepo = mock(IMovimientoInventarioJpaRepositorio.class);
         service = new InventarioService(
                 bodegaRepo,
                 consumibleRepo,
                 ordenRepo,
                 detalleRepo,
                 mock(IStockConsumibleBodegaJpaRepositorio.class),
-                mock(IMovimientoInventarioJpaRepositorio.class),
+                movimientoRepo,
                 equiposRepo,
-                mock(ICustodiasJpaRepositorio.class),
+                custodiasRepo,
                 mock(ICategoriaEquiposJpaRepositorio.class),
                 mock(IMarcasJpaRepositorio.class),
                 custodiosRepo,
@@ -209,6 +217,42 @@ class InventarioServiceTest {
         assertThatThrownBy(() -> service.asignarActivo(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("El colaborador destino no esta activo en el sistema");
+    }
+
+    @Test
+    void asignarActivosLote_devuelveCustodiaCreadaYRegistraMovimiento() {
+        BodegaJpa bodega = bodega(1, true);
+        EquiposJpa equipo = new EquiposJpa();
+        equipo.setIdEquipo(8);
+        equipo.setCodigoCresio("CR-LAP-001");
+        equipo.setEstadoInventario(EstadoInventarioActivo.EN_BODEGA.name());
+        equipo.setEtiquetado(true);
+        equipo.setBodegaActual(bodega);
+        CustodiosJpa custodio = new CustodiosJpa();
+        custodio.setIdCustodio(4);
+        custodio.setNombre("Usuario Prueba");
+        custodio.setEstado(true);
+        when(equiposRepo.findById(8)).thenReturn(Optional.of(equipo));
+        when(custodiosRepo.findById(4)).thenReturn(Optional.of(custodio));
+        when(custodiasRepo.save(any())).thenAnswer(invocation -> {
+            CustodiasJpa custodia = invocation.getArgument(0);
+            custodia.setIdCustodiaEquipo(99);
+            return custodia;
+        });
+        when(equiposRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        AsignacionLoteRequestDTO request = new AsignacionLoteRequestDTO();
+        request.setEquipoIds(List.of(8));
+        request.setCustodioId(4);
+
+        var response = service.asignarActivosLote(request);
+
+        assertThat(response.getActivos()).hasSize(1);
+        assertThat(response.getCustodias()).hasSize(1);
+        assertThat(response.getActivos().get(0).getEstadoInventario()).isEqualTo("ASIGNADO");
+        assertThat(response.getCustodias().get(0).getIdCustodiaEquipo()).isEqualTo(99);
+        assertThat(response.getCustodias().get(0).getFkCustodio().getIdCustodio()).isEqualTo(4);
+        verify(movimientoRepo).save(any(MovimientoInventarioJpa.class));
     }
 
     @Test

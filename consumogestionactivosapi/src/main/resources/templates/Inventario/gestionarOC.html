@@ -213,17 +213,17 @@
                         <div class="form-control bg-light" th:text="${oc.bodegaDestinoNombre ?: '—'}">—</div>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Cantidad a recibir <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" name="cantidad" id="rs-cantidad" min="1" required>
+                        <label class="form-label">Cantidad a recibir <span class="cui-required-mark">*</span></label>
+                        <input type="number" class="cui-inline-input" name="cantidad" id="rs-cantidad" min="1" required>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Recepcionado por <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="recepcionadoPor"
+                        <label class="form-label">Recepcionado por <span class="cui-required-mark">*</span></label>
+                        <input type="text" class="cui-inline-input" name="recepcionadoPor"
                                placeholder="Nombre de quien recibe" required>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Observacion</label>
-                        <textarea class="form-control" name="observacion" rows="2"></textarea>
+                        <textarea class="cui-inline-input" name="observacion" rows="2"></textarea>
                     </div>
                     <div class="col-12 d-flex justify-content-end">
                         <button class="cui-btn cui-btn-primary" type="submit">
@@ -255,30 +255,30 @@
                         <div class="form-control bg-light" th:text="${oc.bodegaDestinoNombre ?: '—'}">—</div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Categoria <span class="text-danger">*</span></label>
-                        <select class="form-select" name="idCategoria" required>
-                            <option value="">Seleccione</option>
+                        <label class="form-label">Categoria <span class="cui-required-mark">*</span></label>
+                        <select class="cui-inline-input" name="idCategoria" required>
+                            <option value="">Seleccione categoria...</option>
                             <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}">Categoria</option>
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Marca <span class="text-danger">*</span></label>
-                        <select class="form-select" name="idMarca" required>
-                            <option value="">Seleccione</option>
+                        <label class="form-label">Marca <span class="cui-required-mark">*</span></label>
+                        <select class="cui-inline-input" name="idMarca" required>
+                            <option value="">Seleccione marca...</option>
                             <option th:each="m : ${marcas}" th:value="${m.idMarca}" th:text="${m.nombre}">Marca</option>
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Modelo <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="modelo" placeholder="Ej. ThinkPad X1 Carbon" required>
+                        <label class="form-label">Modelo <span class="cui-required-mark">*</span></label>
+                        <input type="text" class="cui-inline-input" name="modelo" placeholder="Ej. ThinkPad X1 Carbon" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Serial <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="serial" placeholder="Numero de serie unico" required>
+                        <label class="form-label">Serial <span class="cui-required-mark">*</span></label>
+                        <input type="text" class="cui-inline-input" name="serial" placeholder="Numero de serie unico" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Condicion al recibir</label>
-                        <select class="form-select" name="condicionAlRecibir">
+                        <select class="cui-inline-input" name="condicionAlRecibir">
                             <option value="">Sin especificar</option>
                             <option value="NUEVO">Nuevo</option>
                             <option value="BUENO">Bueno</option>
@@ -287,8 +287,8 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Recepcionado por <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="recepcionadoPor"
+                        <label class="form-label">Recepcionado por <span class="cui-required-mark">*</span></label>
+                        <input type="text" class="cui-inline-input" name="recepcionadoPor"
                                placeholder="Nombre de quien recibe" required>
                     </div>
                     <div class="col-12 border-top pt-2">
@@ -303,20 +303,20 @@
                             <div class="row g-2 pt-2">
                                 <div class="col-12">
                                     <label class="form-label small">Procesador</label>
-                                    <input type="text" class="form-control form-control-sm" name="procesador"
+                                    <input type="text" class="cui-inline-input" name="procesador"
                                            placeholder="Ej. Intel Core i7-1165G7">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small">RAM (GB)</label>
-                                    <input type="number" class="form-control form-control-sm" name="memoriaRamGb" min="1" placeholder="Ej. 16">
+                                    <input type="number" class="cui-inline-input" name="memoriaRamGb" min="1" placeholder="Ej. 16">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small">Almacenamiento (GB)</label>
-                                    <input type="number" class="form-control form-control-sm" name="capacidadAlmacenamientoGb" min="1" placeholder="Ej. 512">
+                                    <input type="number" class="cui-inline-input" name="capacidadAlmacenamientoGb" min="1" placeholder="Ej. 512">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small">Direccion MAC</label>
-                                    <input type="text" class="form-control form-control-sm" name="mac" placeholder="Ej. AA:BB:CC:DD:EE:FF">
+                                    <input type="text" class="cui-inline-input" name="mac" placeholder="Ej. AA:BB:CC:DD:EE:FF">
                                 </div>
                                 <div class="col-12 d-flex align-items-center gap-2 pt-1">
                                     <input type="checkbox" class="form-check-input" name="licenciaWindowsActivada"
@@ -338,15 +338,15 @@
                             <div class="row g-2 pt-2">
                                 <div class="col-md-6">
                                     <label class="form-label small">Fecha de compra</label>
-                                    <input type="date" class="form-control form-control-sm" name="fechaCompra">
+                                    <input type="date" class="cui-inline-input" name="fechaCompra">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small">Vencimiento garantia</label>
-                                    <input type="date" class="form-control form-control-sm" name="fechaGarantia">
+                                    <input type="date" class="cui-inline-input" name="fechaGarantia">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small">Precio de compra</label>
-                                    <input type="number" class="form-control form-control-sm" name="precioCompra"
+                                    <input type="number" class="cui-inline-input" name="precioCompra"
                                            step="0.01" min="0" placeholder="0.00">
                                 </div>
                             </div>
@@ -361,7 +361,7 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label">Observacion</label>
-                        <textarea class="form-control" name="observacion" rows="2"></textarea>
+                        <textarea class="cui-inline-input" name="observacion" rows="2"></textarea>
                     </div>
                     <div class="col-12 d-flex justify-content-end">
                         <button class="cui-btn cui-btn-primary" type="submit">

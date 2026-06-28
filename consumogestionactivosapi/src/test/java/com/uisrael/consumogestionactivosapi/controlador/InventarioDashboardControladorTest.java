@@ -16,20 +16,18 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.operacional.CentroOperacionalDTO;
 import com.uisrael.consumogestionactivosapi.service.ICentroOperacionalServicio;
-import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio;
 
 @ExtendWith(MockitoExtension.class)
 class InventarioDashboardControladorTest {
 
     @Mock private ICentroOperacionalServicio centroOperacionalServicio;
-    @Mock private IInventarioOperacionServicio inventarioOperacionServicio;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new InventarioDashboardControlador(centroOperacionalServicio, inventarioOperacionServicio))
+                .standaloneSetup(new InventarioDashboardControlador(centroOperacionalServicio))
                 .build();
     }
 

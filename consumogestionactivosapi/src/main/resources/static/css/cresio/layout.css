@@ -297,3 +297,146 @@ body.cui-sidebar-collapsed .cui-nav-submenu {
     padding: 0 var(--cui-space-4);
   }
 }
+
+/* ── Sidebar search (filtro de módulos) ─────────────────────────── */
+.cui-sidebar-search {
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  gap: var(--cui-space-2);
+  padding: var(--cui-space-2) var(--cui-space-4);
+}
+
+.cui-sidebar-search i {
+  color: #475569;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.cui-sidebar-search input {
+  background: transparent;
+  border: 0;
+  color: #cbd5e1;
+  flex: 1;
+  font-family: var(--cui-font-family);
+  font-size: 12px;
+  outline: 0;
+  padding: 8px 0;
+}
+
+.cui-sidebar-search input::placeholder {
+  color: #334155;
+}
+
+body.cui-sidebar-collapsed .cui-sidebar-search {
+  display: none;
+}
+
+/* ── Estado activo — enlace de la página actual ─────────────────── */
+.cui-sidebar .cui-nav-link.is-current {
+  background: rgba(92, 54, 160, 0.32);
+  border-left: 3px solid var(--cui-primary-mid);
+  color: #fff;
+  padding-left: calc(var(--cui-space-3) - 3px);
+}
+
+.cui-sidebar .cui-nav-submenu .cui-nav-link.is-current {
+  color: #e2e8f0;
+}
+
+/* ── Footer: usuario conectado ──────────────────────────────────── */
+.cui-sidebar-user {
+  align-items: center;
+  display: flex;
+  gap: var(--cui-space-3);
+  margin-bottom: var(--cui-space-2);
+  min-width: 0;
+  padding: var(--cui-space-2) var(--cui-space-1);
+}
+
+.cui-sidebar-avatar {
+  align-items: center;
+  background: linear-gradient(135deg, var(--cui-primary), var(--cui-secondary));
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 800;
+  height: 34px;
+  justify-content: center;
+  letter-spacing: 0.04em;
+  width: 34px;
+}
+
+.cui-sidebar-user-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cui-sidebar-user-name {
+  color: #e2e8f0;
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cui-sidebar-user-role {
+  color: #64748b;
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cui-sidebar-footer-meta {
+  align-items: center;
+  color: #334155;
+  display: flex;
+  font-size: 11px;
+  justify-content: space-between;
+  padding: 0 var(--cui-space-1);
+}
+
+.cui-sidebar-logout {
+  align-items: center;
+  border-radius: var(--cui-radius-sm);
+  color: #475569;
+  display: inline-flex;
+  font-size: 15px;
+  justify-content: center;
+  padding: 4px 6px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.cui-sidebar-logout:hover {
+  color: #f87171;
+}
+
+/* ── Collapsed: ocultar info de usuario y meta ──────────────────── */
+body.cui-sidebar-collapsed .cui-sidebar-user-info,
+body.cui-sidebar-collapsed .cui-sidebar-footer-meta {
+  display: none;
+}
+
+body.cui-sidebar-collapsed .cui-sidebar-user {
+  justify-content: center;
+  padding: var(--cui-space-2) 0;
+}
+
+/* ── Empty state del buscador ───────────────────────────────────── */
+.cui-nav-search-empty {
+  color: #334155;
+  font-size: 12px;
+  padding: var(--cui-space-5) var(--cui-space-3);
+  text-align: center;
+}

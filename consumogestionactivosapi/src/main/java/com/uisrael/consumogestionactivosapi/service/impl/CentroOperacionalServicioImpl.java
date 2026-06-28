@@ -1,9 +1,14 @@
 package com.uisrael.consumogestionactivosapi.service.impl;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
@@ -16,6 +21,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.Movim
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.OrdenCompraResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.StockConsumibleResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.operacional.CentroOperacionalDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.operacional.CustodioTopDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.operacional.MovimientoRecienteDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.operacional.QuickActionDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.operacional.RiesgoOperativoDTO;
@@ -45,6 +51,7 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
         List<ActivoInventarioResponseDTO> enTransito = safe(() -> inventarioOperacionServicio.listarActivosEnTransito());
         List<ActivoInventarioResponseDTO> enBodega = safe(() -> inventarioOperacionServicio.listarActivosEnBodega());
         List<ActivoInventarioResponseDTO> enReparacion = safe(() -> inventarioOperacionServicio.listarActivosEnReparacion());
+        List<ActivoInventarioResponseDTO> sinInventario = safe(() -> inventarioOperacionServicio.listarSinInventario());
         List<StockConsumibleResponseDTO> stock = stockDisponible();
         List<EquiposResponseDTO> equipos = safe(() -> equiposServicio.listarEquipos());
         List<CustodiasResponseDTO> custodias = safe(() -> custodiasServicio.listarCustodias());
@@ -54,9 +61,16 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
                 .filter(s -> s.getCantidad() != null && s.getCantidad() <= STOCK_CRITICO)
                 .count();
         long activosSinEtiqueta = enBodega.stream().filter(a -> Boolean.FALSE.equals(a.getEtiquetado())).count();
-        long activosSinCustodio = activosSinCustodio(equipos, custodias);
+        Set<Integer> equiposConCustodia = equiposConCustodiaActiva(custodias);
+        long activosSinCustodio = equipos.stream()
+                .filter(EquiposResponseDTO::isEstado)
+                .filter(e -> !equiposConCustodia.contains(e.getIdEquipo()))
+                .count();
+        long totalSinInventario = sinInventario.size();
 
         centro.setBandejas(List.of(
+                bandeja("ACTIVOS_SIN_INVENTARIO", "Activos sin inventario", "Equipos existentes sin estado de inventario asignado.",
+                        totalSinInventario, "alta", "/inventario/inventario-inicial", "Adoptar", "feather-inbox"),
                 bandeja("RECEPCIONES_PENDIENTES", "Recepciones pendientes", "OC emitidas o parcialmente recibidas.",
                         recepcionesPendientes, "alta", "/inventario/compras", "Recibir", "feather-shopping-cart"),
                 bandeja("TRASLADOS_PENDIENTES", "Traslados pendientes", "Activos en transito por confirmar.",
@@ -68,11 +82,12 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
                 bandeja("ACTIVOS_SIN_ETIQUETA", "Activos sin etiqueta", "Activos en bodega que no pueden asignarse.",
                         activosSinEtiqueta, "alta", "/inventario/asignaciones", "Etiquetar", "feather-tag"),
                 bandeja("REPARACIONES_ABIERTAS", "Reparaciones abiertas", "Activos actualmente en reparacion.",
-                        enReparacion.size(), "media", "/inventario/reparaciones", "Dar seguimiento", "feather-tool"),
-                bandeja("GARANTIAS_PROXIMAS", "Garantias proximas", "Sin datos de garantia expuestos todavia.",
-                        0, "baja", "/inventario/dashboard", "Revisar", "feather-shield")));
+                        enReparacion.size(), "media", "/inventario/reparaciones", "Dar seguimiento", "feather-tool")));
 
         centro.setRiesgos(Stream.of(
+                riesgoSi(totalSinInventario > 0, "Activos sin inventario",
+                        totalSinInventario + " equipos no tienen estado de inventario. Deben adoptarse antes de asignarse.", "alta",
+                        "/inventario/inventario-inicial"),
                 riesgoSi(activosSinEtiqueta > 0, "Activos sin etiqueta",
                         activosSinEtiqueta + " activos en bodega no deberian salir hasta etiquetarse.", "alta",
                         "/inventario/asignaciones"),
@@ -88,18 +103,71 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
         centro.setQuickActions(List.of(
                 accion("Recibir OC", "Abrir compras y recepcion por linea.", "/inventario/compras",
                         "feather-shopping-cart", "primary"),
-                accion("Asignar activo", "Entregar activos o consumibles.", "/inventario/asignaciones",
+                accion("Asignar activo", "Asignar activos en bodega a custodios.", "/inventario/asignaciones",
                         "feather-user-check", "secondary"),
+                accion("Entregar consumible", "Entregar consumibles desde stock por bodega.", "/inventario/stock",
+                        "feather-archive", "secondary"),
                 accion("Registrar traslado", "Mover activos o stock entre bodegas.", "/inventario/traslados",
                         "feather-repeat", "secondary"),
                 accion("Confirmar llegada", "Revisar activos en transito.", "/inventario/traslados",
                         "feather-check-circle", "secondary"),
                 accion("Registrar reparacion", "Enviar o retornar activos de reparacion.", "/inventario/reparaciones",
-                        "feather-tool", "secondary"),
-                accion("Buscar expediente", "Ir al listado de activos.", "/equipos", "feather-search", "secondary")));
+                        "feather-tool", "secondary")));
 
         centro.setMovimientosRecientes(safe(() -> inventarioOperacionServicio.buscarMovimientos(0, 10, null, null, null, null)
                 .getContent()).stream().limit(10).map(this::movimiento).toList());
+
+        // KPIs
+        long totalActivos = equipos.stream().filter(EquiposResponseDTO::isEstado).count();
+        long activosAsignados = (long) equiposConCustodia.size();
+        centro.setTotalActivos(totalActivos);
+        centro.setActivosAsignados(activosAsignados);
+        centro.setActivosEnBodega(enBodega.size());
+        centro.setActivosEnReparacion(enReparacion.size());
+        centro.setActivosEnTransito(enTransito.size());
+
+        // Activos por categoría (top 6 + Otros)
+        Map<String, Long> porCategoria = equipos.stream()
+                .filter(EquiposResponseDTO::isEstado)
+                .filter(e -> e.getFkCategoria() != null && e.getFkCategoria().getNombre() != null)
+                .collect(Collectors.groupingBy(e -> e.getFkCategoria().getNombre(), Collectors.counting()));
+        List<Map.Entry<String, Long>> categoriasOrdenadas = new ArrayList<>(porCategoria.entrySet());
+        categoriasOrdenadas.sort(Map.Entry.<String, Long>comparingByValue().reversed());
+        Map<String, Long> categoriaFinal = new LinkedHashMap<>();
+        long otros = 0;
+        for (int i = 0; i < categoriasOrdenadas.size(); i++) {
+            if (i < 5) {
+                categoriaFinal.put(categoriasOrdenadas.get(i).getKey(), categoriasOrdenadas.get(i).getValue());
+            } else {
+                otros += categoriasOrdenadas.get(i).getValue();
+            }
+        }
+        if (otros > 0) categoriaFinal.put("Otros", otros);
+        centro.setActivosPorCategoria(categoriaFinal);
+
+        // Top 5 custodios por cantidad de activos asignados
+        Map<String, Long> custodioCount = custodias.stream()
+                .filter(CustodiasResponseDTO::isEstado)
+                .filter(c -> c.getFkCustodio() != null && c.getFkCustodio().getNombre() != null)
+                .collect(Collectors.groupingBy(c -> c.getFkCustodio().getNombre(), Collectors.counting()));
+        List<CustodioTopDTO> top5 = custodioCount.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(5)
+                .map(e -> new CustodioTopDTO(e.getKey(), null, e.getValue()))
+                .collect(Collectors.toList());
+        centro.setTop5Custodios(top5);
+
+        // Activos por ubicación (bodegaNombre como proxy)
+        Map<String, Long> porUbicacion = enBodega.stream()
+                .filter(a -> a.getBodegaNombre() != null)
+                .collect(Collectors.groupingBy(ActivoInventarioResponseDTO::getBodegaNombre, Collectors.counting()));
+        List<Map.Entry<String, Long>> ubicOrdenadas = new ArrayList<>(porUbicacion.entrySet());
+        ubicOrdenadas.sort(Map.Entry.<String, Long>comparingByValue().reversed());
+        Map<String, Long> ubicFinal = new LinkedHashMap<>();
+        for (Map.Entry<String, Long> entry : ubicOrdenadas) {
+            ubicFinal.put(entry.getKey(), entry.getValue());
+        }
+        centro.setActivosPorUbicacion(ubicFinal);
 
         return centro;
     }
@@ -111,16 +179,13 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
                 .toList();
     }
 
-    private long activosSinCustodio(List<EquiposResponseDTO> equipos, List<CustodiasResponseDTO> custodias) {
-        Set<Integer> equiposConCustodia = new HashSet<>();
+    private Set<Integer> equiposConCustodiaActiva(List<CustodiasResponseDTO> custodias) {
+        Set<Integer> set = new HashSet<>();
         custodias.stream()
                 .filter(CustodiasResponseDTO::isEstado)
                 .filter(c -> c.getFkEquipo() != null)
-                .forEach(c -> equiposConCustodia.add(c.getFkEquipo().getIdEquipo()));
-        return equipos.stream()
-                .filter(EquiposResponseDTO::isEstado)
-                .filter(e -> !equiposConCustodia.contains(e.getIdEquipo()))
-                .count();
+                .forEach(c -> set.add(c.getFkEquipo().getIdEquipo()));
+        return set;
     }
 
     private boolean requiereRecepcion(OrdenCompraResponseDTO orden) {
@@ -149,7 +214,7 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
         String item = primero(m.getEquipoCodigo(), m.getConsumibleNombre(), "Item sin codigo");
         String lugar = primero(m.getBodegaDestinoNombre(), m.getBodegaOrigenNombre(), m.getCustodioNombre(), "Sin destino");
         return new MovimientoRecienteDTO(titulo, item, lugar, m.getFechaMovimiento(), m.getCustodioNombre(),
-                "/inventario/movimientos");
+                "/inventario/dashboard");
     }
 
     private String primero(String... valores) {

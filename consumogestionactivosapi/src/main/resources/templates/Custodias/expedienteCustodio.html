@@ -17,7 +17,7 @@
                   actasPendientes=${#lists.size(custodias.?[rutaActaFirmada == null])},
                   ultimaCustodia=${!#lists.isEmpty(custodias) ? custodias[0] : null},
                   ultimoMovimiento=${!#lists.isEmpty(movimientos) ? movimientos[0] : null},
-                  healthScore=${!custodio.estado ? 45 : (#lists.isEmpty(custodiasActivas) ? 68 : (actasPendientes > 0 ? 76 : 90))}">
+                  ">
 
         <header class="cui-entity-header">
             <div class="cui-entity-avatar">
@@ -50,12 +50,12 @@
                     <i class="feather-arrow-left" aria-hidden="true"></i>
                     <span>Custodias</span>
                 </a>
-                <a th:href="@{/custodias/nueva-custodia}" class="cui-btn cui-btn-primary">
+                <a th:href="@{/inventario/asignaciones}" class="cui-btn cui-btn-primary">
                     <i class="feather-plus" aria-hidden="true"></i>
                     <span>Nueva asignacion</span>
                 </a>
                 <div class="dropdown cui-action-menu">
-                    <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                    <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                         <i class="feather-more-vertical" aria-hidden="true"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
@@ -67,20 +67,18 @@
                             <i class="feather-download" aria-hidden="true"></i>
                             Reporte de custodias
                         </a>
-                        <a class="dropdown-item" th:href="@{/custodias/nueva-custodia}">
-                            <i class="feather-refresh-cw" aria-hidden="true"></i>
-                            Registrar devolucion
-                        </a>
                     </div>
                 </div>
             </div>
         </header>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Activos vigentes', value=${#lists.size(custodiasActivas)}, meta='Custodia activa', icon='feather-monitor', tone='success')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Actas pendientes', value=${actasPendientes}, meta='Sin firma registrada', icon='feather-file-text', tone='warning')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Consumibles', value=${consumiblesEntregados}, meta='En movimientos recientes', icon='feather-archive', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Eventos', value=${#lists.size(movimientos)}, meta='Timeline reciente', icon='feather-activity', tone='danger')}"></div>
+        <section class="cui-kpi-grid" th:if="${!custodio.estado or actasPendientes > 0 or #lists.isEmpty(custodiasActivas)}">
+            <div th:if="${!custodio.estado}"
+                 th:replace="~{fragments/components/kpi-card :: kpiCard(label='Custodio inactivo', value='Inactivo', meta='Evitar nuevas asignaciones', icon='feather-alert-circle', tone='danger')}"></div>
+            <div th:if="${actasPendientes > 0}"
+                 th:replace="~{fragments/components/kpi-card :: kpiCard(label='Actas pendientes', value=${actasPendientes}, meta='Sin firma registrada', icon='feather-file-text', tone='warning')}"></div>
+            <div th:if="${custodio.estado and #lists.isEmpty(custodiasActivas)}"
+                 th:replace="~{fragments/components/kpi-card :: kpiCard(label='Sin activos vigentes', value='Ninguno', meta='Custodio sin asignaciones activas', icon='feather-monitor', tone='info')}"></div>
         </section>
 
         <div class="cui-expediente-layout">
@@ -88,7 +86,6 @@
                 <section class="cui-entity-snapshot">
                     <div class="cui-snapshot-header">
                         <h2>Snapshot del custodio</h2>
-                        <span class="cui-badge" th:classappend="${' ' + estadoClase}" th:text="${estadoCustodio}">Estado</span>
                     </div>
                     <dl class="cui-snapshot-list">
                         <div>
@@ -175,24 +172,36 @@
             <main>
                 <section class="cui-exp-card mb-4">
                     <div class="cui-exp-card-header">
-                        <h2>Resumen ejecutivo</h2>
-                        <span class="cui-badge cui-badge-info">Health Score</span>
+                        <h2>Estado operativo</h2>
                     </div>
                     <div class="cui-exp-card-body">
-                        <div class="cui-health-score">
-                            <div class="cui-health-ring" th:classappend="${healthScore < 60} ? ' is-low' : (${healthScore < 80} ? ' is-medium' : ' is-high')">
-                                <span th:text="${healthScore}">90</span>
+                        <dl class="cui-summary-strip">
+                            <div class="cui-summary-item">
+                                <span class="cui-summary-label">Activos vigentes</span>
+                                <span class="cui-summary-value"
+                                      th:text="${#lists.size(custodiasActivas)}"
+                                      th:classappend="${#lists.isEmpty(custodiasActivas) ? ' warning' : ''}">0</span>
                             </div>
-                            <div>
-                                <h3 class="cui-row-title">Responsabilidad operacional</h3>
-                                <p class="cui-row-subtitle">Calculado visualmente con datos disponibles: estado del custodio, activos vigentes, actas pendientes y movimientos recientes.</p>
-                                <div class="cui-entity-meta">
-                                    <span class="cui-badge" th:classappend="${' ' + estadoClase}" th:text="${estadoCustodio}">Estado</span>
-                                    <span class="cui-badge cui-badge-muted" th:text="${departamentoCustodio}">Departamento</span>
-                                    <span class="cui-badge cui-badge-muted" th:text="${ubicacionCustodio}">Ubicacion</span>
-                                </div>
+                            <span class="cui-summary-sep" aria-hidden="true">·</span>
+                            <div class="cui-summary-item">
+                                <span class="cui-summary-label">Actas pendientes</span>
+                                <span class="cui-summary-value"
+                                      th:text="${actasPendientes}"
+                                      th:classappend="${actasPendientes > 0 ? ' warning' : ''}">0</span>
                             </div>
-                        </div>
+                            <span class="cui-summary-sep" aria-hidden="true">·</span>
+                            <div class="cui-summary-item">
+                                <span class="cui-summary-label">Departamento</span>
+                                <span class="cui-summary-value" style="font-size:1rem"
+                                      th:text="${departamentoCustodio}">—</span>
+                            </div>
+                            <span class="cui-summary-sep" aria-hidden="true">·</span>
+                            <div class="cui-summary-item">
+                                <span class="cui-summary-label">Ubicacion</span>
+                                <span class="cui-summary-value" style="font-size:1rem"
+                                      th:text="${ubicacionCustodio}">—</span>
+                            </div>
+                        </dl>
                     </div>
                 </section>
 
@@ -211,9 +220,6 @@
                             <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-actas-custodio" data-cui-tab-hash type="button" role="tab">Actas</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-incidencias-custodio" data-cui-tab-hash type="button" role="tab">Incidencias</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
                             <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-documentos-custodio" data-cui-tab-hash type="button" role="tab">Documentos</button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -225,14 +231,6 @@
                         <div class="tab-pane fade show active" id="tab-resumen-custodio" role="tabpanel">
                             <div class="cui-tab-pane-body">
                                 <div class="cui-detail-grid mb-4">
-                                    <div class="cui-detail-item">
-                                        <span>Activos actuales</span>
-                                        <strong th:text="${#lists.size(custodiasActivas)}">0</strong>
-                                    </div>
-                                    <div class="cui-detail-item">
-                                        <span>Actas pendientes</span>
-                                        <strong th:text="${actasPendientes}">0</strong>
-                                    </div>
                                     <div class="cui-detail-item">
                                         <span>Ultima asignacion</span>
                                         <strong th:if="${ultimaCustodia != null}" th:text="${ultimaCustodia.fechaInicio != null ? #temporals.format(ultimaCustodia.fechaInicio, 'dd/MM/yyyy') : 'Sin fecha'}">Fecha</strong>
@@ -307,7 +305,9 @@
                                                              marca=${equipo != null and equipo.fkMarca != null ? equipo.fkMarca.nombre : 'No registrado'},
                                                              modelo=${equipo != null and equipo.modelo != null ? equipo.modelo : 'No registrado'},
                                                              busqueda=${codigo + ' ' + categoria + ' ' + marca + ' ' + modelo}"
-                                                    th:attr="data-search=${#strings.toLowerCase(busqueda)}">
+                                                    th:attr="data-search=${#strings.toLowerCase(busqueda)},
+                                                             data-equipo-id=${equipo != null ? equipo.idEquipo : ''},
+                                                             data-equipo-label=${codigo + ' · ' + modelo}">
                                                     <td>
                                                         <div class="cui-row-stack">
                                                             <span class="cui-row-title" th:text="${codigo}">CR-LAP-0001</span>
@@ -328,10 +328,10 @@
                                                     <td><span class="cui-badge cui-badge-asignado">Asignado</span></td>
                                                     <td>
                                                         <div class="cui-action-cell">
-                                                            <a th:if="${equipo != null}" th:href="@{/activos/equipos/{id}/expediente(id=${equipo.idEquipo})}" class="btn btn-outline-primary btn-sm">Expediente</a>
+                                                            <a th:if="${equipo != null}" th:href="@{/activos/equipos/{id}/expediente(id=${equipo.idEquipo})}" class="cui-btn cui-btn-secondary">Expediente</a>
                                                             <button th:unless="${equipo != null}" type="button" class="btn btn-outline-secondary btn-sm" disabled>Sin activo</button>
                                                             <div class="dropdown cui-action-menu">
-                                                                <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                                                <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                                                                     <i class="feather-more-vertical" aria-hidden="true"></i>
                                                                 </button>
                                                                 <div class="dropdown-menu dropdown-menu-end">
@@ -339,14 +339,18 @@
                                                                         <i class="feather-wrench" aria-hidden="true"></i>
                                                                         Crear mantenimiento
                                                                     </a>
-                                                                    <a class="dropdown-item" th:href="@{/inventario/movimientos}">
-                                                                        <i class="feather-clock" aria-hidden="true"></i>
-                                                                        Ver movimientos
-                                                                    </a>
-                                                                    <a class="dropdown-item" th:href="@{/custodias}">
-                                                                        <i class="feather-file-text" aria-hidden="true"></i>
-                                                                        Ver actas
-                                                                    </a>
+                                                                    <button th:if="${equipo != null}" type="button" class="dropdown-item"
+                                                                            data-action="devolver-activo"
+                                                                            data-cui-drawer-open="#drawerDevolverActivo">
+                                                                        <i class="feather-rotate-ccw" aria-hidden="true"></i>
+                                                                        Devolver activo
+                                                                    </button>
+                                                                    <button th:if="${equipo != null}" type="button" class="dropdown-item text-danger"
+                                                                            data-action="baja-activo"
+                                                                            data-cui-drawer-open="#drawerBajaActivo">
+                                                                        <i class="feather-alert-triangle" aria-hidden="true"></i>
+                                                                        Dar de baja
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -422,12 +426,12 @@
                                                 </td>
                                                 <td>
                                                     <div class="cui-action-cell">
-                                                        <a class="btn btn-outline-primary btn-sm"
+                                                        <a class="cui-btn cui-btn-secondary"
                                                            th:href="@{/custodias/acta-entrega/ver/{id}(id=${custodio.idCustodio}, tipo=${c.tipoMovimiento}, fecha=${c.fechaInicio})}">
                                                             Ver acta
                                                         </a>
                                                         <div class="dropdown cui-action-menu">
-                                                            <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                                            <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                                                                 <i class="feather-more-vertical" aria-hidden="true"></i>
                                                             </button>
                                                             <div class="dropdown-menu dropdown-menu-end">
@@ -452,11 +456,6 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade" id="tab-incidencias-custodio" role="tabpanel">
-                            <div class="cui-tab-pane-body">
-                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-tool', title='Sin incidencias disponibles', message='El modelo actual del expediente no entrega mantenimientos relacionados a los activos del custodio.')}"></div>
-                            </div>
-                        </div>
 
                         <div class="tab-pane fade" id="tab-documentos-custodio" role="tabpanel">
                             <div class="cui-tab-pane-body">
@@ -467,7 +466,7 @@
                                             <strong th:text="${c.rutaActaFirmada != null ? 'Acta firmada' : 'Acta PDF'}">Acta</strong>
                                             <span th:text="${c.fkEquipo != null ? (c.fkEquipo.codigoSap ?: 'Activo') : 'Activo no registrado'}">Activo</span>
                                         </div>
-                                        <a class="btn btn-outline-primary btn-sm"
+                                        <a class="cui-btn cui-btn-secondary"
                                            th:href="@{/custodias/acta-entrega/pdf/acta/{id}(id=${custodio.idCustodio}, tipo=${c.tipoMovimiento}, fecha=${c.fechaInicio})}">
                                             Descargar
                                         </a>
@@ -504,6 +503,138 @@
                 </section>
             </main>
         </div>
+
+        <aside class="cui-drawer" id="drawerDevolverActivo" aria-hidden="true" aria-label="Devolver activo">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Devolver activo</div>
+                    <div class="small text-muted">Cerrar custodia y retornar a bodega</div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/inventario/devoluciones/activos}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="returnTo" th:value="@{/custodias/expediente/{id}(id=${custodio.idCustodio})}">
+                    <input type="hidden" name="equipoId" id="dev-equipo-id">
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Activo</label>
+                        <div class="form-control bg-light fw-semibold" id="dev-equipo-label">-</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Bodega destino <span class="text-danger">*</span></label>
+                        <select class="form-select" name="bodegaId" required>
+                            <option value="">Seleccione bodega</option>
+                            <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha devolucion</label>
+                        <input class="form-control" type="date" name="fechaDevolucion">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Estado destino</label>
+                        <select class="form-select" name="estadoInventarioDestino">
+                            <option value="EN_BODEGA">En bodega</option>
+                            <option value="EN_REPARACION">En reparacion</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion</label>
+                        <textarea class="form-control" name="observacion" rows="3"></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="cui-btn cui-btn-primary" type="submit">
+                            <i class="feather-rotate-ccw" aria-hidden="true"></i>
+                            <span>Devolver</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <aside class="cui-drawer" id="drawerBajaActivo" aria-hidden="true" aria-label="Dar de baja activo">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Dar de baja</div>
+                    <div class="small text-muted">Cierre definitivo del ciclo de vida</div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/inventario/bajas/activos}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="returnTo" th:value="@{/custodias/expediente/{id}(id=${custodio.idCustodio})}">
+                    <input type="hidden" name="equipoId" id="baja-equipo-id">
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Activo</label>
+                        <div class="form-control bg-light fw-semibold" id="baja-equipo-label">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha baja</label>
+                        <input class="form-control" type="date" name="fechaBaja" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Motivo <span class="text-danger">*</span></label>
+                        <select class="form-select" name="motivo" required>
+                            <option value="">Seleccione</option>
+                            <option value="OBSOLESCENCIA">Obsolescencia</option>
+                            <option value="DANIO_IRREPARABLE">Danio irreparable</option>
+                            <option value="PERDIDA">Perdida</option>
+                            <option value="RENOVACION">Renovacion</option>
+                            <option value="OTRO">Otro</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Autorizado por</label>
+                        <input class="form-control" name="autorizadoPor">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observacion <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="observacion" rows="3" required></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="btn btn-danger" type="submit"
+                                data-cui-confirm="Confirma la baja definitiva del activo?">
+                            <i class="feather-alert-triangle" aria-hidden="true"></i>
+                            <span>Dar de baja</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <script>
+        (function () {
+            function put(id, value, asValue) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                if (asValue) el.value = value || '';
+                else el.textContent = value || '-';
+            }
+            document.addEventListener('click', function (event) {
+                var btn = event.target.closest('[data-action]');
+                if (!btn) return;
+                var row = btn.closest('tr');
+                if (!row) return;
+                var data = row.dataset;
+                if (btn.dataset.action === 'devolver-activo') {
+                    put('dev-equipo-id', data.equipoId, true);
+                    put('dev-equipo-label', data.equipoLabel);
+                }
+                if (btn.dataset.action === 'baja-activo') {
+                    put('baja-equipo-id', data.equipoId, true);
+                    put('baja-equipo-label', data.equipoLabel);
+                }
+            });
+        }());
+        </script>
     </div>
 </div>
 </body>

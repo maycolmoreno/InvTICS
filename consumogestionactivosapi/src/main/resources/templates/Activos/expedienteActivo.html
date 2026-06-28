@@ -14,485 +14,808 @@
                   modeloActivo=${equipo.modelo != null and !#strings.isEmpty(equipo.modelo) ? equipo.modelo : 'Sin modelo'},
                   estadoTecnico=${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo) ? equipo.estadoEquipo : (equipo.estado ? 'EN_BODEGA' : 'DADO_DE_BAJA')},
                   estadoClase=${!equipo.estado ? 'cui-badge-dado-de-baja' : ((#strings.contains(#strings.toLowerCase(estadoTecnico), 'repar') or #strings.contains(#strings.toLowerCase(estadoTecnico), 'mantenimiento') or #strings.contains(#strings.toLowerCase(estadoTecnico), 'falla')) ? 'cui-badge-en-reparacion' : (custodiaActual != null ? 'cui-badge-asignado' : 'cui-badge-en-bodega'))},
-                  custodioNombre=${custodiaActual != null and custodiaActual.fkCustodio != null ? custodiaActual.fkCustodio.nombre : 'No asignado'},
+                  custodioNombre=${custodiaActual != null and custodiaActual.fkCustodio != null ? custodiaActual.fkCustodio.nombre : '—'},
                   ubicacionNombre=${custodiaActual != null and custodiaActual.fkCustodio != null and custodiaActual.fkCustodio.fkUbicacion != null ? custodiaActual.fkCustodio.fkUbicacion.nombre : 'No registrado'},
                   departamentoNombre=${custodiaActual != null and custodiaActual.fkCustodio != null and custodiaActual.fkCustodio.fkDepartamento != null ? custodiaActual.fkCustodio.fkDepartamento.nombre : 'No registrado'},
-                  healthScore=${!equipo.estado ? 45 : ((#lists.isEmpty(mantenimientos) and #lists.isEmpty(movimientos)) ? 70 : (custodiaActual != null ? 88 : 78))}">
+                  valorRef=${equipo.valorActual != null ? equipo.valorActual : (equipo.precioCompra != null ? equipo.precioCompra : null)},
+                  totalMovimientos=${#lists.size(movimientos)},
+                  totalMantenimientos=${#lists.size(mantenimientos)},
+                  totalCustodias=${#lists.size(historialCustodias)},
+                  enBodega=${equipo.estado and custodiaActual == null},
+                  asignado=${equipo.estado and custodiaActual != null},
+                  enReparacion=${#strings.containsIgnoreCase(estadoTecnico, 'repar') or #strings.containsIgnoreCase(estadoTecnico, 'mantenimiento')}">
 
-        <header class="cui-entity-header">
-            <div class="cui-entity-avatar">
-                <i th:with="categoriaNormalizada=${#strings.toLowerCase(categoriaActivo)}"
-                   th:class="${#strings.contains(categoriaNormalizada, 'impres')} ? 'feather-printer' : (${#strings.contains(categoriaNormalizada, 'scanner')} ? 'feather-file-text' : (${#strings.contains(categoriaNormalizada, 'red')} ? 'feather-cpu' : 'feather-monitor'))"
+        <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
+        <div class="cui-alert-info" th:if="${info}" th:text="${info}"></div>
+
+        <!-- HEADER -->
+        <header class="cui-entity-header cui-entity-header-v2">
+            <div class="cui-entity-photo"
+                 th:with="catLower=${#strings.toLowerCase(categoriaActivo)}">
+                <i th:class="${#strings.contains(catLower, 'impres')} ? 'feather-printer' :
+                              (${#strings.contains(catLower, 'scanner')} ? 'feather-file-text' :
+                              (${#strings.contains(catLower, 'red')} ? 'feather-cpu' : 'feather-monitor'))"
                    aria-hidden="true"></i>
             </div>
             <div class="cui-entity-heading">
-                <p class="cui-eyebrow">Expediente 360 del activo</p>
-                <h1 th:text="${codigoActivo}">CR-LAP-0001</h1>
-                <p>
-                    <span th:text="${categoriaActivo}">Categoria</span>
-                    <span> / </span>
-                    <span th:text="${marcaActivo}">Marca</span>
-                    <span> / </span>
-                    <span th:text="${modeloActivo}">Modelo</span>
-                </p>
-                <div class="cui-entity-meta">
-                    <span class="cui-badge" th:classappend="${' ' + estadoClase}" th:text="${estadoTecnico}">Estado</span>
-                    <span class="cui-badge cui-badge-muted">
-                        <i class="feather-user" aria-hidden="true"></i>
-                        <span th:text="${custodioNombre}">Custodio</span>
-                    </span>
-                    <span class="cui-badge cui-badge-info">
-                        <i class="feather-map-pin" aria-hidden="true"></i>
-                        <span th:text="${ubicacionNombre}">Ubicacion</span>
-                    </span>
+                <nav class="cui-breadcrumbs" aria-label="Ruta de navegacion">
+                    <a th:href="@{/equipos}">Activos</a>
+                    <span aria-hidden="true">›</span>
+                    <span th:text="${codigoActivo}">CR-LAP-000123</span>
+                </nav>
+                <h1 class="cui-entity-title" th:text="${codigoActivo}">CR-LAP-000123</h1>
+                <p class="cui-entity-subtitle" th:text="${marcaActivo + ' ' + modeloActivo}">DELL LATITUDE 5440</p>
+                <div class="cui-entity-tags">
+                    <span class="cui-tag" th:text="${categoriaActivo}">Laptop</span>
+                    <span class="cui-tag cui-tag-muted" th:if="${equipo.fkCategoria != null}">Corporativo</span>
+                    <span class="cui-tag cui-tag-danger" th:if="${!equipo.estado}">Dado de baja</span>
+                </div>
+                <div class="cui-meta-row">
+                    <div class="cui-meta-item">
+                        <span class="cui-meta-label">Estado actual</span>
+                        <span class="cui-badge" th:classappend="${' ' + estadoClase}" th:text="${estadoTecnico}">Estado</span>
+                    </div>
+                    <span class="cui-meta-sep" aria-hidden="true">·</span>
+                    <div class="cui-meta-item">
+                        <span class="cui-meta-label">Custodio actual</span>
+                        <span class="cui-meta-value" th:text="${custodioNombre}">—</span>
+                    </div>
+                    <span class="cui-meta-sep" aria-hidden="true">·</span>
+                    <div class="cui-meta-item">
+                        <span class="cui-meta-label">Categoria</span>
+                        <span class="cui-meta-value" th:text="${categoriaActivo}">—</span>
+                    </div>
+                    <span class="cui-meta-sep" aria-hidden="true">·</span>
+                    <div class="cui-meta-item">
+                        <span class="cui-meta-label">Valor referencial</span>
+                        <span class="cui-meta-value" th:text="${valorRef != null ? '$ ' + valorRef : '—'}">—</span>
+                    </div>
                 </div>
             </div>
-            <div class="cui-entity-actions"
-                 th:with="enBodega=${equipo.estado and custodiaActual == null},
-                           asignado=${equipo.estado and custodiaActual != null},
-                           enReparacion=${#strings.containsIgnoreCase(estadoTecnico, 'repar') or #strings.containsIgnoreCase(estadoTecnico, 'mantenimiento')}">
-                <a th:href="@{/equipos}" class="cui-btn cui-btn-secondary">
-                    <i class="feather-arrow-left" aria-hidden="true"></i>
-                    <span>Listado</span>
-                </a>
-                <!-- Accion primaria contextual segun estado -->
-                <button th:if="${enBodega}"
-                        type="button"
-                        class="cui-btn cui-btn-primary"
+            <div class="cui-entity-actions">
+                <button th:if="${enBodega}" type="button" class="cui-btn cui-btn-primary"
                         data-cui-drawer-open="#drawerAsignarActivoExp">
                     <i class="feather-user-check" aria-hidden="true"></i>
                     <span>Asignar</span>
                 </button>
                 <a th:if="${asignado and !enReparacion}"
-                   th:href="@{/custodias/cerrar-custodia/{id}(id=${custodiaActual.idCustodio})}"
+                   th:href="@{/custodias/cerrar/{id}(id=${custodiaActual.idCustodio})}"
                    class="cui-btn cui-btn-primary">
                     <i class="feather-corner-down-left" aria-hidden="true"></i>
                     <span>Registrar devolucion</span>
                 </a>
-                <!-- Registrar etiqueta: visible solo si no esta etiquetado -->
-                <button th:if="${equipo.estado and !activoEtiquetado}"
-                        type="button"
+                <button th:if="${equipo.estado and !activoEtiquetado}" type="button"
                         class="cui-btn cui-btn-warning"
                         data-cui-drawer-open="#drawerEtiquetaActivoExp">
                     <i class="feather-tag" aria-hidden="true"></i>
                     <span>Registrar etiqueta</span>
                 </button>
-                <!-- Accion secundaria -->
-                <button th:if="${equipo.estado and !enReparacion}"
-                        type="button"
-                        class="cui-btn cui-btn-secondary"
-                        data-cui-drawer-open="#drawerTrasladarActivoExp">
-                    <i class="feather-truck" aria-hidden="true"></i>
-                    <span>Trasladar</span>
-                </button>
-                <div class="dropdown cui-action-menu">
-                    <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
-                        <i class="feather-more-vertical" aria-hidden="true"></i>
+                <div class="dropdown">
+                    <button type="button" class="cui-btn cui-btn-secondary"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <span>Acciones</span>
+                        <i class="feather-chevron-down" aria-hidden="true"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
+                        <button th:if="${equipo.estado and !enReparacion}" type="button" class="dropdown-item"
+                                data-cui-drawer-open="#drawerTrasladarActivoExp">
+                            <i class="feather-truck" aria-hidden="true"></i> Trasladar
+                        </button>
                         <a class="dropdown-item" th:href="@{/equipos/editar-equipo/{id}(id=${equipo.idEquipo})}">
-                            <i class="feather-edit-2" aria-hidden="true"></i>
-                            Editar activo
+                            <i class="feather-edit-2" aria-hidden="true"></i> Editar activo
                         </a>
                         <button type="button" class="dropdown-item" th:if="${equipo.estado and activoEtiquetado}"
                                 data-cui-drawer-open="#drawerEtiquetaActivoExp">
-                            <i class="feather-tag" aria-hidden="true"></i>
-                            Actualizar etiqueta
+                            <i class="feather-tag" aria-hidden="true"></i> Actualizar etiqueta
                         </button>
-                        <a class="dropdown-item" th:if="${custodiaActual != null}" th:href="@{/custodias/expediente/{id}(id=${custodiaActual.idCustodio})}">
-                            <i class="feather-users" aria-hidden="true"></i>
-                            Expediente custodio
+                        <a class="dropdown-item" th:if="${custodiaActual != null}"
+                           th:href="@{/custodias/expediente/{id}(id=${custodiaActual.idCustodio})}">
+                            <i class="feather-users" aria-hidden="true"></i> Expediente custodio
                         </a>
-                        <a class="dropdown-item" th:if="${equipo.estado}" th:href="@{/mantenimiento/nuevo(equipoId=${equipo.idEquipo})}">
-                            <i class="feather-wrench" aria-hidden="true"></i>
-                            Crear mantenimiento
+                        <a class="dropdown-item" th:if="${equipo.estado}"
+                           th:href="@{/mantenimiento/nuevo(equipoId=${equipo.idEquipo})}">
+                            <i class="feather-wrench" aria-hidden="true"></i> Crear mantenimiento
                         </a>
                         <button type="button" class="dropdown-item" th:if="${equipo.estado}"
                                 data-cui-drawer-open="#drawerReparacionActivoExp">
-                            <i class="feather-tool" aria-hidden="true"></i>
-                            Enviar a reparacion
+                            <i class="feather-tool" aria-hidden="true"></i> Enviar a reparacion
                         </button>
                         <div class="dropdown-divider" th:if="${equipo.estado}"></div>
                         <button type="button" class="dropdown-item text-danger" th:if="${equipo.estado}"
                                 data-cui-drawer-open="#drawerBajaActivoExp">
-                            <i class="feather-x-circle" aria-hidden="true"></i>
-                            Dar de baja
+                            <i class="feather-x-circle" aria-hidden="true"></i> Dar de baja
                         </button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Custodia', value=${custodiaActual != null ? 'Asignado' : 'Libre'}, meta=${custodioNombre}, icon='feather-user-check', tone=${custodiaActual != null ? 'success' : 'info'})}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Mantenimientos', value=${#lists.size(mantenimientos)}, meta='Historial tecnico', icon='feather-tool', tone='warning')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Custodias', value=${#lists.size(historialCustodias)}, meta='Cambios registrados', icon='feather-clipboard', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Movimientos', value=${#lists.size(movimientos)}, meta='Eventos recientes', icon='feather-activity', tone='danger')}"></div>
-        </section>
-
-        <div class="cui-expediente-layout">
-            <aside>
-                <section class="cui-entity-snapshot">
-                    <div class="cui-snapshot-header">
-                        <h2>Snapshot del activo</h2>
-                        <span class="cui-badge" th:classappend="${' ' + estadoClase}" th:text="${estadoTecnico}">Estado</span>
-                    </div>
-                    <dl class="cui-snapshot-list">
-                        <div>
-                            <dt>Codigo CRESIO</dt>
-                            <dd th:text="${codigoActivo}">CR</dd>
-                        </div>
-                        <div>
-                            <dt>Serial</dt>
-                            <dd th:text="${equipo.serial != null and !#strings.isEmpty(equipo.serial) ? equipo.serial : 'No registrado'}">Serial</dd>
-                        </div>
-                        <div>
-                            <dt>MAC</dt>
-                            <dd th:text="${equipo.mac != null and !#strings.isEmpty(equipo.mac) ? equipo.mac : 'No registrado'}">MAC</dd>
-                        </div>
-                        <div>
-                            <dt>Categoria</dt>
-                            <dd th:text="${categoriaActivo}">Categoria</dd>
-                        </div>
-                        <div>
-                            <dt>Marca / Modelo</dt>
-                            <dd th:text="${marcaActivo + ' / ' + modeloActivo}">Marca</dd>
-                        </div>
-                        <div>
-                            <dt>Fecha adquisicion</dt>
-                            <dd th:text="${equipo.fechaAdquisicion != null ? #temporals.format(equipo.fechaAdquisicion, 'dd/MM/yyyy') : (equipo.fechaCompra != null ? #temporals.format(equipo.fechaCompra, 'dd/MM/yyyy') : 'No registrado')}">Fecha</dd>
-                        </div>
-                        <div>
-                            <dt>Valor actual</dt>
-                            <dd th:text="${equipo.valorActual != null ? equipo.valorActual : (equipo.precioCompra != null ? equipo.precioCompra : 'No registrado')}">Valor</dd>
-                        </div>
-                        <div>
-                            <dt>Garantia</dt>
-                            <dd>No registrado</dd>
-                        </div>
-                        <div>
-                            <dt>Ultimo movimiento</dt>
-                            <dd th:if="${!#lists.isEmpty(movimientos)}" th:text="${movimientos[0].tipoMovimiento + ' / ' + (movimientos[0].fechaMovimiento != null ? #temporals.format(movimientos[0].fechaMovimiento, 'dd/MM/yyyy HH:mm') : 'Sin fecha')}">Movimiento</dd>
-                            <dd th:if="${#lists.isEmpty(movimientos)}">No registrado</dd>
-                        </div>
-                    </dl>
-                </section>
-
-                <section class="cui-risk-panel">
-                    <div class="cui-risk-header">
-                        <h2>Riesgos visuales</h2>
-                    </div>
-                    <div class="cui-risk-list">
-                        <div class="cui-risk-item" th:if="${!equipo.estado}">
-                            <span class="cui-risk-dot is-danger"></span>
-                            <div>
-                                <strong>Activo inactivo</strong>
-                                <p>El activo no esta disponible para operacion regular.</p>
-                            </div>
-                        </div>
-                        <div class="cui-risk-item" th:if="${equipo.estado and (equipo.serial == null or #strings.isEmpty(equipo.serial))}">
-                            <span class="cui-risk-dot is-warning"></span>
-                            <div>
-                                <strong>Serial no registrado</strong>
-                                <p>Completar identificador tecnico mejora trazabilidad.</p>
-                            </div>
-                        </div>
-                        <div class="cui-risk-item" th:if="${equipo.estado and custodiaActual == null}">
-                            <span class="cui-risk-dot is-warning"></span>
-                            <div>
-                                <strong>Sin custodio vigente</strong>
-                                <p>El activo no tiene responsable asignado en el expediente.</p>
-                            </div>
-                        </div>
-                        <div class="cui-risk-item" th:if="${equipo.estado and custodiaActual != null and equipo.serial != null and !#strings.isEmpty(equipo.serial)}">
-                            <span class="cui-risk-dot"></span>
-                            <div>
-                                <strong>Sin alertas criticas</strong>
-                                <p>No se detectan riesgos con la informacion disponible.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </aside>
-
-            <main>
-                <section class="cui-exp-card mb-4">
-                    <div class="cui-exp-card-header">
-                        <h2>Resumen ejecutivo</h2>
-                        <span class="cui-badge cui-badge-info">Health Score</span>
-                    </div>
-                    <div class="cui-exp-card-body">
-                        <div class="cui-health-score">
-                            <div class="cui-health-ring"
-                                 th:classappend="${healthScore < 60} ? ' is-low' : (${healthScore < 80} ? ' is-medium' : ' is-high')">
-                                <span th:text="${healthScore}">88</span>
-                            </div>
-                            <div>
-                                <h3 class="cui-row-title">Estado operativo del activo</h3>
-                                <p class="cui-row-subtitle">Calculado visualmente con datos disponibles: estado administrativo, custodia, movimientos y mantenimiento.</p>
-                                <div class="cui-entity-meta">
-                                    <span class="cui-badge" th:classappend="${' ' + estadoClase}" th:text="${estadoTecnico}">Estado</span>
-                                    <span class="cui-badge cui-badge-muted" th:text="${departamentoNombre}">Departamento</span>
-                                    <span class="cui-badge cui-badge-muted" th:text="${ubicacionNombre}">Ubicacion</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="cui-exp-tabs">
-                    <ul class="nav nav-pills" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-resumen" data-cui-tab-hash type="button" role="tab">Resumen</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-tecnicos" data-cui-tab-hash type="button" role="tab">Datos tecnicos</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-custodias" data-cui-tab-hash type="button" role="tab">Custodias</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-movimientos" data-cui-tab-hash type="button" role="tab">Movimientos</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-mantenimientos" data-cui-tab-hash type="button" role="tab">Mantenimientos</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-documentos" data-cui-tab-hash type="button" role="tab">Documentos</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-auditoria" data-cui-tab-hash type="button" role="tab">Auditoria</button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="tab-resumen" role="tabpanel">
-                            <div class="cui-tab-pane-body">
-                                <div class="cui-detail-grid mb-4">
-                                    <div class="cui-detail-item">
-                                        <span>Ultima custodia</span>
-                                        <strong th:text="${custodiaActual != null and custodiaActual.fkCustodio != null ? custodiaActual.fkCustodio.nombre : 'No registrado'}">Custodio</strong>
-                                    </div>
-                                    <div class="cui-detail-item">
-                                        <span>Ultimo mantenimiento</span>
-                                        <strong th:if="${!#lists.isEmpty(mantenimientos)}" th:text="${mantenimientos[0].tipoMantenimiento ?: 'Mantenimiento'}">Mantenimiento</strong>
-                                        <strong th:if="${#lists.isEmpty(mantenimientos)}">No registrado</strong>
-                                    </div>
-                                    <div class="cui-detail-item">
-                                        <span>Ultimo movimiento</span>
-                                        <strong th:if="${!#lists.isEmpty(movimientos)}" th:text="${movimientos[0].tipoMovimiento}">Movimiento</strong>
-                                        <strong th:if="${#lists.isEmpty(movimientos)}">No registrado</strong>
-                                    </div>
-                                </div>
-
-                                <h3 class="cui-row-title mb-3">Actividad reciente</h3>
-                                <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(movimientos)}">
-                                    <article class="cui-activity-item" th:each="m, stat : ${movimientos}" th:if="${stat.index < 5}">
-                                        <span class="cui-activity-dot" th:classappend="${m.tipoMovimiento == 'BAJA'} ? ' is-danger' : (${m.tipoMovimiento == 'TRASLADO'} ? ' is-warning' : ' is-success')"></span>
-                                        <div>
-                                            <strong th:text="${m.tipoMovimiento}">Movimiento</strong>
-                                            <p th:text="${m.observacion ?: (m.bodegaDestinoNombre ?: (m.bodegaOrigenNombre ?: 'Inventario'))}">Detalle</p>
-                                        </div>
-                                        <span class="cui-activity-time" th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM HH:mm') : '-'}">Fecha</span>
-                                    </article>
-                                </div>
-                                <div th:if="${#lists.isEmpty(movimientos)}" th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin actividad reciente', message='No hay movimientos recientes para este activo.')}"></div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="tab-tecnicos" role="tabpanel">
-                            <div class="cui-tab-pane-body">
-                                <div class="cui-detail-grid">
-                                    <div class="cui-detail-item"><span>Descripcion</span><strong th:text="${equipo.descripcion != null and !#strings.isEmpty(equipo.descripcion) ? equipo.descripcion : 'No registrado'}">Descripcion</strong></div>
-                                    <div class="cui-detail-item"><span>Procesador</span><strong th:text="${equipo.procesador != null and !#strings.isEmpty(equipo.procesador) ? equipo.procesador : 'No registrado'}">Procesador</strong></div>
-                                    <div class="cui-detail-item"><span>RAM</span><strong th:text="${equipo.memoriaRamGb != null ? equipo.memoriaRamGb + ' GB' : 'No registrado'}">RAM</strong></div>
-                                    <div class="cui-detail-item"><span>Almacenamiento</span><strong th:text="${equipo.capacidadAlmacenamientoGb != null ? equipo.capacidadAlmacenamientoGb + ' GB' : 'No registrado'}">Almacenamiento</strong></div>
-                                    <div class="cui-detail-item"><span>Licencia Windows</span><strong th:text="${equipo.licenciaWindowsActivada != null ? (equipo.licenciaWindowsActivada ? 'Activada' : 'No activada') : 'No registrado'}">Licencia</strong></div>
-                                    <div class="cui-detail-item"><span>Observacion</span><strong th:text="${equipo.observacionEquipo != null and !#strings.isEmpty(equipo.observacionEquipo) ? equipo.observacionEquipo : 'No registrado'}">Observacion</strong></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="tab-custodias" role="tabpanel">
-                            <div class="cui-tab-pane-body">
-                                <div class="cui-data-grid">
-                                    <div class="table-responsive">
-                                        <table class="table cui-table">
-                                            <thead>
-                                            <tr>
-                                                <th>Custodio</th>
-                                                <th>Periodo</th>
-                                                <th>Tipo</th>
-                                                <th>Estado</th>
-                                                <th>Acta</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr th:if="${#lists.isEmpty(historialCustodias)}">
-                                                <td colspan="5">
-                                                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-clipboard', title='Sin custodias', message='No hay historial de custodias para este activo.')}"></div>
-                                                </td>
-                                            </tr>
-                                            <tr th:each="c : ${historialCustodias}">
-                                                <td>
-                                                    <div class="cui-row-stack">
-                                                        <span class="cui-row-title" th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio no registrado'}">Custodio</span>
-                                                        <span class="cui-row-subtitle" th:text="${c.fkCustodio != null ? c.fkCustodio.correo : 'No registrado'}">Correo</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span th:text="${c.fechaInicio != null ? #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : 'Sin inicio'}">Inicio</span>
-                                                    <span> -> </span>
-                                                    <span th:text="${c.fechaFin != null ? #temporals.format(c.fechaFin, 'dd/MM/yyyy') : 'Vigente'}">Fin</span>
-                                                </td>
-                                                <td th:text="${c.tipoMovimiento ?: 'Custodia'}">Tipo</td>
-                                                <td>
-                                                    <span class="cui-badge" th:classappend="${c.estado} ? ' cui-badge-asignado' : ' cui-badge-muted'" th:text="${c.estado ? 'Vigente' : 'Cerrada'}">Estado</span>
-                                                </td>
-                                                <td>
-                                                    <span class="cui-badge" th:classappend="${c.rutaActaFirmada != null ? ' cui-badge-asignado' : ' cui-badge-en-reparacion'}" th:text="${c.rutaActaFirmada != null ? 'Firmada' : (c.rutaActaPdf != null ? 'PDF generado' : 'No registrada')}">Acta</span>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="tab-movimientos" role="tabpanel">
-                            <div class="cui-tab-pane-body">
-                                <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(movimientos)}">
-                                    <article class="cui-activity-item" th:each="m : ${movimientos}">
-                                        <span class="cui-activity-dot" th:classappend="${m.tipoMovimiento == 'BAJA'} ? ' is-danger' : (${m.tipoMovimiento == 'TRASLADO'} ? ' is-warning' : ' is-success')"></span>
-                                        <div>
-                                            <strong th:text="${m.tipoMovimiento}">Movimiento</strong>
-                                            <p>
-                                                <span th:text="${m.bodegaOrigenNombre ?: 'Origen no aplica'}">Origen</span>
-                                                <span> -> </span>
-                                                <span th:text="${m.bodegaDestinoNombre ?: 'Destino no aplica'}">Destino</span>
-                                            </p>
-                                            <p th:if="${m.estadoAnterior != null or m.estadoNuevo != null}">
-                                                <span th:text="${m.estadoAnterior ?: 'Sin estado'}">Anterior</span>
-                                                <span> -> </span>
-                                                <span th:text="${m.estadoNuevo ?: 'Sin estado nuevo'}">Nuevo</span>
-                                            </p>
-                                            <p th:if="${m.observacion != null}" th:text="${m.observacion}">Observacion</p>
-                                        </div>
-                                        <span class="cui-activity-time" th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : '-'}">Fecha</span>
-                                    </article>
-                                </div>
-                                <div th:if="${#lists.isEmpty(movimientos)}" th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin movimientos', message='No hay movimientos registrados para este activo.')}"></div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="tab-mantenimientos" role="tabpanel">
-                            <div class="cui-tab-pane-body">
-                                <div class="cui-data-grid">
-                                    <div class="table-responsive">
-                                        <table class="table cui-table">
-                                            <thead>
-                                            <tr>
-                                                <th>Orden</th>
-                                                <th>Tecnico</th>
-                                                <th>Fecha</th>
-                                                <th>Estado</th>
-                                                <th class="text-end">Acciones</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr th:if="${#lists.isEmpty(mantenimientos)}">
-                                                <td colspan="5">
-                                                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-tool', title='Sin mantenimientos', message='No hay mantenimientos registrados para este activo.')}"></div>
-                                                </td>
-                                            </tr>
-                                            <tr th:each="m : ${mantenimientos}">
-                                                <td>
-                                                    <div class="cui-row-stack">
-                                                        <span class="cui-row-title" th:text="${m.tipoMantenimiento ?: 'Mantenimiento'}">Tipo</span>
-                                                        <span class="cui-row-subtitle" th:text="${m.detalle ?: 'Sin detalle'}">Detalle</span>
-                                                    </div>
-                                                </td>
-                                                <td th:text="${m.tecnicoNombre ?: 'Sin tecnico'}">Tecnico</td>
-                                                <td th:text="${m.fechaMantenimiento != null ? #temporals.format(m.fechaMantenimiento, 'dd/MM/yyyy') : 'Sin fecha'}">Fecha</td>
-                                                <td>
-                                                    <span class="cui-badge"
-                                                          th:with="estadoMant=${m.estadoInterno ?: (m.estadoGeneral ?: 'PENDIENTE')}"
-                                                          th:classappend="${estadoMant == 'CERRADO'} ? ' cui-badge-asignado' : (${estadoMant == 'EN_PROCESO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
-                                                          th:text="${estadoMant}">Estado</span>
-                                                </td>
-                                                <td>
-                                                    <div class="cui-action-cell">
-                                                        <a th:href="@{/mantenimiento/{id}(id=${m.idMantenimiento})}" class="btn btn-outline-primary btn-sm">Ver</a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="tab-documentos" role="tabpanel">
-                            <div class="cui-tab-pane-body">
-                                <div class="cui-document-list" th:if="${!#lists.isEmpty(historialCustodias) or !#lists.isEmpty(mantenimientos)}">
-                                    <div class="cui-document-row" th:each="c : ${historialCustodias}" th:if="${c.rutaActaPdf != null or c.rutaActaFirmada != null}">
-                                        <i class="feather-file-text" aria-hidden="true"></i>
-                                        <div>
-                                            <strong th:text="${c.rutaActaFirmada != null ? 'Acta firmada' : 'Acta PDF'}">Acta</strong>
-                                            <span th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio no registrado'}">Custodio</span>
-                                        </div>
-                                        <span class="cui-badge" th:classappend="${c.rutaActaFirmada != null ? ' cui-badge-asignado' : ' cui-badge-info'}" th:text="${c.rutaActaFirmada != null ? 'Firmada' : 'PDF'}">PDF</span>
-                                    </div>
-                                    <div class="cui-document-row" th:each="m : ${mantenimientos}" th:if="${(m.imagenes != null and !#lists.isEmpty(m.imagenes)) or m.firmaTecnico != null or m.firmaCustodio != null}">
-                                        <i class="feather-paperclip" aria-hidden="true"></i>
-                                        <div>
-                                            <strong>Evidencia de mantenimiento</strong>
-                                            <span th:text="${m.tipoMantenimiento ?: 'Mantenimiento'}">Mantenimiento</span>
-                                        </div>
-                                        <a th:href="@{/mantenimiento/{id}(id=${m.idMantenimiento})}" class="btn btn-outline-primary btn-sm">Ver</a>
-                                    </div>
-                                </div>
-                                <div th:if="${#lists.isEmpty(historialCustodias) and #lists.isEmpty(mantenimientos)}" th:replace="~{fragments/components/empty-state :: empty(icon='feather-file-text', title='Sin documentos', message='No hay actas, PDFs o evidencias disponibles para este activo.')}"></div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="tab-auditoria" role="tabpanel">
-                            <div class="cui-tab-pane-body">
-                                <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(movimientos) or !#lists.isEmpty(historialCustodias) or !#lists.isEmpty(mantenimientos)}">
-                                    <article class="cui-activity-item" th:each="m : ${movimientos}">
-                                        <span class="cui-activity-dot is-success"></span>
-                                        <div>
-                                            <strong th:text="${'Movimiento: ' + m.tipoMovimiento}">Movimiento</strong>
-                                            <p th:text="${m.observacion ?: 'Evento de inventario registrado'}">Evento</p>
-                                        </div>
-                                        <span class="cui-activity-time" th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : '-'}">Fecha</span>
-                                    </article>
-                                    <article class="cui-activity-item" th:each="c : ${historialCustodias}">
-                                        <span class="cui-activity-dot is-warning"></span>
-                                        <div>
-                                            <strong>Evento de custodia</strong>
-                                            <p th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio no registrado'}">Custodio</p>
-                                        </div>
-                                        <span class="cui-activity-time" th:text="${c.fechaInicio != null ? #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : '-'}">Fecha</span>
-                                    </article>
-                                    <article class="cui-activity-item" th:each="m : ${mantenimientos}">
-                                        <span class="cui-activity-dot"></span>
-                                        <div>
-                                            <strong>Evento de mantenimiento</strong>
-                                            <p th:text="${m.tipoMantenimiento ?: 'Mantenimiento registrado'}">Mantenimiento</p>
-                                        </div>
-                                        <span class="cui-activity-time" th:text="${m.fechaMantenimiento != null ? #temporals.format(m.fechaMantenimiento, 'dd/MM/yyyy') : '-'}">Fecha</span>
-                                    </article>
-                                </div>
-                                <div th:if="${#lists.isEmpty(movimientos) and #lists.isEmpty(historialCustodias) and #lists.isEmpty(mantenimientos)}" th:replace="~{fragments/components/empty-state :: empty(icon='feather-shield', title='Sin auditoria visible', message='No hay eventos auditables disponibles en el modelo actual.')}"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
+        <!-- STAT STRIP -->
+        <div class="cui-stat-strip">
+            <div class="cui-stat-item">
+                <span class="cui-stat-value">1</span>
+                <span class="cui-stat-label">Activo</span>
+                <span class="cui-stat-meta">Este equipo</span>
+            </div>
+            <div class="cui-stat-sep" aria-hidden="true"></div>
+            <div class="cui-stat-item" th:classappend="${custodiaActual == null ? ' is-warning' : ''}">
+                <span class="cui-stat-value" th:text="${custodiaActual != null ? 1 : 0}">0</span>
+                <span class="cui-stat-label">Custodias activas</span>
+                <span class="cui-stat-meta">Responsable actual</span>
+            </div>
+            <div class="cui-stat-sep" aria-hidden="true"></div>
+            <div class="cui-stat-item">
+                <span class="cui-stat-value" th:text="${totalMovimientos}">0</span>
+                <span class="cui-stat-label">Movimientos</span>
+                <span class="cui-stat-meta">Historial total</span>
+            </div>
+            <div class="cui-stat-sep" aria-hidden="true"></div>
+            <div class="cui-stat-item">
+                <span class="cui-stat-value" th:text="${totalCustodias}">0</span>
+                <span class="cui-stat-label">Actas</span>
+                <span class="cui-stat-meta">Generadas</span>
+            </div>
+            <div class="cui-stat-sep" aria-hidden="true"></div>
+            <div class="cui-stat-item">
+                <span class="cui-stat-value">—</span>
+                <span class="cui-stat-label">Garantia</span>
+                <span class="cui-stat-meta">No registrada</span>
+            </div>
+            <div class="cui-stat-sep" aria-hidden="true"></div>
+            <div class="cui-stat-item" th:classappend="${totalMantenimientos > 0 ? ' is-info' : ''}">
+                <span class="cui-stat-value" th:text="${totalMantenimientos}">0</span>
+                <span class="cui-stat-label">Reparaciones</span>
+                <span class="cui-stat-meta">En proceso</span>
+            </div>
         </div>
+
+        <!-- TABS -->
+        <section class="cui-exp-tabs">
+            <ul class="nav nav-pills" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-resumen" data-cui-tab-hash type="button" role="tab">Resumen</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-tecnicos" data-cui-tab-hash type="button" role="tab">Detalles tecnicos</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-custodias" data-cui-tab-hash type="button" role="tab">Custodias</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-actas" data-cui-tab-hash type="button" role="tab">Actas</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-movimientos" data-cui-tab-hash type="button" role="tab">Movimientos</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-mantenimientos" data-cui-tab-hash type="button" role="tab">Mantenimientos</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-documentos" data-cui-tab-hash type="button" role="tab">Documentos</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-historial" data-cui-tab-hash type="button" role="tab">Historial de cambios</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+
+                <!-- TAB RESUMEN -->
+                <div class="tab-pane fade show active" id="tab-resumen" role="tabpanel">
+                    <div class="cui-tab-pane-body">
+
+                        <!-- 3 columnas: Informacion | Riesgos | Timeline -->
+                        <div class="cui-resumen-grid">
+
+                            <!-- Columna 1: Informacion del activo -->
+                            <div class="cui-info-panel">
+                                <div class="cui-panel-title">Informacion del activo</div>
+                                <form id="formDatosRapidos" th:action="@{/equipos}" method="post" novalidate>
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <input type="hidden" name="idEquipo" th:value="${equipo.idEquipo}">
+                                    <input type="hidden" name="codigoSap" th:value="${equipo.codigoSap}">
+                                    <input type="hidden" name="modelo" th:value="${equipo.modelo}">
+                                    <input type="hidden" name="estado" th:value="${equipo.estado}">
+                                    <input type="hidden" name="fkMarca.idMarca"
+                                           th:value="${equipo.fkMarca != null ? equipo.fkMarca.idMarca : 0}">
+                                    <input type="hidden" name="fkCategoria.idCategoria"
+                                           th:value="${equipo.fkCategoria != null ? equipo.fkCategoria.idCategoria : 0}">
+                                    <!-- Preservar campos opcionales ya completados -->
+                                    <input type="hidden" name="serial"
+                                           th:if="${equipo.serial != null and !#strings.isEmpty(equipo.serial)}"
+                                           th:value="${equipo.serial}">
+                                    <input type="hidden" name="mac"
+                                           th:if="${equipo.mac != null and !#strings.isEmpty(equipo.mac)}"
+                                           th:value="${equipo.mac}">
+                                    <input type="hidden" name="procesador"
+                                           th:if="${equipo.procesador != null and !#strings.isEmpty(equipo.procesador)}"
+                                           th:value="${equipo.procesador}">
+                                    <input type="hidden" name="memoriaRamGb"
+                                           th:if="${equipo.memoriaRamGb != null}"
+                                           th:value="${equipo.memoriaRamGb}">
+                                    <input type="hidden" name="capacidadAlmacenamientoGb"
+                                           th:if="${equipo.capacidadAlmacenamientoGb != null}"
+                                           th:value="${equipo.capacidadAlmacenamientoGb}">
+                                    <input type="hidden" name="estadoEquipo"
+                                           th:if="${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo)}"
+                                           th:value="${equipo.estadoEquipo}">
+                                    <input type="hidden" name="fechaAdquisicion"
+                                           th:if="${equipo.fechaAdquisicion != null}"
+                                           th:value="${equipo.fechaAdquisicion}">
+                                    <input type="hidden" name="valorActual"
+                                           th:if="${equipo.valorActual != null}"
+                                           th:value="${equipo.valorActual}">
+                                    <input type="hidden" name="precioCompra"
+                                           th:if="${equipo.precioCompra != null}"
+                                           th:value="${equipo.precioCompra}">
+                                    <input type="hidden" name="licenciaWindowsActivada"
+                                           th:if="${equipo.licenciaWindowsActivada != null}"
+                                           th:value="${equipo.licenciaWindowsActivada}">
+                                    <input type="hidden" name="observacionEquipo"
+                                           th:if="${equipo.observacionEquipo != null}"
+                                           th:value="${equipo.observacionEquipo}">
+                                    <input type="hidden" name="descripcion"
+                                           th:if="${equipo.descripcion != null}"
+                                           th:value="${equipo.descripcion}">
+
+                                    <dl class="cui-detail-list">
+                                        <div class="cui-detail-item">
+                                            <dt>Codigo CRESIO</dt>
+                                            <dd th:text="${codigoActivo}">—</dd>
+                                        </div>
+                                        <div class="cui-detail-item">
+                                            <dt>Serial
+                                                <span class="cui-required-mark"
+                                                      th:if="${equipo.serial == null or #strings.isEmpty(equipo.serial)}">*</span>
+                                            </dt>
+                                            <dd th:if="${equipo.serial != null and !#strings.isEmpty(equipo.serial)}"
+                                                th:text="${equipo.serial}">—</dd>
+                                            <dd th:unless="${equipo.serial != null and !#strings.isEmpty(equipo.serial)}">
+                                                <input class="cui-inline-input" name="serial" type="text"
+                                                       placeholder="Ej: SN-ABC123456" required autocomplete="off">
+                                            </dd>
+                                        </div>
+                                        <div class="cui-detail-item">
+                                            <dt>Marca / Modelo</dt>
+                                            <dd th:text="${marcaActivo + ' / ' + modeloActivo}">—</dd>
+                                        </div>
+                                        <div class="cui-detail-item">
+                                            <dt>MAC Address</dt>
+                                            <dd th:if="${equipo.mac != null and !#strings.isEmpty(equipo.mac)}"
+                                                th:text="${equipo.mac}">—</dd>
+                                            <dd th:unless="${equipo.mac != null and !#strings.isEmpty(equipo.mac)}">
+                                                <input class="cui-inline-input" name="mac" type="text"
+                                                       placeholder="00:1A:2B:3C:4D:5E" autocomplete="off">
+                                            </dd>
+                                        </div>
+                                        <div class="cui-detail-item">
+                                            <dt>Procesador</dt>
+                                            <dd th:if="${equipo.procesador != null and !#strings.isEmpty(equipo.procesador)}"
+                                                th:text="${equipo.procesador}">—</dd>
+                                            <dd th:unless="${equipo.procesador != null and !#strings.isEmpty(equipo.procesador)}">
+                                                <input class="cui-inline-input" name="procesador" type="text"
+                                                       placeholder="Ej: Intel Core i7-1355U" autocomplete="off">
+                                            </dd>
+                                        </div>
+                                        <div class="cui-detail-item">
+                                            <dt>Memoria RAM</dt>
+                                            <dd th:if="${equipo.memoriaRamGb != null}"
+                                                th:text="${equipo.memoriaRamGb + ' GB'}">—</dd>
+                                            <dd th:unless="${equipo.memoriaRamGb != null}">
+                                                <input class="cui-inline-input" name="memoriaRamGb" type="number"
+                                                       placeholder="GB (ej: 16)" min="1" max="2048" autocomplete="off">
+                                            </dd>
+                                        </div>
+                                        <div class="cui-detail-item">
+                                            <dt>Almacenamiento</dt>
+                                            <dd th:if="${equipo.capacidadAlmacenamientoGb != null}"
+                                                th:text="${equipo.capacidadAlmacenamientoGb + ' GB'}">—</dd>
+                                            <dd th:unless="${equipo.capacidadAlmacenamientoGb != null}">
+                                                <input class="cui-inline-input" name="capacidadAlmacenamientoGb"
+                                                       type="number" placeholder="GB (ej: 512)"
+                                                       min="1" max="65536" autocomplete="off">
+                                            </dd>
+                                        </div>
+                                        <div class="cui-detail-item">
+                                            <dt>Estado fisico</dt>
+                                            <dd th:if="${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo)}"
+                                                th:text="${equipo.estadoEquipo}">—</dd>
+                                            <dd th:unless="${equipo.estadoEquipo != null and !#strings.isEmpty(equipo.estadoEquipo)}">
+                                                <select class="cui-inline-input" name="estadoEquipo">
+                                                    <option value="">Seleccione estado...</option>
+                                                    <option value="BUENO">Bueno</option>
+                                                    <option value="REGULAR">Regular</option>
+                                                    <option value="MALO">Malo</option>
+                                                    <option value="EN_REPARACION">En reparacion</option>
+                                                </select>
+                                            </dd>
+                                        </div>
+                                        <div class="cui-detail-item">
+                                            <dt>Fecha de ingreso</dt>
+                                            <dd th:if="${equipo.fechaAdquisicion != null or equipo.fechaCompra != null}"
+                                                th:text="${equipo.fechaAdquisicion != null ? #temporals.format(equipo.fechaAdquisicion, 'dd/MM/yyyy') : #temporals.format(equipo.fechaCompra, 'dd/MM/yyyy')}">—</dd>
+                                            <dd th:unless="${equipo.fechaAdquisicion != null or equipo.fechaCompra != null}">
+                                                <input class="cui-inline-input" name="fechaAdquisicion"
+                                                       type="date" autocomplete="off">
+                                            </dd>
+                                        </div>
+                                        <div class="cui-detail-item">
+                                            <dt>Valor referencial</dt>
+                                            <dd th:if="${valorRef != null}"
+                                                th:text="${'$ ' + valorRef}">—</dd>
+                                            <dd th:unless="${valorRef != null}">
+                                                <input class="cui-inline-input" name="valorActual"
+                                                       type="number" placeholder="0.00"
+                                                       step="0.01" min="0" autocomplete="off">
+                                            </dd>
+                                        </div>
+                                        <div class="cui-detail-item" th:if="${!#lists.isEmpty(movimientos)}">
+                                            <dt>Ultimo movimiento</dt>
+                                            <dd th:text="${movimientos[0].tipoMovimiento + ' · ' + (movimientos[0].fechaMovimiento != null ? #temporals.format(movimientos[0].fechaMovimiento, 'dd/MM/yyyy') : '—')}">—</dd>
+                                        </div>
+                                    </dl>
+
+                                    <!-- Barra de guardado: solo visible cuando hay campos incompletos -->
+                                    <div class="cui-form-footer-bar"
+                                         th:if="${(equipo.serial == null or #strings.isEmpty(equipo.serial))
+                                                  or (equipo.mac == null or #strings.isEmpty(equipo.mac))
+                                                  or (equipo.procesador == null or #strings.isEmpty(equipo.procesador))
+                                                  or equipo.memoriaRamGb == null
+                                                  or equipo.capacidadAlmacenamientoGb == null
+                                                  or (equipo.estadoEquipo == null or #strings.isEmpty(equipo.estadoEquipo))
+                                                  or (equipo.fechaAdquisicion == null and equipo.fechaCompra == null)
+                                                  or valorRef == null}">
+                                        <p id="datosRapidosErr" class="cui-form-err" aria-live="polite"></p>
+                                        <button type="submit" id="btnGuardarDatos" class="cui-btn cui-btn-primary">
+                                            <i class="feather-save" aria-hidden="true"></i>
+                                            <span>Guardar datos</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Columna 2: Riesgos y alertas -->
+                            <div class="cui-risk-col">
+                                <div class="cui-panel-title">Riesgos y alertas</div>
+
+                                <div class="cui-risk-card cui-risk-card-danger" th:if="${!equipo.estado}">
+                                    <div class="cui-risk-card-icon"><i class="feather-x-circle" aria-hidden="true"></i></div>
+                                    <div class="cui-risk-card-body">
+                                        <strong>Activo dado de baja</strong>
+                                        <p>No esta disponible para operacion.</p>
+                                    </div>
+                                </div>
+
+                                <div class="cui-risk-card cui-risk-card-danger"
+                                     th:if="${equipo.estado and !activoEtiquetado}">
+                                    <div class="cui-risk-card-icon"><i class="feather-tag" aria-hidden="true"></i></div>
+                                    <div class="cui-risk-card-body">
+                                        <strong>Sin etiqueta fisica</strong>
+                                        <p>No puede salir de bodega hasta ser etiquetado.</p>
+                                    </div>
+                                    <button type="button" class="cui-btn cui-btn-secondary"
+                                            data-cui-drawer-open="#drawerEtiquetaActivoExp">Registrar</button>
+                                </div>
+
+                                <div class="cui-risk-card cui-risk-card-warning"
+                                     th:if="${equipo.estado and (equipo.serial == null or #strings.isEmpty(equipo.serial))}">
+                                    <div class="cui-risk-card-icon"><i class="feather-alert-triangle" aria-hidden="true"></i></div>
+                                    <div class="cui-risk-card-body">
+                                        <strong>Serial no registrado</strong>
+                                        <p>Requerido para trazabilidad del activo.</p>
+                                    </div>
+                                    <a th:href="@{/equipos/editar-equipo/{id}(id=${equipo.idEquipo})}"
+                                       class="cui-btn cui-btn-secondary">Editar</a>
+                                </div>
+
+                                <div class="cui-risk-card cui-risk-card-warning"
+                                     th:if="${equipo.estado and custodiaActual == null}">
+                                    <div class="cui-risk-card-icon"><i class="feather-user-x" aria-hidden="true"></i></div>
+                                    <div class="cui-risk-card-body">
+                                        <strong>Sin custodio vigente</strong>
+                                        <p>El activo esta en bodega sin responsable.</p>
+                                    </div>
+                                    <button type="button" class="cui-btn cui-btn-secondary"
+                                            data-cui-drawer-open="#drawerAsignarActivoExp">Asignar</button>
+                                </div>
+
+                                <div th:each="c : ${historialCustodias}"
+                                     th:if="${c.rutaActaPdf != null and c.rutaActaFirmada == null and c.estado}"
+                                     class="cui-risk-card cui-risk-card-info">
+                                    <div class="cui-risk-card-icon"><i class="feather-file-text" aria-hidden="true"></i></div>
+                                    <div class="cui-risk-card-body">
+                                        <strong>Acta pendiente de firma</strong>
+                                        <p>Custodia activa tiene acta sin firma del custodio.</p>
+                                    </div>
+                                    <a th:href="@{/custodias/expediente/{id}(id=${c.idCustodio})}"
+                                       class="cui-btn cui-btn-secondary">Ver detalle</a>
+                                </div>
+
+                                <div class="cui-risk-card cui-risk-card-ok"
+                                     th:if="${equipo.estado
+                                              and custodiaActual != null
+                                              and activoEtiquetado
+                                              and equipo.serial != null
+                                              and !#strings.isEmpty(equipo.serial)}">
+                                    <div class="cui-risk-card-icon"><i class="feather-check-circle" aria-hidden="true"></i></div>
+                                    <div class="cui-risk-card-body">
+                                        <strong>Sin riesgos criticos</strong>
+                                        <p>No se encontraron riesgos para este activo.</p>
+                                    </div>
+                                    <span class="cui-badge cui-badge-asignado">OK</span>
+                                </div>
+                            </div>
+
+                            <!-- Columna 3: Linea de tiempo -->
+                            <div class="cui-timeline-col">
+                                <div class="cui-panel-title">Linea de tiempo</div>
+                                <div class="cui-vtimeline" th:if="${!#lists.isEmpty(movimientos)}">
+                                    <div class="cui-vtimeline-event" th:each="m, stat : ${movimientos}" th:if="${stat.index < 6}">
+                                        <div class="cui-vtimeline-dot"
+                                             th:classappend="${m.tipoMovimiento == 'BAJA'} ? ' is-danger' :
+                                                             (${m.tipoMovimiento == 'TRASLADO'} ? ' is-warning' :
+                                                             (${m.tipoMovimiento == 'ASIGNACION'} ? ' is-primary' : ' is-success'))">
+                                        </div>
+                                        <div class="cui-vtimeline-body">
+                                            <strong th:text="${m.tipoMovimiento}">Tipo</strong>
+                                            <p th:text="${m.bodegaDestinoNombre ?: (m.bodegaOrigenNombre ?: (m.observacion ?: 'Inventario'))}">Detalle</p>
+                                            <span class="cui-vtimeline-meta" th:if="${m.custodioNombre != null}">
+                                                Por <span th:text="${m.custodioNombre}">Sistema</span>
+                                            </span>
+                                        </div>
+                                        <span class="cui-vtimeline-time"
+                                              th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM HH:mm') : '-'}">Fecha</span>
+                                    </div>
+                                </div>
+                                <div th:if="${#lists.isEmpty(movimientos)}"
+                                     th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin eventos', message='No hay movimientos registrados.')}"></div>
+                                <a th:if="${totalMovimientos > 0}" href="#tab-movimientos"
+                                   class="cui-link-more" role="button"
+                                   onclick="document.querySelector('[data-bs-target=\'#tab-movimientos\']').click(); return false;">
+                                    Ver todos los movimientos →
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Fila inferior: Documentos + Garantia + Acciones rapidas -->
+                        <div class="cui-resumen-bottom">
+                            <div class="cui-bottom-panel">
+                                <div class="cui-panel-title">Documentos</div>
+                                <div class="cui-doc-list" th:if="${!#lists.isEmpty(historialCustodias)}">
+                                    <div th:each="c : ${historialCustodias}"
+                                         th:if="${c.rutaActaPdf != null or c.rutaActaFirmada != null}"
+                                         class="cui-doc-item">
+                                        <i class="feather-file-text cui-doc-icon" aria-hidden="true"></i>
+                                        <div class="cui-doc-info">
+                                            <strong th:text="${c.rutaActaFirmada != null ? 'Acta firmada' : 'Acta PDF'}">Acta</strong>
+                                            <span th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'No registrado'}">Custodio</span>
+                                        </div>
+                                        <span class="cui-badge"
+                                              th:classappend="${c.rutaActaFirmada != null ? ' cui-badge-asignado' : ' cui-badge-info'}"
+                                              th:text="${c.rutaActaFirmada != null ? 'Firmada' : 'PDF'}">PDF</span>
+                                        <button type="button" class="cui-icon-btn" aria-label="Descargar documento">
+                                            <i class="feather-download" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p th:if="${#lists.isEmpty(historialCustodias)}" class="cui-empty-inline">Sin documentos disponibles.</p>
+                                <a href="#tab-documentos" class="cui-link-more" role="button"
+                                   onclick="document.querySelector('[data-bs-target=\'#tab-documentos\']').click(); return false;">
+                                    Ver todos los documentos →
+                                </a>
+                            </div>
+
+                            <div class="cui-bottom-panel">
+                                <div class="cui-panel-title">Garantia</div>
+                                <dl class="cui-detail-list">
+                                    <div class="cui-detail-item">
+                                        <dt>Proveedor</dt>
+                                        <dd>No registrado</dd>
+                                    </div>
+                                    <div class="cui-detail-item">
+                                        <dt>Tipo</dt>
+                                        <dd>No registrado</dd>
+                                    </div>
+                                    <div class="cui-detail-item">
+                                        <dt>Desde</dt>
+                                        <dd th:text="${equipo.fechaAdquisicion != null ? #temporals.format(equipo.fechaAdquisicion, 'dd/MM/yyyy') : '—'}">—</dd>
+                                    </div>
+                                    <div class="cui-detail-item">
+                                        <dt>Estado</dt>
+                                        <dd><span class="cui-badge cui-badge-muted">Sin datos</span></dd>
+                                    </div>
+                                </dl>
+                            </div>
+
+                            <div class="cui-bottom-panel">
+                                <div class="cui-panel-title">Acciones rapidas</div>
+                                <div class="cui-quick-actions">
+                                    <button type="button" class="cui-quick-btn" th:if="${enBodega}"
+                                            data-cui-drawer-open="#drawerAsignarActivoExp">
+                                        <i class="feather-user-check" aria-hidden="true"></i>
+                                        <span>Nueva asignacion</span>
+                                        <small>Asignar a custodio</small>
+                                    </button>
+                                    <button type="button" class="cui-quick-btn"
+                                            th:if="${equipo.estado and activoEtiquetado}"
+                                            data-cui-drawer-open="#drawerEtiquetaActivoExp">
+                                        <i class="feather-tag" aria-hidden="true"></i>
+                                        <span>Actualizar etiqueta</span>
+                                        <small>Gestionar etiqueta fisica</small>
+                                    </button>
+                                    <button type="button" class="cui-quick-btn"
+                                            th:if="${equipo.estado and !enReparacion}"
+                                            data-cui-drawer-open="#drawerTrasladarActivoExp">
+                                        <i class="feather-truck" aria-hidden="true"></i>
+                                        <span>Trasladar activo</span>
+                                        <small>Mover entre bodegas</small>
+                                    </button>
+                                    <button type="button" class="cui-quick-btn"
+                                            th:if="${equipo.estado}"
+                                            data-cui-drawer-open="#drawerReparacionActivoExp">
+                                        <i class="feather-tool" aria-hidden="true"></i>
+                                        <span>Enviar a reparacion</span>
+                                        <small>Gestionar reparacion</small>
+                                    </button>
+                                    <a th:href="@{/equipos/editar-equipo/{id}(id=${equipo.idEquipo})}"
+                                       class="cui-quick-btn">
+                                        <i class="feather-edit-2" aria-hidden="true"></i>
+                                        <span>Editar activo</span>
+                                        <small>Modificar datos</small>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB DETALLES TECNICOS -->
+                <div class="tab-pane fade" id="tab-tecnicos" role="tabpanel">
+                    <div class="cui-tab-pane-body">
+                        <div class="cui-detail-grid">
+                            <div class="cui-detail-item"><span>Descripcion</span><strong th:text="${equipo.descripcion != null and !#strings.isEmpty(equipo.descripcion) ? equipo.descripcion : 'No registrado'}">—</strong></div>
+                            <div class="cui-detail-item"><span>Procesador</span><strong th:text="${equipo.procesador != null and !#strings.isEmpty(equipo.procesador) ? equipo.procesador : 'No registrado'}">—</strong></div>
+                            <div class="cui-detail-item"><span>RAM</span><strong th:text="${equipo.memoriaRamGb != null ? equipo.memoriaRamGb + ' GB' : 'No registrado'}">—</strong></div>
+                            <div class="cui-detail-item"><span>Almacenamiento</span><strong th:text="${equipo.capacidadAlmacenamientoGb != null ? equipo.capacidadAlmacenamientoGb + ' GB' : 'No registrado'}">—</strong></div>
+                            <div class="cui-detail-item"><span>Licencia Windows</span><strong th:text="${equipo.licenciaWindowsActivada != null ? (equipo.licenciaWindowsActivada ? 'Activada' : 'No activada') : 'No registrado'}">—</strong></div>
+                            <div class="cui-detail-item"><span>Observacion</span><strong th:text="${equipo.observacionEquipo != null and !#strings.isEmpty(equipo.observacionEquipo) ? equipo.observacionEquipo : 'No registrado'}">—</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB CUSTODIAS -->
+                <div class="tab-pane fade" id="tab-custodias" role="tabpanel">
+                    <div class="cui-tab-pane-body">
+                        <div class="table-responsive">
+                            <table class="table cui-table">
+                                <thead>
+                                <tr>
+                                    <th>Custodio</th>
+                                    <th>Periodo</th>
+                                    <th>Tipo</th>
+                                    <th>Estado</th>
+                                    <th>Acta</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:if="${#lists.isEmpty(historialCustodias)}">
+                                    <td colspan="5">
+                                        <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-clipboard', title='Sin custodias', message='No hay historial de custodias para este activo.')}"></div>
+                                    </td>
+                                </tr>
+                                <tr th:each="c : ${historialCustodias}">
+                                    <td>
+                                        <div class="cui-row-stack">
+                                            <span class="cui-row-title" th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'No registrado'}">Custodio</span>
+                                            <span class="cui-row-subtitle" th:text="${c.fkCustodio != null ? c.fkCustodio.correo : '—'}">Correo</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span th:text="${c.fechaInicio != null ? #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : '—'}">Inicio</span>
+                                        <span> → </span>
+                                        <span th:text="${c.fechaFin != null ? #temporals.format(c.fechaFin, 'dd/MM/yyyy') : 'Vigente'}">Fin</span>
+                                    </td>
+                                    <td th:text="${c.tipoMovimiento ?: 'Custodia'}">Tipo</td>
+                                    <td>
+                                        <span class="cui-badge"
+                                              th:classappend="${c.estado} ? ' cui-badge-asignado' : ' cui-badge-muted'"
+                                              th:text="${c.estado ? 'Vigente' : 'Cerrada'}">Estado</span>
+                                    </td>
+                                    <td>
+                                        <span class="cui-badge"
+                                              th:classappend="${c.rutaActaFirmada != null ? ' cui-badge-asignado' : (c.rutaActaPdf != null ? ' cui-badge-info' : ' cui-badge-muted')}"
+                                              th:text="${c.rutaActaFirmada != null ? 'Firmada' : (c.rutaActaPdf != null ? 'PDF generado' : 'Sin acta')}">Acta</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB ACTAS -->
+                <div class="tab-pane fade" id="tab-actas" role="tabpanel">
+                    <div class="cui-tab-pane-body">
+                        <div class="cui-doc-list" th:if="${!#lists.isEmpty(historialCustodias)}">
+                            <div th:each="c : ${historialCustodias}"
+                                 th:if="${c.rutaActaPdf != null or c.rutaActaFirmada != null}"
+                                 class="cui-doc-item">
+                                <i class="feather-file-text cui-doc-icon" aria-hidden="true"></i>
+                                <div class="cui-doc-info">
+                                    <strong th:text="${c.rutaActaFirmada != null ? 'Acta firmada' : 'Acta PDF'}">Acta</strong>
+                                    <span th:text="${(c.fkCustodio != null ? c.fkCustodio.nombre : 'No registrado') + (c.fechaInicio != null ? ' · ' + #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : '')}">Custodio</span>
+                                </div>
+                                <span class="cui-badge"
+                                      th:classappend="${c.rutaActaFirmada != null ? ' cui-badge-asignado' : ' cui-badge-info'}"
+                                      th:text="${c.rutaActaFirmada != null ? 'Firmada' : 'PDF'}">PDF</span>
+                                <a th:if="${c.rutaActaFirmada != null}"
+                                   th:href="@{/activos/actas/{f}(f=${c.rutaActaFirmada})}"
+                                   class="cui-icon-btn" target="_blank" aria-label="Descargar acta firmada">
+                                    <i class="feather-download" aria-hidden="true"></i>
+                                </a>
+                                <a th:if="${c.rutaActaFirmada == null and c.rutaActaPdf != null}"
+                                   th:href="@{/activos/actas/{f}(f=${c.rutaActaPdf})}"
+                                   class="cui-icon-btn" target="_blank" aria-label="Descargar PDF">
+                                    <i class="feather-download" aria-hidden="true"></i>
+                                </a>
+                                <a th:href="@{/custodias/expediente/{id}(id=${c.idCustodio})}"
+                                   class="cui-btn cui-btn-secondary">Ver custodia</a>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(historialCustodias)}"
+                             th:replace="~{fragments/components/empty-state :: empty(icon='feather-file-text', title='Sin actas', message='No hay actas generadas para este activo.')}"></div>
+                    </div>
+                </div>
+
+                <!-- TAB MOVIMIENTOS -->
+                <div class="tab-pane fade" id="tab-movimientos" role="tabpanel">
+                    <div class="cui-tab-pane-body">
+                        <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(movimientos)}">
+                            <article class="cui-activity-item" th:each="m : ${movimientos}">
+                                <span class="cui-activity-dot"
+                                      th:classappend="${m.tipoMovimiento == 'BAJA'} ? ' is-danger' : (${m.tipoMovimiento == 'TRASLADO'} ? ' is-warning' : ' is-success')"></span>
+                                <div>
+                                    <strong th:text="${m.tipoMovimiento}">Movimiento</strong>
+                                    <p>
+                                        <span th:text="${m.bodegaOrigenNombre ?: 'Origen no aplica'}">Origen</span>
+                                        <span> → </span>
+                                        <span th:text="${m.bodegaDestinoNombre ?: 'Destino no aplica'}">Destino</span>
+                                    </p>
+                                    <p th:if="${m.estadoAnterior != null or m.estadoNuevo != null}">
+                                        <span th:text="${m.estadoAnterior ?: '—'}">Anterior</span>
+                                        <span> → </span>
+                                        <span th:text="${m.estadoNuevo ?: '—'}">Nuevo</span>
+                                    </p>
+                                    <p th:if="${m.observacion != null}" th:text="${m.observacion}">Observacion</p>
+                                </div>
+                                <span class="cui-activity-time"
+                                      th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : '-'}">Fecha</span>
+                            </article>
+                        </div>
+                        <div th:if="${#lists.isEmpty(movimientos)}"
+                             th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin movimientos', message='No hay movimientos registrados para este activo.')}"></div>
+                    </div>
+                </div>
+
+                <!-- TAB MANTENIMIENTOS -->
+                <div class="tab-pane fade" id="tab-mantenimientos" role="tabpanel">
+                    <div class="cui-tab-pane-body">
+                        <div class="table-responsive">
+                            <table class="table cui-table">
+                                <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Tecnico</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th class="text-end">Acciones</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:if="${#lists.isEmpty(mantenimientos)}">
+                                    <td colspan="5">
+                                        <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-tool', title='Sin mantenimientos', message='No hay mantenimientos registrados para este activo.')}"></div>
+                                    </td>
+                                </tr>
+                                <tr th:each="m : ${mantenimientos}">
+                                    <td>
+                                        <div class="cui-row-stack">
+                                            <span class="cui-row-title" th:text="${m.tipoMantenimiento ?: 'Mantenimiento'}">Tipo</span>
+                                            <span class="cui-row-subtitle" th:text="${m.detalle ?: 'Sin detalle'}">Detalle</span>
+                                        </div>
+                                    </td>
+                                    <td th:text="${m.tecnicoNombre ?: 'Sin tecnico'}">Tecnico</td>
+                                    <td th:text="${m.fechaMantenimiento != null ? #temporals.format(m.fechaMantenimiento, 'dd/MM/yyyy') : 'Sin fecha'}">Fecha</td>
+                                    <td>
+                                        <span class="cui-badge"
+                                              th:with="estadoMant=${m.estadoInterno ?: (m.estadoGeneral ?: 'PENDIENTE')}"
+                                              th:classappend="${estadoMant == 'CERRADO'} ? ' cui-badge-asignado' : (${estadoMant == 'EN_PROCESO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
+                                              th:text="${estadoMant}">Estado</span>
+                                    </td>
+                                    <td>
+                                        <div class="cui-action-cell">
+                                            <a th:href="@{/mantenimiento/{id}(id=${m.idMantenimiento})}" class="cui-btn cui-btn-secondary">Ver</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB DOCUMENTOS -->
+                <div class="tab-pane fade" id="tab-documentos" role="tabpanel">
+                    <div class="cui-tab-pane-body">
+                        <div class="cui-doc-list" th:if="${!#lists.isEmpty(historialCustodias) or !#lists.isEmpty(mantenimientos)}">
+                            <div th:each="c : ${historialCustodias}"
+                                 th:if="${c.rutaActaPdf != null or c.rutaActaFirmada != null}"
+                                 class="cui-doc-item">
+                                <i class="feather-file-text cui-doc-icon" aria-hidden="true"></i>
+                                <div class="cui-doc-info">
+                                    <strong th:text="${c.rutaActaFirmada != null ? 'Acta firmada' : 'Acta PDF'}">Acta</strong>
+                                    <span th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio no registrado'}">Custodio</span>
+                                </div>
+                                <span class="cui-badge"
+                                      th:classappend="${c.rutaActaFirmada != null ? ' cui-badge-asignado' : ' cui-badge-info'}"
+                                      th:text="${c.rutaActaFirmada != null ? 'Firmada' : 'PDF'}">PDF</span>
+                            </div>
+                            <div th:each="m : ${mantenimientos}"
+                                 th:if="${(m.imagenes != null and !#lists.isEmpty(m.imagenes)) or m.firmaTecnico != null or m.firmaCustodio != null}"
+                                 class="cui-doc-item">
+                                <i class="feather-paperclip cui-doc-icon" aria-hidden="true"></i>
+                                <div class="cui-doc-info">
+                                    <strong>Evidencia de mantenimiento</strong>
+                                    <span th:text="${m.tipoMantenimiento ?: 'Mantenimiento'}">Mantenimiento</span>
+                                </div>
+                                <a th:href="@{/mantenimiento/{id}(id=${m.idMantenimiento})}" class="cui-btn cui-btn-secondary">Ver</a>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(historialCustodias) and #lists.isEmpty(mantenimientos)}"
+                             th:replace="~{fragments/components/empty-state :: empty(icon='feather-file-text', title='Sin documentos', message='No hay actas, PDFs o evidencias disponibles para este activo.')}"></div>
+                    </div>
+                </div>
+
+                <!-- TAB HISTORIAL DE CAMBIOS -->
+                <div class="tab-pane fade" id="tab-historial" role="tabpanel">
+                    <div class="cui-tab-pane-body">
+                        <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(movimientos) or !#lists.isEmpty(historialCustodias) or !#lists.isEmpty(mantenimientos)}">
+                            <article class="cui-activity-item" th:each="m : ${movimientos}">
+                                <span class="cui-activity-dot is-success"></span>
+                                <div>
+                                    <strong th:text="${'Movimiento: ' + m.tipoMovimiento}">Movimiento</strong>
+                                    <p th:text="${m.observacion ?: 'Evento de inventario registrado'}">Evento</p>
+                                </div>
+                                <span class="cui-activity-time"
+                                      th:text="${m.fechaMovimiento != null ? #temporals.format(m.fechaMovimiento, 'dd/MM/yyyy HH:mm') : '-'}">Fecha</span>
+                            </article>
+                            <article class="cui-activity-item" th:each="c : ${historialCustodias}">
+                                <span class="cui-activity-dot is-warning"></span>
+                                <div>
+                                    <strong>Evento de custodia</strong>
+                                    <p th:text="${c.fkCustodio != null ? c.fkCustodio.nombre : 'Custodio no registrado'}">Custodio</p>
+                                </div>
+                                <span class="cui-activity-time"
+                                      th:text="${c.fechaInicio != null ? #temporals.format(c.fechaInicio, 'dd/MM/yyyy') : '-'}">Fecha</span>
+                            </article>
+                            <article class="cui-activity-item" th:each="m : ${mantenimientos}">
+                                <span class="cui-activity-dot"></span>
+                                <div>
+                                    <strong>Evento de mantenimiento</strong>
+                                    <p th:text="${m.tipoMantenimiento ?: 'Mantenimiento registrado'}">Mantenimiento</p>
+                                </div>
+                                <span class="cui-activity-time"
+                                      th:text="${m.fechaMantenimiento != null ? #temporals.format(m.fechaMantenimiento, 'dd/MM/yyyy') : '-'}">Fecha</span>
+                            </article>
+                        </div>
+                        <div th:if="${#lists.isEmpty(movimientos) and #lists.isEmpty(historialCustodias) and #lists.isEmpty(mantenimientos)}"
+                             th:replace="~{fragments/components/empty-state :: empty(icon='feather-shield', title='Sin historial visible', message='No hay eventos auditables disponibles.')}"></div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
 
         <!-- Drawer: Asignar activo desde expediente -->
         <aside class="cui-drawer" id="drawerAsignarActivoExp" aria-hidden="true" aria-label="Asignar activo">
@@ -615,6 +938,7 @@
             <div class="cui-drawer-body">
                 <form th:action="@{/inventario/activos/{id}/etiqueta(id=${equipo.idEquipo})}"
                       method="post" class="cui-drawer-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <div class="mb-3">
                         <div class="d-flex align-items-center gap-2 p-3 border rounded"
                              th:classappend="${activoEtiquetado} ? ' bg-light' : ''">
@@ -679,11 +1003,11 @@
                         <label class="form-label">Motivo de baja <span class="text-danger">*</span></label>
                         <select class="form-select" name="motivo" required>
                             <option value="">Seleccione motivo</option>
+                            <option value="DESTRUCCION">Destrucción</option>
                             <option value="OBSOLESCENCIA">Obsolescencia</option>
-                            <option value="DANO_IRREPARABLE">Dano irreparable</option>
-                            <option value="ROBO_HURTO">Robo / Hurto</option>
-                            <option value="PERDIDA">Perdida</option>
-                            <option value="DONACION">Donacion</option>
+                            <option value="ROBO_PERDIDA">Robo / Pérdida</option>
+                            <option value="DONACION">Donación</option>
+                            <option value="DANIO_IRREPARABLE">Daño irreparable</option>
                             <option value="OTRO">Otro</option>
                         </select>
                     </div>
@@ -708,7 +1032,7 @@
                     </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
-                        <button class="cui-btn" style="background:var(--cui-danger,#dc3545);color:#fff;border-color:var(--cui-danger,#dc3545)" type="submit">
+                        <button class="cui-btn cui-btn-danger" type="submit">
                             <i class="feather-x-circle" aria-hidden="true"></i>
                             <span>Confirmar baja</span>
                         </button>
@@ -762,6 +1086,47 @@
         </aside>
 
     </div>
+
+    <!-- Script: guardar datos faltantes sin salir del expediente -->
+    <script th:inline="none">
+    (function () {
+        var form = document.getElementById('formDatosRapidos');
+        if (!form) return;
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var btn = document.getElementById('btnGuardarDatos');
+            var errEl = document.getElementById('datosRapidosErr');
+            if (btn) { btn.disabled = true; btn.querySelector('span').textContent = 'Guardando...'; }
+            if (errEl) errEl.textContent = '';
+
+            var params = new URLSearchParams(new FormData(form));
+            fetch('/equipos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            }).then(function (r) {
+                if (r.redirected && r.url && r.url.includes('/equipos') &&
+                    !r.url.includes('/editar') && !r.url.includes('/nuevo')) {
+                    window.location.reload();
+                    return;
+                }
+                return r.text().then(function (html) {
+                    var tieneError = html.includes('errorSerial') || html.includes('errorMarca') ||
+                                    html.includes('errorCodigo') || html.includes('error');
+                    if (!tieneError) {
+                        window.location.reload();
+                    } else {
+                        if (errEl) errEl.textContent = 'Revise los campos obligatorios e intente de nuevo.';
+                        if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'Guardar datos'; }
+                    }
+                });
+            }).catch(function () {
+                if (errEl) errEl.textContent = 'Error de conexion. Intente de nuevo.';
+                if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'Guardar datos'; }
+            });
+        });
+    })();
+    </script>
 </div>
 </body>
 </html>

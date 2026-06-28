@@ -27,10 +27,15 @@ public interface IEquiposJpaRepositorio extends JpaRepository<EquiposJpa, Intege
 
 	boolean existsByCodigoCresioIgnoreCase(String codigo);
 
+	boolean existsByCodigoCresioIgnoreCaseAndIdEquipoNot(String codigo, Integer idEquipo);
+
 	Optional<EquiposJpa> findFirstByCodigoCresioStartingWithOrderByCodigoCresioDesc(String prefijo);
 
 	@EntityGraph(attributePaths = {"fkMarcas", "fkCategoria", "bodegaActual", "ordenCompra"})
 	List<EquiposJpa> findByEstadoInventarioAndEstadoTrue(String estadoInventario);
+
+	@EntityGraph(attributePaths = {"fkMarcas", "fkCategoria"})
+	List<EquiposJpa> findByEstadoInventarioIsNullAndEstadoTrue();
 
 	boolean existsByCodigoSapIgnoreCaseAndIdEquipoNot(String codigo, Integer idEquipo);
 

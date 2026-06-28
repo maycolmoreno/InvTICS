@@ -10,128 +10,198 @@
 <body>
 <div layout:fragment="contenidopaginas">
 
-    <div class="page-header">
-        <div class="page-header-left d-flex align-items-center">
-            <div class="page-header-title">
-                <h5 class="m-b-10">Cerrar Custodia</h5>
-            </div>
-        </div>
-
-        <div class="page-header-right ms-auto d-flex gap-2">
-            <button type="submit"
-                    form="formCerrarCustodia"
-                    class="btn btn-danger">
-                CERRAR CUSTODIA / GENERAR ACTA DE SALIDA
-            </button>
-
-            <a th:href="@{/custodias}" class="btn btn-secondary">
-                Cancelar
+    <div class="cui-page-header">
+        <div class="cui-page-header-left">
+            <a th:href="@{/custodias}" class="cui-back-link">
+                <i class="feather-arrow-left" aria-hidden="true"></i>
+                Custodias
             </a>
+            <h1 class="cui-page-title">Cerrar custodia</h1>
+            <p class="cui-page-subtitle"
+               th:text="${cabecera != null && cabecera.fkCustodio != null ? cabecera.fkCustodio.nombre : ''}"></p>
+        </div>
+        <div class="cui-page-header-actions">
+            <a th:href="@{/custodias}" class="cui-btn cui-btn-secondary">Cancelar</a>
+            <button type="button"
+                    class="cui-btn cui-btn-danger"
+                    onclick="confirmarCierre()">
+                <i class="feather-x-circle" aria-hidden="true"></i>
+                Cerrar custodia
+            </button>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
+    <div th:if="${error}" class="cui-alert cui-alert-error" role="alert">
+        <i class="feather-alert-circle" aria-hidden="true"></i>
+        <span th:text="${error}"></span>
+    </div>
 
-            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <form id="formCerrarCustodia"
+          th:action="@{/custodias/cerrar-custodia}"
+          th:object="${form}"
+          method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" th:field="*{idCustodio}"/>
 
-            <div class="mb-3">
-                <p class="mb-1">
-                    <b>Custodio:</b>
-                    <span th:text="${cabecera != null && cabecera.fkCustodio != null ? cabecera.fkCustodio.nombre : ''}"></span>
-                </p>
-
-                <p class="mb-0">
-                    <b>ID Custodio:</b>
-                    <span th:text="${cabecera != null ? cabecera.idCustodio : ''}"></span>
-                </p>
+        <div class="cui-card mb-4">
+            <div class="cui-card-header">
+                <h2 class="cui-card-title">Datos de cierre</h2>
             </div>
-
-            <form id="formCerrarCustodia"
-                  th:action="@{/custodias/cerrar-custodia}"
-                  th:object="${form}"
-                  method="post">
-
-                <!-- ✅ ENVIAR idCustodio (clave real) -->
-                <input type="hidden" th:field="*{idCustodio}"/>
-
-                <div class="row g-3 mb-3">
-
-                    <!-- ✅ FECHA INICIO (solo lectura, pero se envía hidden) -->
+            <div class="cui-card-body">
+                <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label"><b>Fecha Inicio</b></label>
-
-                        <!-- visible -->
+                        <label class="cui-label" for="fechaInicioDisplay">Fecha de inicio</label>
                         <input type="text"
-                               class="form-control"
-                               th:value="${form.fechaInicio != null ? #temporals.format(form.fechaInicio, 'yyyy-MM-dd') : ''}"
-                               readonly/>
-
-                        <!-- hidden (se envía al POST) -->
+                               id="fechaInicioDisplay"
+                               class="cui-input"
+                               th:value="${form.fechaInicio != null ? #temporals.format(form.fechaInicio, 'dd/MM/yyyy') : ''}"
+                               readonly
+                               aria-readonly="true"/>
                         <input type="hidden" th:field="*{fechaInicio}"/>
                     </div>
-
-                    <!-- ✅ FECHA FIN editable -->
                     <div class="col-md-4">
-                        <label class="form-label"><b>Fecha Fin</b></label>
+                        <label class="cui-label" for="fechaFin">Fecha de cierre</label>
                         <input type="date"
-                               class="form-control"
-                               th:field="*{fechaFin}"/>
+                               id="fechaFin"
+                               class="cui-input"
+                               th:field="*{fechaFin}"
+                               required/>
                     </div>
-
-                    <!-- ✅ OBSERVACIÓN editable -->
                     <div class="col-md-4">
-                        <label class="form-label"><b>Observación</b></label>
+                        <label class="cui-label" for="bodegaDestinoId">Bodega de destino <span class="cui-required">*</span></label>
+                        <select id="bodegaDestinoId"
+                                name="bodegaDestinoId"
+                                class="cui-input form-select"
+                                required>
+                            <option value="">Seleccione una bodega</option>
+                            <option th:each="b : ${bodegas}"
+                                    th:value="${b.idBodega}"
+                                    th:text="${b.nombre}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="cui-label" for="estadoFisicoRetorno">Estado físico al retorno</label>
+                        <select id="estadoFisicoRetorno"
+                                name="estadoFisicoRetorno"
+                                class="cui-input form-select">
+                            <option value="">Sin especificar</option>
+                            <option value="NUEVO">Nuevo</option>
+                            <option value="BUENO">Bueno</option>
+                            <option value="REGULAR">Regular</option>
+                            <option value="DANADO">Dañado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="cui-label" for="observacion">Observación</label>
                         <input type="text"
-                               class="form-control"
+                               id="observacion"
+                               class="cui-input"
                                th:field="*{observacion}"
-                               placeholder="Ingrese observación"/>
+                               placeholder="Motivo del cierre, estado del equipo, etc."/>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead>
-                        <tr>
-                            <th style="width:80px">Devolver</th>
-                            <th style="width:90px">PK</th>
-                            <th style="width:90px">ID Equipo</th>
-                            <th>Código</th>
-                            <th>Modelo</th>
-                            <th>Serial</th>
-                        </tr>
-                        </thead>
+        <div class="cui-card">
+            <div class="cui-card-header">
+                <h2 class="cui-card-title">Activos en custodia</h2>
+                <p class="cui-card-subtitle">Seleccione los activos que se devuelven en este cierre</p>
+            </div>
+            <div class="cui-card-body p-0">
+                <table class="table cui-table">
+                    <thead>
+                    <tr>
+                        <th style="width:56px">
+                            <input type="checkbox"
+                                   id="selectAll"
+                                   class="form-check-input"
+                                   aria-label="Seleccionar todos"/>
+                        </th>
+                        <th>Código</th>
+                        <th>Modelo</th>
+                        <th>Serial</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="d : ${detalles}">
+                        <td>
+                            <input type="checkbox"
+                                   class="form-check-input devolver-check"
+                                   th:field="*{detallesEntregados}"
+                                   th:value="${d.idCustodiaEquipo}"
+                                   th:attr="aria-label=${'Seleccionar ' + (d.fkEquipo != null ? d.fkEquipo.codigoSap : 'activo')}"/>
+                        </td>
+                        <td>
+                            <span class="cui-code-mono"
+                                  th:text="${d.fkEquipo != null ? (d.fkEquipo.codigoCresio != null ? d.fkEquipo.codigoCresio : d.fkEquipo.codigoSap) : '—'}"></span>
+                        </td>
+                        <td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : '—'}"></td>
+                        <td>
+                            <span class="cui-text-mono"
+                                  th:text="${d.fkEquipo != null ? d.fkEquipo.serial : '—'}"></span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(detalles)}">
+                        <td colspan="4" class="text-center cui-empty-state-cell">
+                            <i class="feather-inbox" aria-hidden="true"></i>
+                            No hay activos en esta custodia
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-                        <tbody>
-                        <tr th:each="d : ${detalles}">
+    </form>
 
-                            <!-- ✅ CHECK: ENVÍA idCustodiaEquipo (PK) -->
-                            <td class="text-center">
-                                <input type="checkbox"
-                                       th:field="*{detallesEntregados}"
-                                       th:value="${d.idCustodiaEquipo}">
-                            </td>
-
-                            <!-- ✅ PK -->
-                            <td th:text="${d.idCustodiaEquipo}"></td>
-
-                            <!-- ✅ EQUIPO -->
-                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.idEquipo : ''}"></td>
-                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.codigoSap : ''}"></td>
-                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
-                            <td th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></td>
-
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-            </form>
-
+    <!-- Modal de confirmación -->
+    <div class="cui-modal-backdrop" id="modalConfirmCierre" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modalCierreTitle">
+        <div class="cui-modal">
+            <div class="cui-modal-header">
+                <h3 class="cui-modal-title" id="modalCierreTitle">
+                    <i class="feather-alert-triangle" aria-hidden="true"></i>
+                    Confirmar cierre de custodia
+                </h3>
+            </div>
+            <div class="cui-modal-body">
+                <p>Esta acción cerrará la custodia y generará el acta de salida. Los activos seleccionados quedarán disponibles en bodega.</p>
+                <p class="cui-text-warning"><strong>Esta acción no se puede deshacer.</strong></p>
+            </div>
+            <div class="cui-modal-footer">
+                <button type="button" class="cui-btn cui-btn-secondary" onclick="cancelarCierre()">Cancelar</button>
+                <button type="submit" form="formCerrarCustodia" class="cui-btn cui-btn-danger">
+                    <i class="feather-x-circle" aria-hidden="true"></i>
+                    Sí, cerrar custodia
+                </button>
+            </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            const selectAll = document.getElementById('selectAll');
+            if (selectAll) {
+                selectAll.addEventListener('change', function () {
+                    document.querySelectorAll('.devolver-check').forEach(cb => cb.checked = this.checked);
+                });
+            }
+
+        })();
+
+        function confirmarCierre() {
+            document.getElementById('modalConfirmCierre').style.display = 'flex';
+        }
+
+        function cancelarCierre() {
+            document.getElementById('modalConfirmCierre').style.display = 'none';
+        }
+
+        document.getElementById('modalConfirmCierre').addEventListener('click', function (e) {
+            if (e.target === this) cancelarCierre();
+        });
+    </script>
 
 </div>
 </body>
 </html>
-	

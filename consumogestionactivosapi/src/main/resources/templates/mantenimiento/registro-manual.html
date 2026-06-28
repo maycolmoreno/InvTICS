@@ -3,250 +3,400 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{plantilla/plantillaui}">
 <head>
-<title>Registro Manual</title>
+<title>Orden de Trabajo Manual</title>
 </head>
 <body>
 <div layout:fragment="contenidopaginas">
-    <div class="page-shell">
-        <div class="view-heading">
-            <div>
-                <div class="eyebrow">Flujo de Mantenimiento</div>
-                <h1 class="view-title">Orden de Trabajo Manual</h1>
+<div class="cui-page man-ot-page">
+
+    <!-- ── Hero del encabezado ───────────────────────────────── -->
+    <div class="man-hero">
+        <div class="man-hero-identity">
+            <div class="man-hero-icon">
+                <i class="feather-clipboard" aria-hidden="true"></i>
             </div>
+            <div>
+                <h1 class="man-hero-title">Orden de Trabajo Manual</h1>
+                <p class="man-hero-sub">Crea una orden de mantenimiento para un equipo asignado a un custodio.</p>
+            </div>
+        </div>
+        <div class="d-flex gap-2 flex-shrink-0">
+            <a th:href="@{/mantenimiento}" class="cui-btn cui-btn-secondary">
+                <i class="feather-arrow-left" aria-hidden="true"></i>
+                <span>Atrás</span>
+            </a>
+            <a th:href="@{/mantenimiento}" class="cui-btn cui-btn-secondary">
+                <i class="feather-clock" aria-hidden="true"></i>
+                <span>Ver historial</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ── Status strip ──────────────────────────────────────── -->
+    <div class="man-status-strip">
+        <div class="man-status-cell">
+            <div class="man-status-icon-wrap">
+                <i class="feather-user" aria-hidden="true"></i>
+            </div>
+            <div class="man-status-info">
+                <span class="man-status-label">Custodio activo</span>
+                <strong class="man-status-name" id="resumenCustodioNombre">Selecciona un custodio</strong>
+                <span class="man-status-meta" id="resumenCustodioMeta"></span>
+            </div>
+            <span id="formReadyBadge" class="status-pill is-pending ms-auto">Pendiente</span>
+        </div>
+        <div class="man-status-sep" aria-hidden="true"></div>
+        <div class="man-status-cell">
+            <div class="man-status-icon-wrap">
+                <i class="feather-layers" aria-hidden="true"></i>
+            </div>
+            <div class="man-status-info">
+                <span class="man-status-label">Equipos seleccionados</span>
+                <strong class="man-status-count" id="man-equipo-count">0</strong>
+            </div>
+        </div>
+        <div class="man-status-sep" aria-hidden="true"></div>
+        <div class="man-status-cell">
+            <div class="man-status-icon-wrap">
+                <i class="feather-file-text" aria-hidden="true"></i>
+            </div>
+            <div class="man-status-info">
+                <span class="man-status-label">Estado del formulario</span>
+                <span class="man-status-copy" id="formReadyCopy">Completa checklist, firmas y seleccion.</span>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger cui-alert" th:text="${error}"></div>
+
+    <form th:action="@{/mantenimiento/guardar}" method="post" enctype="multipart/form-data"
+          id="formMantenimiento" class="d-flex flex-column gap-4">
+
+        <!-- ── 1. Tipo de custodio ────────────────────────────── -->
+        <div>
+            <p class="man-section-heading">
+                <span class="man-section-num">1</span>
+                Seleccione el tipo de custodio
+            </p>
+            <input type="hidden" id="modoSeleccion" name="modoSeleccion" value="ADMINISTRATIVO">
             <div class="d-flex gap-2">
-                <a th:href="@{/mantenimiento}" class="btn btn-outline-secondary px-4 py-3">Atras</a>
-                <a th:href="@{/mantenimiento}" class="btn btn-light px-4 py-3">Ver historial</a>
+                <button type="button" id="btnModoAdmin"
+                        class="cui-btn cui-btn-primary man-mode-btn"
+                        onclick="cambiarModo('ADMINISTRATIVO')">
+                    <i class="feather-users" aria-hidden="true"></i>
+                    Administrativo
+                </button>
+                <button type="button" id="btnModoFarmacia"
+                        class="cui-btn cui-btn-secondary man-mode-btn"
+                        onclick="cambiarModo('FARMACIA')">
+                    <i class="feather-shopping-bag" aria-hidden="true"></i>
+                    Farmacia
+                </button>
             </div>
         </div>
 
-        <div th:if="${error}" class="flash-banner" style="background:#ffe5e2;color:#9d231a;" th:text="${error}"></div>
+        <!-- ── 2 + 3: Custodio | Equipos ─────────────────────── -->
+        <div class="row g-4">
 
-        <form th:action="@{/mantenimiento/guardar}" method="post" enctype="multipart/form-data" id="formMantenimiento" class="form-shell">
-            <div class="surface-card page-panel">
-                <div class="content-card-header">
-                    <div>
-                        <h2 class="content-card-title">Datos del equipo y custodio</h2>
+            <!-- 2. Datos del custodio -->
+            <div class="col-lg-6 d-flex flex-column">
+                <div class="cui-exp-card flex-grow-1">
+                    <div class="cui-exp-card-header">
+                        <h2>
+                            <i class="feather-user me-2" aria-hidden="true"></i>
+                            2. Datos del custodio
+                        </h2>
+                    </div>
+                    <div class="cui-exp-card-body d-flex flex-column gap-3">
+
+                        <!-- Sucursal (modo Farmacia) -->
+                        <div id="grupoSucursal" style="display:none;">
+                            <label class="form-label fw-semibold">Sucursal</label>
+                            <select id="ubicacionId" name="ubicacionId" class="form-select">
+                                <option value="">Selecciona una sucursal</option>
+                                <option th:each="ubi : ${listaubicaciones}"
+                                        th:value="${ubi.idUbicacion}"
+                                        th:text="${ubi.nombre + (ubi.ciudad != null ? ' - ' + ubi.ciudad : '')}">
+                                </option>
+                            </select>
+                            <div class="form-text">Selecciona una sucursal para cargar sus equipos y custodios.</div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12" id="grupoCustodio">
+                                <label class="form-label fw-semibold">
+                                    Custodio <span class="cui-required-mark">*</span>
+                                </label>
+                                <select id="custodioId" name="custodioId" class="form-select" required>
+                                    <option value="">Seleccione un custodio</option>
+                                    <option th:each="custodio : ${custodiosAdmin}"
+                                            th:value="${custodio.idCustodio}"
+                                            th:text="${custodio.nombre}"
+                                            th:attr="data-tipo=${custodiosAdminFallback ? 'AMBOS' : 'ADMINISTRATIVO'},
+                                                     data-label=${(custodio.nombre ?: '') + ' ' + (custodio.cedula ?: '')},
+                                                     data-correo=${custodio.correo},
+                                                     data-cedula=${custodio.cedula},
+                                                     data-telefono=${custodio.telefono},
+                                                     data-departamento=${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : ''},
+                                                     data-cargo=${custodio.fkCargo != null ? custodio.fkCargo.nombre : ''},
+                                                     data-ubicacion=${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : ''},
+                                                     data-ubicacion-id=${custodio.fkUbicacion != null ? custodio.fkUbicacion.idUbicacion : ''}">
+                                    </option>
+                                    <option th:each="custodio : ${custodiosFarmacia}"
+                                            th:value="${custodio.idCustodio}"
+                                            th:text="${custodio.nombre}"
+                                            data-tipo="FARMACIA"
+                                            th:attr="data-label=${(custodio.nombre ?: '') + ' ' + (custodio.cedula ?: '')},
+                                                     data-correo=${custodio.correo},
+                                                     data-cedula=${custodio.cedula},
+                                                     data-telefono=${custodio.telefono},
+                                                     data-departamento=${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : ''},
+                                                     data-cargo=${custodio.fkCargo != null ? custodio.fkCargo.nombre : ''},
+                                                     data-ubicacion=${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : ''},
+                                                     data-ubicacion-id=${custodio.fkUbicacion != null ? custodio.fkUbicacion.idUbicacion : ''}">
+                                    </option>
+                                </select>
+                                <div class="form-text">Selecciona un custodio de la lista para cargar sus equipos asignados.</div>
+                            </div>
+
+                            <div class="col-6 datosCustodioInfo">
+                                <label class="form-label fw-semibold">Cedula</label>
+                                <div id="cedulaCustodio" class="man-readonly" data-placeholder="Ingrese la cedula"></div>
+                            </div>
+                            <div class="col-6 datosCustodioInfo">
+                                <label class="form-label fw-semibold">Correo</label>
+                                <div id="correoCustodio" class="man-readonly" data-placeholder="ejemplo@correo.com"></div>
+                            </div>
+                            <div class="col-6 datosCustodioInfo">
+                                <label class="form-label fw-semibold">Telefono</label>
+                                <div id="telefonoCustodio" class="man-readonly" data-placeholder="099 123 4567"></div>
+                            </div>
+                            <div class="col-6 datosCustodioInfo">
+                                <label class="form-label fw-semibold">Ubicacion</label>
+                                <div id="ubicacionCustodio" class="man-readonly"></div>
+                            </div>
+                            <div class="col-6 datosCustodioInfo">
+                                <label class="form-label fw-semibold">Departamento</label>
+                                <div id="departamentoCustodio" class="man-readonly" data-placeholder="Seleccione un departamento"></div>
+                            </div>
+                            <div class="col-6 datosCustodioInfo">
+                                <label class="form-label fw-semibold">Cargo</label>
+                                <div id="cargoCustodio" class="man-readonly" data-placeholder="Seleccione un cargo"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="form-grid">
-                    <div class="span-12">
-                        <input type="hidden" id="modoSeleccion" name="modoSeleccion" value="ADMINISTRATIVO">
-                        <div class="d-flex gap-3 mb-3">
-                            <button type="button" id="btnModoAdmin" class="btn btn-primary px-4 py-2" onclick="cambiarModo('ADMINISTRATIVO')">Administrativo</button>
-                            <button type="button" id="btnModoFarmacia" class="btn btn-outline-secondary px-4 py-2" onclick="cambiarModo('FARMACIA')">Farmacia</button>
-                        </div>
+            </div>
+
+            <!-- 3. Equipos asignados -->
+            <div class="col-lg-6 d-flex flex-column">
+                <div class="cui-exp-card flex-grow-1">
+                    <div class="cui-exp-card-header">
+                        <h2>
+                            <i class="feather-monitor me-2" aria-hidden="true"></i>
+                            3. Equipos asignados
+                        </h2>
+                        <label class="form-check d-flex align-items-center gap-2 mb-0">
+                            <input type="checkbox" id="selectAllEquipos" class="form-check-input" disabled>
+                            <span class="form-check-label small fw-semibold">Seleccionar todos</span>
+                            <span id="equipoCountBadge" class="badge bg-secondary ms-1">0 seleccionados</span>
+                        </label>
                     </div>
-                    <div class="span-12">
-                        <div class="manual-summary-card">
-                            <div class="manual-summary-block">
-                                <div class="metric-label" id="resumenLabel">Custodio activo</div>
-                                <div id="resumenCustodioNombre" class="manual-summary-title">Selecciona un custodio</div>
-                                <div id="resumenCustodioMeta" class="manual-summary-copy">Aqui veras sus datos y sus equipos asignados.</div>
-                            </div>
-                            <div class="manual-summary-block">
-                                <div class="metric-label">Equipos seleccionados</div>
-                                <div id="selectedEquipmentChips" class="selection-chip-list">
-                                    <span class="selection-chip is-placeholder">Sin equipos seleccionados</span>
-                                </div>
-                            </div>
-                            <div class="manual-summary-block is-compact">
-                                <div class="metric-label">Estado del formulario</div>
-                                <div id="formReadyBadge" class="status-pill is-pending">Pendiente</div>
-                                <div id="formReadyCopy" class="manual-summary-copy">Completa checklist, firmas y seleccion.</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="span-6 field-group" id="grupoSucursal" style="display:none;">
-                        <label class="field-label">Sucursal</label>
-                        <select id="ubicacionId" name="ubicacionId" class="form-select relation-select">
-                            <option value="">Selecciona una sucursal</option>
-                            <option th:each="ubi : ${listaubicaciones}"
-                                    th:value="${ubi.idUbicacion}"
-                                    th:text="${ubi.nombre + (ubi.ciudad != null ? ' - ' + ubi.ciudad : '')}">
-                            </option>
-                        </select>
-                        <div class="field-help">Selecciona una sucursal para cargar sus equipos y custodios.</div>
-                    </div>
-                    <div class="span-6 field-group" id="grupoCustodio">
-                        <label class="field-label">Custodio</label>
-                        <select id="custodioId" name="custodioId" class="form-select relation-select" required>
-                            <option value="">Selecciona un custodio</option>
-                            <option th:each="custodio : ${listacustodios}"
-                                    th:value="${custodio.idCustodio}"
-                                    th:text="${custodio.nombre}"
-                                    th:attr="data-label=${(custodio.nombre ?: '') + ' ' + (custodio.cedula ?: '')},
-                                             data-correo=${custodio.correo},
-                                             data-cedula=${custodio.cedula},
-                                             data-telefono=${custodio.telefono},
-                                             data-departamento=${custodio.fkDepartamento != null ? custodio.fkDepartamento.nombre : ''},
-                                             data-cargo=${custodio.fkCargo != null ? custodio.fkCargo.nombre : ''},
-                                             data-ubicacion=${custodio.fkUbicacion != null ? custodio.fkUbicacion.nombre : ''},
-                                             data-ubicacion-id=${custodio.fkUbicacion != null ? custodio.fkUbicacion.idUbicacion : ''}">
-                            </option>
-                        </select>
-                        <div class="field-help">Escribe dentro del selector para buscar por nombre o cedula.</div>
-                    </div>
-                    <div class="span-6 field-group">
-                        <label class="field-label">Equipos asignados</label>
-                        <!-- Hidden select que envía los IDs al backend -->
+                    <div class="cui-exp-card-body">
+                        <!-- Hidden multi-select que envía los IDs -->
                         <select id="equipoIds" name="equipoIds" multiple required style="display:none;">
                             <option th:each="equipo : ${listaequipos}"
                                     th:value="${equipo.idEquipo}"
                                     th:selected="${#lists.contains(equiposPreseleccionados, equipo.idEquipo)}"
-                                    th:text="${(equipo.codigoSap ?: 'Cod. Interno') + ' - ' + (equipo.modelo ?: '')}"
-                                    th:attr="data-label=${(equipo.codigoSap ?: '') + ' ' + (equipo.modelo ?: '') + ' ' + (equipo.serial ?: '')},
-                                             data-custodios=${custodiosPorEquipo[equipo.idEquipo] ?: ''}">
+                                    th:attr="data-custodios=${custodiosPorEquipo[equipo.idEquipo] ?: ''},
+                                             data-codigo=${equipo.codigoSap ?: ''},
+                                             data-modelo=${equipo.modelo ?: ''},
+                                             data-serial=${equipo.serial ?: ''},
+                                             data-marca=${equipo.fkMarca != null ? equipo.fkMarca.nombre : ''},
+                                             data-categoria=${equipo.fkCategoria != null ? equipo.fkCategoria.nombre : ''},
+                                             data-estado=${equipo.estadoEquipo ?: ''}">
                             </option>
                         </select>
-                        <!-- Panel visual de checkboxes -->
-                        <div id="equipoChecklistPanel" class="equipo-checklist-panel">
-                            <div class="equipo-checklist-header">
-                                <label class="form-check mb-0">
-                                    <input type="checkbox" id="selectAllEquipos" class="form-check-input">
-                                    <span class="form-check-label fw-semibold">Seleccionar todos</span>
-                                </label>
-                                <span id="equipoCountBadge" class="badge bg-secondary">0 seleccionados</span>
-                            </div>
-                            <div id="equipoChecklistBody" class="equipo-checklist-body">
-                                <div class="equipo-checklist-empty">Selecciona un custodio para ver sus equipos asignados.</div>
+
+                        <!-- Panel de equipos -->
+                        <div id="equipoChecklistPanel">
+                            <div id="equipoChecklistBody" class="equipo-checklist-body" style="max-height:280px;overflow-y:auto;">
+                                <div class="man-empty-state">
+                                    <div class="man-empty-icon">
+                                        <i class="feather-inbox" aria-hidden="true"></i>
+                                    </div>
+                                    <p class="man-empty-title">Selecciona un custodio</p>
+                                    <p class="man-empty-sub">Los equipos asignados aparecerán aquí.</p>
+                                </div>
                             </div>
                         </div>
-                        <div id="equiposHint" class="field-help">Selecciona un custodio para ver sus equipos asignados.</div>
+
+                        <div id="equiposHint" class="form-text mt-2">Selecciona un custodio para ver sus equipos asignados.</div>
+
+                        <!-- Chips de selección -->
+                        <div id="selectedEquipmentChips" class="man-chip-list mt-3"></div>
                     </div>
-                    <div class="span-3 field-group datosCustodioInfo">
-                        <label class="field-label">Correo</label>
-                        <div id="correoCustodio" class="readonly-panel"></div>
-                    </div>
-                    <div class="span-3 field-group datosCustodioInfo">
-                        <label class="field-label">Cedula</label>
-                        <div id="cedulaCustodio" class="readonly-panel"></div>
-                    </div>
-                    <div class="span-3 field-group datosCustodioInfo">
-                        <label class="field-label">Telefono</label>
-                        <div id="telefonoCustodio" class="readonly-panel"></div>
-                    </div>
-                    <div class="span-3 field-group datosCustodioInfo">
-                        <label class="field-label">Ubicacion</label>
-                        <div id="ubicacionCustodio" class="readonly-panel"></div>
-                    </div>
-                    <div class="span-3 field-group datosCustodioInfo">
-                        <label class="field-label">Departamento</label>
-                        <div id="departamentoCustodio" class="readonly-panel"></div>
-                    </div>
-                    <div class="span-3 field-group datosCustodioInfo">
-                        <label class="field-label">Cargo</label>
-                        <div id="cargoCustodio" class="readonly-panel"></div>
-                    </div>
-                    <div class="span-2 field-group">
-                        <label class="field-label">Tipo mantenimiento</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── 4. Datos del mantenimiento ─────────────────────── -->
+        <div class="cui-exp-card">
+            <div class="cui-exp-card-header">
+                <h2>
+                    <i class="feather-calendar me-2" aria-hidden="true"></i>
+                    4. Datos del mantenimiento
+                </h2>
+            </div>
+            <div class="cui-exp-card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Tipo de mantenimiento <span class="cui-required-mark">*</span></label>
                         <select name="tipoMantenimiento" class="form-select" required>
+                            <option value="">Seleccione tipo</option>
                             <option value="PREVENTIVO">Preventivo</option>
                             <option value="CORRECTIVO">Correctivo</option>
                         </select>
                     </div>
-                    <div class="span-2 field-group">
-                        <label class="field-label">Fecha mantenimiento</label>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Fecha de mantenimiento <span class="cui-required-mark">*</span></label>
                         <input name="fechaMantenimiento" type="date" class="form-control" th:value="${hoy}" required>
                     </div>
-                    <div class="span-2 field-group">
-                        <label class="field-label">Proxima fecha</label>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Proxima fecha</label>
                         <input name="proximaFecha" type="date" class="form-control">
                     </div>
-                </div>
-            </div>
-
-            <div class="surface-card page-panel">
-                <div class="content-card-header">
-                    <div>
-                        <h2 class="content-card-title">Checklist de actividades</h2>
-                    </div>
-                    <strong id="checkProgress" th:text="${'0 / ' + totalActividades}">0 / 10</strong>
-                </div>
-                <div class="progress-inline">
-                    <div class="progress">
-                        <div id="checkBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div>
-                    </div>
-                </div>
-                <div class="form-grid">
-                    <div class="span-4" th:each="actividad : ${actividades}">
-                        <div class="form-check mb-2">
-                            <input class="form-check-input checklist-item" type="checkbox" name="actividadIds" th:value="${actividad.idActividad}" th:id="${'act-' + actividad.idActividad}">
-                            <label class="form-check-label" th:for="${'act-' + actividad.idActividad}" th:text="${actividad.nombreActividad}"></label>
-                        </div>
-                    </div>
-                    <div class="span-12">
-                        <textarea class="form-control mt-2" rows="3" name="observacionChecklist" placeholder="Observaciones del checklist (opcional)"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="surface-card page-panel">
-                <div class="content-card-header">
-                    <div>
-                        <h2 class="content-card-title">Diagnostico</h2>
-                    </div>
-                </div>
-                <div class="form-grid">
-                    <div class="span-3 field-group">
-                        <label class="field-label">Estado general</label>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Estado general <span class="cui-required-mark">*</span></label>
                         <select name="estadoGeneral" class="form-select" required>
+                            <option value="">Seleccione estado</option>
                             <option value="BUENO">Bueno</option>
                             <option value="REGULAR">Regular</option>
                             <option value="MALO">Malo</option>
                         </select>
                     </div>
-                    <div class="span-9 field-group">
-                        <label class="field-label">Detalle</label>
-                        <textarea name="detalle" class="form-control" rows="5" required></textarea>
+                    <div class="col-md-9">
+                        <label class="form-label fw-semibold">Observaciones / Detalle <span class="cui-required-mark">*</span></label>
+                        <textarea name="detalle" class="form-control" rows="3"
+                                  placeholder="Ingrese observaciones del mantenimiento..." required></textarea>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="surface-card page-panel">
-                <div class="content-card-header">
+        <!-- ── 5. Checklist, evidencias y firmas (colapsable) ─── -->
+        <div class="cui-exp-card">
+            <div class="cui-exp-card-header man-checklist-toggle" id="checklistToggleHeader">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="man-section-badge">
+                        <i class="feather-check-square" aria-hidden="true"></i>
+                    </div>
                     <div>
-                        <h2 class="content-card-title">Evidencias</h2>
+                        <h2 class="mb-0">5. Checklist, evidencias y firmas</h2>
+                        <p class="text-muted small mb-0 mt-1">Complete el checklist y cargue las evidencias del mantenimiento realizado.</p>
                     </div>
                 </div>
-                <div class="field-group">
-                    <input type="file" id="imagenes" name="imagenes" class="form-control" accept="image/*" multiple>
-                    <div class="field-help">Maximo 10 imagenes y 5MB por archivo.</div>
-                </div>
-                <div id="previewImagenes" class="preview-grid mt-3"></div>
-            </div>
-
-            <div class="surface-card page-panel">
-                <div class="content-card-header">
-                    <div>
-                        <h2 class="content-card-title">Firmas</h2>
-                    </div>
-                </div>
-                <div class="form-grid">
-                    <div class="span-6 field-group">
-                        <label class="field-label">Firma tecnico</label>
-                        <canvas id="canvasTecnico" width="400" height="150" class="signature-pad"></canvas>
-                        <div class="d-flex gap-2 mt-2">
-                            <button type="button" class="btn btn-light btn-sm" data-clear="canvasTecnico">Limpiar</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm" data-save="canvasTecnico" data-target="firmaTecnico">Confirmar</button>
-                        </div>
-                        <input type="hidden" id="firmaTecnico" name="firmaTecnico">
-                    </div>
-                    <div class="span-6 field-group" id="grupoFirmaCustodio">
-                        <label class="field-label">Firma custodio</label>
-                        <canvas id="canvasCustodio" width="400" height="150" class="signature-pad"></canvas>
-                        <div class="d-flex gap-2 mt-2">
-                            <button type="button" class="btn btn-light btn-sm" data-clear="canvasCustodio">Limpiar</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm" data-save="canvasCustodio" data-target="firmaCustodio">Confirmar</button>
-                        </div>
-                        <input type="hidden" id="firmaCustodio" name="firmaCustodio">
-                    </div>
+                <div class="d-flex align-items-center gap-3">
+                    <strong id="checkProgress" th:text="${'0 / ' + totalActividades}" class="text-muted small">0 / 0</strong>
+                    <button type="button" class="cui-btn cui-btn-secondary" id="btnAbrirChecklist"
+                            onclick="toggleChecklistSection(this)">
+                        <i class="feather-chevron-down" id="checklistChevron" aria-hidden="true"></i>
+                        Abrir checklist
+                    </button>
                 </div>
             </div>
 
-            <div class="text-end">
-                <button id="submitMantenimiento" class="btn btn-primary btn-lg px-5 py-3" type="submit" disabled>Guardar y enviar informe</button>
+            <!-- Contenido colapsable -->
+            <div id="checklistSection" style="display:none;">
+                <!-- Checklist de actividades -->
+                <div class="cui-exp-card-body border-bottom">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <p class="fw-semibold mb-0">Actividades requeridas</p>
+                        <small class="text-muted">Marque todas las que correspondan</small>
+                    </div>
+                    <div class="progress mb-3" style="height:6px;">
+                        <div id="checkBar" class="progress-bar" role="progressbar"
+                             style="width:0%; background:var(--cui-primary);"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4" th:each="actividad : ${actividades}">
+                            <div class="form-check">
+                                <input class="form-check-input checklist-item" type="checkbox"
+                                       name="actividadIds"
+                                       th:value="${actividad.idActividad}"
+                                       th:id="${'act-' + actividad.idActividad}">
+                                <label class="form-check-label"
+                                       th:for="${'act-' + actividad.idActividad}"
+                                       th:text="${actividad.nombreActividad}"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <textarea class="form-control" rows="2" name="observacionChecklist"
+                              placeholder="Observaciones del checklist (opcional)"></textarea>
+                </div>
+
+                <!-- Evidencias -->
+                <div class="cui-exp-card-body border-bottom">
+                    <p class="fw-semibold mb-2">Evidencias fotograficas</p>
+                    <input type="file" id="imagenes" name="imagenes" class="form-control"
+                           accept="image/*" multiple>
+                    <div class="form-text mt-1">Maximo 10 imagenes y 5 MB por archivo.</div>
+                    <div id="previewImagenes" class="man-preview-grid mt-3"></div>
+                </div>
+
+                <!-- Firmas -->
+                <div class="cui-exp-card-body">
+                    <p class="fw-semibold mb-3">Firmas de conformidad</p>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Firma tecnico</label>
+                            <canvas id="canvasTecnico" width="400" height="150" class="man-signature-pad"></canvas>
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="button" class="cui-btn cui-btn-secondary" data-clear="canvasTecnico">Limpiar</button>
+                                <button type="button" class="cui-btn cui-btn-secondary" data-save="canvasTecnico" data-target="firmaTecnico">Confirmar firma</button>
+                            </div>
+                            <input type="hidden" id="firmaTecnico" name="firmaTecnico">
+                        </div>
+                        <div class="col-md-6" id="grupoFirmaCustodio">
+                            <label class="form-label fw-semibold">Firma custodio</label>
+                            <canvas id="canvasCustodio" width="400" height="150" class="man-signature-pad"></canvas>
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="button" class="cui-btn cui-btn-secondary" data-clear="canvasCustodio">Limpiar</button>
+                                <button type="button" class="cui-btn cui-btn-secondary" data-save="canvasCustodio" data-target="firmaCustodio">Confirmar firma</button>
+                            </div>
+                            <input type="hidden" id="firmaCustodio" name="firmaCustodio">
+                        </div>
+                    </div>
+                </div>
             </div>
-        </form>
+        </div>
+
+        <!-- ── Barra inferior sticky ──────────────────────────── -->
+        <div class="man-bottom-bar">
+            <a th:href="@{/mantenimiento}" class="cui-btn cui-btn-secondary">
+                <i class="feather-x" aria-hidden="true"></i>
+                Cancelar
+            </a>
+            <button id="submitMantenimiento" class="cui-btn cui-btn-primary" type="submit" disabled>
+                <i class="feather-save" aria-hidden="true"></i>
+                Guardar Orden de Trabajo
+            </button>
+        </div>
+
+        <!-- Toggle checklist -->
+        <script>
+        function toggleChecklistSection(btn) {
+            var section = document.getElementById('checklistSection');
+            var chevron = document.getElementById('checklistChevron');
+            var isOpen = section.style.display !== 'none';
+            section.style.display = isOpen ? 'none' : 'block';
+            chevron.className = isOpen ? 'feather-chevron-down' : 'feather-chevron-up';
+            btn.querySelector('span') && (btn.querySelectorAll('span, i')[1] || btn).textContent;
+            var textNode = Array.from(btn.childNodes).find(n => n.nodeType === 3);
+            if (textNode) textNode.textContent = isOpen ? ' Abrir checklist' : ' Cerrar checklist';
+        }
+        </script>
 
         <script>
             (function() {
@@ -278,6 +428,7 @@
                 const btnModoFarmacia = document.getElementById('btnModoFarmacia');
 
                 let modoActual = 'ADMINISTRATIVO';
+                let ubicacionFiltro = '';
 
                 /* ============ MODO TOGGLE ============ */
                 window.cambiarModo = function(modo) {
@@ -285,35 +436,32 @@
                     modoInput.value = modo;
                     const datosCustodio = document.querySelectorAll('.datosCustodioInfo');
 
-                    // Reset selects
                     custodioSelect.value = '';
                     if (ubicacionSelect) ubicacionSelect.value = '';
                     clearCustodioInfo();
 
                     if (modo === 'ADMINISTRATIVO') {
-                        btnModoAdmin.className = 'btn btn-primary px-4 py-2';
-                        btnModoFarmacia.className = 'btn btn-outline-secondary px-4 py-2';
+                        btnModoAdmin.className = 'cui-btn cui-btn-primary man-mode-btn';
+                        btnModoFarmacia.className = 'cui-btn cui-btn-secondary man-mode-btn';
                         grupoCustodio.style.display = '';
                         grupoSucursal.style.display = 'none';
                         grupoFirmaCustodio.style.display = '';
                         custodioSelect.required = true;
-                        resumenLabel.textContent = 'Custodio activo';
+                        if (resumenLabel) resumenLabel.textContent = 'Custodio activo';
                         datosCustodio.forEach(el => el.style.display = '');
                         equiposHint.textContent = 'Selecciona un custodio para ver sus equipos asignados.';
+                        filterCustodiosByTipo('ADMINISTRATIVO');
                         refreshEquipoOptionsCustodio();
-                        // Restore all custodio options
-                        restoreAllCustodioOptions();
                     } else {
-                        btnModoAdmin.className = 'btn btn-outline-secondary px-4 py-2';
-                        btnModoFarmacia.className = 'btn btn-primary px-4 py-2';
+                        btnModoAdmin.className = 'cui-btn cui-btn-secondary man-mode-btn';
+                        btnModoFarmacia.className = 'cui-btn cui-btn-primary man-mode-btn';
                         grupoCustodio.style.display = '';
                         grupoSucursal.style.display = '';
                         grupoFirmaCustodio.style.display = '';
                         custodioSelect.required = true;
-                        resumenLabel.textContent = 'Sucursal activa';
+                        if (resumenLabel) resumenLabel.textContent = 'Sucursal activa';
                         datosCustodio.forEach(el => el.style.display = '');
                         equiposHint.textContent = 'Selecciona una sucursal para ver sus equipos y custodios.';
-                        // Hide all equipos and custodios until sucursal is selected
                         hideAllEquipoOptions();
                         hideAllCustodioOptions();
                     }
@@ -326,26 +474,52 @@
                 const equipoChecklistBody = document.getElementById('equipoChecklistBody');
                 const selectAllEquipos = document.getElementById('selectAllEquipos');
                 const equipoCountBadge = document.getElementById('equipoCountBadge');
+                const manEquipoCount = document.getElementById('man-equipo-count');
 
                 function buildEquipoChecklist() {
-                    const visibleOpts = Array.from(equipoSelect.options).filter(opt => !opt.disabled);
+                    const visibleOpts = Array.from(equipoSelect.options).filter(opt => !opt.disabled && !opt.hidden);
+                    const custodioSeleccionado = !!custodioSelect.value;
                     if (visibleOpts.length === 0) {
-                        equipoChecklistBody.innerHTML = '<div class="equipo-checklist-empty">Selecciona un custodio para ver sus equipos asignados.</div>';
+                        const msg = custodioSeleccionado
+                            ? 'No existen equipos asignados a este custodio.'
+                            : 'Selecciona un custodio para ver sus equipos asignados.';
+                        equipoChecklistBody.innerHTML = '<div class="man-empty-state">'
+                            + '<div class="man-empty-icon"><i class="feather-inbox" aria-hidden="true"></i></div>'
+                            + '<p class="man-empty-title">' + msg + '</p>'
+                            + '</div>';
                         selectAllEquipos.checked = false;
                         selectAllEquipos.disabled = true;
                         updateEquipoCountBadge();
                         return;
                     }
                     selectAllEquipos.disabled = false;
-                    equipoChecklistBody.innerHTML = visibleOpts.map(opt => {
-                        const checked = opt.selected ? ' checked' : '';
-                        return '<label class="equipo-checklist-item">'
-                            + '<input type="checkbox" class="form-check-input equipo-check" value="' + opt.value + '"' + checked + '>'
-                            + '<span>' + opt.textContent.trim() + '</span>'
-                            + '</label>';
+                    var rows = visibleOpts.map(function(opt) {
+                        var chk = opt.selected ? ' checked' : '';
+                        var codigo = opt.getAttribute('data-codigo') || '—';
+                        var marca = opt.getAttribute('data-marca') || '';
+                        var modelo = opt.getAttribute('data-modelo') || '—';
+                        var serial = opt.getAttribute('data-serial') || '—';
+                        var categoria = opt.getAttribute('data-categoria') || '—';
+                        return '<tr>'
+                            + '<td style="width:2rem"><input type="checkbox" class="form-check-input equipo-check" value="' + opt.value + '"' + chk + '></td>'
+                            + '<td class="fw-semibold">' + codigo + '</td>'
+                            + '<td>' + (marca ? marca + ' ' : '') + modelo + '</td>'
+                            + '<td class="text-muted small">' + serial + '</td>'
+                            + '<td class="text-muted small">' + categoria + '</td>'
+                            + '</tr>';
                     }).join('');
+                    equipoChecklistBody.innerHTML = '<div class="table-responsive">'
+                        + '<table class="table cui-table mb-0 small">'
+                        + '<thead><tr>'
+                        + '<th style="width:2rem"></th>'
+                        + '<th>Código</th>'
+                        + '<th>Marca / Modelo</th>'
+                        + '<th>Serial</th>'
+                        + '<th>Categoría</th>'
+                        + '</tr></thead>'
+                        + '<tbody>' + rows + '</tbody>'
+                        + '</table></div>';
 
-                    // Bind checkbox events
                     equipoChecklistBody.querySelectorAll('.equipo-check').forEach(cb => {
                         cb.addEventListener('change', function() {
                             syncCheckboxToSelect(this.value, this.checked);
@@ -375,8 +549,11 @@
                 function updateEquipoCountBadge() {
                     const checks = equipoChecklistBody.querySelectorAll('.equipo-check:checked');
                     const count = checks.length;
-                    equipoCountBadge.textContent = count + ' seleccionado' + (count !== 1 ? 's' : '');
-                    equipoCountBadge.className = 'badge ' + (count > 0 ? 'bg-primary' : 'bg-secondary');
+                    if (equipoCountBadge) {
+                        equipoCountBadge.textContent = count + ' seleccionado' + (count !== 1 ? 's' : '');
+                        equipoCountBadge.className = 'badge ' + (count > 0 ? 'bg-primary' : 'bg-secondary') + ' ms-1';
+                    }
+                    if (manEquipoCount) manEquipoCount.textContent = count;
                 }
 
                 selectAllEquipos.addEventListener('change', function() {
@@ -397,17 +574,12 @@
 
                     Array.from(equipoSelect.options).forEach(opt => {
                         const custodios = (opt.getAttribute('data-custodios') || '')
-                            .split(',')
-                            .map(value => value.trim())
-                            .filter(Boolean);
+                            .split(',').map(v => v.trim()).filter(Boolean);
                         const visible = !custodioId ? false : custodios.includes(custodioId);
                         opt.hidden = !visible;
                         opt.disabled = !visible;
-                        if (!visible) {
-                            opt.selected = false;
-                        } else {
-                            visibles += 1;
-                        }
+                        if (!visible) opt.selected = false;
+                        else visibles++;
                     });
 
                     buildEquipoChecklist();
@@ -426,29 +598,21 @@
 
                 function refreshEquipoOptionsSucursal() {
                     const ubiId = ubicacionSelect ? ubicacionSelect.value : '';
-
                     const custodiosEnSucursal = new Set();
                     Array.from(custodioSelect.options).forEach(opt => {
                         if (!opt.value) return;
-                        const optUbiId = opt.getAttribute('data-ubicacion-id') || '';
-                        if (optUbiId === ubiId) custodiosEnSucursal.add(opt.value);
+                        if ((opt.getAttribute('data-ubicacion-id') || '') === ubiId) custodiosEnSucursal.add(opt.value);
                     });
 
                     let visibles = 0;
-
                     Array.from(equipoSelect.options).forEach(opt => {
                         const custodios = (opt.getAttribute('data-custodios') || '')
-                            .split(',')
-                            .map(value => value.trim())
-                            .filter(Boolean);
+                            .split(',').map(v => v.trim()).filter(Boolean);
                         const visible = !ubiId ? false : custodios.some(c => custodiosEnSucursal.has(c));
                         opt.hidden = !visible;
                         opt.disabled = !visible;
-                        if (!visible) {
-                            opt.selected = false;
-                        } else {
-                            visibles += 1;
-                        }
+                        if (!visible) opt.selected = false;
+                        else visibles++;
                     });
 
                     buildEquipoChecklist();
@@ -467,58 +631,56 @@
 
                 /* ============ CUSTODIO FILTERING BY SUCURSAL ============ */
                 function refreshCustodioOptionsSucursal() {
-                    const ubiId = ubicacionSelect ? ubicacionSelect.value : '';
-                    let visibles = 0;
-
-                    // Reset custodio selection
+                    ubicacionFiltro = ubicacionSelect ? ubicacionSelect.value : '';
                     custodioSelect.value = '';
                     clearCustodioInfo();
-
-                    Array.from(custodioSelect.options).forEach(opt => {
-                        if (!opt.value) return; // skip placeholder
-                        const optUbiId = opt.getAttribute('data-ubicacion-id') || '';
-                        const visible = !ubiId ? false : optUbiId === ubiId;
+                    Array.from(custodioSelect.options).forEach(function(opt) {
+                        if (!opt.value) return;
+                        var tipo = opt.getAttribute('data-tipo') || 'ADMINISTRATIVO';
+                        var visible = (tipo === 'FARMACIA' || tipo === 'AMBOS') && !!ubicacionFiltro
+                            && (opt.getAttribute('data-ubicacion-id') || '') === ubicacionFiltro;
                         opt.hidden = !visible;
                         opt.disabled = !visible;
-                        if (!visible) {
-                            opt.selected = false;
-                        } else {
-                            visibles += 1;
-                        }
+                        if (!visible) opt.selected = false;
                     });
-
                     if (window.jQuery && window.jQuery.fn.select2) {
-                        window.jQuery(custodioSelect).trigger('change.select2');
+                        window.jQuery(custodioSelect).val(null).trigger('change.select2');
                     }
                 }
 
-                function restoreAllCustodioOptions() {
-                    Array.from(custodioSelect.options).forEach(opt => {
-                        opt.hidden = false;
-                        opt.disabled = false;
+                function filterCustodiosByTipo(tipo) {
+                    ubicacionFiltro = '';
+                    custodioSelect.value = '';
+                    clearCustodioInfo();
+                    Array.from(custodioSelect.options).forEach(function(opt) {
+                        if (!opt.value) return;
+                        var optTipo = opt.getAttribute('data-tipo') || 'ADMINISTRATIVO';
+                        var show = optTipo === tipo || optTipo === 'AMBOS';
+                        opt.hidden = !show;
+                        opt.disabled = !show;
+                        if (!show) opt.selected = false;
                     });
                     if (window.jQuery && window.jQuery.fn.select2) {
-                        window.jQuery(custodioSelect).trigger('change.select2');
+                        window.jQuery(custodioSelect).val(null).trigger('change.select2');
                     }
                 }
 
                 function hideAllCustodioOptions() {
-                    Array.from(custodioSelect.options).forEach(opt => {
+                    ubicacionFiltro = '';
+                    custodioSelect.value = '';
+                    clearCustodioInfo();
+                    Array.from(custodioSelect.options).forEach(function(opt) {
                         if (!opt.value) return;
-                        opt.hidden = true;
-                        opt.disabled = true;
-                        opt.selected = false;
+                        opt.hidden = true; opt.disabled = true; opt.selected = false;
                     });
                     if (window.jQuery && window.jQuery.fn.select2) {
-                        window.jQuery(custodioSelect).trigger('change.select2');
+                        window.jQuery(custodioSelect).val(null).trigger('change.select2');
                     }
                 }
 
                 function hideAllEquipoOptions() {
                     Array.from(equipoSelect.options).forEach(opt => {
-                        opt.hidden = true;
-                        opt.disabled = true;
-                        opt.selected = false;
+                        opt.hidden = true; opt.disabled = true; opt.selected = false;
                     });
                     buildEquipoChecklist();
                 }
@@ -542,41 +704,34 @@
                     document.getElementById('ubicacionCustodio').textContent = opt?.getAttribute('data-ubicacion') || '';
                 }
 
-                /* ============ RESUMEN / SUMMARY ============ */
+                /* ============ RESUMEN ============ */
                 function updateResumen() {
-                    if (modoActual === 'ADMINISTRATIVO') {
-                        updateCustodioSummary();
-                    } else {
-                        updateFarmaciaSummary();
-                    }
+                    if (modoActual === 'ADMINISTRATIVO') updateCustodioSummary();
+                    else updateFarmaciaSummary();
                 }
 
                 function updateCustodioSummary() {
                     const opt = custodioSelect.selectedOptions[0];
                     if (!opt || !custodioSelect.value) {
                         resumenCustodioNombre.textContent = 'Selecciona un custodio';
-                        resumenCustodioMeta.textContent = 'Aqui veras sus datos y sus equipos asignados.';
+                        resumenCustodioMeta.textContent = '';
                         return;
                     }
                     resumenCustodioNombre.textContent = opt.textContent.trim();
-                    const ubicacion = opt.getAttribute('data-ubicacion') || 'Sin ubicacion';
-                    const cargo = opt.getAttribute('data-cargo') || 'Sin cargo';
-                    resumenCustodioMeta.textContent = cargo + ' · ' + ubicacion;
+                    resumenCustodioMeta.textContent = (opt.getAttribute('data-cargo') || '') + ' · ' + (opt.getAttribute('data-ubicacion') || '');
                 }
 
                 function updateFarmaciaSummary() {
                     if (!ubicacionSelect || !ubicacionSelect.value) {
                         resumenCustodioNombre.textContent = 'Selecciona una sucursal';
-                        resumenCustodioMeta.textContent = 'Aqui veras los equipos y custodios de esa sucursal.';
+                        resumenCustodioMeta.textContent = '';
                         return;
                     }
                     const ubiOpt = ubicacionSelect.selectedOptions[0];
                     const custOpt = custodioSelect.selectedOptions[0];
-                    const sucursalName = ubiOpt ? ubiOpt.textContent.trim() : '';
-                    const custodioName = (custOpt && custodioSelect.value) ? custOpt.textContent.trim() : 'Sin custodio seleccionado';
                     const visibles = Array.from(equipoSelect.options).filter(o => !o.hidden).length;
-                    resumenCustodioNombre.textContent = sucursalName;
-                    resumenCustodioMeta.textContent = visibles + ' equipo(s) · Custodio: ' + custodioName;
+                    resumenCustodioNombre.textContent = ubiOpt ? ubiOpt.textContent.trim() : '';
+                    resumenCustodioMeta.textContent = visibles + ' equipo(s) · ' + ((custOpt && custodioSelect.value) ? custOpt.textContent.trim() : 'Sin custodio');
                 }
 
                 /* ============ CHECKLIST / PROGRESS ============ */
@@ -595,11 +750,11 @@
                 function updateSelectedEquipmentChips() {
                     const selected = Array.from(equipoSelect.options).filter(opt => opt.selected && !opt.disabled);
                     if (selected.length === 0) {
-                        selectedEquipmentChips.innerHTML = '<span class="selection-chip is-placeholder">Sin equipos seleccionados</span>';
+                        selectedEquipmentChips.innerHTML = '';
                         return;
                     }
                     selectedEquipmentChips.innerHTML = selected.map(opt =>
-                        '<span class="selection-chip">' + opt.textContent.trim() + '</span>'
+                        '<span class="man-chip">' + opt.textContent.trim() + '</span>'
                     ).join('');
                 }
 
@@ -615,35 +770,24 @@
                     }
                     const ready = checklistCompleto && firmaOk && seleccionOk;
                     submitButton.disabled = !ready;
-                    formReadyBadge.className = 'status-pill ' + (ready ? 'is-completed' : 'is-pending');
-                    formReadyBadge.textContent = ready ? 'Listo para guardar' : 'Pendiente';
+                    formReadyBadge.className = 'status-pill ' + (ready ? 'is-completed' : 'is-pending') + ' ms-auto';
+                    formReadyBadge.textContent = ready ? 'Listo' : 'Pendiente';
                     formReadyCopy.textContent = ready
-                        ? 'El formulario ya cumple las validaciones principales.'
+                        ? 'El formulario cumple todas las validaciones.'
                         : 'Completa checklist, firmas y seleccion.';
                 }
 
                 /* ============ IMAGE HANDLING ============ */
                 async function convertImageFile(file, index) {
-                    if (!(file instanceof File) || !file.type.startsWith('image/')) {
-                        return file;
-                    }
-
+                    if (!(file instanceof File) || !file.type.startsWith('image/')) return file;
                     const bitmap = await createImageBitmap(file);
                     const canvas = document.createElement('canvas');
-                    canvas.width = bitmap.width;
-                    canvas.height = bitmap.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(bitmap, 0, 0);
+                    canvas.width = bitmap.width; canvas.height = bitmap.height;
+                    canvas.getContext('2d').drawImage(bitmap, 0, 0);
                     bitmap.close();
-
                     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
-                    if (!blob) {
-                        return file;
-                    }
-
-                    const baseName = (file.name || ('evidencia-' + (index + 1)))
-                        .replace(/\.[^.]+$/, '')
-                        .replace(/[^\w\-]+/g, '_');
+                    if (!blob) return file;
+                    const baseName = (file.name || ('evidencia-' + (index + 1))).replace(/\.[^.]+$/, '').replace(/[^\w\-]+/g, '_');
                     return new File([blob], baseName + '.jpg', { type: 'image/jpeg' });
                 }
 
@@ -653,7 +797,7 @@
                         const reader = new FileReader();
                         reader.onload = e => {
                             const tile = document.createElement('div');
-                            tile.className = 'preview-tile';
+                            tile.className = 'man-preview-tile';
                             tile.innerHTML = '<img src="' + e.target.result + '" alt="preview">';
                             preview.appendChild(tile);
                         };
@@ -670,34 +814,16 @@
                     function position(event) {
                         const rect = canvas.getBoundingClientRect();
                         const source = event.touches ? event.touches[0] : event;
-                        return {
-                            x: (source.clientX - rect.left) * (canvas.width / rect.width),
-                            y: (source.clientY - rect.top) * (canvas.height / rect.height)
-                        };
+                        return { x: (source.clientX - rect.left) * (canvas.width / rect.width), y: (source.clientY - rect.top) * (canvas.height / rect.height) };
                     }
-
-                    function start(event) {
-                        drawing = true;
-                        const point = position(event);
-                        ctx.beginPath();
-                        ctx.moveTo(point.x, point.y);
-                        event.preventDefault();
-                    }
-
-                    function move(event) {
+                    function start(e) { drawing = true; const p = position(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+                    function move(e) {
                         if (!drawing) return;
-                        const point = position(event);
-                        ctx.lineTo(point.x, point.y);
-                        ctx.strokeStyle = '#173774';
-                        ctx.lineWidth = 2;
-                        ctx.lineCap = 'round';
-                        ctx.stroke();
-                        event.preventDefault();
+                        const p = position(e);
+                        ctx.lineTo(p.x, p.y); ctx.strokeStyle = '#47267f'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.stroke();
+                        e.preventDefault();
                     }
-
-                    function end() {
-                        drawing = false;
-                    }
+                    function end() { drawing = false; }
 
                     canvas.addEventListener('mousedown', start);
                     canvas.addEventListener('mousemove', move);
@@ -714,64 +840,32 @@
                 bindCanvas('canvasTecnico');
                 bindCanvas('canvasCustodio');
 
-                if (window.jQuery && window.jQuery.fn.select2) {
-                    function hideDisabledOption(option) {
-                        if (option.element && option.element.disabled) return null;
-                        if (option.disabled) return null;
-                        return option.text;
-                    }
-
-                    window.jQuery(custodioSelect).select2({
-                        width: '100%',
-                        placeholder: 'Selecciona un custodio',
-                        allowClear: true,
-                        templateResult: hideDisabledOption
+                function handleCustodioChange() {
+                    var opt = Array.from(custodioSelect.options).find(function(option) {
+                        return option.value === custodioSelect.value;
                     });
-
-                    window.jQuery(ubicacionSelect).select2({
-                        width: '100%',
-                        placeholder: 'Selecciona una sucursal',
-                        allowClear: true,
-                        templateResult: hideDisabledOption
-                    });
-
-                    window.jQuery(custodioSelect).on('change', function() {
-                        custodioSelect.dispatchEvent(new Event('change'));
-                    });
-                    window.jQuery(ubicacionSelect).on('change', function() {
-                        ubicacionSelect.dispatchEvent(new Event('change'));
-                    });
+                    if (custodioSelect.value && opt) fillCustodioInfo(opt);
+                    else clearCustodioInfo();
+                    if (modoActual === 'ADMINISTRATIVO') { updateCustodioSummary(); refreshEquipoOptionsCustodio(); }
+                    else { updateFarmaciaSummary(); updateSubmitState(); }
                 }
 
-                /* Custodio change handler */
-                custodioSelect.addEventListener('change', function() {
-                    const opt = this.selectedOptions[0];
-                    if (opt && this.value) {
-                        fillCustodioInfo(opt);
-                    } else {
-                        clearCustodioInfo();
-                    }
-
-                    if (modoActual === 'ADMINISTRATIVO') {
-                        updateCustodioSummary();
-                        refreshEquipoOptionsCustodio();
-                    } else {
-                        updateFarmaciaSummary();
-                        updateSubmitState();
+                custodioSelect.addEventListener('change', handleCustodioChange);
+                window.addEventListener('load', function() {
+                    if (window.jQuery && window.jQuery.fn.select2) {
+                        window.jQuery(custodioSelect).on('select2:select select2:clear', handleCustodioChange);
                     }
                 });
 
-                /* Sucursal change handler */
                 if (ubicacionSelect) {
                     ubicacionSelect.addEventListener('change', function() {
                         if (modoActual !== 'FARMACIA') return;
-                        refreshEquipoOptionsSucursal();
                         refreshCustodioOptionsSucursal();
+                        refreshEquipoOptionsSucursal();
                         updateFarmaciaSummary();
                     });
                 }
 
-                /* Signature buttons */
                 document.querySelectorAll('[data-clear]').forEach(btn => btn.addEventListener('click', function() {
                     const canvas = document.getElementById(this.dataset.clear);
                     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
@@ -779,76 +873,51 @@
                     target.value = '';
                     updateSubmitState();
                 }));
+
                 document.querySelectorAll('[data-save]').forEach(btn => btn.addEventListener('click', function() {
                     const canvas = document.getElementById(this.dataset.save);
                     document.getElementById(this.dataset.target).value = canvas.toDataURL('image/png');
                     updateSubmitState();
                 }));
 
-                /* Image input */
                 imagenesInput.addEventListener('change', async function() {
                     const originales = Array.from(this.files || []).slice(0, 10);
                     const convertidas = [];
-                    for (let i = 0; i < originales.length; i += 1) {
-                        convertidas.push(await convertImageFile(originales[i], i));
-                    }
-                    const dataTransfer = new DataTransfer();
-                    convertidas.forEach(file => dataTransfer.items.add(file));
-                    imagenesInput.files = dataTransfer.files;
+                    for (let i = 0; i < originales.length; i++) convertidas.push(await convertImageFile(originales[i], i));
+                    const dt = new DataTransfer();
+                    convertidas.forEach(f => dt.items.add(f));
+                    imagenesInput.files = dt.files;
                     renderImagePreview(imagenesInput.files);
                 });
 
-                /* Form submit validation */
                 form.addEventListener('submit', function(e) {
-                    if (checklist.filter(c => c.checked).length < totalChecklist) {
-                        e.preventDefault();
-                        alert('Debes completar todo el checklist');
-                        return;
-                    }
-                    if (!firmaTecnicoInput.value || !firmaCustodioInput.value) {
-                        e.preventDefault();
-                        alert('Debes confirmar ambas firmas antes de guardar.');
-                        return;
-                    }
-                    if (!custodioSelect.value) {
-                        e.preventDefault();
-                        alert('Debes seleccionar un custodio.');
-                        return;
-                    }
-                    if (selectedEquiposCount() === 0) {
-                        e.preventDefault();
-                        alert('Debes seleccionar al menos un equipo.');
-                        return;
-                    }
-                    if (modoActual === 'FARMACIA' && (!ubicacionSelect || !ubicacionSelect.value)) {
-                        e.preventDefault();
-                        alert('Debes seleccionar una sucursal.');
-                        return;
-                    }
+                    if (checklist.filter(c => c.checked).length < totalChecklist) { e.preventDefault(); alert('Debes completar todo el checklist'); return; }
+                    if (!firmaTecnicoInput.value || !firmaCustodioInput.value) { e.preventDefault(); alert('Debes confirmar ambas firmas antes de guardar.'); return; }
+                    if (!custodioSelect.value) { e.preventDefault(); alert('Debes seleccionar un custodio.'); return; }
+                    if (selectedEquiposCount() === 0) { e.preventDefault(); alert('Debes seleccionar al menos un equipo.'); return; }
+                    if (modoActual === 'FARMACIA' && (!ubicacionSelect || !ubicacionSelect.value)) { e.preventDefault(); alert('Debes seleccionar una sucursal.'); return; }
                 });
 
-                /* Initial load: try to pre-select custodio from pre-selected equipo */
                 if (!custodioSelect.value) {
-                    const equipoPreseleccionado = Array.from(equipoSelect.options).find(opt => opt.selected);
-                    const custodios = (equipoPreseleccionado?.getAttribute('data-custodios') || '')
-                        .split(',')
-                        .map(value => value.trim())
-                        .filter(Boolean);
-                    if (custodios.length > 0) {
-                        custodioSelect.value = custodios[0];
-                    }
+                    const presel = Array.from(equipoSelect.options).find(opt => opt.selected);
+                    const custodios = (presel?.getAttribute('data-custodios') || '').split(',').map(v => v.trim()).filter(Boolean);
+                    if (custodios.length > 0) custodioSelect.value = custodios[0];
                 }
 
                 refreshEquipoOptionsCustodio();
                 if (custodioSelect.value) {
-                    custodioSelect.dispatchEvent(new Event('change'));
+                    var initOpt = custodioSelect.options[custodioSelect.selectedIndex];
+                    if (initOpt) fillCustodioInfo(initOpt);
                 }
                 updateResumen();
                 updateSelectedEquipmentChips();
                 updateSubmitState();
+
+                filterCustodiosByTipo('ADMINISTRATIVO');
             })();
         </script>
-    </div>
+    </form>
+</div>
 </div>
 </body>
 </html>

@@ -22,8 +22,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.uisrael.consumogestionactivosapi.exception.GlobalExceptionHandler;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ActivoInventarioResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.AsignacionActivosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.BodegaResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ConsumibleResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.OrdenCompraResponseDTO;
@@ -34,6 +36,8 @@ import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
 import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
+import com.uisrael.consumogestionactivosapi.service.ActaStorageService;
+import com.uisrael.consumogestionactivosapi.service.CustodiasPdfService;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 
 import java.util.List;
@@ -46,6 +50,8 @@ class InventarioControladorTest {
     @Mock private IInventarioOperacionServicio inventarioOperacionServicio;
     @Mock private IMarcasServicio marcasServicio;
     @Mock private ICategoriaEquiposServicio categoriaEquiposServicio;
+    @Mock private CustodiasPdfService custodiasPdfService;
+    @Mock private ActaStorageService actaStorageService;
     @Mock private SesionUsuario sesionUsuario;
 
     private MockMvc mockMvc;
@@ -58,6 +64,8 @@ class InventarioControladorTest {
                 inventarioOperacionServicio,
                 marcasServicio,
                 categoriaEquiposServicio,
+                custodiasPdfService,
+                actaStorageService,
                 sesionUsuario);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controlador)
@@ -69,17 +77,25 @@ class InventarioControladorTest {
     class Asignaciones {
 
         @Test
-        void lote_envia_activo_y_consumible_con_bodega_de_stock() throws Exception {
+        void lote_envia_activo_y_genera_acta() throws Exception {
             ActivoInventarioResponseDTO activo = new ActivoInventarioResponseDTO();
             activo.setCodigoCresio("CR-LAP-001");
-            when(inventarioOperacionServicio.asignarActivosLote(any())).thenReturn(List.of(activo));
-            when(inventarioOperacionServicio.asignarConsumible(any())).thenReturn(new StockConsumibleResponseDTO());
-
+            CustodiosResponseDTO custodio = new CustodiosResponseDTO();
+            custodio.setIdCustodio(7);
+            CustodiasResponseDTO custodia = new CustodiasResponseDTO();
+            custodia.setIdCustodiaEquipo(21);
+            custodia.setFkCustodio(custodio);
+            AsignacionActivosResponseDTO asignacion = new AsignacionActivosResponseDTO();
+            asignacion.setActivos(List.of(activo));
+            asignacion.setCustodias(List.of(custodia));
+            when(inventarioOperacionServicio.asignarActivosLote(any())).thenReturn(asignacion);
+            when(custodiasPdfService.generarActaEntregaPdfBytes(any(), eq("admin"), any(), eq("ASIGNACION")))
+                    .thenReturn(new byte[] {1});
+            when(actaStorageService.guardarActaPdf(any(), eq("ASIGNACION"), eq(7), any()))
+                    .thenReturn("acta_asignacion_7.pdf");
             mockMvc.perform(post("/inventario/asignaciones/lote")
                             .param("custodioId", "7")
                             .param("equipoIds", "11")
-                            .param("consumibleStockKeys", "3_5")
-                            .param("cantidad_3_5", "2")
                             .param("condicionEntrega", "BUENO")
                             .param("fechaInicio", "2026-06-24")
                             .param("realizadoPor", "admin"))
@@ -89,11 +105,7 @@ class InventarioControladorTest {
 
             verify(inventarioOperacionServicio).asignarActivosLote(argThat(req ->
                     req.getEquipoIds().equals(List.of(11)) && req.getCustodioId().equals(7)));
-            verify(inventarioOperacionServicio).asignarConsumible(argThat(req ->
-                    req.getConsumibleId().equals(3)
-                            && req.getBodegaId().equals(5)
-                            && req.getCantidad().equals(2)
-                            && req.getCustodioId().equals(7)));
+            verify(actaStorageService).registrarRutaEnCustodias(eq(List.of(21)), eq("acta_asignacion_7.pdf"));
         }
 
         @Test
@@ -153,6 +165,37 @@ class InventarioControladorTest {
 
             org.junit.jupiter.api.Assertions.assertEquals(List.of(11), activos.stream().map(ActivoInventarioResponseDTO::getIdEquipo).toList());
             org.junit.jupiter.api.Assertions.assertEquals(List.of(3), stock.stream().map(StockConsumibleResponseDTO::getConsumibleId).toList());
+        }
+
+        @Test
+        void devolucion_desde_expediente_regresa_al_expediente() throws Exception {
+            ActivoInventarioResponseDTO activo = new ActivoInventarioResponseDTO();
+            activo.setCodigoCresio("CR-LAP-001");
+            when(inventarioOperacionServicio.devolverActivo(any())).thenReturn(activo);
+
+            mockMvc.perform(post("/inventario/devoluciones/activos")
+                            .param("equipoId", "11")
+                            .param("bodegaId", "5")
+                            .param("returnTo", "/custodias/expediente/7"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/custodias/expediente/7"))
+                    .andExpect(flash().attributeExists("success"));
+        }
+
+        @Test
+        void baja_no_redirige_a_url_externa() throws Exception {
+            ActivoInventarioResponseDTO activo = new ActivoInventarioResponseDTO();
+            activo.setCodigoCresio("CR-LAP-001");
+            when(inventarioOperacionServicio.darBajaActivo(any())).thenReturn(activo);
+
+            mockMvc.perform(post("/inventario/bajas/activos")
+                            .param("equipoId", "11")
+                            .param("motivo", "OBSOLESCENCIA")
+                            .param("observacion", "Fin de vida")
+                            .param("returnTo", "//evil.test"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/inventario/bajas"))
+                    .andExpect(flash().attributeExists("success"));
         }
     }
 

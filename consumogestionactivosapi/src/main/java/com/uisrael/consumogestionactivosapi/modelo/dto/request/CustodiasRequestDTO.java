@@ -43,6 +43,8 @@ public class CustodiasRequestDTO {
     // CIERRE: checklist devolución
     // =========================
     private List<Integer> detallesEntregados;
+    private Integer bodegaDestinoId;
+    private String estadoFisicoRetorno;
 
     private String tipoMovimiento;
 }

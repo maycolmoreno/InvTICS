@@ -16,10 +16,6 @@
                     <i class="feather-archive" aria-hidden="true"></i>
                     <span>Stock</span>
                 </a>
-                <a th:href="@{/inventario/movimientos}" class="cui-btn cui-btn-secondary">
-                    <i class="feather-clock" aria-hidden="true"></i>
-                    <span>Movimientos</span>
-                </a>
             </div>
         </div>
 
@@ -186,9 +182,9 @@
                         <div class="form-control bg-light" id="ta-bodega-nombre">—</div>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Bodega destino <span class="text-danger">*</span></label>
-                        <select class="form-select" name="bodegaDestinoId" required>
-                            <option value="">Seleccione bodega destino</option>
+                        <label class="form-label">Bodega destino <span class="cui-required-mark">*</span></label>
+                        <select class="cui-inline-input" name="bodegaDestinoId" required>
+                            <option value="">Seleccione bodega destino...</option>
                             <option th:each="b : ${bodegas}"
                                     th:value="${b.idBodega}"
                                     th:text="${b.nombre}">Bodega</option>
@@ -196,7 +192,7 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label">Observacion</label>
-                        <textarea class="form-control" name="observacion" rows="3"></textarea>
+                        <textarea class="cui-inline-input" name="observacion" rows="3"></textarea>
                     </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
@@ -234,9 +230,9 @@
                         <input type="hidden" name="bodegaDestinoId" id="cl-bodega-destino-id">
                         <div id="cl-bodega-destino-display" class="form-control bg-light fw-semibold">—</div>
                         <div id="cl-bodega-destino-select-wrap" hidden>
-                            <label class="form-label mt-2">Seleccionar bodega de llegada <span class="text-danger">*</span></label>
-                            <select class="form-select" id="cl-bodega-destino-select">
-                                <option value="">Seleccione bodega destino</option>
+                            <label class="form-label mt-2">Seleccionar bodega de llegada <span class="cui-required-mark">*</span></label>
+                            <select class="cui-inline-input" id="cl-bodega-destino-select">
+                                <option value="">Seleccione bodega destino...</option>
                                 <option th:each="b : ${bodegas}"
                                         th:value="${b.idBodega}"
                                         th:text="${b.nombre}">Bodega</option>
@@ -246,7 +242,7 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label">Observacion de llegada</label>
-                        <textarea class="form-control" name="observacion" rows="2"></textarea>
+                        <textarea class="cui-inline-input" name="observacion" rows="2"></textarea>
                     </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>

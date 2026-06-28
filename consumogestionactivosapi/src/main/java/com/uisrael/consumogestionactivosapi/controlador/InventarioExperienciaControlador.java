@@ -80,35 +80,6 @@ public class InventarioExperienciaControlador {
         return "Inventario/stock";
     }
 
-    @GetMapping("/movimientos")
-    public String movimientos(
-            @RequestParam(defaultValue = "0")  Integer page,
-            @RequestParam(defaultValue = "50") Integer size,
-            @RequestParam(required = false) String tipo,
-            @RequestParam(required = false) String fechaDesde,
-            @RequestParam(required = false) String fechaHasta,
-            @RequestParam(required = false) String equipoCodigo,
-            Model model) {
-        try {
-            var pagina = inventarioOperacionServicio.buscarMovimientos(page, size, tipo, fechaDesde, fechaHasta, equipoCodigo);
-            model.addAttribute("pagina", pagina);
-            model.addAttribute("movimientos", pagina.getContent() != null ? pagina.getContent() : List.of());
-            model.addAttribute("movimientosRecientes", pagina.getContent() != null
-                    ? pagina.getContent().stream().limit(10).toList() : List.of());
-        } catch (Exception ex) {
-            model.addAttribute("pagina", null);
-            model.addAttribute("movimientos", List.of());
-            model.addAttribute("movimientosRecientes", List.of());
-            model.addAttribute("error", "No se pudieron cargar los movimientos.");
-        }
-        model.addAttribute("filtroTipo", tipo);
-        model.addAttribute("filtroFechaDesde", fechaDesde);
-        model.addAttribute("filtroFechaHasta", fechaHasta);
-        model.addAttribute("filtroEquipoCodigo", equipoCodigo);
-        model.addAttribute("bodegas", bodegasActivas());
-        return "Inventario/movimientos";
-    }
-
     @GetMapping("/traslados")
     public String traslados(Model model) {
         var bodegas = bodegasActivas();

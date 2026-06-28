@@ -20,10 +20,6 @@
                         <i class="feather-truck"></i>
                         <span>Traslados</span>
                     </a>
-                    <a th:href="@{/inventario/movimientos}" class="itam-btn primary">
-                        <i class="feather-clock"></i>
-                        <span>Movimientos</span>
-                    </a>
                 </div>
             </div>
 
@@ -58,10 +54,11 @@
                                 <label class="form-label">Motivo</label>
                                 <select class="form-select" th:field="*{motivo}" required>
                                     <option value="">Seleccione</option>
+                                    <option value="DESTRUCCION">Destrucción</option>
                                     <option value="OBSOLESCENCIA">Obsolescencia</option>
-                                    <option value="DANIO_IRREPARABLE">Danio irreparable</option>
-                                    <option value="PERDIDA">Perdida</option>
-                                    <option value="RENOVACION">Renovacion</option>
+                                    <option value="ROBO_PERDIDA">Robo / Pérdida</option>
+                                    <option value="DONACION">Donación</option>
+                                    <option value="DANIO_IRREPARABLE">Daño irreparable</option>
                                     <option value="OTRO">Otro</option>
                                 </select>
                             </div>

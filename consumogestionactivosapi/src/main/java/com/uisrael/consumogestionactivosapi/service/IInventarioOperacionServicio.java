@@ -17,10 +17,12 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.Enviar
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.OrdenCompraRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RetornarReparacionRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.ConfirmarLlegadaActivoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AdoptarInventarioInicialRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarEtiquetaRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ActivoInventarioResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.AsignacionActivosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.BodegaResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ConsumibleResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.MovimientoInventarioResponseDTO;
@@ -45,8 +47,9 @@ public interface IInventarioOperacionServicio {
     MovimientoPageResponseDTO buscarMovimientos(Integer page, Integer size, String tipo,
             String fechaDesde, String fechaHasta, String equipoCodigo);
     List<ActivoInventarioResponseDTO> listarActivosEnBodega();
+    List<ActivoInventarioResponseDTO> listarActivosAsignados();
     ActivoInventarioResponseDTO asignarActivo(AsignacionActivoRequestDTO request);
-    List<ActivoInventarioResponseDTO> asignarActivosLote(AsignacionLoteRequestDTO request);
+    AsignacionActivosResponseDTO asignarActivosLote(AsignacionLoteRequestDTO request);
     StockConsumibleResponseDTO asignarConsumible(AsignacionConsumibleRequestDTO request);
     ActivoInventarioResponseDTO devolverActivo(DevolucionActivoRequestDTO request);
     StockConsumibleResponseDTO devolverConsumible(DevolucionConsumibleRequestDTO request);
@@ -62,4 +65,6 @@ public interface IInventarioOperacionServicio {
     RecepcionLoteResponseDTO registrarRecepcionStock(Integer idOrdenCompra, Integer idDetalle, RegistrarRecepcionStockRequestDTO request);
     RecepcionLoteResponseDTO registrarRecepcionActivo(Integer idOrdenCompra, Integer idDetalle, RegistrarRecepcionActivoRequestDTO request);
     ActivoInventarioResponseDTO registrarEtiqueta(Integer idEquipo, RegistrarEtiquetaRequestDTO request);
+    List<ActivoInventarioResponseDTO> listarSinInventario();
+    ActivoInventarioResponseDTO adoptarInventarioInicial(Integer idEquipo, AdoptarInventarioInicialRequestDTO request);
 }

@@ -44,6 +44,9 @@ public class ActaStorageService {
     }
 
     public void registrarRutaEnCustodias(List<Integer> idsCustodias, String nombreArchivo) {
+        if (idsCustodias == null || idsCustodias.isEmpty()) {
+            throw new IllegalArgumentException("Debe indicar al menos una custodia para registrar el acta");
+        }
         try {
             String idsParam = idsCustodias.stream()
                     .map(String::valueOf)
@@ -62,6 +65,7 @@ public class ActaStorageService {
             log.info("Ruta PDF registrada en {} custodias: {}", idsCustodias.size(), nombreArchivo);
         } catch (Exception e) {
             log.error("Error al registrar ruta del PDF en custodias: {}", e.getMessage());
+            throw new IllegalStateException("No se pudo registrar la ruta del PDF en las custodias", e);
         }
     }
 

@@ -56,6 +56,22 @@ Datos visibles → Selección → Acción contextual → Drawer → Confirmació
 
 No usar formularios permanentes si la acción puede nacer desde una fila.
 
+## Sistema de diseño — reglas de precedencia
+
+Las clases Bootstrap equivalentes están **deprecadas** en este proyecto. Usar siempre CUI:
+
+| Elemento | Usar | No usar |
+|----------|------|---------|
+| Botón principal | `cui-btn cui-btn-primary` | `btn btn-primary` |
+| Botón secundario | `cui-btn cui-btn-secondary` | `btn btn-outline-primary btn-sm` |
+| Botón peligroso | `cui-btn cui-btn-danger` | `btn btn-danger` |
+| Botón advertencia | `cui-btn cui-btn-warning` | `btn btn-warning` |
+| Botón ícono | `cui-icon-btn` | `btn btn-light cui-icon-btn` |
+| Tabla | `table cui-table` | `table table-hover` |
+| Badge | `cui-badge cui-badge-*` | `badge bg-*` |
+
+Tokens definidos en `tokens.css` — no usar valores hardcoded de color ni fallbacks inline. Si un token falta, añadirlo a `tokens.css` antes de usarlo.
+
 ## Reglas obligatorias generales
 
 No modificar base de datos salvo aprobación explícita.

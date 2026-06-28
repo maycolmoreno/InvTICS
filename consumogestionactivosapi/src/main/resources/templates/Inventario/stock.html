@@ -12,10 +12,6 @@
 
         <div class="cui-command-bar">
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a th:href="@{/inventario/movimientos}" class="cui-btn cui-btn-secondary">
-                    <i class="feather-clock" aria-hidden="true"></i>
-                    <span>Movimientos</span>
-                </a>
             </div>
         </div>
 
@@ -149,22 +145,22 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label">Custodio <span class="text-danger">*</span></label>
-                        <select class="form-select" name="custodioId" required>
-                            <option value="">Seleccione custodio</option>
+                        <label class="form-label">Custodio <span class="cui-required-mark">*</span></label>
+                        <select class="cui-inline-input" name="custodioId" required>
+                            <option value="">Seleccione custodio...</option>
                             <option th:each="c : ${custodios}"
                                     th:value="${c.idCustodio}"
                                     th:text="${c.nombre}">Custodio</option>
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Cantidad a entregar <span class="text-danger">*</span></label>
-                        <input class="form-control" type="number" name="cantidad" id="ent-cantidad"
+                        <label class="form-label">Cantidad a entregar <span class="cui-required-mark">*</span></label>
+                        <input class="cui-inline-input" type="number" name="cantidad" id="ent-cantidad"
                                min="1" value="1" required>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Observacion</label>
-                        <textarea class="form-control" name="observacion" rows="2"></textarea>
+                        <textarea class="cui-inline-input" name="observacion" rows="2"></textarea>
                     </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
@@ -208,22 +204,22 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label">Bodega destino <span class="text-danger">*</span></label>
-                        <select class="form-select" name="bodegaDestinoId" required>
-                            <option value="">Seleccione bodega destino</option>
+                        <label class="form-label">Bodega destino <span class="cui-required-mark">*</span></label>
+                        <select class="cui-inline-input" name="bodegaDestinoId" required>
+                            <option value="">Seleccione bodega destino...</option>
                             <option th:each="b : ${bodegas}"
                                     th:value="${b.idBodega}"
                                     th:text="${b.nombre}">Bodega</option>
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Cantidad <span class="text-danger">*</span></label>
-                        <input class="form-control" type="number" name="cantidad" id="tras-cantidad"
+                        <label class="form-label">Cantidad <span class="cui-required-mark">*</span></label>
+                        <input class="cui-inline-input" type="number" name="cantidad" id="tras-cantidad"
                                min="1" value="1" required>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Observacion</label>
-                        <textarea class="form-control" name="observacion" rows="2"></textarea>
+                        <textarea class="cui-inline-input" name="observacion" rows="2"></textarea>
                     </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>

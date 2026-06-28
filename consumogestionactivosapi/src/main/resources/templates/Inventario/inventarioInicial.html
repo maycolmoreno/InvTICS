@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head>
+    <title>Inventario Inicial</title>
+</head>
+<body>
+<div layout:fragment="contenidopaginas">
+    <div class="cui-page">
+
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Inventario Inicial', subtitle='Adopta activos existentes en farmacias que no provienen de una orden de compra.')}"></div>
+
+        <div class="cui-command-bar">
+            <div class="d-flex align-items-center gap-2">
+                <a th:href="@{/equipos}" class="cui-btn cui-btn-secondary">
+                    <i class="feather-monitor" aria-hidden="true"></i>
+                    <span>Todos los activos</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
+        <div class="alert alert-warning cui-alert" th:if="${errorCarga}" th:text="${errorCarga}"></div>
+
+        <section class="cui-data-grid" id="invInicialGrid" data-cui-grid>
+            <div class="cui-data-grid-header">
+                <div>
+                    <p class="cui-eyebrow">Activos pendientes de activación</p>
+                    <h2>Equipos sin estado de inventario</h2>
+                </div>
+                <div class="cui-data-grid-meta" data-cui-grid-count>0 registros</div>
+            </div>
+
+            <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar por codigo, serial, marca o modelo...', exportHref='')}"></div>
+
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Código SAP</th>
+                            <th>Categoría</th>
+                            <th>Marca / Modelo</th>
+                            <th>Serial</th>
+                            <th>Estado equipo</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(equiposSinInventario)}">
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="feather-check-circle" style="font-size:2rem;"></i>
+                                <p class="mt-2 mb-0">Todos los equipos ya tienen estado de inventario asignado.</p>
+                            </td>
+                        </tr>
+                        <tr th:each="eq : ${equiposSinInventario}"
+                            th:attr="data-search=${(eq.codigoCresio != null ? eq.codigoCresio : '') + ' ' + (eq.serial != null ? eq.serial : '') + ' ' + (eq.marcaNombre != null ? eq.marcaNombre : '') + ' ' + (eq.modeloNombre != null ? eq.modeloNombre : eq.modelo != null ? eq.modelo : '')}">
+                            <td>
+                                <span class="fw-semibold" th:text="${eq.codigoCresio != null ? eq.codigoCresio : (eq.codigoSap != null ? eq.codigoSap : '—')}">—</span>
+                            </td>
+                            <td th:text="${eq.categoriaNombre != null ? eq.categoriaNombre : '—'}">—</td>
+                            <td>
+                                <span th:text="${eq.marcaNombre != null ? eq.marcaNombre : '—'}">—</span>
+                                <small class="d-block text-muted" th:text="${eq.modeloNombre != null ? eq.modeloNombre : (eq.modelo != null ? eq.modelo : '')}"></small>
+                            </td>
+                            <td>
+                                <code th:text="${eq.serial != null ? eq.serial : '—'}">—</code>
+                            </td>
+                            <td>
+                                <span th:text="${eq.estadoEquipo != null ? eq.estadoEquipo : '—'}" class="cui-badge cui-badge-neutral">—</span>
+                            </td>
+                            <td class="text-end">
+                                <button type="button"
+                                        class="cui-btn cui-btn-sm cui-btn-primary"
+                                        th:attr="data-cui-drawer-open='#drawerAdoptar',
+                                                 data-equipo-id=${eq.idEquipo},
+                                                 data-equipo-codigo=${eq.codigoCresio != null ? eq.codigoCresio : (eq.codigoSap != null ? eq.codigoSap : '')},
+                                                 data-equipo-desc=${eq.marcaNombre + ' ' + (eq.modelo != null ? eq.modelo : '')}">
+                                    <i class="feather-download" aria-hidden="true"></i>
+                                    <span>Adoptar</span>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Drawer adoptar activo -->
+        <div id="drawerAdoptar" class="cui-drawer" role="dialog" aria-modal="true" aria-label="Adoptar activo en inventario">
+            <div class="cui-drawer-header">
+                <h5 class="cui-drawer-title">Adoptar activo en inventario</h5>
+                <button type="button" class="cui-drawer-close" data-cui-drawer-close aria-label="Cerrar">
+                    <i class="feather-x" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <p class="text-muted mb-3" id="drawerAdoptarDesc">
+                    Este activo no tiene estado de inventario. Al adoptarlo quedará registrado oficialmente como parte del patrimonio TIC.
+                </p>
+
+                <form id="formAdoptar" method="post" th:action="@{/inventario/activos/__${0}__/adoptar}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" id="adoptarEquipoId" name="adoptarEquipoId" value="0"/>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Código / Etiqueta existente</label>
+                        <input type="text" class="form-control" id="adoptarCodigoCresio" name="codigoCresio"
+                               placeholder="Código de la etiqueta física del activo"/>
+                        <div class="form-text">Si el activo ya tiene etiqueta de la empresa, ingresa ese código aquí.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Bodega / Ubicación actual <span class="text-danger">*</span></label>
+                        <select class="form-select" name="bodegaId" required>
+                            <option value="">Seleccionar bodega...</option>
+                            <option th:each="b : ${bodegas}"
+                                    th:value="${b.idBodega}"
+                                    th:text="${b.nombre}">Bodega</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Custodio actual (opcional)</label>
+                        <select class="form-select" name="custodioId">
+                            <option value="">Sin custodio — quedará EN BODEGA</option>
+                            <option th:each="c : ${custodios}"
+                                    th:value="${c.idCustodio}"
+                                    th:text="${c.nombre}">Custodio</option>
+                        </select>
+                        <div class="form-text">Si el activo ya tiene un responsable asignado, selecciónalo aquí.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Condición física</label>
+                        <select class="form-select" name="condicionFisica">
+                            <option value="">No especificada</option>
+                            <option value="BUENO">Bueno</option>
+                            <option value="REGULAR">Regular</option>
+                            <option value="DETERIORADO">Deteriorado</option>
+                            <option value="PARA_BAJA">Para baja</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Observación</label>
+                        <textarea class="form-control" name="observacion" rows="3"
+                                  placeholder="Contexto del activo: farmacia, fecha estimada de uso, etc."></textarea>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="adoptarEtiquetado" name="etiquetado" value="true"/>
+                        <label class="form-check-label" for="adoptarEtiquetado">
+                            Etiqueta física CRESIO adherida al equipo
+                        </label>
+                        <div class="form-text text-warning-emphasis">
+                            Solo marcar si el activo ya tiene su etiqueta física. Sin etiqueta no podrá ser asignado.
+                        </div>
+                    </div>
+
+                    <div class="cui-info-box mb-3">
+                        <i class="feather-info" aria-hidden="true"></i>
+                        <span>Se generará un movimiento de <strong>INGRESO (Inventario Inicial)</strong>. Si tienes custodio, también se creará la custodia activa.</span>
+                    </div>
+
+                </form>
+            </div>
+            <div class="cui-drawer-footer">
+                <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                <button type="submit" form="formAdoptar" class="cui-btn cui-btn-primary">
+                    <i class="feather-check" aria-hidden="true"></i>
+                    Confirmar adopción
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script th:inline="javascript">
+(function () {
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-cui-drawer-open="#drawerAdoptar"]');
+        if (!btn) return;
+
+        var equipoId  = btn.getAttribute('data-equipo-id');
+        var codigo    = btn.getAttribute('data-equipo-codigo') || '';
+        var desc      = btn.getAttribute('data-equipo-desc') || '';
+
+        // Actualizar el input hidden con el ID
+        document.getElementById('adoptarEquipoId').value = equipoId;
+
+        // Pre-llenar el código
+        var inputCodigo = document.getElementById('adoptarCodigoCresio');
+        if (inputCodigo && codigo) {
+            inputCodigo.value = codigo;
+        }
+
+        // Actualizar descripción del drawer
+        var descEl = document.getElementById('drawerAdoptarDesc');
+        if (descEl && desc) {
+            descEl.textContent = 'Adoptando: ' + desc + '. Este activo no tiene estado de inventario.';
+        }
+
+        // Actualizar la action del form con el ID correcto
+        var form = document.getElementById('formAdoptar');
+        if (form) {
+            form.action = '/inventario/activos/' + equipoId + '/adoptar';
+        }
+    });
+})();
+</script>
+</body>
+</html>

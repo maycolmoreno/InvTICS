@@ -2,7 +2,8 @@
   "use strict";
 
   function normalize(value) {
-    return (value || "").toString().trim().toLowerCase();
+    return (value || "").toString().trim().toLowerCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g, "");
   }
 
   function matchesSearch(row, term) {

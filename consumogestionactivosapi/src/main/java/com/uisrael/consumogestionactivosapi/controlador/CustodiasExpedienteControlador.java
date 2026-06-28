@@ -52,10 +52,22 @@ public class CustodiasExpedienteControlador {
         model.addAttribute("custodiasActivas", custodiasActivas);
         model.addAttribute("movimientos", movimientos);
         model.addAttribute("consumiblesEntregados", consumiblesEntregados);
+        model.addAttribute("bodegas", safeCall(inventarioOperacionServicio::listarBodegas).stream()
+                .filter(b -> b != null && b.isEstado())
+                .toList());
         return "Custodias/expedienteCustodio";
     }
 
     private <T> List<T> safeList(List<T> value) {
         return value == null ? new ArrayList<>() : value;
+    }
+
+    private <T> List<T> safeCall(java.util.function.Supplier<List<T>> supplier) {
+        try {
+            List<T> result = supplier.get();
+            return result == null ? new ArrayList<>() : result;
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 }

@@ -13,7 +13,7 @@ import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.UsuarioReposit
 
 public class SetupInicialUseCaseImpl implements ISetupInicialUseCase {
 
-	private static final String DEPTO_DEFAULT = "Transformacion Digital";
+	private static final String DEPTO_DEFAULT = "TRANSFORMACION DIGITAL";
 
 	private final UsuarioRepositorioPuerto usuariosRepositorio;
 	private final RolRepositorioPuerto rolesRepositorio;

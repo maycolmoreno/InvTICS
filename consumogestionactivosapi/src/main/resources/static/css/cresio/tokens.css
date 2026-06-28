@@ -1,25 +1,46 @@
 :root {
-  --cui-primary: #1d4ed8;
-  --cui-primary-dark: #1e3a8a;
+  /* ── Paleta primaria: morado institucional CRESIO ────────── */
+  --cui-primary:        #47267f;
+  --cui-primary-dark:   #2f1857;
+  --cui-primary-rich:   #5c36a0;
+  --cui-primary-mid:    #7c56c0;
+  --cui-primary-subtle: #f3f0fa;
+  --cui-primary-soft:   #ede8f8;
+
+  /* ── Acento naranja del logo ─────────────────────────────── */
+  --cui-accent:         #e8412d;
+  --cui-accent-soft:    #fde8e4;
+
+  /* ── Colores semánticos ──────────────────────────────────── */
   --cui-secondary: #0891b2;
-  --cui-background: #f5f7fa;
-  --cui-surface: #ffffff;
-  --cui-border: #e5e7eb;
-  --cui-text-main: #111827;
-  --cui-text-muted: #6b7280;
-  --cui-success: #16a34a;
-  --cui-warning: #d97706;
-  --cui-danger: #dc2626;
-  --cui-info: #0284c7;
-  --cui-disabled: #9ca3af;
+  --cui-success:   #16a34a;
+  --cui-warning:   #d97706;
+  --cui-danger:    #dc2626;
+  --cui-info:      #0284c7;
+  --cui-disabled:  #9ca3af;
 
-  --cui-blue-soft: #dbeafe;
-  --cui-green-soft: #dcfce7;
-  --cui-amber-soft: #fef3c7;
-  --cui-cyan-soft: #cffafe;
-  --cui-red-soft: #fee2e2;
-  --cui-gray-soft: #f3f4f6;
+  /* ── Superficies y fondo ─────────────────────────────────── */
+  --cui-background:    #f5f3fb;
+  --cui-surface:       #ffffff;
+  --cui-surface-raised: #faf9fd;
 
+  /* ── Bordes ──────────────────────────────────────────────── */
+  --cui-border: rgba(71, 38, 127, 0.14);
+
+  /* ── Texto ───────────────────────────────────────────────── */
+  --cui-text-main:      #1a1429;
+  --cui-text-secondary: #3d2f5a;
+  --cui-text-muted:     #7b6fa0;
+
+  /* ── Tokens soft (para badges, fondos suaves) ────────────── */
+  --cui-blue-soft:   #dbeafe;
+  --cui-green-soft:  #dcfce7;
+  --cui-amber-soft:  #fef3c7;
+  --cui-cyan-soft:   #cffafe;
+  --cui-red-soft:    #fee2e2;
+  --cui-gray-soft:   #f3f4f6;
+
+  /* ── Espaciados ──────────────────────────────────────────── */
   --cui-space-1: 4px;
   --cui-space-2: 8px;
   --cui-space-3: 12px;
@@ -28,18 +49,21 @@
   --cui-space-6: 32px;
   --cui-space-7: 48px;
 
+  /* ── Radios ──────────────────────────────────────────────── */
   --cui-radius-sm: 6px;
   --cui-radius-md: 8px;
   --cui-radius-lg: 12px;
   --cui-radius-xl: 16px;
 
-  --cui-shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.06);
-  --cui-shadow-md: 0 8px 24px rgba(17, 24, 39, 0.08);
-  --cui-shadow-lg: 0 18px 48px rgba(17, 24, 39, 0.14);
+  /* ── Sombras con tinte morado ────────────────────────────── */
+  --cui-shadow-sm: 0 1px 3px rgba(47, 24, 87, 0.08);
+  --cui-shadow-md: 0 8px 24px rgba(47, 24, 87, 0.10);
+  --cui-shadow-lg: 0 18px 48px rgba(47, 24, 87, 0.14);
 
-  --cui-sidebar-width: 276px;
+  /* ── Shell ───────────────────────────────────────────────── */
+  --cui-sidebar-width:     276px;
   --cui-sidebar-collapsed: 82px;
-  --cui-topbar-height: 68px;
-  --cui-content-max: 1680px;
+  --cui-topbar-height:     68px;
+  --cui-content-max:       1680px;
   --cui-font-family: "Plus Jakarta Sans", "Inter", "Segoe UI", Arial, sans-serif;
 }

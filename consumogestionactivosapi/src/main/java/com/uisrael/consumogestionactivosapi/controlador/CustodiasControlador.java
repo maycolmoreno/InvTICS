@@ -25,9 +25,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiasRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.EquiposRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AsignacionLoteRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BajaActivoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.DevolucionActivoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.AsignacionActivosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
@@ -36,12 +42,10 @@ import com.uisrael.consumogestionactivosapi.service.ActaStorageService;
 import com.uisrael.consumogestionactivosapi.service.CorreoServicio;
 import com.uisrael.consumogestionactivosapi.service.CustodiasExcelService;
 import com.uisrael.consumogestionactivosapi.service.CustodiasPdfService;
-import com.uisrael.consumogestionactivosapi.service.ICargosServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
-import com.uisrael.consumogestionactivosapi.service.IDepartamentosServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
-import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
+import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -55,14 +59,12 @@ public class CustodiasControlador {
 	private final ICustodiasServicio servicioCustodias;
 	private final IEquiposServicio servicioEquipos;
 	private final ICustodiosServicio servicioCustodios;
-	private final IDepartamentosServicio servicioDepartamento;
-	private final ICargosServicio servicioCargo;
-	private final IUbicacionesServicio servicioUbicacion;
 	private final CustodiasPdfService custodiasPdfService;
 	private final CustodiasExcelService custodiasExcelService;
 	private final CorreoServicio correoServicio;
 	private final SesionUsuario sesionUsuario;
 	private final ActaStorageService actaStorageService;
+	private final IInventarioOperacionServicio inventarioOperacionServicio;
 
 	// =========================================================
 	// LISTAR (POR ACTA: custodio + tipo + fecha = 1 acta)
@@ -96,19 +98,10 @@ public class CustodiasControlador {
 	// FORM NUEVA CUSTODIA (MULTI EQUIPOS)
 	// =========================
 	@GetMapping("/nueva-custodia")
-	public String nuevaCustodia(Model model) {
-
-		CustodiasRequestDTO custodia = new CustodiasRequestDTO();
-		custodia.setEstado(true);
-
-		custodia.setFkCustodio(new CustodiosRequestDTO());
-		custodia.getFkCustodio().setIdCustodio(0);
-
-		custodia.setFkEquipo(null);
-
-		cargarFormularioNuevaCustodia(model, custodia, null);
-
-		return "Custodias/nuevoCustodia";
+	public String nuevaCustodia(RedirectAttributes redirect) {
+		redirect.addFlashAttribute("info",
+				"Las custodias se generan automáticamente al realizar una asignación. Use el módulo de Asignaciones.");
+		return "redirect:/inventario/asignaciones";
 	}
 
 	// =========================================================
@@ -117,220 +110,133 @@ public class CustodiasControlador {
 	@PostMapping
 	public String guardarCustodia(@ModelAttribute("custodia") CustodiasRequestDTO custodia,
 			@RequestParam(name = "tipoActaUi", required = false, defaultValue = "ASIGNACION") String tipoActaUi,
-			Model model, HttpSession session) {
+			Model model, HttpSession session, RedirectAttributes redirectAttributes) {
 
-		boolean esTraslado = "TRASLADO".equalsIgnoreCase(tipoActaUi);
-		boolean esBaja = "BAJA".equalsIgnoreCase(tipoActaUi);
-
-		if (esTraslado) {
-			return procesarTrasladoDesdeFormulario(custodia, model, session);
-		}
-		if (esBaja) {
-			return procesarBajaDesdeFormulario(custodia, model, session);
+		if ("TRASLADO".equalsIgnoreCase(tipoActaUi)) {
+			redirectAttributes.addFlashAttribute("info",
+					"El cambio de custodio se realiza cerrando la custodia activa desde Custodias y asignando el activo desde el módulo de Asignaciones.");
+			return "redirect:/custodias";
 		}
 
-		// ACTA_INICIAL y ASIGNACION se procesan igual (crean custodia nueva)
-		String tipoMovimiento = "ACTA_INICIAL".equalsIgnoreCase(tipoActaUi) ? "ACTA_INICIAL" : "ASIGNACION";
+		if ("BAJA".equalsIgnoreCase(tipoActaUi)) {
+			return procesarBajaDesdeFormulario(custodia, session, redirectAttributes);
+		}
 
-		// Validaciones minimas
+		if (!"ACTA_INICIAL".equalsIgnoreCase(tipoActaUi)) {
+			return procesarAsignacionViaInventario(custodia, session, redirectAttributes);
+		}
+
+		// Solo ACTA_INICIAL continúa por el path legacy de custodias
 		if (custodia.getFkCustodio() == null || custodia.getFkCustodio().getIdCustodio() <= 0) {
-			cargarFormularioNuevaCustodia(model, custodia, "Debe seleccionar un custodio");
-			return "Custodias/nuevoCustodia";
+			redirectAttributes.addFlashAttribute("error", "Debe seleccionar un custodio");
+			return "redirect:/custodias";
 		}
-
 		if (custodia.getEquiposSeleccionados() == null || custodia.getEquiposSeleccionados().isEmpty()) {
-			cargarFormularioNuevaCustodia(model, custodia, "Debe seleccionar al menos un equipo");
-			return "Custodias/nuevoCustodia";
+			redirectAttributes.addFlashAttribute("error", "Debe seleccionar al menos un equipo");
+			return "redirect:/custodias";
 		}
-
 		Set<Integer> equiposNoDisponibles = obtenerIdsEquiposConCustodiaActiva();
-		boolean contieneEquiposNoDisponibles = custodia.getEquiposSeleccionados().stream()
-				.anyMatch(equiposNoDisponibles::contains);
-		if (contieneEquiposNoDisponibles) {
-			cargarFormularioNuevaCustodia(model, custodia,
-					"Uno o varios equipos ya estan asociados a otro custodio activo.");
-			return "Custodias/nuevoCustodia";
+		if (custodia.getEquiposSeleccionados().stream().anyMatch(equiposNoDisponibles::contains)) {
+			redirectAttributes.addFlashAttribute("error", "Uno o varios equipos ya estan asociados a otro custodio activo.");
+			return "redirect:/custodias";
 		}
 
-		// Estado activo
 		custodia.setEstado(true);
-		custodia.setTipoMovimiento(tipoMovimiento);
-
-		// Convertir IDs de equipos a objetos
+		custodia.setTipoMovimiento("ACTA_INICIAL");
 		List<EquiposRequestDTO> equipos = custodia.getEquiposSeleccionados().stream().distinct().map(id -> {
 			EquiposRequestDTO e = new EquiposRequestDTO();
 			e.setIdEquipo(id);
 			return e;
 		}).toList();
-
 		custodia.setEquipos(equipos);
 		custodia.setFkEquipo(null);
 
-		// Llamar al servicio
 		List<CustodiasResponseDTO> creados = servicioCustodias.crearCustodiaActa(custodia);
-
 		if (creados == null || creados.isEmpty()) {
-			cargarFormularioNuevaCustodia(model, custodia, "No se pudo crear la custodia");
-			return "Custodias/nuevoCustodia";
+			redirectAttributes.addFlashAttribute("error", "No se pudo crear la custodia");
+			return "redirect:/custodias";
 		}
 
-		// Guardar en sesion para el acta
 		session.setAttribute("ACTA_ENTREGA_RECIENTE", creados);
-		session.setAttribute("ACTA_TIPO_MOVIMIENTO", tipoMovimiento);
-
+		session.setAttribute("ACTA_TIPO_MOVIMIENTO", "ACTA_INICIAL");
 		return "redirect:/custodias/actaEntrega";
 	}
 
-	private String procesarTrasladoDesdeFormulario(CustodiasRequestDTO custodia, Model model, HttpSession session) {
+	private String procesarAsignacionViaInventario(CustodiasRequestDTO custodia, HttpSession session,
+			RedirectAttributes redirectAttributes) {
 		if (custodia.getFkCustodio() == null || custodia.getFkCustodio().getIdCustodio() <= 0) {
-			cargarFormularioNuevaCustodia(model, custodia, "Debe seleccionar el custodio destino");
-			return "Custodias/nuevoCustodia";
+			redirectAttributes.addFlashAttribute("error", "Debe seleccionar un custodio");
+			return "redirect:/inventario/asignaciones";
 		}
-
 		if (custodia.getEquiposSeleccionados() == null || custodia.getEquiposSeleccionados().isEmpty()) {
-			cargarFormularioNuevaCustodia(model, custodia, "Debe seleccionar al menos un equipo para traslado");
-			return "Custodias/nuevoCustodia";
+			redirectAttributes.addFlashAttribute("error", "Debe seleccionar al menos un equipo");
+			return "redirect:/inventario/asignaciones";
 		}
 
-		int idCustodioDestino = custodia.getFkCustodio().getIdCustodio();
-		LocalDate fechaTraslado = (custodia.getFechaInicio() != null) ? custodia.getFechaInicio() : LocalDate.now();
-		String obsTraslado = (custodia.getObservacion() == null) ? "" : custodia.getObservacion().trim();
+		AsignacionLoteRequestDTO lote = new AsignacionLoteRequestDTO();
+		lote.setEquipoIds(custodia.getEquiposSeleccionados().stream().distinct().toList());
+		lote.setCustodioId(custodia.getFkCustodio().getIdCustodio());
+		lote.setFechaInicio(custodia.getFechaInicio() != null ? custodia.getFechaInicio() : LocalDate.now());
+		lote.setObservacion(custodia.getObservacion());
 
-		List<CustodiasResponseDTO> custodiasActivas = servicioCustodias.listarCustodias().stream()
-				.filter(x -> x != null && x.isEstado() && x.getFkEquipo() != null && x.getFkEquipo().getIdEquipo() > 0)
-				.toList();
-
-		Map<Integer, CustodiasResponseDTO> activaPorEquipo = new HashMap<>();
-		for (CustodiasResponseDTO c : custodiasActivas) {
-			activaPorEquipo.putIfAbsent(c.getFkEquipo().getIdEquipo(), c);
-		}
-
-		boolean hayNoAsignados = custodia.getEquiposSeleccionados().stream()
-				.anyMatch(idEquipo -> !activaPorEquipo.containsKey(idEquipo));
-		if (hayNoAsignados) {
-			cargarFormularioNuevaCustodia(model, custodia,
-					"Uno o varios equipos seleccionados no tienen custodia activa para trasladar.");
-			return "Custodias/nuevoCustodia";
-		}
-
-		boolean hayMismoCustodio = custodia.getEquiposSeleccionados().stream().map(activaPorEquipo::get)
-				.filter(x -> x != null).anyMatch(x -> {
-					Integer idActual = getIdCustodio(x);
-					return idActual != null && idActual == idCustodioDestino;
-				});
-		if (hayMismoCustodio) {
-			cargarFormularioNuevaCustodia(model, custodia, "Uno o varios equipos ya pertenecen al custodio destino.");
-			return "Custodias/nuevoCustodia";
-		}
-
-		for (Integer idEquipo : custodia.getEquiposSeleccionados().stream().distinct().toList()) {
-			CustodiasResponseDTO activa = activaPorEquipo.get(idEquipo);
-			if (activa == null)
-				continue;
-
-			Integer idCustodioActual = getIdCustodio(activa);
-			int idCustodioOrigen = idCustodioActual != null ? idCustodioActual : 0;
-
-			CustodiasRequestDTO upd = new CustodiasRequestDTO();
-			upd.setIdCustodio(idCustodioOrigen);
-			upd.setFechaInicio(activa.getFechaInicio() != null ? activa.getFechaInicio() : LocalDate.now());
-			upd.setFechaFin(fechaTraslado);
-			upd.setEstado(false);
-			upd.setObservacion(activa.getObservacion() != null ? activa.getObservacion() : "");
-			upd.setTipoMovimiento("TRASLADO");
-
-			if (idCustodioOrigen > 0) {
-				CustodiosRequestDTO c = new CustodiosRequestDTO();
-				c.setIdCustodio(idCustodioOrigen);
-				upd.setFkCustodio(c);
+		try {
+			AsignacionActivosResponseDTO resultado = inventarioOperacionServicio.asignarActivosLote(lote);
+			List<CustodiasResponseDTO> creados = resultado != null ? resultado.getCustodias() : List.of();
+			if (creados.isEmpty()) {
+				redirectAttributes.addFlashAttribute("error", "No se pudo completar la asignación");
+				return "redirect:/inventario/asignaciones";
 			}
-
-			EquiposRequestDTO e = new EquiposRequestDTO();
-			e.setIdEquipo(idEquipo);
-			upd.setEquipos(List.of(e));
-
-			servicioCustodias.actualizarCustodia(activa.getIdCustodiaEquipo(), upd);
+			session.setAttribute("ACTA_ENTREGA_RECIENTE", creados);
+			session.setAttribute("ACTA_TIPO_MOVIMIENTO", "ASIGNACION");
+			return "redirect:/custodias/actaEntrega";
+		} catch (Exception ex) {
+			redirectAttributes.addFlashAttribute("error", "Error al asignar: " + ex.getMessage());
+			return "redirect:/inventario/asignaciones";
 		}
-
-		custodia.setEstado(true);
-		custodia.setFechaInicio(fechaTraslado);
-		if (!obsTraslado.isBlank()) {
-			custodia.setObservacion(obsTraslado);
-		}
-		List<EquiposRequestDTO> equipos = custodia.getEquiposSeleccionados().stream().distinct().map(id -> {
-			EquiposRequestDTO e = new EquiposRequestDTO();
-			e.setIdEquipo(id);
-			return e;
-		}).toList();
-		custodia.setEquipos(equipos);
-		custodia.setFkEquipo(null);
-		custodia.setTipoMovimiento("TRASLADO");
-
-		List<CustodiasResponseDTO> creados = servicioCustodias.crearCustodiaActa(custodia);
-		if (creados == null || creados.isEmpty()) {
-			cargarFormularioNuevaCustodia(model, custodia, "No se pudo completar el traslado");
-			return "Custodias/nuevoCustodia";
-		}
-
-		session.setAttribute("ACTA_ENTREGA_RECIENTE", creados);
-		session.setAttribute("ACTA_TIPO_MOVIMIENTO", "TRASLADO");
-
-		return "redirect:/custodias/actaEntrega";
 	}
 
-	private String procesarBajaDesdeFormulario(CustodiasRequestDTO custodia, Model model, HttpSession session) {
+	private String procesarBajaDesdeFormulario(CustodiasRequestDTO custodia, HttpSession session,
+			RedirectAttributes redirectAttributes) {
 		if (custodia.getEquiposSeleccionados() == null || custodia.getEquiposSeleccionados().isEmpty()) {
-			cargarFormularioNuevaCustodia(model, custodia, "Debe seleccionar al menos un equipo para baja");
-			return "Custodias/nuevoCustodia";
+			redirectAttributes.addFlashAttribute("error", "Debe seleccionar al menos un equipo para baja");
+			return "redirect:/custodias";
 		}
 
 		LocalDate fechaBaja = (custodia.getFechaFin() != null) ? custodia.getFechaFin()
 				: (custodia.getFechaInicio() != null ? custodia.getFechaInicio() : LocalDate.now());
-		String obsBaja = (custodia.getObservacion() == null) ? "" : custodia.getObservacion().trim();
-		if (obsBaja.isBlank()) {
-			obsBaja = "Baja de activo";
-		}
+		String obsBaja = (custodia.getObservacion() == null || custodia.getObservacion().isBlank())
+				? "Baja de activo" : custodia.getObservacion().trim();
+		String autorizadoPor = sesionUsuario.getNombre();
 
-		List<CustodiasResponseDTO> custodiasActivas = servicioCustodias.listarCustodias().stream()
-				.filter(x -> x != null && x.isEstado() && x.getFkEquipo() != null && x.getFkEquipo().getIdEquipo() > 0)
-				.toList();
+		List<Integer> equipoIds = custodia.getEquiposSeleccionados().stream().distinct().toList();
+		List<Integer> exitosos = new ArrayList<>();
+		List<String> errores = new ArrayList<>();
 
-		Map<Integer, CustodiasResponseDTO> activaPorEquipo = new HashMap<>();
-		for (CustodiasResponseDTO c : custodiasActivas) {
-			activaPorEquipo.putIfAbsent(c.getFkEquipo().getIdEquipo(), c);
-		}
-
-		List<Integer> equiposProcesados = custodia.getEquiposSeleccionados().stream().distinct().toList();
-
-		for (Integer idEquipo : equiposProcesados) {
-			CustodiasResponseDTO activa = activaPorEquipo.get(idEquipo);
-			if (activa != null) {
-				Integer idCustodioActual = getIdCustodio(activa);
-				int idCustodio = idCustodioActual != null ? idCustodioActual : 0;
-
-				CustodiasRequestDTO upd = new CustodiasRequestDTO();
-				upd.setIdCustodio(idCustodio);
-				upd.setFechaInicio(activa.getFechaInicio() != null ? activa.getFechaInicio() : LocalDate.now());
-				upd.setFechaFin(fechaBaja);
-				upd.setEstado(false);
-				upd.setObservacion(obsBaja);
-				upd.setTipoMovimiento("BAJA");
-
-				CustodiosRequestDTO c = new CustodiosRequestDTO();
-				c.setIdCustodio(idCustodio);
-				upd.setFkCustodio(c);
-
-				EquiposRequestDTO e = new EquiposRequestDTO();
-				e.setIdEquipo(idEquipo);
-				upd.setEquipos(List.of(e));
-
-				servicioCustodias.actualizarCustodia(activa.getIdCustodiaEquipo(), upd);
-				servicioEquipos.actualizarEstado(idEquipo, false);
+		for (Integer idEquipo : equipoIds) {
+			BajaActivoRequestDTO req = new BajaActivoRequestDTO();
+			req.setEquipoId(idEquipo);
+			req.setFechaBaja(fechaBaja);
+			req.setMotivo(obsBaja);
+			req.setObservacion(obsBaja);
+			req.setAutorizadoPor(autorizadoPor);
+			try {
+				inventarioOperacionServicio.darBajaActivo(req);
+				exitosos.add(idEquipo);
+			} catch (Exception ex) {
+				errores.add("Equipo #" + idEquipo + ": " + ex.getMessage());
 			}
 		}
 
-		List<EquiposResponseDTO> equiposBaja = equiposProcesados.stream().map(servicioEquipos::obtenerPorId)
-				.filter(e -> e != null).toList();
+		if (exitosos.isEmpty()) {
+			redirectAttributes.addFlashAttribute("error",
+					"No se pudo dar de baja ningún equipo: " + String.join("; ", errores));
+			return "redirect:/custodias";
+		}
+
+		List<EquiposResponseDTO> equiposBaja = exitosos.stream()
+				.map(servicioEquipos::obtenerPorId)
+				.filter(e -> e != null)
+				.toList();
 
 		session.setAttribute("ACTA_BAJA_EQUIPOS", equiposBaja);
 		session.setAttribute("ACTA_BAJA_FECHA", fechaBaja);
@@ -375,9 +281,17 @@ public class CustodiasControlador {
 		form.setFechaFin(LocalDate.now());
 		form.setObservacion("Salida de activos");
 
+		List<?> bodegas;
+		try {
+			bodegas = inventarioOperacionServicio.listarBodegas();
+		} catch (Exception ex) {
+			bodegas = List.of();
+		}
+
 		model.addAttribute("cabecera", cabecera);
 		model.addAttribute("detalles", lista);
 		model.addAttribute("form", form);
+		model.addAttribute("bodegas", bodegas);
 		model.addAttribute("tipoMovimiento", tipo);
 		model.addAttribute("fechaActa", fecha);
 		return "Custodias/cerrarCustodia";
@@ -392,7 +306,11 @@ public class CustodiasControlador {
 		}
 		if (form.getDetallesEntregados() == null || form.getDetallesEntregados().isEmpty()) {
 			redirectAttributes.addFlashAttribute("error", "Debes seleccionar al menos un equipo devuelto.");
-			return "redirect:/custodias";
+			return "redirect:/custodias/" + form.getIdCustodio();
+		}
+		if (form.getBodegaDestinoId() == null) {
+			redirectAttributes.addFlashAttribute("error", "Debes seleccionar la bodega de destino.");
+			return "redirect:/custodias/cerrar/" + form.getIdCustodio();
 		}
 
 		List<CustodiasResponseDTO> seleccionadas = servicioCustodias.listarCustodias().stream()
@@ -407,40 +325,50 @@ public class CustodiasControlador {
 		}
 
 		LocalDate fechaFin = form.getFechaFin() != null ? form.getFechaFin() : LocalDate.now();
-		String observacion = (form.getObservacion() == null || form.getObservacion().isBlank()) ? "Salida de activos"
+		String observacion = (form.getObservacion() == null || form.getObservacion().isBlank()) ? "Devolución de activos"
 				: form.getObservacion().trim();
 
+		List<String> errores = new ArrayList<>();
+		List<CustodiasResponseDTO> procesadas = new ArrayList<>();
+
 		for (CustodiasResponseDTO activa : seleccionadas) {
-			Integer idCustodioActual = getIdCustodio(activa);
 			Integer idEquipoActual = getIdEquipo(activa);
-			if (idCustodioActual == null || idEquipoActual == null) {
-				continue;
+			if (idEquipoActual == null) continue;
+
+			try {
+				DevolucionActivoRequestDTO dev = new DevolucionActivoRequestDTO();
+				dev.setEquipoId(idEquipoActual);
+				dev.setBodegaId(form.getBodegaDestinoId());
+				dev.setFechaDevolucion(fechaFin);
+				dev.setObservacion(observacion);
+				dev.setEstadoFisicoRetorno(form.getEstadoFisicoRetorno());
+				dev.setMotivo("Cierre de custodia");
+				inventarioOperacionServicio.devolverActivo(dev);
+				procesadas.add(activa);
+			} catch (Exception ex) {
+				String codigo = (activa.getFkEquipo() != null && activa.getFkEquipo().getCodigoSap() != null)
+						? activa.getFkEquipo().getCodigoSap()
+						: "#" + idEquipoActual;
+				errores.add(codigo + ": " + ex.getMessage());
 			}
-
-			CustodiasRequestDTO upd = new CustodiasRequestDTO();
-			upd.setIdCustodio(idCustodioActual);
-			upd.setFechaInicio(activa.getFechaInicio() != null ? activa.getFechaInicio() : LocalDate.now());
-			upd.setFechaFin(fechaFin);
-			upd.setEstado(false);
-			upd.setObservacion(observacion);
-			upd.setTipoMovimiento("SALIDA");
-
-			CustodiosRequestDTO custodio = new CustodiosRequestDTO();
-			custodio.setIdCustodio(idCustodioActual);
-			upd.setFkCustodio(custodio);
-
-			EquiposRequestDTO equipo = new EquiposRequestDTO();
-			equipo.setIdEquipo(idEquipoActual);
-			upd.setEquipos(List.of(equipo));
-
-			servicioCustodias.actualizarCustodia(activa.getIdCustodiaEquipo(), upd);
 		}
 
-		session.setAttribute("ACTA_SALIDA_RECIENTE", seleccionadas);
+		if (!errores.isEmpty()) {
+			redirectAttributes.addFlashAttribute("error",
+					"Algunos activos no pudieron devolverse: " + String.join("; ", errores));
+		}
+
+		if (procesadas.isEmpty()) {
+			return "redirect:/custodias";
+		}
+
+		session.setAttribute("ACTA_SALIDA_RECIENTE", procesadas);
 		session.setAttribute("ACTA_SALIDA_FECHA", fechaFin);
 		session.setAttribute("ACTA_SALIDA_OBSERVACION", observacion);
 
-		redirectAttributes.addFlashAttribute("exito", "Custodia cerrada correctamente.");
+		if (errores.isEmpty()) {
+			redirectAttributes.addFlashAttribute("exito", "Custodia cerrada correctamente.");
+		}
 		return "redirect:/custodias/actaSalida";
 	}
 
@@ -753,41 +681,6 @@ public class CustodiasControlador {
 		response.getOutputStream().write(pdfBytes);
 		response.getOutputStream().flush();
 		enviarCorreoActaEntrega(lista, pdfBytes, tipoMov);
-	}
-
-	private void cargarFormularioNuevaCustodia(Model model, CustodiasRequestDTO custodia, String error) {
-		Set<Integer> equiposNoDisponibles = obtenerIdsEquiposConCustodiaActiva();
-
-		var equiposActivos = servicioEquipos.listarEquipos().stream().filter(EquiposResponseDTO::isEstado).toList();
-
-		var custodiosActivos = servicioCustodios.listarCustodios().stream().filter(CustodiosResponseDTO::isEstado)
-				.toList();
-
-		var departamentosActivos = servicioDepartamento.listarDepartamentos().stream().filter(d -> d.isEstado())
-				.toList();
-		var cargosActivos = servicioCargo.listarCargos().stream().filter(c -> c.isEstado()).toList();
-		var ubicacionesActivas = servicioUbicacion.listarUbicaciones().stream().filter(u -> u.isEstado()).toList();
-
-		model.addAttribute("listaequipos", equiposActivos);
-		model.addAttribute("listacustodios", custodiosActivos);
-		model.addAttribute("listadepartamentos", departamentosActivos);
-		model.addAttribute("listacargos", cargosActivos);
-		model.addAttribute("listaubicaciones", ubicacionesActivas);
-		model.addAttribute("custodia", custodia);
-		model.addAttribute("equiposNoDisponiblesCount", equiposNoDisponibles.size());
-		model.addAttribute("equiposNoDisponiblesIds", equiposNoDisponibles);
-
-		// Mapa equipoId -> custodioId (para filtrar equipos por custodio origen en
-		// traslado)
-		Map<Integer, Integer> equipoCustodioMap = servicioCustodias.listarCustodias().stream()
-				.filter(x -> x != null && x.isEstado() && x.getFkEquipo() != null && x.getFkCustodio() != null)
-				.collect(Collectors.toMap(x -> x.getFkEquipo().getIdEquipo(), x -> x.getFkCustodio().getIdCustodio(),
-						(a, b) -> a));
-		model.addAttribute("equipoCustodioMap", equipoCustodioMap);
-
-		if (error != null && !error.isBlank()) {
-			model.addAttribute("error", error);
-		}
 	}
 
 	private Set<Integer> obtenerIdsEquiposConCustodiaActiva() {

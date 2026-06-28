@@ -21,10 +21,12 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.Enviar
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.OrdenCompraRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RetornarReparacionRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.ConfirmarLlegadaActivoRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AdoptarInventarioInicialRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarEtiquetaRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ActivoInventarioResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.AsignacionActivosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.BodegaResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ConsumibleResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.MovimientoInventarioResponseDTO;
@@ -166,15 +168,21 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
     }
 
     @Override
+    public List<ActivoInventarioResponseDTO> listarActivosAsignados() {
+        return clienteWeb.get().uri("/inventario/activos/asignados").retrieve()
+                .body(new ParameterizedTypeReference<List<ActivoInventarioResponseDTO>>() {});
+    }
+
+    @Override
     public ActivoInventarioResponseDTO asignarActivo(AsignacionActivoRequestDTO request) {
         return clienteWeb.post().uri("/inventario/asignaciones/activos").body(request).retrieve()
                 .body(ActivoInventarioResponseDTO.class);
     }
 
     @Override
-    public List<ActivoInventarioResponseDTO> asignarActivosLote(AsignacionLoteRequestDTO request) {
+    public AsignacionActivosResponseDTO asignarActivosLote(AsignacionLoteRequestDTO request) {
         return clienteWeb.post().uri("/inventario/asignaciones/activos/lote").body(request).retrieve()
-                .body(new ParameterizedTypeReference<List<ActivoInventarioResponseDTO>>() {});
+                .body(AsignacionActivosResponseDTO.class);
     }
 
     @Override
@@ -275,6 +283,23 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
     public ActivoInventarioResponseDTO registrarEtiqueta(Integer idEquipo, RegistrarEtiquetaRequestDTO request) {
         return clienteWeb.patch()
                 .uri("/inventario/activos/{id}/etiqueta", idEquipo)
+                .body(request)
+                .retrieve()
+                .body(ActivoInventarioResponseDTO.class);
+    }
+
+    @Override
+    public List<ActivoInventarioResponseDTO> listarSinInventario() {
+        return clienteWeb.get()
+                .uri("/inventario/activos/sin-inventario")
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<ActivoInventarioResponseDTO>>() {});
+    }
+
+    @Override
+    public ActivoInventarioResponseDTO adoptarInventarioInicial(Integer idEquipo, AdoptarInventarioInicialRequestDTO request) {
+        return clienteWeb.patch()
+                .uri("/inventario/activos/{id}/adoptar", idEquipo)
                 .body(request)
                 .retrieve()
                 .body(ActivoInventarioResponseDTO.class);

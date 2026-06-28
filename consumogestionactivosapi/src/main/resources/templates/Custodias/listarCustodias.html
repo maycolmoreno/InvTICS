@@ -21,10 +21,15 @@
                     <span>Reporte</span>
                 </a>
             </div>
-            <a th:href="@{/custodias/nueva-custodia}" class="cui-btn cui-btn-primary">
-                <i class="feather-plus" aria-hidden="true"></i>
-                <span>Nueva custodia</span>
+            <a th:href="@{/inventario/asignaciones}" class="cui-btn cui-btn-primary">
+                <i class="feather-user-check" aria-hidden="true"></i>
+                <span>Nueva asignación</span>
             </a>
+        </div>
+
+        <div class="alert alert-info cui-alert d-flex align-items-center gap-2">
+            <i class="feather-info" aria-hidden="true"></i>
+            <span>Las custodias se generan automáticamente al realizar una <a th:href="@{/inventario/asignaciones}" class="fw-semibold">asignación de activos</a> o al adoptar activos en <a th:href="@{/inventario/inventario-inicial}" class="fw-semibold">inventario inicial</a>. Este módulo es de consulta.</span>
         </div>
 
         <div th:if="${exito}" class="alert alert-success cui-alert" th:text="${exito}"></div>
@@ -139,14 +144,23 @@
                                 </td>
                                 <td>
                                     <div class="cui-action-cell">
-                                        <a th:href="@{/custodias/expediente/{id}(id=${acta.idCustodio})}" class="btn btn-outline-primary btn-sm">
+                                        <a th:href="@{/custodias/expediente/{id}(id=${acta.idCustodio})}" class="cui-btn cui-btn-secondary">
                                             Expediente
                                         </a>
                                         <div class="dropdown cui-action-menu">
-                                            <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                            <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                                                 <i class="feather-more-vertical" aria-hidden="true"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
+                                                <th:block th:if="${acta.activa}">
+                                                    <span class="dropdown-header">Desvinculación</span>
+                                                    <a class="dropdown-item text-danger"
+                                                       th:href="@{/custodias/cerrar/{id}(id=${acta.idCustodio})}">
+                                                        <i class="feather-user-x" aria-hidden="true"></i>
+                                                        Iniciar desvinculación
+                                                    </a>
+                                                    <div class="dropdown-divider"></div>
+                                                </th:block>
                                                 <span class="dropdown-header">Documentos de custodia</span>
                                                 <a class="dropdown-item"
                                                    th:href="@{/custodias/acta-entrega/ver/{id}(id=${acta.idCustodio}, tipo=${acta.tipoMovimiento}, fecha=${acta.fechaInicio})}">
@@ -213,7 +227,7 @@
                                                 <table class="table cui-subtable">
                                                     <thead>
                                                     <tr>
-                                                        <th>ID Equipo</th>
+                                                        <th>Código</th>
                                                         <th>Descripcion / Tipo</th>
                                                         <th>Modelo</th>
                                                         <th>N. Serie</th>
@@ -223,12 +237,14 @@
                                                     <tbody>
                                                     <tr th:each="x : ${actaDetalles[acta.key]}">
                                                         <td>
-                                                            <span class="cui-row-title" th:text="${x.fkEquipo != null ? x.fkEquipo.idEquipo : '-'}">ID</span>
+                                                            <span class="cui-row-title"
+                                                                  th:text="${x.fkEquipo != null ? (x.fkEquipo.codigoCresio != null ? x.fkEquipo.codigoCresio : x.fkEquipo.codigoSap) : '-'}">CR-XXX</span>
                                                         </td>
                                                         <td th:if="${x.fkEquipo != null}">
                                                             <div class="cui-row-stack">
-                                                                <span class="cui-row-title" th:text="${x.fkEquipo.codigoSap}">Codigo</span>
-                                                                <span class="cui-row-subtitle" th:text="${x.fkEquipo.codigoSap}">Tipo</span>
+                                                                <span class="cui-row-title" th:text="${x.fkEquipo.modelo ?: '-'}">Modelo</span>
+                                                                <span class="cui-row-subtitle"
+                                                                      th:text="${x.fkEquipo.fkCategoria != null ? x.fkEquipo.fkCategoria.nombre : '-'}">Categoria</span>
                                                             </div>
                                                         </td>
                                                         <td th:unless="${x.fkEquipo != null}" class="text-muted">-</td>

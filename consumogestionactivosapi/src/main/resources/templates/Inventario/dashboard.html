@@ -3,169 +3,246 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{plantilla/plantillaui}">
 <head>
-    <title>Centro Operacional de Inventario</title>
+    <title>Dashboard Operativo</title>
 </head>
 <body>
-<div layout:fragment="contenidopaginas" class="itam-page">
-    <div class="main-content">
-        <div class="itam-shell">
-            <div th:replace="~{fragments/shell/page-header :: pageHeader(
-                    title='Centro Operacional de Inventario',
-                    subtitle='Pendientes, riesgos y movimientos que requieren atencion del equipo TI.')}"></div>
+<div layout:fragment="contenidopaginas">
+<div class="cui-page">
 
-            <section class="cui-command-bar" aria-label="Acceso rapido">
-                <form th:action="@{/equipos}" method="get" class="cui-search">
-                    <i class="feather-search" aria-hidden="true"></i>
-                    <input type="search" name="q" placeholder="Buscar activo, serial, custodio u OC...">
-                </form>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <a th:each="accion, stat : ${centro.quickActions}"
-                       th:if="${stat.index < 2}"
-                       th:href="${accion.href}"
-                       class="cui-btn"
-                       th:classappend="${accion.variante == 'primary'} ? ' cui-btn-primary' : ' cui-btn-secondary'">
-                        <i th:class="${accion.icono}" aria-hidden="true"></i>
-                        <span th:text="${accion.titulo}">Accion</span>
-                    </a>
+    <!-- ── Header ───────────────────────────────────────────────────────── -->
+    <div class="cui-db-page-header">
+        <div>
+            <h1 class="cui-page-title">Dashboard Operativo</h1>
+            <p class="cui-page-subtitle">Resumen general de la operación de activos, custodias e inventario.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a th:href="@{/mantenimiento/nuevo}" class="cui-btn cui-btn-secondary">
+                <i class="feather-tool" aria-hidden="true"></i>
+                <span>Nueva orden</span>
+            </a>
+            <a th:href="@{/inventario/inventario-inicial}" class="cui-btn cui-btn-primary">
+                <i class="feather-plus" aria-hidden="true"></i>
+                <span>Registrar activo</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ── KPI Strip ──────────────────────────────────────────────────────── -->
+    <div class="cui-stat-strip">
+        <div class="cui-stat-item">
+            <span class="cui-stat-value"
+                  th:text="${#numbers.formatInteger(centro.totalActivos, 0, 'COMMA')}">0</span>
+            <span class="cui-stat-label">Activos registrados</span>
+        </div>
+        <span class="cui-stat-sep"></span>
+        <div class="cui-stat-item">
+            <span class="cui-stat-value"
+                  th:text="${#numbers.formatInteger(centro.activosAsignados, 0, 'COMMA')}">0</span>
+            <span class="cui-stat-label">Custodias activas</span>
+            <span class="cui-stat-meta" th:if="${centro.totalActivos > 0}"
+                  th:text="${#numbers.formatDecimal(centro.activosAsignados * 100.0 / centro.totalActivos, 1, 1) + '% asignados'}"></span>
+        </div>
+        <span class="cui-stat-sep"></span>
+        <div class="cui-stat-item" th:classappend="${centro.activosEnReparacion > 0} ? ' is-warning' : ''">
+            <span class="cui-stat-value"
+                  th:text="${#numbers.formatInteger(centro.activosEnReparacion, 0, 'COMMA')}">0</span>
+            <span class="cui-stat-label">En reparacion</span>
+        </div>
+        <span class="cui-stat-sep"></span>
+        <div class="cui-stat-item"
+             th:classappend="${!#lists.isEmpty(centro.riesgos)} ? ' is-danger' : ''">
+            <span class="cui-stat-value" th:text="${#lists.size(centro.riesgos)}">0</span>
+            <span class="cui-stat-label">Alertas activas</span>
+            <span class="cui-stat-meta"
+                  th:if="${!#lists.isEmpty(centro.riesgos)}">Requieren atencion</span>
+        </div>
+    </div>
+
+    <!-- ── Main layout: columna principal + lateral ──────────────────────── -->
+    <div class="cui-db-main">
+
+        <!-- ── Columna principal ─────────────────────────────────────────── -->
+        <div class="cui-db-col-main">
+
+            <!-- Acciones rapidas -->
+            <div class="cui-exp-card">
+                <div class="cui-exp-card-header">
+                    <h2>Acciones rapidas</h2>
                 </div>
-            </section>
-
-            <section class="cui-risk-panel">
-                <div class="cui-risk-header">
-                    <div>
-                        <p class="cui-eyebrow">Hoy</p>
-                        <h2 class="cui-row-title">Pendientes principales</h2>
-                    </div>
-                    <span class="cui-badge cui-badge-info" th:text="${centro.pendientesHoy + ' pendientes'}">0 pendientes</span>
-                </div>
-                <div class="cui-detail-grid">
-                    <a th:each="bandeja, stat : ${centro.bandejas}"
-                       th:if="${stat.index < 4}"
-                       th:href="${bandeja.href}"
-                       class="cui-detail-item">
-                        <span th:text="${bandeja.titulo}">Bandeja</span>
-                        <strong th:text="${bandeja.cantidad}">0</strong>
-                    </a>
-                </div>
-            </section>
-
-            <div class="cui-expediente-layout">
-                <main>
-                    <section class="cui-exp-card mb-4">
-                        <div class="cui-exp-card-header">
-                            <h2 class="cui-row-title">Bandejas de trabajo</h2>
-                            <span class="cui-badge cui-badge-muted">Operacion</span>
-                        </div>
-                        <div class="cui-exp-card-body">
-                            <div class="cui-data-grid" th:if="${!#lists.isEmpty(centro.bandejas)}">
-                                <div class="table-responsive">
-                                    <table class="table cui-table">
-                                        <thead>
-                                        <tr>
-                                            <th>Bandeja</th>
-                                            <th>Prioridad</th>
-                                            <th class="text-end">Pendientes</th>
-                                            <th class="text-end">Accion</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr th:each="bandeja : ${centro.bandejas}">
-                                            <td>
-                                                <div class="cui-row-stack">
-                                                    <span class="cui-row-title">
-                                                        <i th:class="${bandeja.icono}" aria-hidden="true"></i>
-                                                        <span th:text="${bandeja.titulo}">Bandeja</span>
-                                                    </span>
-                                                    <span class="cui-row-subtitle" th:text="${bandeja.descripcion}">Descripcion</span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span th:replace="~{fragments/components/status-badge :: statusBadge(label=${bandeja.prioridad}, state=${bandeja.prioridad})}"></span>
-                                            </td>
-                                            <td class="text-end">
-                                                <strong th:text="${bandeja.cantidad}">0</strong>
-                                            </td>
-                                            <td class="text-end">
-                                                <a th:href="${bandeja.href}" class="cui-btn cui-btn-secondary">
-                                                    <span th:text="${bandeja.accionTexto}">Abrir</span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div th:if="${#lists.isEmpty(centro.bandejas)}"
-                                 th:replace="~{fragments/components/empty-state :: empty(icon='feather-inbox', title='Sin bandejas disponibles', message='No hay pendientes operativos para mostrar.')}"></div>
-                        </div>
-                    </section>
-
-                    <section class="cui-exp-card">
-                        <div class="cui-exp-card-header">
-                            <h2 class="cui-row-title">Timeline reciente</h2>
-                            <a th:href="@{/inventario/movimientos}" class="cui-badge cui-badge-info">Ver movimientos</a>
-                        </div>
-                        <div class="cui-exp-card-body">
-                            <div class="cui-activity-timeline" th:if="${!#lists.isEmpty(centro.movimientosRecientes)}">
-                                <article class="cui-activity-item" th:each="movimiento : ${centro.movimientosRecientes}">
-                                    <span class="cui-activity-dot"></span>
-                                    <div>
-                                        <strong th:text="${movimiento.titulo}">Movimiento</strong>
-                                        <p th:text="${movimiento.detalle}">Detalle</p>
-                                        <span class="cui-activity-time"
-                                              th:text="${movimiento.fecha != null ? #temporals.format(movimiento.fecha, 'dd/MM/yyyy HH:mm') : 'Sin fecha'}">Fecha</span>
-                                    </div>
-                                </article>
-                            </div>
-                            <div th:if="${#lists.isEmpty(centro.movimientosRecientes)}"
-                                 th:replace="~{fragments/components/empty-state :: empty(icon='feather-activity', title='Sin movimientos recientes', message='Cuando exista actividad de inventario aparecera en este timeline.')}"></div>
-                        </div>
-                    </section>
-                </main>
-
-                <aside>
-                    <section class="cui-risk-panel mb-4">
-                        <div class="cui-risk-header">
+                <div class="cui-exp-card-body">
+                    <div class="cui-db-quick-grid" th:unless="${#lists.isEmpty(centro.quickActions)}">
+                        <a th:each="accion : ${centro.quickActions}"
+                           th:href="${accion.href}"
+                           class="cui-db-quick-card">
+                            <i th:class="${accion.icono}" aria-hidden="true"></i>
                             <div>
-                                <p class="cui-eyebrow">Riesgos</p>
-                                <h2 class="cui-row-title">Atencion operativa</h2>
+                                <strong th:text="${accion.titulo}">Accion</strong>
+                                <small th:text="${accion.descripcion}">Descripcion</small>
                             </div>
-                        </div>
-                        <div class="cui-risk-list" th:if="${!#lists.isEmpty(centro.riesgos)}">
-                            <a th:each="riesgo : ${centro.riesgos}" th:href="${riesgo.href}" class="cui-risk-item">
-                                <span class="cui-risk-dot" th:classappend="${riesgo.severidad == 'alta'} ? ' is-danger' : ' is-warning'"></span>
-                                <div>
-                                    <strong th:text="${riesgo.titulo}">Riesgo</strong>
-                                    <p th:text="${riesgo.descripcion}">Descripcion</p>
-                                </div>
-                            </a>
-                        </div>
-                        <div th:if="${#lists.isEmpty(centro.riesgos)}"
-                             th:replace="~{fragments/components/empty-state :: empty(icon='feather-check-circle', title='Sin riesgos visibles', message='No hay alertas operativas con los datos actuales.')}"></div>
-                    </section>
+                        </a>
+                    </div>
+                    <div class="cui-db-empty" th:if="${#lists.isEmpty(centro.quickActions)}">
+                        <i class="feather-zap" aria-hidden="true"></i>
+                        <p>No hay acciones configuradas</p>
+                    </div>
+                </div>
+            </div>
 
-                    <section class="cui-exp-card">
-                        <div class="cui-exp-card-header">
-                            <h2 class="cui-row-title">Quick Actions</h2>
-                        </div>
-                        <div class="cui-exp-card-body">
-                            <div class="cui-action-list">
-                                <a th:each="accion : ${centro.quickActions}"
-                                   th:href="${accion.href}"
-                                   class="cui-action-row">
-                                    <i th:class="${accion.icono}" aria-hidden="true"></i>
-                                    <span>
-                                        <strong th:text="${accion.titulo}">Accion</strong>
-                                        <small th:text="${accion.descripcion}">Descripcion</small>
-                                    </span>
-                                </a>
+            <!-- Actividad reciente -->
+            <div class="cui-exp-card">
+                <div class="cui-exp-card-header">
+                    <h2>Actividad reciente</h2>
+                </div>
+                <div class="cui-exp-card-body">
+                    <div class="cui-db-empty" th:if="${#lists.isEmpty(centro.movimientosRecientes)}">
+                        <i class="feather-activity" aria-hidden="true"></i>
+                        <p>Sin actividad reciente registrada</p>
+                    </div>
+                    <div class="cui-activity-timeline"
+                         th:unless="${#lists.isEmpty(centro.movimientosRecientes)}">
+                        <article th:each="m, stat : ${centro.movimientosRecientes}"
+                                 th:if="${stat.index < 6}"
+                                 class="cui-activity-item">
+                            <span class="cui-activity-dot is-success"></span>
+                            <div>
+                                <strong th:text="${m.titulo}">Movimiento</strong>
+                                <p th:text="${m.detalle}">Detalle</p>
+                            </div>
+                            <span class="cui-activity-time"
+                                  th:text="${m.fecha != null ? #temporals.format(m.fecha, 'dd/MM HH:mm') : '—'}">Fecha</span>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Columna lateral ───────────────────────────────────────────── -->
+        <div class="cui-db-col-side">
+
+            <!-- Alertas operativas -->
+            <div class="cui-exp-card">
+                <div class="cui-exp-card-header">
+                    <h2>Alertas operativas</h2>
+                    <span class="cui-badge cui-badge-critico"
+                          th:if="${!#lists.isEmpty(centro.riesgos)}"
+                          th:text="${#lists.size(centro.riesgos) + ' activas'}">0</span>
+                </div>
+                <div class="cui-exp-card-body">
+                    <div class="cui-db-empty" th:if="${#lists.isEmpty(centro.riesgos)}">
+                        <i class="feather-check-circle" aria-hidden="true"></i>
+                        <p>Sin alertas activas. La operacion esta en orden.</p>
+                    </div>
+                    <div class="cui-db-alert-list" th:unless="${#lists.isEmpty(centro.riesgos)}">
+                        <div th:each="r : ${centro.riesgos}"
+                             class="cui-db-alert-item"
+                             th:classappend="${r.severidad == 'alta'} ? ' is-danger' : ' is-warning'">
+                            <i class="feather-alert-circle"
+                               th:class="${r.severidad == 'alta'} ? 'feather-alert-circle' : 'feather-alert-triangle'"
+                               aria-hidden="true"></i>
+                            <div>
+                                <a th:href="${r.href}" class="cui-db-alert-title"
+                                   th:text="${r.titulo}">Alerta</a>
+                                <p class="cui-db-alert-desc" th:text="${r.descripcion}">Descripcion</p>
                             </div>
                         </div>
-                    </section>
-                </aside>
+                    </div>
+                </div>
+                <div class="cui-db-card-footer" th:unless="${#lists.isEmpty(centro.riesgos)}"></div>
+            </div>
+
+            <!-- Estado de activos -->
+            <div class="cui-exp-card">
+                <div class="cui-exp-card-header">
+                    <h2>Estado de activos</h2>
+                </div>
+                <div class="cui-exp-card-body cui-db-donut-layout">
+                    <div class="cui-db-donut-wrap">
+                        <canvas id="donutEstado" width="148" height="148"></canvas>
+                        <div class="cui-db-donut-center">
+                            <strong th:text="${#numbers.formatInteger(centro.totalActivos, 0, 'COMMA')}">0</strong>
+                            <span>Total</span>
+                        </div>
+                    </div>
+                    <ul class="cui-db-legend">
+                        <li>
+                            <span class="cui-db-dot cui-db-dot-primary"></span>
+                            <span class="cui-db-legend-label">Asignados</span>
+                            <strong th:text="${centro.activosAsignados}">0</strong>
+                            <em th:if="${centro.totalActivos > 0}"
+                                th:text="${#numbers.formatDecimal(centro.activosAsignados * 100.0 / centro.totalActivos, 1, 1) + '%'}"></em>
+                        </li>
+                        <li>
+                            <span class="cui-db-dot cui-db-dot-blue"></span>
+                            <span class="cui-db-legend-label">En bodega</span>
+                            <strong th:text="${centro.activosEnBodega}">0</strong>
+                            <em th:if="${centro.totalActivos > 0}"
+                                th:text="${#numbers.formatDecimal(centro.activosEnBodega * 100.0 / centro.totalActivos, 1, 1) + '%'}"></em>
+                        </li>
+                        <li>
+                            <span class="cui-db-dot cui-db-dot-purple"></span>
+                            <span class="cui-db-legend-label">En reparacion</span>
+                            <strong th:text="${centro.activosEnReparacion}">0</strong>
+                            <em th:if="${centro.totalActivos > 0}"
+                                th:text="${#numbers.formatDecimal(centro.activosEnReparacion * 100.0 / centro.totalActivos, 1, 1) + '%'}"></em>
+                        </li>
+                        <li>
+                            <span class="cui-db-dot cui-db-dot-amber"></span>
+                            <span class="cui-db-legend-label">En transito</span>
+                            <strong th:text="${centro.activosEnTransito}">0</strong>
+                            <em th:if="${centro.totalActivos > 0}"
+                                th:text="${#numbers.formatDecimal(centro.activosEnTransito * 100.0 / centro.totalActivos, 1, 1) + '%'}"></em>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+(function () {
+    var primary  = getComputedStyle(document.documentElement).getPropertyValue('--cui-primary').trim() || '#1d4ed8';
+    var warning  = getComputedStyle(document.documentElement).getPropertyValue('--cui-warning').trim() || '#d97706';
+
+    var asignados    = /*[[${centro.activosAsignados}]]*/ 0;
+    var enBodega     = /*[[${centro.activosEnBodega}]]*/ 0;
+    var enReparacion = /*[[${centro.activosEnReparacion}]]*/ 0;
+    var enTransito   = /*[[${centro.activosEnTransito}]]*/ 0;
+
+    var ctxD = document.getElementById('donutEstado');
+    if (ctxD) {
+        new Chart(ctxD, {
+            type: 'doughnut',
+            data: {
+                labels: ['Asignados', 'En bodega', 'En reparacion', 'En transito'],
+                datasets: [{
+                    data: [asignados, enBodega, enReparacion, enTransito],
+                    backgroundColor: [primary, '#3b82f6', '#a78bfa', warning],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ' ' + ctx.label + ': ' + ctx.parsed;
+                            }
+                        }
+                    }
+                },
+                responsive: false
+            }
+        });
+    }
+}());
+</script>
 </div>
 </body>
 </html>
