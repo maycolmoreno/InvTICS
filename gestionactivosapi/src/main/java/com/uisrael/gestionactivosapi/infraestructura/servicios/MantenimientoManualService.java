@@ -191,7 +191,8 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
     }
 
     @Transactional
-    public MantenimientoManualResponseDTO cerrar(Integer idMantenimiento, String descripcionTrabajoRealizado) {
+    public MantenimientoManualResponseDTO cerrar(Integer idMantenimiento, String descripcionTrabajoRealizado,
+            String resultadoTecnico, String cerradoPor) {
         MantenimientosJpa mantenimiento = mantenimientosRepo.findById(idMantenimiento)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mantenimiento no encontrado"));
         mantenimiento.setDescripcion(actualizarDescripcionCierre(
@@ -199,6 +200,12 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
                 descripcionTrabajoRealizado));
         mantenimiento.setEstadoInterno(EstadoInternoMantenimiento.CERRADO);
         mantenimiento.setFecCierre(LocalDateTime.now());
+        if (resultadoTecnico != null && !resultadoTecnico.isBlank()) {
+            mantenimiento.setResultadoTecnico(resultadoTecnico);
+        }
+        if (cerradoPor != null && !cerradoPor.isBlank()) {
+            mantenimiento.setCerradoPor(cerradoPor);
+        }
         mantenimientosRepo.save(mantenimiento);
 
         List<MantenimientoEquipoJpa> equiposOrden = mantenimientoEquipoRepo.findByMantenimientoId(idMantenimiento);
@@ -378,6 +385,9 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
                 .estado(Boolean.TRUE.equals(mantenimiento.getActivo()))
                 .estadoInterno(mantenimiento.getEstadoInterno() != null ? mantenimiento.getEstadoInterno().name() : null)
                 .creadoEn(mantenimiento.getCreadoEn())
+                .resultadoTecnico(mantenimiento.getResultadoTecnico())
+                .cerradoPor(mantenimiento.getCerradoPor())
+                .cerradoEn(mantenimiento.getFecCierre())
                 .actividades(actividades)
                 .imagenes(imagenes)
                 .equipos(equiposDtoList)

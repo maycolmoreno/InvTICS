@@ -35,10 +35,13 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoPro
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.PaginaResponse;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.EnviarReparacionRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RetornarReparacionRequestDTO;
 import com.uisrael.consumogestionactivosapi.service.IActividadChecklistServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
+import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio;
 import com.uisrael.consumogestionactivosapi.service.IMantenimientoManualServicio;
 import com.uisrael.consumogestionactivosapi.service.IMantenimientoProgramadoServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
@@ -63,6 +66,7 @@ public class MantenimientoControlador {
     private final ICustodiosServicio custodiosServicio;
     private final IUsuariosServicio usuariosServicio;
     private final IUbicacionesServicio ubicacionesServicio;
+    private final IInventarioOperacionServicio inventarioOperacionServicio;
     private final SesionUsuario sesionUsuario;
 
     @GetMapping
@@ -111,19 +115,173 @@ public class MantenimientoControlador {
         model.addAttribute("listaprogramados", mantenimientoProgramadoServicio.listarTodos());
         model.addAttribute("vencidosProximos", mantenimientoProgramadoServicio.listarVencidosYProximos());
 
+        try {
+            model.addAttribute("activosEnReparacion", inventarioOperacionServicio.listarActivosEnReparacion());
+        } catch (Exception ex) {
+            model.addAttribute("activosEnReparacion", List.of());
+        }
+        try {
+            model.addAttribute("activosEnBodega", inventarioOperacionServicio.listarActivosEnBodega());
+        } catch (Exception ex) {
+            model.addAttribute("activosEnBodega", List.of());
+        }
+        try {
+            model.addAttribute("bodegas", inventarioOperacionServicio.listarBodegas());
+        } catch (Exception ex) {
+            model.addAttribute("bodegas", List.of());
+        }
+        model.addAttribute("enviarReparacionRequest", new EnviarReparacionRequestDTO());
+        model.addAttribute("retornarReparacionRequest", new RetornarReparacionRequestDTO());
+
         return "mantenimiento/lista-mantenimientos";
     }
 
+    @PostMapping("/reparaciones/enviar")
+    public String enviarReparacion(
+            @ModelAttribute EnviarReparacionRequestDTO request,
+            @RequestParam(required = false) String modalidad,
+            @RequestParam(required = false) String prioridad,
+            @RequestParam(required = false) Integer tecnicoId,
+            @RequestParam(required = false) LocalDate fechaEstimadaRetorno,
+            @RequestParam(required = false) Integer custodioIdForm,
+            RedirectAttributes redirect) {
+
+        // Resolver custodioId: primero del formulario, luego de la custodia activa del equipo
+        Integer custodioId = custodioIdForm;
+        if (custodioId == null && request.getEquipoId() != null) {
+            try {
+                custodioId = custodiasServicio.listarCustodias().stream()
+                        .filter(CustodiasResponseDTO::isEstado)
+                        .filter(c -> c.getFkEquipo() != null
+                                && c.getFkEquipo().getIdEquipo().equals(request.getEquipoId()))
+                        .map(this::idCustodio)
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElse(null);
+            } catch (Exception ex) {
+                log.warn("No se pudo resolver custodioId para equipo {}: {}", request.getEquipoId(), ex.getMessage());
+            }
+        }
+
+        // Resolver nombre del técnico para firmaTecnico
+        String firmaTecnico = null;
+        if (tecnicoId != null) {
+            try {
+                firmaTecnico = usuariosServicio.listarUsuario().stream()
+                        .filter(u -> u.getIdUsuario().equals(tecnicoId))
+                        .map(com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponseDTO::getNombre)
+                        .findFirst()
+                        .orElse(null);
+            } catch (Exception ex) {
+                log.warn("No se pudo resolver nombre de tecnico {}: {}", tecnicoId, ex.getMessage());
+            }
+        }
+
+        // Crear OT vinculada si tenemos custodioId
+        if (custodioId != null && request.getEquipoId() != null) {
+            try {
+                MantenimientoManualRequestDTO otDto = new MantenimientoManualRequestDTO();
+                otDto.setEquipoIds(List.of(request.getEquipoId()));
+                otDto.setCustodioId(custodioId);
+                otDto.setTipoMantenimiento("CORRECTIVO");
+                otDto.setFechaMantenimiento(
+                        request.getFechaEnvio() != null ? request.getFechaEnvio() : LocalDate.now());
+                otDto.setProximaFecha(fechaEstimadaRetorno);
+                otDto.setFirmaTecnico(firmaTecnico);
+                otDto.setEstadoGeneral("EN_PROCESO");
+
+                StringBuilder detalle = new StringBuilder(
+                        request.getMotivo() != null ? request.getMotivo() : "Envio a reparacion");
+                if (modalidad != null && !modalidad.isBlank())
+                    detalle.append(" | Modalidad: ").append(modalidad);
+                if (request.getProveedorTecnico() != null && !request.getProveedorTecnico().isBlank())
+                    detalle.append(" | Taller: ").append(request.getProveedorTecnico());
+                if (prioridad != null && !prioridad.isBlank())
+                    detalle.append(" | Prioridad: ").append(prioridad);
+                if (request.getObservacion() != null && !request.getObservacion().isBlank())
+                    detalle.append(" | ").append(request.getObservacion());
+                otDto.setDetalle(detalle.toString());
+
+                mantenimientoManualServicio.crear(otDto);
+                redirect.addFlashAttribute("otCreada", true);
+            } catch (Exception ex) {
+                log.warn("OT no pudo crearse para equipo {}: {}", request.getEquipoId(), ex.getMessage());
+                redirect.addFlashAttribute("otWarning", "El activo fue enviado a reparacion pero la OT no pudo registrarse: " + ex.getMessage());
+            }
+        } else if (custodioId == null) {
+            redirect.addFlashAttribute("otWarning",
+                    "El activo fue enviado a reparacion sin OT vinculada (no se encontro custodio responsable).");
+        }
+
+        // Ejecutar el cambio de estado del activo (siempre)
+        try {
+            var activo = inventarioOperacionServicio.enviarAReparacion(request);
+            redirect.addFlashAttribute("success", "Activo " + activo.getCodigoCresio() + " enviado a reparacion.");
+        } catch (Exception ex) {
+            redirect.addFlashAttribute("error", "No se pudo enviar a reparacion: " + ex.getMessage());
+        }
+        return "redirect:/mantenimiento";
+    }
+
+    @PostMapping("/reparaciones/retornar")
+    public String retornarReparacion(
+            @ModelAttribute RetornarReparacionRequestDTO request,
+            @RequestParam(required = false) String resultadoTecnico,
+            @RequestParam(required = false) String costoReal,
+            RedirectAttributes redirect) {
+
+        // 1. Cambiar estado del activo (siempre primero)
+        String codigoActivo = null;
+        try {
+            var activo = inventarioOperacionServicio.retornarDeReparacion(request);
+            codigoActivo = activo.getCodigoCresio();
+            redirect.addFlashAttribute("success", "Activo " + codigoActivo + " retornado a bodega.");
+        } catch (Exception ex) {
+            redirect.addFlashAttribute("error", "No se pudo retornar de reparacion: " + ex.getMessage());
+            return "redirect:/mantenimiento";
+        }
+
+        // 2. Cerrar OT activa vinculada al equipo
+        if (request.getEquipoId() != null) {
+            try {
+                List<MantenimientoManualResponseDTO> historial =
+                        mantenimientoManualServicio.obtenerHistorial(request.getEquipoId());
+
+                historial.stream()
+                        .filter(ot -> "EN_PROCESO".equals(ot.getEstadoInterno())
+                                || "PENDIENTE".equals(ot.getEstadoInterno()))
+                        .max(java.util.Comparator.comparing(
+                                ot -> ot.getCreadoEn() != null ? ot.getCreadoEn()
+                                        : java.time.LocalDateTime.MIN))
+                        .ifPresent(ot -> {
+                            try {
+                                mantenimientoManualServicio.cerrar(ot.getIdMantenimiento(), resultadoTecnico, null);
+                                redirect.addFlashAttribute("otCerrada", true);
+                            } catch (Exception ex) {
+                                log.warn("No se pudo cerrar OT {} al retornar equipo {}: {}",
+                                        ot.getIdMantenimiento(), request.getEquipoId(), ex.getMessage());
+                                redirect.addFlashAttribute("otWarning",
+                                        "El activo fue retornado pero la OT no pudo cerrarse automaticamente.");
+                            }
+                        });
+            } catch (Exception ex) {
+                log.warn("No se pudo obtener historial de OT para equipo {}: {}",
+                        request.getEquipoId(), ex.getMessage());
+            }
+        }
+
+        // 3. Banner de baja si el resultado lo requiere
+        if ("IRREPARABLE".equals(resultadoTecnico) || "REQUIERE_BAJA".equals(resultadoTecnico)) {
+            redirect.addFlashAttribute("requiereBaja", true);
+            redirect.addFlashAttribute("codigoActivoBaja", codigoActivo);
+        }
+
+        return "redirect:/mantenimiento";
+    }
+
     @GetMapping("/kanban")
-    public String kanban(Model model) {
-        List<MantenimientoManualResponseDTO> mantenimientos = mantenimientoManualServicio.listarTodos();
-        model.addAttribute("pendientes", filtrarPorEstadoKanban(mantenimientos, "PENDIENTE"));
-        model.addAttribute("enProceso", filtrarPorEstadoKanban(mantenimientos, "EN_PROCESO"));
-        model.addAttribute("esperandoRepuesto", filtrarPorEstadoKanban(mantenimientos, "ESPERANDO_REPUESTO"));
-        model.addAttribute("finalizados", filtrarPorEstadoKanban(mantenimientos, "FINALIZADO"));
-        model.addAttribute("totalMantenimientos", mantenimientos.size());
-        model.addAttribute("mantenimientos", mantenimientos);
-        return "mantenimiento/kanban";
+    public String kanban() {
+        return "redirect:/mantenimiento?view=kanban";
     }
 
     @GetMapping("/nuevo")
@@ -309,43 +467,27 @@ public class MantenimientoControlador {
     }
 
     @GetMapping("/historial/{equipoId}")
-    public String historial(@PathVariable Integer equipoId, Model model) {
-        model.addAttribute("historial", mantenimientoManualServicio.obtenerHistorial(equipoId));
-        model.addAttribute("equipo", equiposServicio.obtenerPorId(equipoId));
-        return "mantenimiento/historial-mantenimiento";
+    public String historial(@PathVariable Integer equipoId) {
+        return "redirect:/activos/equipos/" + equipoId + "/expediente#tab-mantenimientos";
     }
 
     @PostMapping("/cerrar/{id}")
-    public String cerrar(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-        mantenimientoManualServicio.cerrar(id);
-        redirectAttributes.addFlashAttribute("exito", "Orden cerrada correctamente");
+    public String cerrar(@PathVariable Integer id,
+                         @RequestParam(required = false) String resultadoTecnico,
+                         @RequestParam(required = false) String observacionCierre,
+                         RedirectAttributes redirectAttributes) {
+        mantenimientoManualServicio.cerrar(id, resultadoTecnico, observacionCierre);
+        String msg = "Orden cerrada correctamente.";
+        if (resultadoTecnico != null && !resultadoTecnico.isBlank()) {
+            msg += " Resultado: " + resultadoTecnico;
+        }
+        redirectAttributes.addFlashAttribute("exito", msg);
         return "redirect:/mantenimiento/" + id;
     }
 
     @GetMapping("/programado")
-    public String programado(Model model) {
-        List<MantenimientoProgramadoResponseDTO> programados = mantenimientoProgramadoServicio.listarTodos();
-        model.addAttribute("listaprogramados", programados);
-        model.addAttribute("listaequipos", equiposServicio.listarEquipos());
-        model.addAttribute("listausuarios", usuariosServicio.listarUsuario().stream().filter(UsuariosResponseDTO::isEstado).toList());
-        model.addAttribute("vencidosProximos", mantenimientoProgramadoServicio.listarVencidosYProximos());
-
-        // Datos para el toggle Administrativo/Farmacia
-        List<CustodiasResponseDTO> custodiasActivas = custodiasServicio.listarCustodias().stream()
-                .filter(CustodiasResponseDTO::isEstado)
-                .filter(c -> idCustodio(c) != null && c.getFkEquipo() != null)
-                .toList();
-        Map<Integer, String> custodiosPorEquipo = custodiasActivas.stream()
-                .collect(Collectors.groupingBy(
-                        c -> c.getFkEquipo().getIdEquipo(),
-                        LinkedHashMap::new,
-                        Collectors.mapping(c -> String.valueOf(idCustodio(c)),
-                                Collectors.collectingAndThen(Collectors.toList(), ids -> String.join(",", ids)))));
-        model.addAttribute("custodiosActivos", custodiosServicio.listarCustodios().stream().filter(CustodiosResponseDTO::isEstado).toList());
-        model.addAttribute("listaubicaciones", ubicacionesServicio.listarUbicaciones().stream().filter(UbicacionesResponseDTO::isEstado).toList());
-        model.addAttribute("custodiosPorEquipo", custodiosPorEquipo);
-
-        return "mantenimiento/mantenimiento-programado";
+    public String programado() {
+        return "redirect:/mantenimiento?view=programados";
     }
 
     @PostMapping("/programado/guardar")
@@ -360,36 +502,6 @@ public class MantenimientoControlador {
         mantenimientoProgramadoServicio.desactivar(idProgramado);
         redirectAttributes.addFlashAttribute("exito", "Programacion desactivada correctamente");
         return "redirect:/mantenimiento/programado";
-    }
-
-    private List<MantenimientoManualResponseDTO> filtrarPorEstadoKanban(
-            List<MantenimientoManualResponseDTO> mantenimientos, String columna) {
-        return mantenimientos.stream()
-                .filter(m -> columna.equals(clasificarEstadoKanban(m)))
-                .toList();
-    }
-
-    private String clasificarEstadoKanban(MantenimientoManualResponseDTO mantenimiento) {
-        String estado = normalizarEstado(mantenimiento.getEstadoInterno() + " " + mantenimiento.getEstadoGeneral());
-        if (estado.contains("FINAL") || estado.contains("CERR") || Boolean.FALSE.equals(mantenimiento.getEstado())) {
-            return "FINALIZADO";
-        }
-        if (estado.contains("REPUEST") || estado.contains("ESPER")) {
-            return "ESPERANDO_REPUESTO";
-        }
-        if (estado.contains("PROCES") || estado.contains("EJEC") || estado.contains("CURSO")) {
-            return "EN_PROCESO";
-        }
-        return "PENDIENTE";
-    }
-
-    private String normalizarEstado(String value) {
-        return Objects.toString(value, "").trim().toUpperCase()
-                .replace("Á", "A")
-                .replace("É", "E")
-                .replace("Í", "I")
-                .replace("Ó", "O")
-                .replace("Ú", "U");
     }
 
     private List<ActividadManualRequestDTO> actividadesBase() {

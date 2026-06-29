@@ -128,8 +128,14 @@ public class MantenimientoManualServicioImpl implements IMantenimientoManualServ
 	}
 
 	@Override
-	public MantenimientoManualResponseDTO cerrar(Integer id) {
-		return clienteWeb.post().uri("/mantenimiento/cerrar/{id}", id).retrieve()
+	public MantenimientoManualResponseDTO cerrar(Integer id, String resultadoTecnico, String observacionCierre) {
+		java.util.Map<String, String> body = new java.util.HashMap<>();
+		if (resultadoTecnico != null) body.put("resultadoTecnico", resultadoTecnico);
+		if (observacionCierre != null) body.put("observacionCierre", observacionCierre);
+		return clienteWeb.post().uri("/mantenimiento/cerrar/{id}", id)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(body)
+				.retrieve()
 				.body(MantenimientoManualResponseDTO.class);
 	}
 

@@ -1,203 +1,396 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{plantilla/plantillaui}">
-<head><title>Detalle Mantenimiento</title></head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{plantilla/plantillaui}">
+<head><title>Orden de Trabajo</title></head>
 <body>
 <div layout:fragment="contenidopaginas">
-    <div class="page-shell">
-        <div class="operations-strip">
-            <div class="operations-hero">
-                <div class="eyebrow text-white-50">Orden tecnica</div>
-                <h2 th:text="${'Seguimiento operativo de la orden #' + mantenimiento.idMantenimiento}">Seguimiento operativo</h2>
-                <div class="operations-badges">
-                    <div class="operations-badge"><i class="feather-tool"></i><span th:text="${mantenimiento.tipoMantenimiento ?: 'MANTENIMIENTO'}">MANTENIMIENTO</span></div>
-                    <div class="operations-badge"><i class="feather-user"></i><span th:text="${mantenimiento.tecnicoNombre ?: 'Sin tecnico'}">Sin tecnico</span></div>
-                    <div class="operations-badge"><i class="feather-check-circle"></i><span th:text="${mantenimiento.estadoInterno ?: 'PENDIENTE'}">PENDIENTE</span></div>
+<div class="cui-page"
+     th:with="esCerrada=${mantenimiento.estadoInterno == 'CERRADO' or mantenimiento.estadoInterno == 'FINALIZADO'},
+              totalAct=${#lists.size(mantenimiento.actividades)},
+              realizadas=${#lists.size(mantenimiento.actividades.?[realizada == true])},
+              progreso=${totalAct == 0 ? 0 : (realizadas * 100 / totalAct)}">
+
+    <!-- ── Breadcrumb ──────────────────────────────────────────── -->
+    <nav class="cui-breadcrumb" aria-label="breadcrumb">
+        <a th:href="@{/mantenimiento}" class="cui-breadcrumb-link">
+            <i class="feather-home" aria-hidden="true"></i>
+        </a>
+        <span class="cui-breadcrumb-sep" aria-hidden="true">›</span>
+        <a th:href="@{/mantenimiento}" class="cui-breadcrumb-link">Mantenimiento</a>
+        <span class="cui-breadcrumb-sep" aria-hidden="true">›</span>
+        <span class="cui-breadcrumb-current" th:text="'OT-' + ${mantenimiento.idMantenimiento}">OT-00001</span>
+    </nav>
+
+    <!-- ── Alertas flash ───────────────────────────────────────── -->
+    <div th:if="${exito}"  class="alert alert-success cui-alert" th:text="${exito}"></div>
+    <div th:if="${error}"  class="alert alert-danger  cui-alert" th:text="${error}"></div>
+
+    <!-- ── Header de entidad ───────────────────────────────────── -->
+    <header class="cui-entity-header">
+        <div class="cui-entity-photo">
+            <i class="feather-clipboard" aria-hidden="true"></i>
+        </div>
+        <div class="cui-entity-heading">
+            <nav class="cui-breadcrumbs" aria-label="Identificador">
+                <span class="text-muted small">Orden de Trabajo</span>
+            </nav>
+            <h1 class="cui-entity-title" th:text="'OT-' + ${#numbers.formatInteger(mantenimiento.idMantenimiento, 5)}">OT-00001</h1>
+            <p class="cui-entity-subtitle" th:text="${mantenimiento.equipoDescripcion ?: (mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos) ? mantenimiento.equipos[0].descripcion : 'Sin equipo')}">Equipo</p>
+            <div class="cui-meta-row">
+                <div class="cui-meta-item">
+                    <span class="cui-meta-label">Estado</span>
+                    <span class="cui-badge"
+                          th:classappend="${esCerrada} ? ' cui-badge-asignado' : (${mantenimiento.estadoInterno == 'EN_PROCESO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
+                          th:text="${mantenimiento.estadoInterno ?: 'PENDIENTE'}">PENDIENTE</span>
                 </div>
-            </div>
-            <div class="surface-card insight-panel">
-                <div class="content-card-header mb-0">
-                    <div>
-                        <h2 class="content-card-title">Resumen de ejecucion</h2>
-                    </div>
+                <span class="cui-meta-sep" aria-hidden="true">·</span>
+                <div class="cui-meta-item">
+                    <span class="cui-meta-label">Tipo</span>
+                    <span class="cui-badge"
+                          th:classappend="${mantenimiento.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'"
+                          th:text="${mantenimiento.tipoMantenimiento ?: 'PREVENTIVO'}">PREVENTIVO</span>
                 </div>
-                <div class="insight-list">
-                    <div class="insight-item" th:with="total=${#lists.size(mantenimiento.actividades)}, realizadas=${#lists.size(mantenimiento.actividades.?[realizada == true])}">
-                        <i class="feather-check-square"></i>
-                        <div>
-                            <div class="signal-title">Checklist</div>
-                        </div>
-                        <div class="insight-value" th:text="${realizadas} + '/' + ${total}">0/0</div>
-                    </div>
-                    <div class="insight-item">
-                        <i class="feather-image"></i>
-                        <div>
-                            <div class="signal-title">Evidencias</div>
-                        </div>
-                        <div class="insight-value" th:text="${mantenimiento.imagenes != null ? #lists.size(mantenimiento.imagenes) : 0}">0</div>
-                    </div>
-                    <div class="insight-item">
-                        <i class="feather-edit-3"></i>
-                        <div>
-                            <div class="signal-title">Firmas</div>
-                        </div>
-                        <div class="insight-value" th:text="${(mantenimiento.firmaTecnico != null ? 1 : 0) + (mantenimiento.firmaCustodio != null ? 1 : 0)} + '/2'">0/2</div>
-                    </div>
+                <span class="cui-meta-sep" aria-hidden="true">·</span>
+                <div class="cui-meta-item">
+                    <span class="cui-meta-label">Fecha</span>
+                    <span class="cui-meta-value" th:text="${mantenimiento.fechaMantenimiento ?: '—'}">—</span>
+                </div>
+                <span class="cui-meta-sep" aria-hidden="true">·</span>
+                <div class="cui-meta-item">
+                    <span class="cui-meta-label">Tecnico</span>
+                    <span class="cui-meta-value" th:text="${mantenimiento.tecnicoNombre ?: '—'}">—</span>
+                </div>
+                <span class="cui-meta-sep" aria-hidden="true">·</span>
+                <div class="cui-meta-item">
+                    <span class="cui-meta-label">Custodio</span>
+                    <span class="cui-meta-value" th:text="${mantenimiento.custodioNombre ?: '—'}">—</span>
                 </div>
             </div>
         </div>
-
-        <div class="view-heading">
-            <div>
-                <div class="eyebrow">Mantenimiento &gt; Vista detallada</div>
-                <h1 class="view-title" th:text="${'Orden #' + mantenimiento.idMantenimiento}">Orden #2026-0001</h1>
-                <div class="view-subtitle">
-                    <span class="status-pill is-progress" th:text="${mantenimiento.tipoMantenimiento ?: 'PREVENTIVO'}">PREVENTIVO</span>
-                    <span class="ms-3">Tecnico: <strong th:text="${mantenimiento.tecnicoNombre ?: '-'}">Tecnico</strong></span>
-                </div>
-                <div class="d-flex gap-2 mt-3">
-                    <a class="cui-btn cui-btn-secondary" th:href="@{/mantenimiento}">Atras</a>
-                    <a class="cui-btn cui-btn-secondary" th:href="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/pdf'}" target="_blank">Ver PDF</a>
-                    <form th:action="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/reenviar-correo'}" method="post">
-                        <button type="submit" class="cui-btn cui-btn-secondary">Reenviar correo</button>
-                    </form>
-                </div>
-            </div>
-            <form th:action="@{'/mantenimiento/cerrar/' + ${mantenimiento.idMantenimiento}}" method="post">
-                <button type="submit" class="cui-btn cui-btn-primary">Completar mantenimiento</button>
+        <div class="cui-entity-actions">
+            <a th:href="@{/mantenimiento}" class="cui-btn cui-btn-secondary">
+                <i class="feather-arrow-left" aria-hidden="true"></i>
+                <span>Atras</span>
+            </a>
+            <a th:href="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/pdf'}"
+               target="_blank" class="cui-btn cui-btn-secondary">
+                <i class="feather-file-text" aria-hidden="true"></i>
+                <span>PDF</span>
+            </a>
+            <form th:action="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/reenviar-correo'}"
+                  method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="cui-btn cui-btn-secondary">
+                    <i class="feather-mail" aria-hidden="true"></i>
+                    <span>Reenviar correo</span>
+                </button>
             </form>
+            <button th:if="${!esCerrada}" type="button"
+                    class="cui-btn cui-btn-primary"
+                    data-cui-drawer-open="#drawerCerrarOT">
+                <i class="feather-check-circle" aria-hidden="true"></i>
+                <span>Completar OT</span>
+            </button>
+            <span th:if="${esCerrada}" class="cui-badge cui-badge-asignado">Orden cerrada</span>
         </div>
+    </header>
 
-        <div class="info-chip-row">
-            <div class="info-chip"><i class="feather-calendar"></i><span>Fecha <strong th:text="${mantenimiento.fechaMantenimiento ?: '-'}">-</strong></span></div>
-            <div class="info-chip"><i class="feather-user-check"></i><span>Custodio <strong th:text="${mantenimiento.custodioNombre ?: '-'}">-</strong></span></div>
-            <div class="info-chip"><i class="feather-file-text"></i><span>Observaciones <strong th:text="${mantenimiento.detalle != null and !#strings.isEmpty(mantenimiento.detalle) ? 'registradas' : 'pendientes'}">pendientes</strong></span></div>
+    <!-- ── Progreso (solo cuando no está cerrada) ─────────────── -->
+    <div th:if="${!esCerrada}" class="cui-summary-strip">
+        <div class="cui-summary-item" th:classappend="${progreso == 100} ? ' is-ok' : ''">
+            <span class="cui-summary-label">Checklist</span>
+            <strong class="cui-summary-value" th:text="${realizadas + '/' + totalAct}">0/0</strong>
         </div>
+        <span class="cui-summary-sep" aria-hidden="true">·</span>
+        <div class="cui-summary-item">
+            <span class="cui-summary-label">Progreso</span>
+            <strong class="cui-summary-value" th:classappend="${progreso < 50} ? ' danger' : (${progreso < 100} ? ' warning' : '')"
+                    th:text="${progreso + '%'}">0%</strong>
+        </div>
+        <span class="cui-summary-sep" aria-hidden="true">·</span>
+        <div class="cui-summary-item">
+            <span class="cui-summary-label">Evidencias</span>
+            <strong class="cui-summary-value" th:text="${mantenimiento.imagenes != null ? #lists.size(mantenimiento.imagenes) : 0}">0</strong>
+        </div>
+        <span class="cui-summary-sep" aria-hidden="true">·</span>
+        <div class="cui-summary-item">
+            <span class="cui-summary-label">Firmas</span>
+            <strong class="cui-summary-value"
+                    th:text="${(mantenimiento.firmaTecnico != null ? 1 : 0) + (mantenimiento.firmaCustodio != null ? 1 : 0)} + '/2'">0/2</strong>
+        </div>
+    </div>
 
-        <div class="maintenance-layout">
-            <div>
-                <div class="maintenance-hero">
-                    <div class="surface-card maintenance-id-card">
-                        <div class="maintenance-product-shot">
-                            <img th:if="${mantenimiento.imagenes != null and !#lists.isEmpty(mantenimiento.imagenes)}" th:src="@{'/' + ${mantenimiento.imagenes[0].rutaArchivo}}" alt="equipo">
-                            <i th:unless="${mantenimiento.imagenes != null and !#lists.isEmpty(mantenimiento.imagenes)}" class="feather-printer" style="font-size:42px; color:#173774;"></i>
-                        </div>
-                        <div>
-                            <div class="maintenance-id-label">Equipos de la orden</div>
-                            <div th:if="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}">
-                                <div th:each="equipo : ${mantenimiento.equipos}" class="mb-2">
-                                    <div class="maintenance-id-title" th:text="${equipo.descripcion ?: 'Equipo sin descripcion'}"></div>
-                                    <div class="maintenance-id-serial"># Serial: <strong th:text="${equipo.codigoSap ?: '-'}"></strong></div>
-                                </div>
-                            </div>
-                            <div th:unless="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}">
-                                <div class="maintenance-id-title" th:text="${mantenimiento.equipoDescripcion ?: 'Equipo sin descripcion'}"></div>
-                                <div class="maintenance-id-serial"># Serial: <strong th:text="${mantenimiento.equipoCodigoSap ?: '-'}"></strong></div>
-                            </div>
-                            <div class="maintenance-pill-row">
-                                <span class="status-pill is-progress" th:text="${mantenimiento.estadoInterno ?: 'EN PROCESO'}">EN PROCESO</span>
-                                <span class="status-pill is-active" th:text="${mantenimiento.tipoMantenimiento ?: 'PREVENTIVO'}">PREVENTIVO</span>
-                                <span th:if="${mantenimiento.totalEquipos != null and mantenimiento.totalEquipos > 1}" class="status-pill"
-                                    th:text="${mantenimiento.totalEquipos + ' equipos'}"></span>
-                            </div>
-                        </div>
-                        <div class="maintenance-assignee">
-                            <div class="maintenance-id-label mb-3">Tecnico asignado</div>
-                            <div class="maintenance-assignee-body">
-                                <div class="maintenance-assignee-avatar">TC</div>
-                                <div>
-                                    <div class="device-name" th:text="${mantenimiento.tecnicoNombre ?: '-'}"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="surface-card maintenance-progress-card">
-                        <div class="maintenance-id-label">Progreso de la Orden</div>
-                        <div th:with="total=${#lists.size(mantenimiento.actividades)}, realizadas=${#lists.size(mantenimiento.actividades.?[realizada == true])}, progreso=${total == 0 ? 0 : (realizadas * 100 / total)}">
-                        <div class="maintenance-progress-value"
-                            th:text="${progreso} + '%'">66%</div>
-                        <div class="progress-rail mb-3"><div class="progress-fill" th:style="'width:' + ${progreso} + '%'"></div></div>
-                        <div class="mb-4">
-                            <span th:text="${realizadas}">0</span>
-                            de
-                            <span th:text="${total}">0</span>
-                            tareas completadas
-                        </div>
-                        </div>
-                        <form th:action="@{'/mantenimiento/cerrar/' + ${mantenimiento.idMantenimiento}}" method="post">
-                            <button type="submit" class="cui-btn cui-btn-secondary w-100">Finalizar reporte</button>
-                        </form>
-                    </div>
+    <!-- ── Layout de dos columnas ─────────────────────────────── -->
+    <div class="cui-detail-layout" style="display:grid;grid-template-columns:1fr 320px;gap:1.25rem;align-items:start">
+
+        <!-- Columna principal -->
+        <div class="d-flex flex-column gap-3">
+
+            <!-- Equipos de la orden -->
+            <div class="cui-card">
+                <div class="cui-card-header">
+                    <h2 class="cui-card-title">
+                        <i class="feather-monitor me-2" aria-hidden="true"></i>
+                        Equipos de la orden
+                    </h2>
+                    <span class="cui-badge cui-badge-en-bodega"
+                          th:text="${mantenimiento.totalEquipos != null ? mantenimiento.totalEquipos + ' equipo(s)' : '1 equipo'}">1 equipo</span>
                 </div>
-
-                <div class="surface-card maintenance-board mt-4">
-                    <div class="section-heading">
-                        <h2 class="section-title">Checklist de Mantenimiento</h2>
-                        <div class="device-meta" th:text="${mantenimiento.creadoEn != null ? 'Actualizado ' + #temporals.format(mantenimiento.creadoEn, 'dd/MM/yyyy HH:mm') : 'Actualizado hace unos momentos'}">Actualizado hace unos momentos</div>
-                    </div>
-                    <div class="checklist-list">
-                        <div th:each="act : ${mantenimiento.actividades}" class="checklist-row" th:classappend="${act.realizada} ? '' : ' pending'">
-                            <div class="checklist-icon">
-                                <i th:class="${act.realizada} ? 'feather-check' : 'feather-refresh-cw'"></i>
-                            </div>
-                            <div>
-                                <div class="checklist-name" th:text="${act.nombreActividad}"></div>
-                                <div class="checklist-note" th:text="${act.categoriaActividad ?: 'Actividad operativa'}"></div>
-                            </div>
-                            <div class="status-pill" th:classappend="${act.realizada} ? ' is-completed' : ' is-pending'" th:text="${act.realizada} ? 'Completado' : 'Pendiente'"></div>
-                            <div class="checklist-toggle"><i class="feather-check"></i></div>
+                <div class="cui-card-body">
+                    <div th:if="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}"
+                         class="d-flex flex-column gap-2">
+                        <div th:each="eq : ${mantenimiento.equipos}" class="cui-row-stack border-bottom pb-2">
+                            <span class="cui-row-title" th:text="${eq.descripcion ?: 'Equipo sin descripcion'}">Equipo</span>
+                            <span class="cui-row-subtitle" th:text="${'Cod: ' + (eq.codigoSap ?: '—')}">Cod</span>
                         </div>
                     </div>
-                </div>
-
-                <div class="surface-card maintenance-evidence-card mt-4">
-                    <div class="section-heading">
-                        <h2 class="section-title">Evidencia del Mantenimiento</h2>
-                        <div class="link-action">Agregar foto</div>
-                    </div>
-                    <div class="evidence-grid">
-                        <div class="evidence-tile" th:each="img : ${mantenimiento.imagenes}">
-                            <img th:src="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/imagen/' + ${img.nombreArchivo}}" alt="evidencia">
-                        </div>
-                        <div class="status-empty" th:if="${mantenimiento.imagenes == null or #lists.isEmpty(mantenimiento.imagenes)}" style="grid-column:1/-1;">
-                            <i class="feather-image"></i>
-                            <div>No se han cargado evidencias para esta orden.</div>
-                        </div>
-                        <div class="evidence-tile evidence-upload">
-                            <div>
-                                <div class="mb-2"><i class="feather-camera" style="font-size:30px;"></i></div>
-                                <div>Subir</div>
-                            </div>
-                        </div>
+                    <div th:unless="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}"
+                         class="cui-row-stack">
+                        <span class="cui-row-title" th:text="${mantenimiento.equipoDescripcion ?: 'Equipo sin descripcion'}">Equipo</span>
+                        <span class="cui-row-subtitle" th:text="${'Cod: ' + (mantenimiento.equipoCodigoSap ?: '—')}">Cod</span>
                     </div>
                 </div>
             </div>
 
-            <div>
-                <div class="surface-card maintenance-side-card">
-                    <div class="section-title mb-4">Panel de Autorizaciones</div>
-                    <div class="mb-4">
-                        <div class="maintenance-id-label mb-3">Firma del Tecnico</div>
-                        <div class="signature-shell">
-                            <img th:if="${mantenimiento.firmaTecnico}" th:src="${mantenimiento.firmaTecnico}" alt="firma tecnico">
-                            <div th:unless="${mantenimiento.firmaTecnico}">Pendiente de firma</div>
-                        </div>
+            <!-- Checklist -->
+            <div class="cui-card">
+                <div class="cui-card-header">
+                    <h2 class="cui-card-title">
+                        <i class="feather-check-square me-2" aria-hidden="true"></i>
+                        Checklist de actividades
+                    </h2>
+                    <span class="cui-meta-value small" th:text="${mantenimiento.creadoEn != null ? 'Actualizado ' + #temporals.format(mantenimiento.creadoEn, 'dd/MM/yyyy HH:mm') : ''}"></span>
+                </div>
+                <div class="cui-card-body p-0">
+                    <div th:if="${#lists.isEmpty(mantenimiento.actividades)}" class="p-4 text-muted small">
+                        Sin actividades registradas en esta orden.
                     </div>
-                    <div>
-                        <div class="maintenance-id-label mb-3">Firma del Custodio</div>
-                        <div class="signature-shell">
-                            <img th:if="${mantenimiento.firmaCustodio}" th:src="${mantenimiento.firmaCustodio}" alt="firma custodio">
-                            <div th:unless="${mantenimiento.firmaCustodio}">Pendiente de firma</div>
+                    <div th:each="act : ${mantenimiento.actividades}"
+                         class="d-flex align-items-center gap-3 px-4 py-3 border-bottom">
+                        <i th:class="${act.realizada} ? 'feather-check-circle text-success' : 'feather-circle text-muted'"
+                           aria-hidden="true"></i>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small" th:text="${act.nombreActividad}">Actividad</div>
+                            <div class="text-muted" style="font-size:.75rem" th:text="${act.categoriaActividad ?: 'Actividad operativa'}">Categoria</div>
                         </div>
+                        <span class="cui-badge"
+                              th:classappend="${act.realizada} ? ' cui-badge-asignado' : ' cui-badge-en-bodega'"
+                              th:text="${act.realizada} ? 'Completado' : 'Pendiente'">Pendiente</span>
                     </div>
                 </div>
+            </div>
 
-                <div class="surface-card notes-card mt-4">
-                    <div class="section-title mb-4">Notas de Observacion</div>
-                    <div class="notes-area" th:text="${mantenimiento.detalle ?: 'Sin observaciones registradas.'}"></div>
+            <!-- Evidencias -->
+            <div class="cui-card">
+                <div class="cui-card-header">
+                    <h2 class="cui-card-title">
+                        <i class="feather-image me-2" aria-hidden="true"></i>
+                        Evidencias
+                    </h2>
+                </div>
+                <div class="cui-card-body">
+                    <div th:if="${mantenimiento.imagenes == null or #lists.isEmpty(mantenimiento.imagenes)}"
+                         class="text-muted small">No se han cargado evidencias para esta orden.</div>
+                    <div th:unless="${mantenimiento.imagenes == null or #lists.isEmpty(mantenimiento.imagenes)}"
+                         class="d-flex flex-wrap gap-2">
+                        <img th:each="img : ${mantenimiento.imagenes}"
+                             th:src="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/imagen/' + ${img.nombreArchivo}}"
+                             alt="evidencia"
+                             style="width:120px;height:90px;object-fit:cover;border-radius:6px;border:1px solid var(--cui-border-color)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna lateral -->
+        <div class="d-flex flex-column gap-3">
+
+            <!-- Resumen de cierre (solo cuando cerrada) -->
+            <div class="cui-card" th:if="${esCerrada and mantenimiento.resultadoTecnico != null}">
+                <div class="cui-card-header">
+                    <h2 class="cui-card-title">
+                        <i class="feather-check-circle me-2" aria-hidden="true"></i>
+                        Cierre tecnico
+                    </h2>
+                    <span class="cui-badge cui-badge-asignado">Cerrado</span>
+                </div>
+                <div class="cui-card-body d-flex flex-column gap-2">
+                    <div>
+                        <p class="small fw-semibold mb-1">Resultado</p>
+                        <p class="small" th:text="${mantenimiento.resultadoTecnico}">—</p>
+                    </div>
+                    <div th:if="${mantenimiento.cerradoPor != null}">
+                        <p class="small fw-semibold mb-1">Cerrado por</p>
+                        <p class="small" th:text="${mantenimiento.cerradoPor}">—</p>
+                    </div>
+                    <div th:if="${mantenimiento.cerradoEn != null}">
+                        <p class="small fw-semibold mb-1">Fecha de cierre</p>
+                        <p class="small" th:text="${#temporals.format(mantenimiento.cerradoEn, 'dd/MM/yyyy HH:mm')}">—</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra de progreso (solo cuando no cerrada) -->
+            <div class="cui-card" th:if="${!esCerrada}">
+                <div class="cui-card-header">
+                    <h2 class="cui-card-title">Progreso</h2>
+                    <span class="cui-meta-value" th:text="${progreso + '%'}">0%</span>
+                </div>
+                <div class="cui-card-body">
+                    <div class="progress mb-3" style="height:8px;border-radius:4px">
+                        <div class="progress-bar"
+                             th:classappend="${progreso < 50} ? ' bg-danger' : (${progreso < 100} ? ' bg-warning' : ' bg-success')"
+                             role="progressbar"
+                             th:style="'width:' + ${progreso} + '%'"
+                             th:attr="aria-valuenow=${progreso}"
+                             aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <p class="small text-muted mb-3" th:text="${realizadas + ' de ' + totalAct + ' actividades completadas'}">0 de 0</p>
+                    <button type="button" class="cui-btn cui-btn-primary w-100"
+                            data-cui-drawer-open="#drawerCerrarOT">
+                        <i class="feather-check-circle" aria-hidden="true"></i>
+                        Completar OT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="cui-card">
+                <div class="cui-card-header">
+                    <h2 class="cui-card-title">
+                        <i class="feather-file-text me-2" aria-hidden="true"></i>
+                        Observaciones
+                    </h2>
+                </div>
+                <div class="cui-card-body">
+                    <p class="small" th:text="${mantenimiento.detalle ?: 'Sin observaciones registradas.'}">—</p>
+                </div>
+            </div>
+
+            <!-- Firmas -->
+            <div class="cui-card">
+                <div class="cui-card-header">
+                    <h2 class="cui-card-title">
+                        <i class="feather-edit-3 me-2" aria-hidden="true"></i>
+                        Autorizaciones
+                    </h2>
+                </div>
+                <div class="cui-card-body d-flex flex-column gap-3">
+                    <div>
+                        <p class="small fw-semibold mb-1">Firma del tecnico</p>
+                        <img th:if="${mantenimiento.firmaTecnico}"
+                             th:src="${mantenimiento.firmaTecnico}"
+                             alt="firma tecnico"
+                             style="max-width:100%;border:1px solid var(--cui-border-color);border-radius:6px">
+                        <span th:unless="${mantenimiento.firmaTecnico}"
+                              class="cui-badge cui-badge-en-bodega">Pendiente</span>
+                    </div>
+                    <div>
+                        <p class="small fw-semibold mb-1">Firma del custodio</p>
+                        <img th:if="${mantenimiento.firmaCustodio}"
+                             th:src="${mantenimiento.firmaCustodio}"
+                             alt="firma custodio"
+                             style="max-width:100%;border:1px solid var(--cui-border-color);border-radius:6px">
+                        <span th:unless="${mantenimiento.firmaCustodio}"
+                              class="cui-badge cui-badge-en-bodega">Pendiente</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- ── Drawer: Completar OT ────────────────────────────────── -->
+    <aside class="cui-drawer" id="drawerCerrarOT" aria-hidden="true" aria-label="Completar orden de trabajo">
+        <div class="cui-drawer-header">
+            <div>
+                <div class="fw-bold">Completar orden de trabajo</div>
+                <div class="small text-muted" th:text="'OT-' + ${#numbers.formatInteger(mantenimiento.idMantenimiento, 5)}">OT-00001</div>
+            </div>
+            <button type="button" class="cui-icon-btn" data-cui-drawer-close aria-label="Cerrar">
+                <i class="feather-x"></i>
+            </button>
+        </div>
+        <div class="cui-drawer-body">
+            <form th:action="@{'/mantenimiento/cerrar/' + ${mantenimiento.idMantenimiento}}"
+                  method="post" class="row g-3">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <!-- Resultado tecnico — obligatorio (RN-004) -->
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Resultado tecnico <span class="text-danger">*</span></label>
+                    <select class="form-select" name="resultadoTecnico" required id="cerrarResultadoSel">
+                        <option value="">Seleccione el resultado</option>
+                        <option value="REPARADO">RT-01 — Reparado (funcional al 100%)</option>
+                        <option value="INSPECCIONADO">RT-02 — Inspeccionado sin fallas</option>
+                        <option value="MANTENIMIENTO_REALIZADO">RT-03 — Mantenimiento preventivo realizado</option>
+                        <option value="PARCIALMENTE_REPARADO">RT-04 — Parcialmente reparado</option>
+                        <option value="PENDIENTE_REPUESTO">RT-05 — Pendiente de repuesto</option>
+                        <option value="DERIVADO_GARANTIA">RT-06 — Derivado a garantia</option>
+                        <option value="IRREPARABLE">RT-07 — Irreparable</option>
+                        <option value="REQUIERE_BAJA">RT-08 — Requiere baja</option>
+                        <option value="GARANTIA_APLICADA">RT-09 — Garantia aplicada</option>
+                        <option value="CONFIGURADO">RT-10 — Configurado / reinstalado</option>
+                        <option value="ACTUALIZADO">RT-11 — Actualizado</option>
+                        <option value="INSTALADO">RT-12 — Instalado</option>
+                    </select>
+                    <div id="cerrarResultadoHint" class="form-text text-muted"></div>
+                </div>
+
+                <!-- Aviso de progreso incompleto -->
+                <div class="col-12" th:if="${progreso < 100}">
+                    <div class="alert alert-warning mb-0 py-2 px-3 small">
+                        <i class="feather-alert-triangle me-1"></i>
+                        El checklist no esta completo (<span th:text="${realizadas}">0</span>/<span th:text="${totalAct}">0</span> actividades).
+                        Puedes cerrar igual si las actividades restantes no aplican.
+                    </div>
+                </div>
+
+                <!-- Observacion de cierre -->
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Observacion de cierre</label>
+                    <textarea class="form-control" name="observacionCierre" rows="3"
+                              placeholder="Descripcion del trabajo realizado, piezas cambiadas, condiciones de entrega..."></textarea>
+                </div>
+
+                <div class="col-12 d-flex justify-content-end gap-2">
+                    <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                    <button type="submit" class="cui-btn cui-btn-primary">
+                        <i class="feather-check-circle" aria-hidden="true"></i>
+                        Confirmar cierre
+                    </button>
+                </div>
+            </form>
+        </div>
+    </aside>
+
+</div>
+
+<script>
+(function () {
+    var HINTS = {
+        'REPARADO': 'El activo queda operativo. Se recomienda retornar a bodega.',
+        'INSPECCIONADO': 'Inspeccion completada sin anomalias detectadas.',
+        'MANTENIMIENTO_REALIZADO': 'Mantenimiento preventivo ejecutado segun plan.',
+        'PARCIALMENTE_REPARADO': 'Funcional con limitaciones. Requiere seguimiento.',
+        'PENDIENTE_REPUESTO': 'La OT queda cerrada pero el activo espera repuesto.',
+        'DERIVADO_GARANTIA': 'Se deriva al proveedor bajo garantia.',
+        'IRREPARABLE': 'No tiene reparacion viable. Iniciar proceso de baja.',
+        'REQUIERE_BAJA': 'Estado critico. Se recomienda baja formal.',
+        'GARANTIA_APLICADA': 'Reparacion cubierta por garantia sin costo.',
+        'CONFIGURADO': 'Sistema reinstalado o configurado.',
+        'ACTUALIZADO': 'Firmware o software actualizado.',
+        'INSTALADO': 'Equipo instalado en destino final.'
+    };
+    var sel  = document.getElementById('cerrarResultadoSel');
+    var hint = document.getElementById('cerrarResultadoHint');
+    if (sel && hint) {
+        sel.addEventListener('change', function () {
+            hint.textContent = HINTS[sel.value] || '';
+        });
+    }
+}());
+</script>
 </div>
 </body>
 </html>

@@ -29,7 +29,7 @@ public interface IMantenimientoManualServicio {
 
     List<MantenimientoManualResponseDTO> obtenerHistorial(Integer equipoId);
 
-    MantenimientoManualResponseDTO cerrar(Integer id);
+    MantenimientoManualResponseDTO cerrar(Integer id, String resultadoTecnico, String observacionCierre);
 
     byte[] descargarPdf(Integer id);
 

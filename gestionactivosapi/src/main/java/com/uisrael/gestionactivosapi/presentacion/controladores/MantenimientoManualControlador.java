@@ -143,9 +143,13 @@ public class MantenimientoManualControlador {
 
     @PostMapping("/cerrar/{id}")
     public MantenimientoManualResponseDTO cerrar(@PathVariable Integer id,
-            @RequestBody(required = false) CerrarMantenimientoRequestDTO request) {
+            @RequestBody(required = false) CerrarMantenimientoRequestDTO request,
+            Principal principal) {
+        String cerradoPor = principal != null ? principal.getName() : "sistema";
         MantenimientoManualResponseDTO cerrado = mantenimientoService.cerrar(id,
-                request != null ? request.getDescripcionTrabajoRealizado() : null);
+                request != null ? request.getDescripcionTrabajoRealizado() : null,
+                request != null ? request.getResultadoTecnico() : null,
+                cerradoPor);
         try {
             mantenimientoInformeService.generarGuardarYEnviar(cerrado);
         } catch (Exception e) {

@@ -445,6 +445,30 @@
                                     </div>
                                     <span class="cui-badge cui-badge-asignado">OK</span>
                                 </div>
+
+                                <!-- Próximo mantenimiento programado (desde OTs activas con proximaFecha) -->
+                                <div th:with="otConFecha=${mantenimientos.?[estadoInterno != 'CERRADO' and proximaFecha != null]}"
+                                     th:if="${!#lists.isEmpty(otConFecha)}">
+                                    <div th:with="ot=${otConFecha[0]},
+                                                  hoy=${T(java.time.LocalDate).now()},
+                                                  diasRestantes=${T(java.time.temporal.ChronoUnit).DAYS.between(hoy, ot.proximaFecha)}"
+                                         th:classappend="${diasRestantes < 0} ? 'cui-risk-card cui-risk-card-danger' : (${diasRestantes <= 7} ? 'cui-risk-card cui-risk-card-warning' : 'cui-risk-card cui-risk-card-info')"
+                                         class="cui-risk-card">
+                                        <div class="cui-risk-card-icon">
+                                            <i class="feather-calendar" aria-hidden="true"></i>
+                                        </div>
+                                        <div class="cui-risk-card-body">
+                                            <strong th:text="${diasRestantes < 0} ? 'Mantenimiento vencido' : (${diasRestantes == 0} ? 'Mantenimiento hoy' : 'Proximo mantenimiento'">Proximo mantenimiento</strong>
+                                            <p>
+                                                <span th:text="${#temporals.format(ot.proximaFecha, 'dd/MM/yyyy')}">Fecha</span>
+                                                <span th:if="${diasRestantes >= 0}" th:text="'(' + ${diasRestantes} + ' días)'"></span>
+                                                <span th:if="${diasRestantes < 0}" th:text="'(' + ${-diasRestantes} + ' días de atraso)'"></span>
+                                            </p>
+                                        </div>
+                                        <a th:href="@{/mantenimiento/{id}(id=${ot.idMantenimiento})}"
+                                           class="cui-btn cui-btn-secondary">Ver OT</a>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Columna 3: Linea de tiempo -->
@@ -709,12 +733,13 @@
                                     <th>Tecnico</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
+                                    <th>Resultado</th>
                                     <th class="text-end">Acciones</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:if="${#lists.isEmpty(mantenimientos)}">
-                                    <td colspan="5">
+                                    <td colspan="6">
                                         <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-tool', title='Sin mantenimientos', message='No hay mantenimientos registrados para este activo.')}"></div>
                                     </td>
                                 </tr>
@@ -732,6 +757,12 @@
                                               th:with="estadoMant=${m.estadoInterno ?: (m.estadoGeneral ?: 'PENDIENTE')}"
                                               th:classappend="${estadoMant == 'CERRADO'} ? ' cui-badge-asignado' : (${estadoMant == 'EN_PROCESO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
                                               th:text="${estadoMant}">Estado</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${m.resultadoTecnico != null}"
+                                              class="cui-badge cui-badge-asignado small"
+                                              th:text="${m.resultadoTecnico}">—</span>
+                                        <span th:unless="${m.resultadoTecnico != null}" class="text-muted small">—</span>
                                     </td>
                                     <td>
                                         <div class="cui-action-cell">

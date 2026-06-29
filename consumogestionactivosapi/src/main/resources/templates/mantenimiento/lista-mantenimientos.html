@@ -15,31 +15,51 @@
                 <i class="feather-plus" aria-hidden="true"></i>
                 <span>Nuevo mantenimiento</span>
             </a>
+            <button type="button" class="cui-btn cui-btn-warning" data-cui-drawer-open="#drawerEnviarReparacion">
+                <i class="feather-tool" aria-hidden="true"></i>
+                <span>Enviar a reparacion</span>
+            </button>
         </div>
 
-        <div class="cui-summary-strip">
-            <div class="cui-summary-item">
-                <span class="cui-summary-label">Pendientes</span>
-                <strong class="cui-summary-value" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'PENDIENTE'])}">0</strong>
-            </div>
-            <span class="cui-summary-sep" aria-hidden="true">·</span>
-            <div class="cui-summary-item">
-                <span class="cui-summary-label">En proceso</span>
-                <strong class="cui-summary-value warning" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])}">0</strong>
-            </div>
-            <span class="cui-summary-sep" aria-hidden="true">·</span>
-            <div class="cui-summary-item">
-                <span class="cui-summary-label">Correctivos abiertos</span>
-                <strong class="cui-summary-value danger" th:text="${#lists.size(listamantenimientos.?[tipoMantenimiento == 'CORRECTIVO' and estadoInterno != 'CERRADO'])}">0</strong>
-            </div>
-            <span class="cui-summary-sep" aria-hidden="true">·</span>
-            <div class="cui-summary-item" th:classappend="${!#lists.isEmpty(vencidosProximos)} ? ' is-warning' : ''">
-                <span class="cui-summary-label">Programados vencidos</span>
+        <div class="cui-summary-strip" th:if="${!#lists.isEmpty(vencidosProximos)}">
+            <div class="cui-summary-item is-warning">
+                <span class="cui-summary-label">Planes vencidos o proximos</span>
                 <strong class="cui-summary-value" th:text="${#lists.size(vencidosProximos)}">0</strong>
             </div>
+            <span class="cui-summary-sep" aria-hidden="true">·</span>
+            <div class="cui-summary-item">
+                <span class="cui-summary-label">Requieren atencion en los proximos 7 dias</span>
+                <a th:href="@{/mantenimiento(view='programados')}" class="cui-btn cui-btn-warning" style="font-size:.75rem;padding:.2rem .6rem">
+                    Ver planes preventivos
+                </a>
+            </div>
         </div>
 
-        <div th:if="${exito}" class="alert alert-success cui-alert" th:text="${exito}"></div>
+        <div th:if="${exito}"    class="alert alert-success cui-alert" th:text="${exito}"></div>
+        <div th:if="${success}"  class="alert alert-success cui-alert" th:text="${success}"></div>
+        <div th:if="${error}"    class="alert alert-danger  cui-alert" th:text="${error}"></div>
+        <div th:if="${otWarning}" class="alert alert-warning cui-alert">
+            <i class="feather-alert-triangle me-1"></i>
+            <span th:text="${otWarning}"></span>
+        </div>
+        <div th:if="${otCreada}" class="alert alert-info cui-alert">
+            <i class="feather-check-circle me-1"></i>
+            Orden de Trabajo generada y vinculada al activo.
+        </div>
+        <div th:if="${otCerrada}" class="alert alert-info cui-alert">
+            <i class="feather-check-circle me-1"></i>
+            Orden de Trabajo cerrada correctamente.
+        </div>
+        <div th:if="${requiereBaja}" class="alert alert-danger cui-alert d-flex align-items-center justify-content-between gap-3">
+            <div>
+                <i class="feather-alert-octagon me-1"></i>
+                <strong th:text="${codigoActivoBaja}">—</strong>
+                requiere proceso de baja. El resultado tecnico indica que el activo es irreparable o economicamente inviable.
+            </div>
+            <a th:href="@{/inventario/bajas}" class="cui-btn cui-btn-danger flex-shrink-0">
+                Iniciar proceso de baja
+            </a>
+        </div>
 
         <section class="cui-data-grid" id="maintenanceGrid" data-cui-grid>
             <div class="cui-data-grid-header">
@@ -70,6 +90,13 @@
                         <button type="button" class="cui-view-toggle-btn" data-view="programados" aria-pressed="false">
                             <i class="feather-calendar" aria-hidden="true"></i>
                             <span>Programados</span>
+                        </button>
+                        <button type="button" class="cui-view-toggle-btn" data-view="reparacion" aria-pressed="false">
+                            <i class="feather-tool" aria-hidden="true"></i>
+                            <span>En reparacion</span>
+                            <span class="cui-badge cui-badge-en-reparacion ms-1"
+                                  th:if="${activosEnReparacion != null and !#lists.isEmpty(activosEnReparacion)}"
+                                  th:text="${#lists.size(activosEnReparacion)}">0</span>
                         </button>
                     </div>
                 </div>
@@ -153,71 +180,184 @@
             </div>
 
             <!-- ── Vista kanban ──────────────────────────────────────── -->
-            <div id="mntKanbanView" hidden class="mnt-kanban-board">
-                <div class="mnt-kanban-col">
-                    <div class="mnt-kanban-col-header">
-                        <span class="cui-badge cui-badge-en-bodega">Pendiente</span>
-                        <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == null or estadoInterno == 'PENDIENTE'])} + ' ordenes'">0 ordenes</span>
+            <div id="mntKanbanView" hidden>
+                <!-- Barra de filtros kanban (oculta en otras vistas via JS) -->
+                <div class="cui-grid-filters" id="mntKanbanFilters" style="display:none">
+                    <div class="cui-search-control">
+                        <i class="feather-search" aria-hidden="true"></i>
+                        <input type="search" id="kanbanSearch" class="form-control"
+                               placeholder="Equipo, tecnico, custodio..."
+                               autocomplete="off">
                     </div>
-                    <div class="mnt-kanban-cards">
-                        <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == null or estadoInterno == 'PENDIENTE'])}">Sin ordenes pendientes</p>
-                        <article class="mnt-kanban-card"
-                                 th:each="m : ${listamantenimientos.?[estadoInterno == null or estadoInterno == 'PENDIENTE']}"
-                                 th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')}">
-                            <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
-                            <div class="mnt-kanban-card-sub" th:text="${m.custodioNombre ?: '—'}">Custodio</div>
-                            <div>
-                                <span class="cui-badge" th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'" th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
-                            </div>
-                            <div class="mnt-kanban-card-footer">
-                                <span class="mnt-kanban-card-date" th:text="${m.fechaMantenimiento ?: '—'}">Fecha</span>
-                                <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver</a>
-                            </div>
-                        </article>
-                    </div>
+                    <select id="kanbanTypeFilter" class="form-select">
+                        <option value="">Todos los tipos</option>
+                        <option value="PREVENTIVO">Preventivo</option>
+                        <option value="CORRECTIVO">Correctivo</option>
+                    </select>
+                    <select id="kanbanPriorityFilter" class="form-select">
+                        <option value="">Todas las prioridades</option>
+                        <option value="vencido">Vencido</option>
+                        <option value="hoy">Hoy</option>
+                        <option value="proximo">Proximo</option>
+                    </select>
                 </div>
-                <div class="mnt-kanban-col">
-                    <div class="mnt-kanban-col-header">
-                        <span class="cui-badge cui-badge-en-reparacion">En proceso</span>
-                        <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])} + ' ordenes'">0 ordenes</span>
+
+                <div class="mnt-kanban-board">
+                    <!-- Columna PENDIENTE -->
+                    <div class="mnt-kanban-col">
+                        <div class="mnt-kanban-col-header">
+                            <span class="cui-badge cui-badge-en-bodega">Pendiente</span>
+                            <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == null or estadoInterno == 'PENDIENTE'])} + ' ordenes'">0 ordenes</span>
+                        </div>
+                        <div class="mnt-kanban-cards" id="kanbanColPendiente">
+                            <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == null or estadoInterno == 'PENDIENTE'])}">Sin ordenes pendientes</p>
+                            <article class="mnt-kanban-card kanban-record"
+                                     th:each="m : ${listamantenimientos.?[estadoInterno == null or estadoInterno == 'PENDIENTE']}"
+                                     th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')},
+                                              eCodigo=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].codigoSap ?: '') : (m.equipoCodigoSap ?: '')},
+                                              prioridad=${m.proximaFecha != null and m.proximaFecha.isBefore(T(java.time.LocalDate).now()) ? 'vencido' : (m.proximaFecha != null and m.proximaFecha.equals(T(java.time.LocalDate).now()) ? 'hoy' : 'proximo')},
+                                              busqueda=${eNombre + ' ' + eCodigo + ' ' + (m.custodioNombre ?: '') + ' ' + (m.tecnicoNombre ?: '') + ' ' + (m.tipoMantenimiento ?: '')}"
+                                     th:attr="data-search=${#strings.toLowerCase(busqueda)},data-type=${#strings.toLowerCase(m.tipoMantenimiento ?: '')},data-priority=${prioridad}">
+                                <div class="mnt-kanban-card-top">
+                                    <strong class="mnt-kanban-card-id" th:text="${'MT-' + #numbers.formatInteger(m.idMantenimiento, 5)}">MT-00001</strong>
+                                    <span class="cui-badge"
+                                          th:if="${m.proximaFecha != null}"
+                                          th:classappend="${prioridad == 'vencido'} ? ' cui-badge-dado-de-baja' : (${prioridad == 'hoy'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
+                                          th:text="${#temporals.format(m.proximaFecha, 'dd/MM')}">Fecha</span>
+                                </div>
+                                <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
+                                <div class="mnt-kanban-card-sub" th:text="${eCodigo ?: (m.custodioNombre ?: '—')}">Codigo</div>
+                                <div class="mnt-kanban-card-meta">
+                                    <span th:if="${m.custodioNombre != null}"><i class="feather-user" aria-hidden="true"></i> <span th:text="${m.custodioNombre}"></span></span>
+                                    <span th:if="${m.tecnicoNombre != null}"><i class="feather-tool" aria-hidden="true"></i> <span th:text="${m.tecnicoNombre}"></span></span>
+                                </div>
+                                <div class="mnt-kanban-card-footer">
+                                    <span class="cui-badge"
+                                          th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'"
+                                          th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
+                                    <div class="d-flex gap-1">
+                                        <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver OT</a>
+                                        <a class="mnt-kanban-card-link" th:if="${m.equipoId != null}" th:href="@{/activos/equipos/{id}/expediente(id=${m.equipoId})}">Activo</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
                     </div>
-                    <div class="mnt-kanban-cards">
-                        <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])}">Sin ordenes en proceso</p>
-                        <article class="mnt-kanban-card"
-                                 th:each="m : ${listamantenimientos.?[estadoInterno == 'EN_PROCESO']}"
-                                 th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')}">
-                            <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
-                            <div class="mnt-kanban-card-sub" th:text="${m.tecnicoNombre ?: '—'}">Tecnico</div>
-                            <div>
-                                <span class="cui-badge" th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'" th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
-                            </div>
-                            <div class="mnt-kanban-card-footer">
-                                <span class="mnt-kanban-card-date" th:text="${m.fechaMantenimiento ?: '—'}">Fecha</span>
-                                <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver</a>
-                            </div>
-                        </article>
+
+                    <!-- Columna EN_PROCESO -->
+                    <div class="mnt-kanban-col">
+                        <div class="mnt-kanban-col-header">
+                            <span class="cui-badge cui-badge-en-reparacion">En proceso</span>
+                            <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])} + ' ordenes'">0 ordenes</span>
+                        </div>
+                        <div class="mnt-kanban-cards">
+                            <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == 'EN_PROCESO'])}">Sin ordenes en proceso</p>
+                            <article class="mnt-kanban-card kanban-record"
+                                     th:each="m : ${listamantenimientos.?[estadoInterno == 'EN_PROCESO']}"
+                                     th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')},
+                                              eCodigo=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].codigoSap ?: '') : (m.equipoCodigoSap ?: '')},
+                                              prioridad=${m.proximaFecha != null and m.proximaFecha.isBefore(T(java.time.LocalDate).now()) ? 'vencido' : (m.proximaFecha != null and m.proximaFecha.equals(T(java.time.LocalDate).now()) ? 'hoy' : 'proximo')},
+                                              busqueda=${eNombre + ' ' + eCodigo + ' ' + (m.custodioNombre ?: '') + ' ' + (m.tecnicoNombre ?: '') + ' ' + (m.tipoMantenimiento ?: '')}"
+                                     th:attr="data-search=${#strings.toLowerCase(busqueda)},data-type=${#strings.toLowerCase(m.tipoMantenimiento ?: '')},data-priority=${prioridad}">
+                                <div class="mnt-kanban-card-top">
+                                    <strong class="mnt-kanban-card-id" th:text="${'MT-' + #numbers.formatInteger(m.idMantenimiento, 5)}">MT-00001</strong>
+                                    <span class="cui-badge"
+                                          th:if="${m.proximaFecha != null}"
+                                          th:classappend="${prioridad == 'vencido'} ? ' cui-badge-dado-de-baja' : (${prioridad == 'hoy'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega')"
+                                          th:text="${#temporals.format(m.proximaFecha, 'dd/MM')}">Fecha</span>
+                                </div>
+                                <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
+                                <div class="mnt-kanban-card-sub" th:text="${eCodigo}">Codigo</div>
+                                <div class="mnt-kanban-card-meta">
+                                    <span th:if="${m.tecnicoNombre != null}"><i class="feather-tool" aria-hidden="true"></i> <span th:text="${m.tecnicoNombre}"></span></span>
+                                    <span th:if="${m.custodioNombre != null}"><i class="feather-user" aria-hidden="true"></i> <span th:text="${m.custodioNombre}"></span></span>
+                                </div>
+                                <div class="mnt-kanban-card-footer">
+                                    <span class="cui-badge"
+                                          th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'"
+                                          th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
+                                    <div class="d-flex gap-1">
+                                        <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver OT</a>
+                                        <a class="mnt-kanban-card-link" th:if="${m.equipoId != null}" th:href="@{/activos/equipos/{id}/expediente(id=${m.equipoId})}">Activo</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
                     </div>
-                </div>
-                <div class="mnt-kanban-col">
-                    <div class="mnt-kanban-col-header">
-                        <span class="cui-badge cui-badge-asignado">Cerrado</span>
-                        <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'CERRADO'])} + ' ordenes'">0 ordenes</span>
+
+                    <!-- Columna ESPERANDO_REPUESTO -->
+                    <div class="mnt-kanban-col">
+                        <div class="mnt-kanban-col-header">
+                            <span class="cui-badge cui-badge-en-reparacion" style="background:var(--cui-color-warning,#f59e0b);color:#fff">Esp. repuesto</span>
+                            <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'ESPERANDO_REPUESTO'])} + ' ordenes'">0 ordenes</span>
+                        </div>
+                        <div class="mnt-kanban-cards">
+                            <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == 'ESPERANDO_REPUESTO'])}">Sin ordenes esperando repuesto</p>
+                            <article class="mnt-kanban-card kanban-record"
+                                     th:each="m : ${listamantenimientos.?[estadoInterno == 'ESPERANDO_REPUESTO']}"
+                                     th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')},
+                                              eCodigo=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].codigoSap ?: '') : (m.equipoCodigoSap ?: '')},
+                                              prioridad=${m.proximaFecha != null and m.proximaFecha.isBefore(T(java.time.LocalDate).now()) ? 'vencido' : 'proximo'},
+                                              busqueda=${eNombre + ' ' + eCodigo + ' ' + (m.custodioNombre ?: '') + ' ' + (m.tecnicoNombre ?: '') + ' ' + (m.tipoMantenimiento ?: '')}"
+                                     th:attr="data-search=${#strings.toLowerCase(busqueda)},data-type=${#strings.toLowerCase(m.tipoMantenimiento ?: '')},data-priority=${prioridad}">
+                                <div class="mnt-kanban-card-top">
+                                    <strong class="mnt-kanban-card-id" th:text="${'MT-' + #numbers.formatInteger(m.idMantenimiento, 5)}">MT-00001</strong>
+                                    <span class="cui-badge cui-badge-en-reparacion"
+                                          th:if="${m.proximaFecha != null}"
+                                          th:text="${#temporals.format(m.proximaFecha, 'dd/MM')}">Fecha</span>
+                                </div>
+                                <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
+                                <div class="mnt-kanban-card-sub" th:text="${eCodigo}">Codigo</div>
+                                <div class="mnt-kanban-card-meta">
+                                    <span th:if="${m.tecnicoNombre != null}"><i class="feather-tool" aria-hidden="true"></i> <span th:text="${m.tecnicoNombre}"></span></span>
+                                </div>
+                                <div class="mnt-kanban-card-footer">
+                                    <span class="cui-badge"
+                                          th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'"
+                                          th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
+                                    <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver OT</a>
+                                </div>
+                            </article>
+                        </div>
                     </div>
-                    <div class="mnt-kanban-cards">
-                        <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == 'CERRADO'])}">Sin ordenes cerradas</p>
-                        <article class="mnt-kanban-card"
-                                 th:each="m : ${listamantenimientos.?[estadoInterno == 'CERRADO']}"
-                                 th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')}">
-                            <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
-                            <div class="mnt-kanban-card-sub" th:text="${m.tecnicoNombre ?: '—'}">Tecnico</div>
-                            <div>
-                                <span class="cui-badge" th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'" th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
-                            </div>
-                            <div class="mnt-kanban-card-footer">
-                                <span class="mnt-kanban-card-date" th:text="${m.fechaMantenimiento ?: '—'}">Fecha</span>
-                                <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver</a>
-                            </div>
-                        </article>
+
+                    <!-- Columna CERRADO/FINALIZADO -->
+                    <div class="mnt-kanban-col">
+                        <div class="mnt-kanban-col-header">
+                            <span class="cui-badge cui-badge-asignado">Finalizado</span>
+                            <span class="mnt-kanban-col-count" th:text="${#lists.size(listamantenimientos.?[estadoInterno == 'CERRADO' or estadoInterno == 'FINALIZADO'])} + ' ordenes'">0 ordenes</span>
+                        </div>
+                        <div class="mnt-kanban-cards">
+                            <p class="mnt-kanban-empty" th:if="${#lists.isEmpty(listamantenimientos.?[estadoInterno == 'CERRADO' or estadoInterno == 'FINALIZADO'])}">Sin ordenes finalizadas</p>
+                            <article class="mnt-kanban-card kanban-record"
+                                     th:each="m : ${listamantenimientos.?[estadoInterno == 'CERRADO' or estadoInterno == 'FINALIZADO']}"
+                                     th:with="eNombre=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].descripcion ?: 'Orden') : (m.equipoDescripcion ?: 'Orden')},
+                                              eCodigo=${m.equipos != null and !#lists.isEmpty(m.equipos) ? (m.equipos[0].codigoSap ?: '') : (m.equipoCodigoSap ?: '')},
+                                              busqueda=${eNombre + ' ' + eCodigo + ' ' + (m.custodioNombre ?: '') + ' ' + (m.tecnicoNombre ?: '') + ' ' + (m.tipoMantenimiento ?: '')}"
+                                     th:attr="data-search=${#strings.toLowerCase(busqueda)},data-type=${#strings.toLowerCase(m.tipoMantenimiento ?: '')},data-priority='proximo'">
+                                <div class="mnt-kanban-card-top">
+                                    <strong class="mnt-kanban-card-id" th:text="${'MT-' + #numbers.formatInteger(m.idMantenimiento, 5)}">MT-00001</strong>
+                                    <span class="cui-badge cui-badge-asignado"
+                                          th:if="${m.fechaMantenimiento != null}"
+                                          th:text="${#temporals.format(m.fechaMantenimiento, 'dd/MM')}">Fecha</span>
+                                </div>
+                                <div class="mnt-kanban-card-title" th:text="${eNombre}">Equipo</div>
+                                <div class="mnt-kanban-card-sub" th:text="${eCodigo}">Codigo</div>
+                                <div class="mnt-kanban-card-meta">
+                                    <span th:if="${m.tecnicoNombre != null}"><i class="feather-tool" aria-hidden="true"></i> <span th:text="${m.tecnicoNombre}"></span></span>
+                                    <span th:if="${m.custodioNombre != null}"><i class="feather-user" aria-hidden="true"></i> <span th:text="${m.custodioNombre}"></span></span>
+                                </div>
+                                <div class="mnt-kanban-card-footer">
+                                    <span class="cui-badge"
+                                          th:classappend="${m.tipoMantenimiento == 'CORRECTIVO'} ? ' cui-badge-en-reparacion' : ' cui-badge-en-bodega'"
+                                          th:text="${m.tipoMantenimiento ?: 'PREVENTIVO'}">Tipo</span>
+                                    <div class="d-flex gap-1">
+                                        <a class="mnt-kanban-card-link" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver OT</a>
+                                        <a class="mnt-kanban-card-link" th:if="${m.equipoId != null}" th:href="@{/activos/equipos/{id}/expediente(id=${m.equipoId})}">Activo</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -287,7 +427,274 @@
             </div>
 
             <div th:replace="~{fragments/grids/pagination :: pagination(rutaBase='/mantenimiento')}"></div>
+
+            <!-- ── Vista en reparacion ──────────────────────────────── -->
+            <div id="mntReparacionView" hidden class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Modelo</th>
+                            <th>Serial</th>
+                            <th>OC</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${activosEnReparacion == null or #lists.isEmpty(activosEnReparacion)}">
+                            <td colspan="5">
+                                <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-tool', title='Sin activos en reparacion', message='No hay activos en proceso de reparacion actualmente.')}"></div>
+                            </td>
+                        </tr>
+                        <tr th:each="activo : ${activosEnReparacion}"
+                            th:attr="data-equipo-id=${activo.idEquipo},
+                                     data-codigo=${activo.codigoCresio},
+                                     data-modelo=${activo.modelo},
+                                     data-serial=${activo.serial}">
+                            <td><span class="fw-semibold" th:text="${activo.codigoCresio ?: '—'}">—</span></td>
+                            <td th:text="${activo.modelo ?: '—'}">—</td>
+                            <td th:text="${activo.serial ?: '—'}">—</td>
+                            <td th:text="${activo.numeroOc ?: '—'}">—</td>
+                            <td class="text-end">
+                                <button type="button" class="cui-btn cui-btn-primary btn-sm"
+                                        onclick="mntAbrirDrawerRetornar(this)">
+                                    <i class="feather-corner-up-left" aria-hidden="true"></i>
+                                    Retornar
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
+
+        <!-- ── Drawer: enviar a reparacion ─────────────────────────── -->
+        <aside class="cui-drawer" id="drawerEnviarReparacion" aria-hidden="true" aria-label="Enviar a reparacion">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Enviar a reparacion</div>
+                    <div class="small text-muted">Genera una Orden de Trabajo y registra el envio tecnico</div>
+                </div>
+                <button type="button" class="cui-icon-btn" data-cui-drawer-close aria-label="Cerrar">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/mantenimiento/reparaciones/enviar}"
+                      th:object="${enviarReparacionRequest}"
+                      method="post" id="formEnviarReparacion" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="custodioIdForm" id="rep-custodio-id-hidden">
+
+                    <!-- Activo -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Activo <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{equipoId}" id="repEquipoSelect" required>
+                            <option value="">Seleccione un activo</option>
+                            <option th:each="a : ${activosEnBodega}"
+                                    th:value="${a.idEquipo}"
+                                    th:text="${(a.codigoCresio ?: 'Sin codigo') + ' — ' + (a.modelo ?: 'Sin modelo')}"
+                                    th:attr="data-estado=${a.estadoInventario}">
+                            </option>
+                        </select>
+                        <div id="repCustodioInfo" class="form-text text-muted mt-1" hidden>
+                            <i class="feather-user" style="width:12px"></i>
+                            <span id="repCustodioLabel">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Custodio manual (visible si el activo no tiene custodia activa) -->
+                    <div class="col-12" id="repCustodioManualGrupo" hidden>
+                        <label class="form-label fw-semibold">
+                            Custodio responsable <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="repCustodioManualSelect" name="_custodioManual">
+                            <option value="">Seleccione el custodio responsable</option>
+                            <option th:each="c : ${custodiosActivos}"
+                                    th:value="${c.idCustodio}"
+                                    th:text="${c.nombre}">
+                            </option>
+                        </select>
+                        <div class="form-text text-muted">El activo esta en bodega sin custodia activa.</div>
+                    </div>
+
+                    <!-- Falla reportada -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Falla reportada <span class="text-danger">*</span></label>
+                        <input class="form-control" th:field="*{motivo}" placeholder="Descripcion de la falla" required>
+                    </div>
+
+                    <!-- Modalidad + Prioridad en la misma fila -->
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Modalidad <span class="text-danger">*</span></label>
+                        <select class="form-select" name="modalidad" id="repModalidadSelect" required>
+                            <option value="INTERNA">Interna</option>
+                            <option value="EXTERNA">Externa</option>
+                            <option value="GARANTIA">Garantia</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Prioridad</label>
+                        <select class="form-select" name="prioridad">
+                            <option value="">— Sin prioridad —</option>
+                            <option value="BAJA">Baja</option>
+                            <option value="MEDIA" selected>Media</option>
+                            <option value="ALTA">Alta</option>
+                            <option value="CRITICA">Critica</option>
+                        </select>
+                    </div>
+
+                    <!-- Taller / Proveedor (condicional: oculto si INTERNA) -->
+                    <div class="col-12" id="repProveedorGrupo">
+                        <label class="form-label fw-semibold">Taller / Proveedor</label>
+                        <input class="form-control" th:field="*{proveedorTecnico}"
+                               placeholder="Nombre del taller o empresa">
+                    </div>
+
+                    <!-- Fecha estimada de retorno (condicional: oculto si INTERNA) -->
+                    <div class="col-12" id="repFechaRetornoGrupo">
+                        <label class="form-label fw-semibold">Fecha estimada de retorno</label>
+                        <input class="form-control" name="fechaEstimadaRetorno" type="date">
+                    </div>
+
+                    <!-- Técnico responsable -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Tecnico responsable</label>
+                        <select class="form-select" name="tecnicoId">
+                            <option value="">— Sin asignar —</option>
+                            <option th:each="u : ${listausuarios}"
+                                    th:value="${u.idUsuario}"
+                                    th:text="${u.nombre}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha de envio -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Fecha de envio</label>
+                        <input class="form-control" th:field="*{fechaEnvio}" type="date"
+                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                    </div>
+
+                    <!-- Observacion -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Observacion</label>
+                        <textarea class="form-control" th:field="*{observacion}" rows="2"
+                                  placeholder="Detalles adicionales"></textarea>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="cui-btn cui-btn-primary" type="submit">
+                            <i class="feather-tool" aria-hidden="true"></i>
+                            <span>Enviar a reparacion</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <!-- ── Drawer: retornar de reparacion ──────────────────────── -->
+        <aside class="cui-drawer" id="drawerRetornarReparacion" aria-hidden="true" aria-label="Retornar de reparacion">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold">Registrar retorno de reparacion</div>
+                    <div class="small text-muted">
+                        Activo: <strong id="mnt-rep-codigo">—</strong>
+                        &nbsp;·&nbsp;
+                        <span id="mnt-rep-modelo">—</span>
+                    </div>
+                </div>
+                <button type="button" class="cui-icon-btn" data-cui-drawer-close aria-label="Cerrar">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form th:action="@{/mantenimiento/reparaciones/retornar}"
+                      th:object="${retornarReparacionRequest}"
+                      method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" th:field="*{equipoId}" id="mnt-rep-equipo-id">
+
+                    <!-- Resultado tecnico — define la accion sobre el activo -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Resultado tecnico <span class="text-danger">*</span></label>
+                        <select class="form-select" name="resultadoTecnico" id="retResultadoSelect" required>
+                            <option value="">Seleccione el resultado</option>
+                            <option value="REPARADO">RT-01 — Reparado (funcional al 100%)</option>
+                            <option value="PARCIALMENTE_REPARADO">RT-04 — Parcialmente reparado</option>
+                            <option value="GARANTIA_APLICADA">RT-09 — Garantia aplicada</option>
+                            <option value="ACTUALIZADO">RT-11 — Actualizado</option>
+                            <option value="IRREPARABLE">RT-07 — Irreparable</option>
+                            <option value="REQUIERE_BAJA">RT-08 — Requiere baja</option>
+                        </select>
+                        <div id="retResultadoHint" class="form-text text-muted"></div>
+                    </div>
+
+                    <!-- Bodega destino (oculta si resultado es IRREPARABLE/REQUIERE_BAJA) -->
+                    <div class="col-12" id="retBodegaGrupo">
+                        <label class="form-label fw-semibold">Bodega destino <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{bodegaDestinoId}" id="retBodegaSelect">
+                            <option value="">Seleccione</option>
+                            <option th:each="b : ${bodegas}" th:value="${b.idBodega}" th:text="${b.nombre}">Bodega</option>
+                        </select>
+                    </div>
+
+                    <!-- Estado fisico al retorno -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Estado fisico al retorno <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{condicion}" required>
+                            <option value="">Seleccione</option>
+                            <option value="NUEVO">Nuevo</option>
+                            <option value="BUENO">Bueno</option>
+                            <option value="REGULAR">Regular</option>
+                            <option value="DANADO">Danado</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha de retorno + Costo real -->
+                    <div class="col-7">
+                        <label class="form-label fw-semibold">Fecha de retorno</label>
+                        <input class="form-control" th:field="*{fechaRetorno}" type="date"
+                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label fw-semibold">Costo real</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input class="form-control" type="number" name="costoReal"
+                                   min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <!-- Observacion del taller -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Informe del taller / Observacion</label>
+                        <textarea class="form-control" th:field="*{observacion}" rows="3"
+                                  placeholder="Trabajo realizado, piezas reemplazadas, condiciones de garantia..."></textarea>
+                    </div>
+
+                    <!-- Aviso cuando resultado requiere baja -->
+                    <div class="col-12" id="retBajaAviso" hidden>
+                        <div class="alert alert-warning mb-0 py-2 px-3 small">
+                            <i class="feather-alert-triangle me-1"></i>
+                            Este resultado generara una sugerencia de baja al confirmar.
+                            El activo permanece en el sistema hasta que se ejecute el proceso de baja formal.
+                        </div>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="cui-btn cui-btn-primary" type="submit" id="retSubmitBtn">
+                            <i class="feather-corner-up-left" aria-hidden="true"></i>
+                            <span>Confirmar retorno</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
 
         <!-- ── Drawer: nuevo programado ─────────────────────────────── -->
         <aside class="cui-drawer" id="drawerProgramado" aria-hidden="true" aria-label="Programar mantenimiento">
@@ -395,13 +802,15 @@
 <script>
 (function () {
     /* ── View toggle ── */
-    var toggle       = document.getElementById('mntViewToggle');
-    var listaView    = document.getElementById('mntListaView');
-    var kanbanView   = document.getElementById('mntKanbanView');
-    var progView     = document.getElementById('mntProgramadosView');
-    var gridFilters  = document.getElementById('mntGridFilters');
+    var toggle        = document.getElementById('mntViewToggle');
+    var listaView     = document.getElementById('mntListaView');
+    var kanbanView    = document.getElementById('mntKanbanView');
+    var progView      = document.getElementById('mntProgramadosView');
+    var repView       = document.getElementById('mntReparacionView');
+    var gridFilters   = document.getElementById('mntGridFilters');
     if (!toggle) return;
 
+    var kanbanFilters = document.getElementById('mntKanbanFilters');
     var STORAGE_KEY = 'mnt.viewMode';
     var savedMode   = sessionStorage.getItem(STORAGE_KEY) || 'lista';
 
@@ -414,7 +823,9 @@
         listaView.hidden   = mode !== 'lista';
         kanbanView.hidden  = mode !== 'kanban';
         progView.hidden    = mode !== 'programados';
-        if (gridFilters) gridFilters.hidden = mode === 'programados';
+        if (repView) repView.hidden = mode !== 'reparacion';
+        if (gridFilters) gridFilters.hidden = mode !== 'lista';
+        if (kanbanFilters) kanbanFilters.style.display = mode === 'kanban' ? '' : 'none';
         sessionStorage.setItem(STORAGE_KEY, mode);
     }
 
@@ -423,7 +834,34 @@
         if (btn) applyView(btn.dataset.view);
     });
 
+    // Activar vista kanban si viene de /mantenimiento/kanban (redirect)
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('view') === 'kanban') savedMode = 'kanban';
     applyView(savedMode);
+
+    /* ── Kanban search & filter ── */
+    (function () {
+        var ks   = document.getElementById('kanbanSearch');
+        var kt   = document.getElementById('kanbanTypeFilter');
+        var kp   = document.getElementById('kanbanPriorityFilter');
+        if (!ks && !kt && !kp) return;
+
+        function applyKanbanFilters() {
+            var term     = ks  ? (ks.value  || '').trim().toLowerCase() : '';
+            var selType  = kt  ? kt.value  : '';
+            var selPrio  = kp  ? kp.value  : '';
+            document.querySelectorAll('#mntKanbanView .kanban-record').forEach(function (card) {
+                var matchText = !term    || (card.dataset.search   || '').includes(term);
+                var matchType = !selType || (card.dataset.type     || '').includes(selType.toLowerCase());
+                var matchPrio = !selPrio || card.dataset.priority  === selPrio;
+                card.hidden = !(matchText && matchType && matchPrio);
+            });
+        }
+
+        if (ks) ks.addEventListener('input',  applyKanbanFilters);
+        if (kt) kt.addEventListener('change', applyKanbanFilters);
+        if (kp) kp.addEventListener('change', applyKanbanFilters);
+    }());
 
     /* ── Drawer programado: modo toggle ── */
     var modoInput      = document.getElementById('modoSeleccionProg');
@@ -538,6 +976,114 @@
     });
 
     hideAllEquipoOptions();
+}());
+
+/* ── Drawer "Enviar a reparacion" ── */
+(function () {
+    var equipoSel      = document.getElementById('repEquipoSelect');
+    var custodioHidden = document.getElementById('rep-custodio-id-hidden');
+    var custodioInfo   = document.getElementById('repCustodioInfo');
+    var custodioLabel  = document.getElementById('repCustodioLabel');
+    var custodioManualGrupo  = document.getElementById('repCustodioManualGrupo');
+    var custodioManualSelect = document.getElementById('repCustodioManualSelect');
+    var modalidadSel   = document.getElementById('repModalidadSelect');
+    var proveedorGrupo = document.getElementById('repProveedorGrupo');
+    var fechaRetornoGrupo = document.getElementById('repFechaRetornoGrupo');
+
+    // custodiosPorEquipo viene del modelo Thymeleaf como objeto JS
+    var custodiosPorEquipo = /*[[${custodiosPorEquipo}]]*/ {};
+    // custodiosActivos: map de id → nombre para mostrar en el label
+    var custodiosActivosMap = {};
+    /*[# th:each="c : ${custodiosActivos}"]*/
+    custodiosActivosMap[/*[[${c.idCustodio}]]*/ 0] = /*[[${c.nombre}]]*/ '';
+    /*[/]*/
+
+    function actualizarCustodio() {
+        var equipoId = equipoSel ? equipoSel.value : '';
+        var custodiosStr = equipoId ? (custodiosPorEquipo[equipoId] || '') : '';
+        var ids = custodiosStr ? custodiosStr.split(',').map(function(v){ return v.trim(); }).filter(Boolean) : [];
+
+        if (ids.length > 0) {
+            var primerCustodioId = ids[0];
+            if (custodioHidden) custodioHidden.value = primerCustodioId;
+            if (custodioLabel)  custodioLabel.textContent = custodiosActivosMap[primerCustodioId] || 'Custodio #' + primerCustodioId;
+            if (custodioInfo)   custodioInfo.hidden = false;
+            if (custodioManualGrupo) custodioManualGrupo.hidden = true;
+            if (custodioManualSelect) custodioManualSelect.removeAttribute('required');
+        } else {
+            if (custodioHidden) custodioHidden.value = '';
+            if (custodioInfo)   custodioInfo.hidden = true;
+            if (custodioManualGrupo) { custodioManualGrupo.hidden = equipoId === ''; }
+            if (custodioManualSelect) custodioManualSelect.setAttribute('required', equipoId !== '' ? 'required' : '');
+        }
+    }
+
+    function actualizarModalidad() {
+        var modo = modalidadSel ? modalidadSel.value : 'INTERNA';
+        var esExterno = modo === 'EXTERNA' || modo === 'GARANTIA';
+        if (proveedorGrupo)   proveedorGrupo.hidden    = !esExterno;
+        if (fechaRetornoGrupo) fechaRetornoGrupo.hidden = !esExterno;
+    }
+
+    // Sincronizar custodioIdForm desde el select manual cuando se escoge
+    if (custodioManualSelect) {
+        custodioManualSelect.addEventListener('change', function () {
+            if (custodioHidden) custodioHidden.value = this.value;
+        });
+    }
+
+    if (equipoSel) equipoSel.addEventListener('change', actualizarCustodio);
+    if (modalidadSel) modalidadSel.addEventListener('change', actualizarModalidad);
+
+    // Estado inicial
+    actualizarModalidad();
+    actualizarCustodio();
+}());
+
+window.mntAbrirDrawerRetornar = function (btn) {
+    var row = btn.closest('tr');
+    var d = row.dataset;
+    var equipoIdEl = document.getElementById('mnt-rep-equipo-id');
+    var codigoEl   = document.getElementById('mnt-rep-codigo');
+    var modeloEl   = document.getElementById('mnt-rep-modelo');
+    if (equipoIdEl) equipoIdEl.value      = d.equipoId || '';
+    if (codigoEl)   codigoEl.textContent  = d.codigo   || '—';
+    if (modeloEl)   modeloEl.textContent  = d.modelo   || '—';
+    var retSel = document.getElementById('retResultadoSelect');
+    if (retSel) { retSel.value = ''; retEvaluarResultado(); }
+    if (window.CresioDrawer) window.CresioDrawer.open('#drawerRetornarReparacion');
+};
+
+(function () {
+    var HINTS = {
+        'REPARADO': 'El activo regresa a bodega en condicion operativa.',
+        'PARCIALMENTE_REPARADO': 'Funcional con limitaciones. Regresa a bodega para revision.',
+        'GARANTIA_APLICADA': 'Cubierto por garantia. Regresa a bodega sin costo.',
+        'ACTUALIZADO': 'Actualizacion completada. Regresa a bodega.',
+        'IRREPARABLE': 'No se puede reparar. Se generara sugerencia de baja.',
+        'REQUIERE_BAJA': 'Estado critico. Se generara sugerencia de proceso de baja.'
+    };
+    var REQUIERE_BAJA = ['IRREPARABLE', 'REQUIERE_BAJA'];
+
+    window.retEvaluarResultado = function () {
+        var sel       = document.getElementById('retResultadoSelect');
+        var hint      = document.getElementById('retResultadoHint');
+        var bodega    = document.getElementById('retBodegaGrupo');
+        var aviso     = document.getElementById('retBajaAviso');
+        var bodegaSel = document.getElementById('retBodegaSelect');
+        if (!sel) return;
+        var val = sel.value;
+        if (hint) hint.textContent = HINTS[val] || '';
+        var esBaja = REQUIERE_BAJA.indexOf(val) !== -1;
+        if (bodega)    bodega.style.display = esBaja ? 'none' : '';
+        if (bodegaSel) bodegaSel.required   = !esBaja;
+        if (aviso)     aviso.hidden         = !esBaja;
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var sel = document.getElementById('retResultadoSelect');
+        if (sel) sel.addEventListener('change', window.retEvaluarResultado);
+    });
 }());
 </script>
 </th:block>

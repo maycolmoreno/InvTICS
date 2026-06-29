@@ -26,5 +26,6 @@ public interface IMantenimientoManualUseCase {
 
     MantenimientoManualResponseDTO obtenerDetalle(Integer idMantenimiento);
 
-    MantenimientoManualResponseDTO cerrar(Integer idMantenimiento, String descripcionTrabajoRealizado);
+    MantenimientoManualResponseDTO cerrar(Integer idMantenimiento, String descripcionTrabajoRealizado,
+            String resultadoTecnico, String cerradoPor);
 }

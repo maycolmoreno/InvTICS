@@ -95,6 +95,12 @@ public class MantenimientosJpa implements Serializable {
     @Column(name = "activo")
     private Boolean activo;
 
+    @Column(name = "resultado_tecnico", length = 50)
+    private String resultadoTecnico;
+
+    @Column(name = "cerrado_por", length = 150)
+    private String cerradoPor;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipo_id", insertable = false, updatable = false)
     private EquiposJpa fkEquipo;
@@ -362,5 +368,21 @@ public class MantenimientosJpa implements Serializable {
 
     public void setEquipos(List<MantenimientoEquipoJpa> equipos) {
         this.equipos = equipos;
+    }
+
+    public String getResultadoTecnico() {
+        return resultadoTecnico;
+    }
+
+    public void setResultadoTecnico(String resultadoTecnico) {
+        this.resultadoTecnico = resultadoTecnico;
+    }
+
+    public String getCerradoPor() {
+        return cerradoPor;
+    }
+
+    public void setCerradoPor(String cerradoPor) {
+        this.cerradoPor = cerradoPor;
     }
 }

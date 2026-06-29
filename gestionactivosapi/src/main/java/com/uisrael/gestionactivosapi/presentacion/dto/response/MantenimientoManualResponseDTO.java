@@ -30,6 +30,9 @@ public class MantenimientoManualResponseDTO {
     private Boolean estado;
     private String estadoInterno;
     private LocalDateTime creadoEn;
+    private String resultadoTecnico;
+    private String cerradoPor;
+    private LocalDateTime cerradoEn;
     private List<ActividadManualResponseDTO> actividades;
     private List<ImagenMantenimientoResponseDTO> imagenes;
     private List<EquipoEnMantenimientoDTO> equipos;

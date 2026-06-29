@@ -97,12 +97,6 @@
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{/inventario/reparaciones}" class="cui-nav-link">
-                        <span class="cui-nav-icon"><i class="feather-tool"></i></span>
-                        <span class="cui-nav-text">Reparaciones</span>
-                    </a>
-                </li>
-                <li>
                     <a th:href="@{/inventario/bajas}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-archive"></i></span>
                         <span class="cui-nav-text">Bajas</span>
@@ -125,7 +119,7 @@
                 <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
                     <a th:href="@{/planificacion}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-clock"></i></span>
-                        <span class="cui-nav-text">Planificacion</span>
+                        <span class="cui-nav-text">Planes preventivos</span>
                     </a>
                 </li>
                 <li th:if="${sesionUsuario.tieneModulo('CHECKLIST')}">
