@@ -22,6 +22,7 @@ public class CustodiasRequestDTO {
     private LocalDate fechaFin;
 
     private String observacion;
+    private String motivoBaja;
     private boolean estado;
 
     private CustodiosRequestDTO fkCustodio;

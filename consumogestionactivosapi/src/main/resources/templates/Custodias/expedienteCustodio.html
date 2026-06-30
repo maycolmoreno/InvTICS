@@ -567,41 +567,43 @@
                 </button>
             </div>
             <div class="cui-drawer-body">
-                <form th:action="@{/inventario/bajas/activos}" method="post" class="row g-3">
+                <form data-baja-activo th:action="@{/inventario/bajas/activos}" method="post" class="row g-3">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <input type="hidden" name="returnTo" th:value="@{/custodias/expediente/{id}(id=${custodio.idCustodio})}">
                     <input type="hidden" name="equipoId" id="baja-equipo-id">
                     <div class="col-12">
                         <label class="form-label text-muted small">Activo</label>
-                        <div class="form-control bg-light fw-semibold" id="baja-equipo-label">-</div>
+                        <div class="form-control bg-light fw-semibold" id="baja-equipo-label" data-activo-label>-</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Fecha baja</label>
-                        <input class="form-control" type="date" name="fechaBaja" required>
+                        <input class="form-control" type="date" name="fechaBaja" data-baja-required required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Motivo <span class="text-danger">*</span></label>
-                        <select class="form-select" name="motivo" required>
+                        <select class="form-select" name="motivo" data-baja-required required>
                             <option value="">Seleccione</option>
+                            <option value="DESTRUCCION">Destrucción</option>
                             <option value="OBSOLESCENCIA">Obsolescencia</option>
-                            <option value="DANIO_IRREPARABLE">Danio irreparable</option>
-                            <option value="PERDIDA">Perdida</option>
-                            <option value="RENOVACION">Renovacion</option>
+                            <option value="ROBO_PERDIDA">Robo / Pérdida</option>
+                            <option value="DONACION">Donación</option>
+                            <option value="DANIO_IRREPARABLE">Daño irreparable</option>
                             <option value="OTRO">Otro</option>
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Autorizado por</label>
-                        <input class="form-control" name="autorizadoPor">
+                        <label class="form-label">Observacion <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="observacion" rows="3" data-baja-required required></textarea>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Observacion <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="observacion" rows="3" required></textarea>
+                        <label class="form-label small text-muted">Para confirmar, escriba <strong>BAJA</strong></label>
+                        <input type="text" class="form-control" data-baja-confirm-input
+                               autocomplete="off" placeholder="BAJA">
                     </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
                         <button class="btn btn-danger" type="submit"
-                                data-cui-confirm="Confirma la baja definitiva del activo?">
+                                data-cui-confirm="Confirme la baja del activo.">
                             <i class="feather-alert-triangle" aria-hidden="true"></i>
                             <span>Dar de baja</span>
                         </button>
@@ -610,6 +612,7 @@
             </div>
         </aside>
 
+        <script th:src="@{/js/cresio/baja-activo.js}"></script>
         <script>
         (function () {
             function put(id, value, asValue) {

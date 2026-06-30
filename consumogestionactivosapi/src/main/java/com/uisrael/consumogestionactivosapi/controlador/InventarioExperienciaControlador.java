@@ -97,7 +97,10 @@ public class InventarioExperienciaControlador {
 
     @GetMapping("/bajas")
     public String bajas(Model model) {
-        model.addAttribute("activosEnBodega", safeList(inventarioOperacionServicio.listarActivosEnBodega()));
+        List<com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ActivoInventarioResponseDTO> elegibles =
+                new java.util.ArrayList<>(safeList(inventarioOperacionServicio.listarActivosEnBodega()));
+        elegibles.addAll(safeList(inventarioOperacionServicio.listarActivosAsignados()));
+        model.addAttribute("activosParaBaja", elegibles);
         model.addAttribute("bajaActivoRequest", new BajaActivoRequestDTO());
         model.addAttribute("movimientos", safeList(inventarioOperacionServicio.listarMovimientosRecientes()).stream()
                 .filter(m -> "BAJA".equals(m.getTipoMovimiento()))

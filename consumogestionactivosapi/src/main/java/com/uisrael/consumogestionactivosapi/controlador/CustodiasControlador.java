@@ -56,6 +56,10 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/custodias")
 public class CustodiasControlador {
 
+	// Mismo whitelist que valida BajaActivoRequestDTO en gestionactivosapi (@Pattern)
+	private static final Set<String> MOTIVOS_BAJA_VALIDOS = Set.of(
+			"DESTRUCCION", "OBSOLESCENCIA", "ROBO_PERDIDA", "DONACION", "DANIO_IRREPARABLE", "OTRO");
+
 	private final ICustodiasServicio servicioCustodias;
 	private final IEquiposServicio servicioEquipos;
 	private final ICustodiosServicio servicioCustodios;
@@ -204,43 +208,42 @@ public class CustodiasControlador {
 
 		LocalDate fechaBaja = (custodia.getFechaFin() != null) ? custodia.getFechaFin()
 				: (custodia.getFechaInicio() != null ? custodia.getFechaInicio() : LocalDate.now());
+		String motivoBaja = MOTIVOS_BAJA_VALIDOS.contains(custodia.getMotivoBaja())
+				? custodia.getMotivoBaja() : "OTRO";
 		String obsBaja = (custodia.getObservacion() == null || custodia.getObservacion().isBlank())
 				? "Baja de activo" : custodia.getObservacion().trim();
 		String autorizadoPor = sesionUsuario.getNombre();
 
 		List<Integer> equipoIds = custodia.getEquiposSeleccionados().stream().distinct().toList();
-		List<Integer> exitosos = new ArrayList<>();
+		List<EquiposResponseDTO> equiposBaja = new ArrayList<>();
 		List<String> errores = new ArrayList<>();
 
 		for (Integer idEquipo : equipoIds) {
 			BajaActivoRequestDTO req = new BajaActivoRequestDTO();
 			req.setEquipoId(idEquipo);
 			req.setFechaBaja(fechaBaja);
-			req.setMotivo(obsBaja);
+			req.setMotivo(motivoBaja);
 			req.setObservacion(obsBaja);
 			req.setAutorizadoPor(autorizadoPor);
 			try {
-				inventarioOperacionServicio.darBajaActivo(req);
-				exitosos.add(idEquipo);
+				var activo = inventarioOperacionServicio.darBajaActivo(req);
+				equiposBaja.add(EquiposResponseDTO.desdeActivo(activo));
 			} catch (Exception ex) {
 				errores.add("Equipo #" + idEquipo + ": " + ex.getMessage());
 			}
 		}
 
-		if (exitosos.isEmpty()) {
+		if (equiposBaja.isEmpty()) {
 			redirectAttributes.addFlashAttribute("error",
 					"No se pudo dar de baja ningún equipo: " + String.join("; ", errores));
 			return "redirect:/custodias";
 		}
 
-		List<EquiposResponseDTO> equiposBaja = exitosos.stream()
-				.map(servicioEquipos::obtenerPorId)
-				.filter(e -> e != null)
-				.toList();
-
 		session.setAttribute("ACTA_BAJA_EQUIPOS", equiposBaja);
 		session.setAttribute("ACTA_BAJA_FECHA", fechaBaja);
+		session.setAttribute("ACTA_BAJA_MOTIVO", motivoBaja);
 		session.setAttribute("ACTA_BAJA_OBSERVACION", obsBaja);
+		session.setAttribute("ACTA_BAJA_RETURN_URL", "/custodias");
 
 		return "redirect:/custodias/actaBaja";
 	}
@@ -255,10 +258,12 @@ public class CustodiasControlador {
 		}
 
 		LocalDate fechaBaja = (LocalDate) session.getAttribute("ACTA_BAJA_FECHA");
+		String motivoBaja = (String) session.getAttribute("ACTA_BAJA_MOTIVO");
 		String observacionBaja = (String) session.getAttribute("ACTA_BAJA_OBSERVACION");
 
 		model.addAttribute("equiposBaja", equiposBaja);
 		model.addAttribute("fechaBaja", fechaBaja != null ? fechaBaja : LocalDate.now());
+		model.addAttribute("motivoBaja", motivoBaja);
 		model.addAttribute("observacionBaja", observacionBaja != null ? observacionBaja : "");
 		model.addAttribute("returnUrl",
 				session.getAttribute("ACTA_BAJA_RETURN_URL") != null

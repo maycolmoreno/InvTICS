@@ -1022,17 +1022,17 @@
                 </button>
             </div>
             <div class="cui-drawer-body">
-                <form th:action="@{/inventario/bajas/activos}" method="post" class="row g-3">
+                <form data-baja-activo th:action="@{/inventario/bajas/activos}" method="post" class="row g-3">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <input type="hidden" name="equipoId" th:value="${equipo.idEquipo}">
                     <div class="col-12">
                         <label class="form-label text-muted small">Equipo</label>
-                        <div class="form-control bg-light fw-semibold"
+                        <div class="form-control bg-light fw-semibold" data-activo-label
                              th:text="${codigoActivo + ' · ' + modeloActivo}">—</div>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Motivo de baja <span class="text-danger">*</span></label>
-                        <select class="form-select" name="motivo" required>
+                        <select class="form-select" name="motivo" data-baja-required required>
                             <option value="">Seleccione motivo</option>
                             <option value="DESTRUCCION">Destrucción</option>
                             <option value="OBSOLESCENCIA">Obsolescencia</option>
@@ -1044,16 +1044,12 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label">Fecha de baja</label>
-                        <input type="date" class="form-control" name="fechaBaja"
+                        <input type="date" class="form-control" name="fechaBaja" data-baja-required required
                                th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Autorizado por</label>
-                        <input type="text" class="form-control" name="autorizadoPor" placeholder="Nombre del autorizador">
-                    </div>
-                    <div class="col-12">
                         <label class="form-label">Observacion</label>
-                        <textarea class="form-control" name="observacion" rows="2"></textarea>
+                        <textarea class="form-control" name="observacion" rows="2" data-baja-required required></textarea>
                     </div>
                     <div class="col-12">
                         <div class="alert alert-warning py-2 small">
@@ -1061,9 +1057,15 @@
                             Esta accion es irreversible. El activo quedara como DADO_DE_BAJA.
                         </div>
                     </div>
+                    <div class="col-12">
+                        <label class="form-label small text-muted">Para confirmar, escriba <strong>BAJA</strong></label>
+                        <input type="text" class="form-control" data-baja-confirm-input
+                               autocomplete="off" placeholder="BAJA">
+                    </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
-                        <button class="cui-btn cui-btn-danger" type="submit">
+                        <button class="cui-btn cui-btn-danger" type="submit"
+                                data-cui-confirm="Confirme la baja del activo.">
                             <i class="feather-x-circle" aria-hidden="true"></i>
                             <span>Confirmar baja</span>
                         </button>
@@ -1117,6 +1119,8 @@
         </aside>
 
     </div>
+
+    <script th:src="@{/js/cresio/baja-activo.js}"></script>
 
     <!-- Script: guardar datos faltantes sin salir del expediente -->
     <script th:inline="none">

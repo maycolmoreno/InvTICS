@@ -33,26 +33,30 @@
                         <span class="itam-badge danger">Accion final</span>
                     </div>
                     <div class="itam-panel-body">
-                        <form id="form-baja" th:action="@{/inventario/bajas/activos}" th:object="${bajaActivoRequest}" method="post" class="row g-3">
+                        <form id="form-baja" data-baja-activo
+                              th:action="@{/inventario/bajas/activos}" th:object="${bajaActivoRequest}" method="post" class="row g-3">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <div class="col-12">
                                 <label class="form-label">Activo</label>
-                                <select id="select-activo" class="form-select" th:field="*{equipoId}" required>
+                                <select id="select-activo" class="form-select" th:field="*{equipoId}"
+                                        data-activo-label data-baja-required required>
                                     <option value="">Seleccione</option>
-                                    <option th:each="a : ${activosEnBodega}"
+                                    <option th:each="a : ${activosParaBaja}"
                                             th:value="${a.idEquipo}"
-                                            th:text="${(a.codigoCresio ?: 'Sin codigo') + ' - ' + (a.modelo ?: 'Sin modelo') + ' / ' + (a.bodegaNombre ?: 'Sin bodega')}">
+                                            th:attr="data-estado=${a.estadoInventario}"
+                                            th:text="${('[' + (a.estadoInventario ?: '?') + '] ') + (a.codigoCresio ?: 'Sin codigo') + ' - ' + (a.modelo ?: 'Sin modelo') + ' / ' + (a.bodegaNombre ?: a.estadoInventario == 'ASIGNADO' ? 'Asignado' : 'Sin bodega')}">
                                         Activo
                                     </option>
                                 </select>
+                                <div id="info-estado-activo" class="form-text" hidden></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Fecha baja</label>
-                                <input class="form-control" th:field="*{fechaBaja}" type="date" required>
+                                <input class="form-control" th:field="*{fechaBaja}" type="date" data-baja-required required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Motivo</label>
-                                <select class="form-select" th:field="*{motivo}" required>
+                                <select class="form-select" th:field="*{motivo}" data-baja-required required>
                                     <option value="">Seleccione</option>
                                     <option value="DESTRUCCION">Destrucción</option>
                                     <option value="OBSOLESCENCIA">Obsolescencia</option>
@@ -63,12 +67,8 @@
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Autorizado por</label>
-                                <input class="form-control" th:field="*{autorizadoPor}" placeholder="Nombre del responsable que autoriza la baja">
-                            </div>
-                            <div class="col-12">
                                 <label class="form-label">Observacion</label>
-                                <textarea class="form-control" th:field="*{observacion}" rows="4" required></textarea>
+                                <textarea class="form-control" th:field="*{observacion}" rows="4" data-baja-required required></textarea>
                             </div>
                             <div class="col-12">
                                 <div class="itam-list-item">
@@ -79,8 +79,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted">Para confirmar, escriba <strong>BAJA</strong></label>
+                                <input type="text" class="form-control" data-baja-confirm-input
+                                       autocomplete="off" placeholder="BAJA">
+                            </div>
                             <div class="col-12 d-flex justify-content-end">
-                                <button class="itam-btn danger" type="submit" th:disabled="${#lists.isEmpty(activosEnBodega)}">
+                                <button class="itam-btn danger" type="submit"
+                                        th:disabled="${#lists.isEmpty(activosParaBaja)}"
+                                        data-cui-confirm="Confirme la baja del activo.">
                                     <i class="feather-alert-triangle"></i>
                                     <span>Dar de baja</span>
                                 </button>
@@ -128,16 +135,26 @@
                 </section>
             </div>
 
+            <script th:src="@{/js/cresio/baja-activo.js}"></script>
             <script>
-                document.getElementById('form-baja').addEventListener('submit', function (e) {
+                (function () {
                     var sel = document.getElementById('select-activo');
-                    var label = sel.options[sel.selectedIndex]
-                        ? sel.options[sel.selectedIndex].text.trim()
-                        : 'este activo';
-                    if (!confirm('¿Confirma dar de baja a: ' + label + '?\n\nEsta acción es permanente y no puede revertirse.')) {
-                        e.preventDefault();
-                    }
-                });
+                    var info = document.getElementById('info-estado-activo');
+                    if (!sel || !info) return;
+                    sel.addEventListener('change', function () {
+                        var opt = sel.options[sel.selectedIndex];
+                        var estado = opt ? opt.getAttribute('data-estado') : null;
+                        if (!estado) { info.hidden = true; return; }
+                        info.hidden = false;
+                        if (estado === 'ASIGNADO') {
+                            info.className = 'form-text text-warning';
+                            info.textContent = 'Este activo está asignado a un custodio. La custodia se cerrará automáticamente al confirmar la baja.';
+                        } else {
+                            info.className = 'form-text text-muted';
+                            info.textContent = 'Estado actual: ' + estado + '.';
+                        }
+                    });
+                })();
             </script>
         </div>
     </div>

@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -153,7 +154,7 @@ public class MantenimientoControlador {
                 custodioId = custodiasServicio.listarCustodias().stream()
                         .filter(CustodiasResponseDTO::isEstado)
                         .filter(c -> c.getFkEquipo() != null
-                                && c.getFkEquipo().getIdEquipo().equals(request.getEquipoId()))
+                                && request.getEquipoId().equals(c.getFkEquipo().getIdEquipo()))
                         .map(this::idCustodio)
                         .filter(Objects::nonNull)
                         .findFirst()
@@ -168,7 +169,7 @@ public class MantenimientoControlador {
         if (tecnicoId != null) {
             try {
                 firmaTecnico = usuariosServicio.listarUsuario().stream()
-                        .filter(u -> u.getIdUsuario().equals(tecnicoId))
+                        .filter(u -> tecnicoId.equals(u.getIdUsuario()))
                         .map(com.uisrael.consumogestionactivosapi.modelo.dto.response.UsuariosResponseDTO::getNombre)
                         .findFirst()
                         .orElse(null);

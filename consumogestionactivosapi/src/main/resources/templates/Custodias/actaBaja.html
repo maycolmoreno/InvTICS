@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{plantilla/plantillaui}">
 <head>
@@ -7,60 +7,85 @@
     <title>Acta de Baja</title>
 </head>
 <body>
-<div layout:fragment="contenidopaginas">
+<div layout:fragment="contenidopaginas" class="itam-page">
+    <div class="main-content">
+        <div class="itam-shell">
 
-    <div class="page-header">
-        <div class="page-header-left d-flex align-items-center">
-            <div class="page-header-title">
-                <h5 class="m-b-10">Acta de Baja</h5>
+            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+            <div class="itam-hero">
+                <div>
+                    <p class="itam-eyebrow">Inventario operativo</p>
+                    <h1 class="itam-title">Acta de Baja</h1>
+                    <p class="itam-subtitle">Documento de trazabilidad del cierre de ciclo de vida del activo.</p>
+                </div>
+                <div class="itam-actions">
+                    <a th:href="@{/custodias/acta-baja/pdf}" class="cui-btn cui-btn-secondary">
+                        <i class="feather-download"></i>
+                        <span>Descargar PDF</span>
+                    </a>
+                    <a th:href="${returnUrl}" class="cui-btn">
+                        <i class="feather-arrow-left"></i>
+                        <span>Volver</span>
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="page-header-right ms-auto">
-            <a th:href="@{/custodias/acta-baja/pdf}" class="btn btn-primary">DESCARGAR PDF</a>
-            <a th:href="${returnUrl}" class="btn btn-secondary">VOLVER</a>
+
+            <section class="itam-panel">
+                <div class="itam-panel-head">
+                    <h2 class="itam-panel-title">Detalle de baja</h2>
+                    <span class="cui-badge cui-badge-danger">BAJA</span>
+                </div>
+                <div class="itam-panel-body">
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <p class="itam-item-meta mb-1">Fecha de baja</p>
+                            <p class="itam-item-title" th:text="${fechaBaja}">—</p>
+                        </div>
+                        <div class="col-md-3" th:if="${motivoBaja != null and !#strings.isEmpty(motivoBaja)}">
+                            <p class="itam-item-meta mb-1">Motivo</p>
+                            <p class="itam-item-title" th:text="${motivoBaja}">—</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="itam-item-meta mb-1">Observación</p>
+                            <p class="itam-item-title" th:text="${!#strings.isEmpty(observacionBaja) ? observacionBaja : '—'}">—</p>
+                        </div>
+                    </div>
+
+                    <div th:if="${equiposBaja == null or #lists.isEmpty(equiposBaja)}" class="itam-empty-state">
+                        <i class="feather-inbox"></i>
+                        <p>Sin equipos registrados en esta baja.</p>
+                    </div>
+
+                    <div class="table-responsive" th:unless="${equiposBaja == null or #lists.isEmpty(equiposBaja)}">
+                        <table class="table cui-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Código CRESIO</th>
+                                    <th>Modelo</th>
+                                    <th>Serial</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="e : ${equiposBaja}">
+                                    <td th:text="${e.codigoCresio ?: e.codigoSap ?: '#' + e.idEquipo}">—</td>
+                                    <td th:text="${e.modelo ?: '—'}">—</td>
+                                    <td th:text="${e.serial ?: '—'}">—</td>
+                                    <td>
+                                        <span class="cui-badge cui-badge-danger">BAJA</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </section>
+
         </div>
     </div>
-
-    <div class="card">
-        <div class="card-body">
-            <p><b>Fecha de baja:</b> <span th:text="${fechaBaja}"></span></p>
-            <p><b>Motivo / Observacion:</b> <span th:text="${observacionBaja}"></span></p>
-
-            <hr>
-            <h6 class="mb-3"><b>Equipos dados de baja</b></h6>
-
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Codigo</th>
-                        <th>Modelo</th>
-                        <th>Serial</th>
-                        <th>Ubicación</th>
-                        <th>Estado</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="e : ${equiposBaja}">
-                        <td th:text="${e.idEquipo}"></td>
-                        <td th:text="${e.codigoSap}"></td>
-                        <td th:text="${e.modelo}"></td>
-                        <td th:text="${e.serial}"></td>
-                        <td></td>
-                        <td>
-                            <span class="badge bg-soft-danger text-danger">BAJA</span>
-                        </td>
-                    </tr>
-                    <tr th:if="${equiposBaja == null or #lists.isEmpty(equiposBaja)}">
-                        <td colspan="7" class="text-center text-muted">Sin equipos</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
 </div>
 </body>
 </html>
