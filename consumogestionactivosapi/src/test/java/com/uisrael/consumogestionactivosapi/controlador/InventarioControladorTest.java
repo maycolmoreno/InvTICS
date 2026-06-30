@@ -185,17 +185,18 @@ class InventarioControladorTest {
         @Test
         void baja_no_redirige_a_url_externa() throws Exception {
             ActivoInventarioResponseDTO activo = new ActivoInventarioResponseDTO();
+            activo.setIdEquipo(11);
             activo.setCodigoCresio("CR-LAP-001");
             when(inventarioOperacionServicio.darBajaActivo(any())).thenReturn(activo);
 
+            // En éxito, returnTo es ignorado: siempre redirige a /custodias/actaBaja
             mockMvc.perform(post("/inventario/bajas/activos")
                             .param("equipoId", "11")
                             .param("motivo", "OBSOLESCENCIA")
                             .param("observacion", "Fin de vida")
                             .param("returnTo", "//evil.test"))
                     .andExpect(status().is3xxRedirection())
-                    .andExpect(redirectedUrl("/inventario/bajas"))
-                    .andExpect(flash().attributeExists("success"));
+                    .andExpect(redirectedUrl("/custodias/actaBaja"));
         }
     }
 

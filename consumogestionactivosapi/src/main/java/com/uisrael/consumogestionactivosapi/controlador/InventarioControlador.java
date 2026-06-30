@@ -42,6 +42,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.Trasla
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.TrasladoConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ActivoInventarioResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.AsignacionActivosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.BodegaResponseDTO;
@@ -431,14 +432,29 @@ public class InventarioControlador {
 	@PostMapping("/bajas/activos")
 	public String darBajaActivo(@ModelAttribute BajaActivoRequestDTO request,
 			@RequestParam(required = false) String returnTo,
-			RedirectAttributes redirect) {
+			RedirectAttributes redirect,
+			HttpSession session) {
 		try {
 			var activo = inventarioOperacionServicio.darBajaActivo(request);
-			redirect.addFlashAttribute("success", "Activo " + activo.getCodigoCresio() + " dado de baja correctamente.");
+
+			EquiposResponseDTO equipoDto = new EquiposResponseDTO();
+			equipoDto.setIdEquipo(activo.getIdEquipo());
+			equipoDto.setCodigoSap(activo.getCodigoSap());
+			equipoDto.setModelo(activo.getModelo());
+			equipoDto.setSerial(activo.getSerial());
+
+			session.setAttribute("ACTA_BAJA_EQUIPOS",    List.of(equipoDto));
+			session.setAttribute("ACTA_BAJA_FECHA",       request.getFechaBaja() != null
+			                                               ? request.getFechaBaja()
+			                                               : LocalDate.now());
+			session.setAttribute("ACTA_BAJA_OBSERVACION", request.getObservacion());
+			session.setAttribute("ACTA_BAJA_RETURN_URL",  "/inventario/bajas");
+
+			return "redirect:/custodias/actaBaja";
 		} catch (Exception ex) {
 			redirect.addFlashAttribute("error", "No se pudo dar de baja el activo: " + ex.getMessage());
+			return redirectLocal(returnTo, "/inventario/bajas");
 		}
-		return redirectLocal(returnTo, "/inventario/bajas");
 	}
 
 	private String redirectLocal(String returnTo, String fallback) {

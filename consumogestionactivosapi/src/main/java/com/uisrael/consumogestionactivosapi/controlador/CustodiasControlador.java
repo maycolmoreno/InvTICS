@@ -260,6 +260,10 @@ public class CustodiasControlador {
 		model.addAttribute("equiposBaja", equiposBaja);
 		model.addAttribute("fechaBaja", fechaBaja != null ? fechaBaja : LocalDate.now());
 		model.addAttribute("observacionBaja", observacionBaja != null ? observacionBaja : "");
+		model.addAttribute("returnUrl",
+				session.getAttribute("ACTA_BAJA_RETURN_URL") != null
+						? (String) session.getAttribute("ACTA_BAJA_RETURN_URL")
+						: "/custodias");
 
 		return "Custodias/actaBaja";
 	}
