@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.entidades.FirmaMantenimiento;
+import com.uisrael.gestionactivosapi.dominio.entidades.ResultadoTecnico;
 import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoFirma;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoOrigenMantenimiento;
@@ -192,7 +193,10 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
 
     @Transactional
     public MantenimientoManualResponseDTO cerrar(Integer idMantenimiento, String descripcionTrabajoRealizado,
-            String resultadoTecnico, String cerradoPor) {
+            ResultadoTecnico resultadoTecnico, String cerradoPor) {
+        if (resultadoTecnico == null) {
+            throw new IllegalStateException("El resultado tecnico es obligatorio para cerrar la OT");
+        }
         MantenimientosJpa mantenimiento = mantenimientosRepo.findById(idMantenimiento)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mantenimiento no encontrado"));
         mantenimiento.setDescripcion(actualizarDescripcionCierre(
@@ -200,9 +204,7 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
                 descripcionTrabajoRealizado));
         mantenimiento.setEstadoInterno(EstadoInternoMantenimiento.CERRADO);
         mantenimiento.setFecCierre(LocalDateTime.now());
-        if (resultadoTecnico != null && !resultadoTecnico.isBlank()) {
-            mantenimiento.setResultadoTecnico(resultadoTecnico);
-        }
+        mantenimiento.setResultadoTecnico(resultadoTecnico);
         if (cerradoPor != null && !cerradoPor.isBlank()) {
             mantenimiento.setCerradoPor(cerradoPor);
         }

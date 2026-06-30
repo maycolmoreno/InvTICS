@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.uisrael.gestionactivosapi.dominio.entidades.ResultadoTecnico;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -30,7 +32,7 @@ public class MantenimientoManualResponseDTO {
     private Boolean estado;
     private String estadoInterno;
     private LocalDateTime creadoEn;
-    private String resultadoTecnico;
+    private ResultadoTecnico resultadoTecnico;
     private String cerradoPor;
     private LocalDateTime cerradoEn;
     private List<ActividadManualResponseDTO> actividades;

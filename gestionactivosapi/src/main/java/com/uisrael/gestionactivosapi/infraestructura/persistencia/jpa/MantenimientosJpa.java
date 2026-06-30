@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimiento;
+import com.uisrael.gestionactivosapi.dominio.entidades.ResultadoTecnico;
 import com.uisrael.gestionactivosapi.dominio.entidades.TipoOrigenMantenimiento;
 
 import java.util.ArrayList;
@@ -95,8 +96,9 @@ public class MantenimientosJpa implements Serializable {
     @Column(name = "activo")
     private Boolean activo;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "resultado_tecnico", length = 50)
-    private String resultadoTecnico;
+    private ResultadoTecnico resultadoTecnico;
 
     @Column(name = "cerrado_por", length = 150)
     private String cerradoPor;
@@ -370,11 +372,11 @@ public class MantenimientosJpa implements Serializable {
         this.equipos = equipos;
     }
 
-    public String getResultadoTecnico() {
+    public ResultadoTecnico getResultadoTecnico() {
         return resultadoTecnico;
     }
 
-    public void setResultadoTecnico(String resultadoTecnico) {
+    public void setResultadoTecnico(ResultadoTecnico resultadoTecnico) {
         this.resultadoTecnico = resultadoTecnico;
     }
 

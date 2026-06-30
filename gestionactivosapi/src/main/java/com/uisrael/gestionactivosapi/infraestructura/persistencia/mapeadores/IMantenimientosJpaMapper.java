@@ -20,6 +20,8 @@ public interface IMantenimientosJpaMapper {
     @Mapping(target = "fkUsuario", ignore = true)
     @Mapping(target = "programadoRel", ignore = true)
     @Mapping(target = "equipos", ignore = true)
+    @Mapping(target = "resultadoTecnico", ignore = true)
+    @Mapping(target = "cerradoPor", ignore = true)
     MantenimientosJpa toEntity(Mantenimientos mantenimiento);
 
     default EquipoSnapshot toDomain(EquipoSnapshotEmbeddable snapshot) {

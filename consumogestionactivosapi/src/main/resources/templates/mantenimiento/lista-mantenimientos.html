@@ -623,12 +623,13 @@
                         <label class="form-label fw-semibold">Resultado tecnico <span class="text-danger">*</span></label>
                         <select class="form-select" name="resultadoTecnico" id="retResultadoSelect" required>
                             <option value="">Seleccione el resultado</option>
-                            <option value="REPARADO">RT-01 — Reparado (funcional al 100%)</option>
-                            <option value="PARCIALMENTE_REPARADO">RT-04 — Parcialmente reparado</option>
-                            <option value="GARANTIA_APLICADA">RT-09 — Garantia aplicada</option>
-                            <option value="ACTUALIZADO">RT-11 — Actualizado</option>
-                            <option value="IRREPARABLE">RT-07 — Irreparable</option>
-                            <option value="REQUIERE_BAJA">RT-08 — Requiere baja</option>
+                            <option value="REPARADO">Reparado — funcional al 100%</option>
+                            <option value="PARCIALMENTE_REPARADO">Parcialmente reparado — funcional con limitaciones</option>
+                            <option value="GARANTIA_APLICADA">Garantia aplicada — sin costo para la institucion</option>
+                            <option value="GARANTIA_RECHAZADA">Garantia rechazada — proveedor no aplico cobertura</option>
+                            <option value="ACTUALIZADO">Actualizado — firmware o configuracion actualizados</option>
+                            <option value="IRREPARABLE">Irreparable — sin reparacion viable</option>
+                            <option value="REQUIERE_BAJA">Requiere baja — iniciar proceso de baja</option>
                         </select>
                         <div id="retResultadoHint" class="form-text text-muted"></div>
                     </div>

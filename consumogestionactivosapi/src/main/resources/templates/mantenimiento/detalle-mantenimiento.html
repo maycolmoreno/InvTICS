@@ -218,7 +218,7 @@
                 <div class="cui-card-body d-flex flex-column gap-2">
                     <div>
                         <p class="small fw-semibold mb-1">Resultado</p>
-                        <p class="small" th:text="${mantenimiento.resultadoTecnico}">—</p>
+                        <p class="small" th:text="#{__{'ResultadoTecnico.' + mantenimiento.resultadoTecnico}__}">—</p>
                     </div>
                     <div th:if="${mantenimiento.cerradoPor != null}">
                         <p class="small fw-semibold mb-1">Cerrado por</p>
@@ -321,18 +321,18 @@
                     <label class="form-label fw-semibold">Resultado tecnico <span class="text-danger">*</span></label>
                     <select class="form-select" name="resultadoTecnico" required id="cerrarResultadoSel">
                         <option value="">Seleccione el resultado</option>
-                        <option value="REPARADO">RT-01 — Reparado (funcional al 100%)</option>
-                        <option value="INSPECCIONADO">RT-02 — Inspeccionado sin fallas</option>
-                        <option value="MANTENIMIENTO_REALIZADO">RT-03 — Mantenimiento preventivo realizado</option>
-                        <option value="PARCIALMENTE_REPARADO">RT-04 — Parcialmente reparado</option>
-                        <option value="PENDIENTE_REPUESTO">RT-05 — Pendiente de repuesto</option>
-                        <option value="DERIVADO_GARANTIA">RT-06 — Derivado a garantia</option>
-                        <option value="IRREPARABLE">RT-07 — Irreparable</option>
-                        <option value="REQUIERE_BAJA">RT-08 — Requiere baja</option>
-                        <option value="GARANTIA_APLICADA">RT-09 — Garantia aplicada</option>
-                        <option value="CONFIGURADO">RT-10 — Configurado / reinstalado</option>
-                        <option value="ACTUALIZADO">RT-11 — Actualizado</option>
-                        <option value="INSTALADO">RT-12 — Instalado</option>
+                        <option value="REPARADO">Reparado — funcional al 100%</option>
+                        <option value="SIN_FALLA">Sin falla — inspeccionado, sin anomalias</option>
+                        <option value="SIN_INTERVENCION">Sin intervencion — mantenimiento preventivo sin hallazgos</option>
+                        <option value="PARCIALMENTE_REPARADO">Parcialmente reparado — funcional con limitaciones</option>
+                        <option value="REQUIERE_REPUESTO">Requiere repuesto — pendiente de pieza</option>
+                        <option value="ESCALADO_A_PROVEEDOR">Escalado a proveedor — derivado a soporte externo</option>
+                        <option value="IRREPARABLE">Irreparable — sin reparacion viable</option>
+                        <option value="REQUIERE_BAJA">Requiere baja — estado critico, iniciar proceso de baja</option>
+                        <option value="GARANTIA_APLICADA">Garantia aplicada — reparacion cubierta sin costo</option>
+                        <option value="GARANTIA_RECHAZADA">Garantia rechazada — proveedor no aplico cobertura</option>
+                        <option value="ACTUALIZADO">Actualizado — firmware, software o configuracion actualizada</option>
+                        <option value="INSTALADO">Instalado — equipo puesto en produccion por primera vez</option>
                     </select>
                     <div id="cerrarResultadoHint" class="form-text text-muted"></div>
                 </div>
@@ -369,18 +369,18 @@
 <script>
 (function () {
     var HINTS = {
-        'REPARADO': 'El activo queda operativo. Se recomienda retornar a bodega.',
-        'INSPECCIONADO': 'Inspeccion completada sin anomalias detectadas.',
-        'MANTENIMIENTO_REALIZADO': 'Mantenimiento preventivo ejecutado segun plan.',
+        'REPARADO':              'El activo queda operativo. Se recomienda retornar a bodega.',
+        'SIN_FALLA':             'Inspeccion completada sin anomalias. El activo continua en servicio.',
+        'SIN_INTERVENCION':      'Mantenimiento preventivo ejecutado. No se detectaron fallas.',
         'PARCIALMENTE_REPARADO': 'Funcional con limitaciones. Requiere seguimiento.',
-        'PENDIENTE_REPUESTO': 'La OT queda cerrada pero el activo espera repuesto.',
-        'DERIVADO_GARANTIA': 'Se deriva al proveedor bajo garantia.',
-        'IRREPARABLE': 'No tiene reparacion viable. Iniciar proceso de baja.',
-        'REQUIERE_BAJA': 'Estado critico. Se recomienda baja formal.',
-        'GARANTIA_APLICADA': 'Reparacion cubierta por garantia sin costo.',
-        'CONFIGURADO': 'Sistema reinstalado o configurado.',
-        'ACTUALIZADO': 'Firmware o software actualizado.',
-        'INSTALADO': 'Equipo instalado en destino final.'
+        'REQUIERE_REPUESTO':     'La OT queda cerrada. El activo espera pieza para recuperacion total.',
+        'ESCALADO_A_PROVEEDOR':  'Derivado a soporte externo o garantia del fabricante.',
+        'IRREPARABLE':           'Sin reparacion viable. Iniciar proceso de baja.',
+        'REQUIERE_BAJA':         'Estado critico. Se recomienda baja formal del activo.',
+        'GARANTIA_APLICADA':     'Reparacion cubierta por garantia sin costo para la institucion.',
+        'GARANTIA_RECHAZADA':    'El proveedor no aplico la cobertura. Evaluar reparacion o baja.',
+        'ACTUALIZADO':           'Firmware, software o configuracion actualizados correctamente.',
+        'INSTALADO':             'Equipo puesto en produccion por primera vez.'
     };
     var sel  = document.getElementById('cerrarResultadoSel');
     var hint = document.getElementById('cerrarResultadoHint');
