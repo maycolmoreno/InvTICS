@@ -33,11 +33,11 @@
                         <span class="itam-badge danger">Accion final</span>
                     </div>
                     <div class="itam-panel-body">
-                        <form th:action="@{/inventario/bajas/activos}" th:object="${bajaActivoRequest}" method="post" class="row g-3">
+                        <form id="form-baja" th:action="@{/inventario/bajas/activos}" th:object="${bajaActivoRequest}" method="post" class="row g-3">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <div class="col-12">
                                 <label class="form-label">Activo</label>
-                                <select class="form-select" th:field="*{equipoId}" required>
+                                <select id="select-activo" class="form-select" th:field="*{equipoId}" required>
                                     <option value="">Seleccione</option>
                                     <option th:each="a : ${activosEnBodega}"
                                             th:value="${a.idEquipo}"
@@ -75,7 +75,7 @@
                                     <span class="itam-dot danger"></span>
                                     <div>
                                         <p class="itam-item-title">Validacion previa</p>
-                                        <p class="itam-item-meta mb-0">El backend bloquea activos con mantenimiento en proceso y conserva el historial.</p>
+                                        <p class="itam-item-meta mb-0">El backend bloquea activos en tránsito, en reparación o con mantenimiento en proceso.</p>
                                     </div>
                                 </div>
                             </div>
@@ -89,7 +89,56 @@
                     </div>
                 </section>
 
+                <section class="itam-panel">
+                    <div class="itam-panel-head">
+                        <h2 class="itam-panel-title">Últimas bajas</h2>
+                        <span class="itam-badge" th:text="${#lists.size(movimientos)} + ' registros'">0 registros</span>
+                    </div>
+                    <div class="itam-panel-body p-0">
+                        <div th:if="${#lists.isEmpty(movimientos)}" class="itam-empty-state">
+                            <i class="feather-inbox"></i>
+                            <p>No hay bajas registradas aún.</p>
+                        </div>
+                        <table th:unless="${#lists.isEmpty(movimientos)}" class="table cui-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Activo</th>
+                                    <th>Fecha</th>
+                                    <th>Bodega origen</th>
+                                    <th>Custodio</th>
+                                    <th>Observación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="m : ${movimientos}">
+                                    <td>
+                                        <span class="cui-badge cui-badge-danger"
+                                              th:text="${m.equipoCodigo ?: '#' + m.equipoId}">—</span>
+                                    </td>
+                                    <td th:text="${#temporals.format(m.fechaMovimiento, 'dd/MM/yyyy')}">—</td>
+                                    <td th:text="${m.bodegaOrigenNombre ?: '—'}">—</td>
+                                    <td th:text="${m.custodioNombre ?: '—'}">—</td>
+                                    <td class="text-truncate" style="max-width:180px"
+                                        th:title="${m.observacion}"
+                                        th:text="${m.observacion ?: '—'}">—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
+
+            <script>
+                document.getElementById('form-baja').addEventListener('submit', function (e) {
+                    var sel = document.getElementById('select-activo');
+                    var label = sel.options[sel.selectedIndex]
+                        ? sel.options[sel.selectedIndex].text.trim()
+                        : 'este activo';
+                    if (!confirm('¿Confirma dar de baja a: ' + label + '?\n\nEsta acción es permanente y no puede revertirse.')) {
+                        e.preventDefault();
+                    }
+                });
+            </script>
         </div>
     </div>
 </div>

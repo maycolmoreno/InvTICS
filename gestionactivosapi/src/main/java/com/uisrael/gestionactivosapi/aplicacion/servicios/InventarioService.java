@@ -560,6 +560,14 @@ public class InventarioService {
         if (EstadoInventarioActivo.DADO_DE_BAJA.name().equals(equipo.getEstadoInventario())) {
             throw new IllegalArgumentException("El activo ya se encuentra dado de baja");
         }
+        if (EstadoInventarioActivo.EN_TRANSITO.name().equals(equipo.getEstadoInventario())) {
+            throw new IllegalArgumentException(
+                    "No se puede dar de baja un activo en tránsito. Confirme o cancele el traslado primero.");
+        }
+        if (EstadoInventarioActivo.EN_REPARACION.name().equals(equipo.getEstadoInventario())) {
+            throw new IllegalArgumentException(
+                    "No se puede dar de baja un activo en reparación. Retorne el activo primero.");
+        }
         if (mantenimientosRepo.existsByEquipoEnProcesoIncluyendoMultiple(
                 equipo.getIdEquipo(), EstadoInternoMantenimiento.EN_PROCESO)) {
             throw new IllegalArgumentException("No se puede dar de baja un activo con mantenimiento en proceso");
