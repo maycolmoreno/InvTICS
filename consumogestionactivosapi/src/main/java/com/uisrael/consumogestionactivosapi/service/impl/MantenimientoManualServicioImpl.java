@@ -132,11 +132,15 @@ public class MantenimientoManualServicioImpl implements IMantenimientoManualServ
 		java.util.Map<String, String> body = new java.util.HashMap<>();
 		if (resultadoTecnico != null) body.put("resultadoTecnico", resultadoTecnico);
 		if (observacionCierre != null) body.put("observacionCierre", observacionCierre);
-		return clienteWeb.post().uri("/mantenimiento/cerrar/{id}", id)
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(body)
-				.retrieve()
-				.body(MantenimientoManualResponseDTO.class);
+		try {
+			return clienteWeb.post().uri("/mantenimiento/cerrar/{id}", id)
+					.contentType(MediaType.APPLICATION_JSON)
+					.body(body)
+					.retrieve()
+					.body(MantenimientoManualResponseDTO.class);
+		} catch (RestClientResponseException ex) {
+			throw WebClientHelper.manejarError(ex);
+		}
 	}
 
 	@Override

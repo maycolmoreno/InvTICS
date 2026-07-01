@@ -147,7 +147,7 @@ public class MantenimientoManualControlador {
             Principal principal) {
         String cerradoPor = principal != null ? principal.getName() : "sistema";
         MantenimientoManualResponseDTO cerrado = mantenimientoService.cerrar(id,
-                request != null ? request.getDescripcionTrabajoRealizado() : null,
+                request != null ? request.getObservacionCierre() : null,
                 request != null ? request.getResultadoTecnico() : null,
                 cerradoPor);
         try {

@@ -55,29 +55,29 @@
                                 <p class="mt-2 mb-0">Todos los equipos ya tienen estado de inventario asignado.</p>
                             </td>
                         </tr>
-                        <tr th:each="eq : ${equiposSinInventario}"
-                            th:attr="data-search=${(eq.codigoCresio != null ? eq.codigoCresio : '') + ' ' + (eq.serial != null ? eq.serial : '') + ' ' + (eq.marcaNombre != null ? eq.marcaNombre : '') + ' ' + (eq.modeloNombre != null ? eq.modeloNombre : eq.modelo != null ? eq.modelo : '')}">
+                        <tr th:each="equipo : ${equiposSinInventario}"
+                            th:attr="data-search=${(equipo.codigoCresio != null ? equipo.codigoCresio : '') + ' ' + (equipo.serial != null ? equipo.serial : '') + ' ' + (equipo.marcaNombre != null ? equipo.marcaNombre : '') + ' ' + (equipo.modeloNombre != null ? equipo.modeloNombre : equipo.modelo != null ? equipo.modelo : '')}">
                             <td>
-                                <span class="fw-semibold" th:text="${eq.codigoCresio != null ? eq.codigoCresio : (eq.codigoSap != null ? eq.codigoSap : '—')}">—</span>
+                                <span class="fw-semibold" th:text="${equipo.codigoCresio != null ? equipo.codigoCresio : (equipo.codigoSap != null ? equipo.codigoSap : '—')}">—</span>
                             </td>
-                            <td th:text="${eq.categoriaNombre != null ? eq.categoriaNombre : '—'}">—</td>
+                            <td th:text="${equipo.categoriaNombre != null ? equipo.categoriaNombre : '—'}">—</td>
                             <td>
-                                <span th:text="${eq.marcaNombre != null ? eq.marcaNombre : '—'}">—</span>
-                                <small class="d-block text-muted" th:text="${eq.modeloNombre != null ? eq.modeloNombre : (eq.modelo != null ? eq.modelo : '')}"></small>
-                            </td>
-                            <td>
-                                <code th:text="${eq.serial != null ? eq.serial : '—'}">—</code>
+                                <span th:text="${equipo.marcaNombre != null ? equipo.marcaNombre : '—'}">—</span>
+                                <small class="d-block text-muted" th:text="${equipo.modeloNombre != null ? equipo.modeloNombre : (equipo.modelo != null ? equipo.modelo : '')}"></small>
                             </td>
                             <td>
-                                <span th:text="${eq.estadoEquipo != null ? eq.estadoEquipo : '—'}" class="cui-badge cui-badge-neutral">—</span>
+                                <code th:text="${equipo.serial != null ? equipo.serial : '—'}">—</code>
+                            </td>
+                            <td>
+                                <span th:text="${equipo.estadoEquipo != null ? equipo.estadoEquipo : '—'}" class="cui-badge cui-badge-neutral">—</span>
                             </td>
                             <td class="text-end">
                                 <button type="button"
                                         class="cui-btn cui-btn-sm cui-btn-primary"
                                         th:attr="data-cui-drawer-open='#drawerAdoptar',
-                                                 data-equipo-id=${eq.idEquipo},
-                                                 data-equipo-codigo=${eq.codigoCresio != null ? eq.codigoCresio : (eq.codigoSap != null ? eq.codigoSap : '')},
-                                                 data-equipo-desc=${eq.marcaNombre + ' ' + (eq.modelo != null ? eq.modelo : '')}">
+                                                 data-equipo-id=${equipo.idEquipo},
+                                                 data-equipo-codigo=${equipo.codigoCresio != null ? equipo.codigoCresio : (equipo.codigoSap != null ? equipo.codigoSap : '')},
+                                                 data-equipo-desc=${equipo.marcaNombre + ' ' + (equipo.modelo != null ? equipo.modelo : '')}">
                                     <i class="feather-download" aria-hidden="true"></i>
                                     <span>Adoptar</span>
                                 </button>

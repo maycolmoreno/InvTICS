@@ -79,7 +79,7 @@
                 <span>PDF</span>
             </a>
             <form th:action="@{'/mantenimiento/' + ${mantenimiento.idMantenimiento} + '/reenviar-correo'}"
-                  method="post" style="display:inline">
+                  method="post" class="d-inline">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <button type="submit" class="cui-btn cui-btn-secondary">
                     <i class="feather-mail" aria-hidden="true"></i>
@@ -122,7 +122,7 @@
     </div>
 
     <!-- ── Layout de dos columnas ─────────────────────────────── -->
-    <div class="cui-detail-layout" style="display:grid;grid-template-columns:1fr 320px;gap:1.25rem;align-items:start">
+    <div class="cui-detail-layout">
 
         <!-- Columna principal -->
         <div class="d-flex flex-column gap-3">
@@ -138,17 +138,14 @@
                           th:text="${mantenimiento.totalEquipos != null ? mantenimiento.totalEquipos + ' equipo(s)' : '1 equipo'}">1 equipo</span>
                 </div>
                 <div class="cui-card-body">
-                    <div th:if="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}"
-                         class="d-flex flex-column gap-2">
-                        <div th:each="eq : ${mantenimiento.equipos}" class="cui-row-stack border-bottom pb-2">
-                            <span class="cui-row-title" th:text="${eq.descripcion ?: 'Equipo sin descripcion'}">Equipo</span>
-                            <span class="cui-row-subtitle" th:text="${'Cod: ' + (eq.codigoSap ?: '—')}">Cod</span>
-                        </div>
+                    <div th:if="${#lists.isEmpty(mantenimiento.equipos)}" class="cui-row-stack">
+                        <span class="cui-row-title">Equipo sin descripcion</span>
                     </div>
-                    <div th:unless="${mantenimiento.equipos != null and !#lists.isEmpty(mantenimiento.equipos)}"
-                         class="cui-row-stack">
-                        <span class="cui-row-title" th:text="${mantenimiento.equipoDescripcion ?: 'Equipo sin descripcion'}">Equipo</span>
-                        <span class="cui-row-subtitle" th:text="${'Cod: ' + (mantenimiento.equipoCodigoSap ?: '—')}">Cod</span>
+                    <div th:unless="${#lists.isEmpty(mantenimiento.equipos)}" class="d-flex flex-column gap-2">
+                        <div th:each="equipoItem : ${mantenimiento.equipos}" class="cui-row-stack border-bottom pb-2">
+                            <span class="cui-row-title" th:text="${equipoItem.descripcion ?: 'Equipo sin descripcion'}">Equipo</span>
+                            <span class="cui-row-subtitle" th:text="${'Cod: ' + (equipoItem.codigoSap ?: '—')}">Cod</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -218,7 +215,7 @@
                 <div class="cui-card-body d-flex flex-column gap-2">
                     <div>
                         <p class="small fw-semibold mb-1">Resultado</p>
-                        <p class="small" th:text="#{__{'ResultadoTecnico.' + mantenimiento.resultadoTecnico}__}">—</p>
+                        <p class="small" th:text="#{__${'ResultadoTecnico.' + mantenimiento.resultadoTecnico}__}">—</p>
                     </div>
                     <div th:if="${mantenimiento.cerradoPor != null}">
                         <p class="small fw-semibold mb-1">Cerrado por</p>
@@ -279,20 +276,20 @@
                 <div class="cui-card-body d-flex flex-column gap-3">
                     <div>
                         <p class="small fw-semibold mb-1">Firma del tecnico</p>
-                        <img th:if="${mantenimiento.firmaTecnico}"
+                        <img th:if="${mantenimiento.firmaTecnico != null and !#strings.isEmpty(mantenimiento.firmaTecnico)}"
                              th:src="${mantenimiento.firmaTecnico}"
                              alt="firma tecnico"
                              style="max-width:100%;border:1px solid var(--cui-border-color);border-radius:6px">
-                        <span th:unless="${mantenimiento.firmaTecnico}"
+                        <span th:unless="${mantenimiento.firmaTecnico != null and !#strings.isEmpty(mantenimiento.firmaTecnico)}"
                               class="cui-badge cui-badge-en-bodega">Pendiente</span>
                     </div>
                     <div>
                         <p class="small fw-semibold mb-1">Firma del custodio</p>
-                        <img th:if="${mantenimiento.firmaCustodio}"
+                        <img th:if="${mantenimiento.firmaCustodio != null and !#strings.isEmpty(mantenimiento.firmaCustodio)}"
                              th:src="${mantenimiento.firmaCustodio}"
                              alt="firma custodio"
                              style="max-width:100%;border:1px solid var(--cui-border-color);border-radius:6px">
-                        <span th:unless="${mantenimiento.firmaCustodio}"
+                        <span th:unless="${mantenimiento.firmaCustodio != null and !#strings.isEmpty(mantenimiento.firmaCustodio)}"
                               class="cui-badge cui-badge-en-bodega">Pendiente</span>
                     </div>
                 </div>
@@ -307,9 +304,9 @@
                 <div class="fw-bold">Completar orden de trabajo</div>
                 <div class="small text-muted" th:text="'OT-' + ${#numbers.formatInteger(mantenimiento.idMantenimiento, 5)}">OT-00001</div>
             </div>
-            <button type="button" class="cui-icon-btn" data-cui-drawer-close aria-label="Cerrar">
+            <a href="#" class="cui-icon-btn" data-cui-drawer-close aria-label="Cerrar">
                 <i class="feather-x"></i>
-            </button>
+            </a>
         </div>
         <div class="cui-drawer-body">
             <form th:action="@{'/mantenimiento/cerrar/' + ${mantenimiento.idMantenimiento}}"

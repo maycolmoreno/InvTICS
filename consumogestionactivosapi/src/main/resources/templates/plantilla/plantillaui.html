@@ -15,13 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/css/bootstrap.min.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/vendors.min.css}">
-<link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/tagify.min.css}">
-<link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/tagify-data.min.css}">
-<link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/quill.min.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/select2.min.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/select2-theme.min.css}">
-<link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/datepicker.min.css}">
-<link rel="stylesheet" type="text/css" th:href="@{/assets/vendors/css/dataTables.bs5.min.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/css/theme.min.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/css/cresio-theme-pro.css}">
 <link rel="stylesheet" type="text/css" th:href="@{/assets/css/cresio-itam.css}">
@@ -57,20 +52,10 @@
     <div th:replace="~{fragments/components/confirm-modal :: confirmModal}"></div>
 
     <script th:src="@{/assets/vendors/js/vendors.min.js}"></script>
-    <script th:src="@{/assets/vendors/js/daterangepicker.min.js}"></script>
-    <script th:src="@{/assets/vendors/js/apexcharts.min.js}"></script>
-    <script th:src="@{/assets/vendors/js/circle-progress.min.js}"></script>
     <script th:src="@{/assets/js/common-init.min.js}"></script>
-    <script th:src="@{/assets/js/dashboard-init.min.js}"></script>
     <script th:src="@{/assets/js/theme-customizer-init.min.js}"></script>
-    <script th:src="@{/assets/vendors/js/tagify.min.js}"></script>
-    <script th:src="@{/assets/vendors/js/tagify-data.min.js}"></script>
-    <script th:src="@{/assets/vendors/js/quill.min.js}"></script>
     <script th:src="@{/assets/vendors/js/select2.min.js}"></script>
     <script th:src="@{/assets/vendors/js/select2-active.min.js}"></script>
-    <script th:src="@{/assets/vendors/js/datepicker.min.js}"></script>
-    <script th:src="@{/assets/vendors/js/dataTables.min.js}"></script>
-    <script th:src="@{/assets/vendors/js/dataTables.bs5.min.js}"></script>
     <script th:src="@{/assets/js/cresio-sidebar-fix.js}"></script>
     <script th:src="@{/js/cresio/app.js}"></script>
     <script th:src="@{/js/cresio/sidebar.js}"></script>
@@ -110,31 +95,6 @@
     </script>
     <script>
         $(document).ready(function() {
-            if ($('#proposalList').length) {
-                $('#proposalList').DataTable({
-                    language: {
-                        processing: "Procesando...",
-                        search: "Buscar:",
-                        lengthMenu: "Mostrar _MENU_ registros",
-                        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-                        infoEmpty: "Mostrando 0 a 0 de 0 registros",
-                        infoFiltered: "(filtrado de _MAX_ registros totales)",
-                        loadingRecords: "Cargando...",
-                        zeroRecords: "No se encontraron resultados",
-                        emptyTable: "No hay datos disponibles en la tabla",
-                        paginate: {
-                            first: "Primero",
-                            previous: "Anterior",
-                            next: "Siguiente",
-                            last: "Ultimo"
-                        }
-                    },
-                    pageLength: 10,
-                    lengthMenu: [5, 10, 25, 50],
-                    ordering: true
-                });
-            }
-
             function cresioInitSelect2(scope) {
                 var $scope = scope ? $(scope) : $(document);
                 $scope.find('select.form-select:not([data-select2-selector])').each(function () {

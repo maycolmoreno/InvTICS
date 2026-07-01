@@ -38,9 +38,16 @@
         <div th:if="${exito}"    class="alert alert-success cui-alert" th:text="${exito}"></div>
         <div th:if="${success}"  class="alert alert-success cui-alert" th:text="${success}"></div>
         <div th:if="${error}"    class="alert alert-danger  cui-alert" th:text="${error}"></div>
-        <div th:if="${otWarning}" class="alert alert-warning cui-alert">
-            <i class="feather-alert-triangle me-1"></i>
-            <span th:text="${otWarning}"></span>
+        <div th:if="${otWarning}" class="alert alert-warning cui-alert d-flex align-items-center justify-content-between gap-3">
+            <span>
+                <i class="feather-alert-triangle me-1"></i>
+                <span th:text="${otWarning}"></span>
+            </span>
+            <a th:if="${otPendienteId}" th:href="@{'/mantenimiento/' + ${otPendienteId}}"
+               class="cui-btn cui-btn-secondary cui-btn-sm"
+               th:text="'Completar OT-' + ${#numbers.formatInteger(otPendienteId, 5)}">
+                Completar OT
+            </a>
         </div>
         <div th:if="${otCreada}" class="alert alert-info cui-alert">
             <i class="feather-check-circle me-1"></i>
@@ -168,6 +175,11 @@
                             <td>
                                 <div class="cui-action-cell">
                                     <a class="cui-btn cui-btn-sm cui-btn-secondary" th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">Ver detalle</a>
+                                    <a class="cui-btn cui-btn-sm cui-btn-primary"
+                                       th:if="${estadoTexto != 'CERRADO'}"
+                                       th:href="@{'/mantenimiento/' + ${m.idMantenimiento}}">
+                                        Completar OT
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -994,10 +1006,7 @@
     // custodiosPorEquipo viene del modelo Thymeleaf como objeto JS
     var custodiosPorEquipo = /*[[${custodiosPorEquipo}]]*/ {};
     // custodiosActivos: map de id → nombre para mostrar en el label
-    var custodiosActivosMap = {};
-    /*[# th:each="c : ${custodiosActivos}"]*/
-    custodiosActivosMap[/*[[${c.idCustodio}]]*/ 0] = /*[[${c.nombre}]]*/ '';
-    /*[/]*/
+    var custodiosActivosMap = /*[[${custodiosActivosMap}]]*/ {};
 
     function actualizarCustodio() {
         var equipoId = equipoSel ? equipoSel.value : '';

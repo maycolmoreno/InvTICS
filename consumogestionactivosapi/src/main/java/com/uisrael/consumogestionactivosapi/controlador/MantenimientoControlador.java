@@ -30,6 +30,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.MantenimientoProg
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.ActividadChecklistResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquipoEnMantenimientoDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoManualResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoProgramadoResponseDTO;
@@ -97,7 +98,12 @@ public class MantenimientoControlador {
 
         List<CustodiosResponseDTO> custodios = custodiosServicio.listarCustodios();
         model.addAttribute("listacustodios", custodios);
-        model.addAttribute("custodiosActivos", custodios.stream().filter(CustodiosResponseDTO::isEstado).toList());
+        List<CustodiosResponseDTO> custodiosActivos = custodios.stream().filter(CustodiosResponseDTO::isEstado).toList();
+        model.addAttribute("custodiosActivos", custodiosActivos);
+        Map<Integer, String> custodiosActivosMap = custodiosActivos.stream()
+                .collect(Collectors.toMap(CustodiosResponseDTO::getIdCustodio, CustodiosResponseDTO::getNombre,
+                        (a, b) -> a, LinkedHashMap::new));
+        model.addAttribute("custodiosActivosMap", custodiosActivosMap);
 
         List<CustodiasResponseDTO> custodiasActivas = custodiasServicio.listarCustodias().stream()
                 .filter(CustodiasResponseDTO::isEstado)
@@ -242,32 +248,51 @@ public class MantenimientoControlador {
             return "redirect:/mantenimiento";
         }
 
-        // 2. Cerrar OT activa vinculada al equipo
+        // 2. Cerrar OT activa vinculada al equipo (requiere resultado tecnico)
         if (request.getEquipoId() != null) {
-            try {
-                List<MantenimientoManualResponseDTO> historial =
-                        mantenimientoManualServicio.obtenerHistorial(request.getEquipoId());
+            if (resultadoTecnico == null || resultadoTecnico.isBlank()) {
+                redirect.addFlashAttribute("otWarning",
+                        "El activo fue retornado, pero debe completar la OT manualmente indicando un resultado tecnico.");
+                try {
+                    List<MantenimientoManualResponseDTO> historial =
+                            mantenimientoManualServicio.obtenerHistorial(request.getEquipoId());
 
-                historial.stream()
-                        .filter(ot -> "EN_PROCESO".equals(ot.getEstadoInterno())
-                                || "PENDIENTE".equals(ot.getEstadoInterno()))
-                        .max(java.util.Comparator.comparing(
-                                ot -> ot.getCreadoEn() != null ? ot.getCreadoEn()
-                                        : java.time.LocalDateTime.MIN))
-                        .ifPresent(ot -> {
-                            try {
-                                mantenimientoManualServicio.cerrar(ot.getIdMantenimiento(), resultadoTecnico, null);
-                                redirect.addFlashAttribute("otCerrada", true);
-                            } catch (Exception ex) {
-                                log.warn("No se pudo cerrar OT {} al retornar equipo {}: {}",
-                                        ot.getIdMantenimiento(), request.getEquipoId(), ex.getMessage());
-                                redirect.addFlashAttribute("otWarning",
-                                        "El activo fue retornado pero la OT no pudo cerrarse automaticamente.");
-                            }
-                        });
-            } catch (Exception ex) {
-                log.warn("No se pudo obtener historial de OT para equipo {}: {}",
-                        request.getEquipoId(), ex.getMessage());
+                    historial.stream()
+                            .filter(ot -> "EN_PROCESO".equals(ot.getEstadoInterno()))
+                            .max(java.util.Comparator.comparing(
+                                    ot -> ot.getCreadoEn() != null ? ot.getCreadoEn()
+                                            : java.time.LocalDateTime.MIN))
+                            .ifPresent(ot -> redirect.addFlashAttribute("otPendienteId", ot.getIdMantenimiento()));
+                } catch (Exception ex) {
+                    log.warn("No se pudo localizar OT pendiente para equipo {}: {}",
+                            request.getEquipoId(), ex.getMessage());
+                }
+            } else {
+                try {
+                    List<MantenimientoManualResponseDTO> historial =
+                            mantenimientoManualServicio.obtenerHistorial(request.getEquipoId());
+
+                    historial.stream()
+                            .filter(ot -> "EN_PROCESO".equals(ot.getEstadoInterno())
+                                    || "PENDIENTE".equals(ot.getEstadoInterno()))
+                            .max(java.util.Comparator.comparing(
+                                    ot -> ot.getCreadoEn() != null ? ot.getCreadoEn()
+                                            : java.time.LocalDateTime.MIN))
+                            .ifPresent(ot -> {
+                                try {
+                                    mantenimientoManualServicio.cerrar(ot.getIdMantenimiento(), resultadoTecnico, null);
+                                    redirect.addFlashAttribute("otCerrada", true);
+                                } catch (Exception ex) {
+                                    log.warn("No se pudo cerrar OT {} al retornar equipo {}: {}",
+                                            ot.getIdMantenimiento(), request.getEquipoId(), ex.getMessage());
+                                    redirect.addFlashAttribute("otWarning",
+                                            "El activo fue retornado pero la OT no pudo cerrarse automaticamente.");
+                                }
+                            });
+                } catch (Exception ex) {
+                    log.warn("No se pudo obtener historial de OT para equipo {}: {}",
+                            request.getEquipoId(), ex.getMessage());
+                }
             }
         }
 
@@ -411,16 +436,23 @@ public class MantenimientoControlador {
     public String detalle(@PathVariable Integer id, Model model) {
         try {
             var dto = mantenimientoManualServicio.obtenerDetalle(id);
-            // Asegurar listas no-null para evitar NPE en Thymeleaf
-            if (dto.getActividades() == null) {
-                dto.setActividades(new java.util.ArrayList<>());
+            // Asegurar listas no-null y sin elementos null: th:each falla con
+            // "Iteration variable cannot be null" si la coleccion contiene un null.
+            dto.setActividades(sinNulos(dto.getActividades()));
+            dto.setImagenes(sinNulos(dto.getImagenes()));
+            // "equipos" es la unica fuente de verdad para la plantilla: si viene vacia
+            // pero existen los campos legacy (equipoDescripcion/equipoCodigoSap), se
+            // normaliza a una lista de un solo elemento en vez de tener dos caminos
+            // (th:each vs. campos sueltos) en el template.
+            List<EquipoEnMantenimientoDTO> equipos = sinNulos(dto.getEquipos());
+            if (equipos.isEmpty() && (dto.getEquipoDescripcion() != null || dto.getEquipoCodigoSap() != null)) {
+                EquipoEnMantenimientoDTO legado = new EquipoEnMantenimientoDTO();
+                legado.setEquipoId(dto.getEquipoId());
+                legado.setDescripcion(dto.getEquipoDescripcion());
+                legado.setCodigoSap(dto.getEquipoCodigoSap());
+                equipos = List.of(legado);
             }
-            if (dto.getImagenes() == null) {
-                dto.setImagenes(new java.util.ArrayList<>());
-            }
-            if (dto.getEquipos() == null) {
-                dto.setEquipos(new java.util.ArrayList<>());
-            }
+            dto.setEquipos(equipos);
             model.addAttribute("mantenimiento", dto);
         } catch (Exception e) {
             log.error("Error al cargar detalle mantenimiento {}: {}", id, e.getMessage());
@@ -477,13 +509,27 @@ public class MantenimientoControlador {
                          @RequestParam(required = false) String resultadoTecnico,
                          @RequestParam(required = false) String observacionCierre,
                          RedirectAttributes redirectAttributes) {
-        mantenimientoManualServicio.cerrar(id, resultadoTecnico, observacionCierre);
-        String msg = "Orden cerrada correctamente.";
-        if (resultadoTecnico != null && !resultadoTecnico.isBlank()) {
-            msg += " Resultado: " + resultadoTecnico;
+        try {
+            mantenimientoManualServicio.cerrar(id, resultadoTecnico, observacionCierre);
+            String msg = "Orden cerrada correctamente.";
+            if (resultadoTecnico != null && !resultadoTecnico.isBlank()) {
+                msg += " Resultado: " + resultadoTecnico;
+            }
+            redirectAttributes.addFlashAttribute("exito", msg);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", "No se pudo cerrar la OT: " + mensajeError(ex));
         }
-        redirectAttributes.addFlashAttribute("exito", msg);
         return "redirect:/mantenimiento/" + id;
+    }
+
+    private static String mensajeError(Exception ex) {
+        String mensaje = ex.getMessage();
+        return (mensaje != null && !mensaje.isBlank()) ? mensaje : "Error inesperado.";
+    }
+
+    private static <T> List<T> sinNulos(List<T> lista) {
+        return lista == null ? new ArrayList<>()
+                : lista.stream().filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
     }
 
     @GetMapping("/programado")
