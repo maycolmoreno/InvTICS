@@ -69,6 +69,7 @@ import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.Recepc
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.StockConsumibleResponseDTO;
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoOrdenCompraDetalle;
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoRecepcionLote;
+import com.uisrael.gestionactivosapi.dominio.servicios.inventario.RecepcionGuards;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.RecepcionLoteJpa;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IRecepcionLoteJpaRepositorio;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AdoptarInventarioInicialRequestDTO;
@@ -103,6 +104,7 @@ public class InventarioService {
     private final ICustodiosJpaRepositorio custodiosRepo;
     private final IMantenimientosJpaRepositorio mantenimientosRepo;
     private final IRecepcionLoteJpaRepositorio recepcionLoteRepo;
+    private final RecepcionGuards recepcionGuards = new RecepcionGuards();
 
     public InventarioService(IBodegaJpaRepositorio bodegaRepo,
             IConsumibleJpaRepositorio consumibleRepo,
@@ -203,15 +205,15 @@ public class InventarioService {
     public RecepcionLoteResponseDTO registrarRecepcionStockPorDetalle(Integer idOC, Integer idDetalle,
             RegistrarRecepcionStockRequestDTO request) {
         OrdenCompraJpa orden = buscarOrden(idOC);
+        recepcionGuards.validarOrdenRecibible(orden.getEstado());
         OrdenCompraDetalleJpa detalle = buscarDetalleDeOrden(idOC, idDetalle);
         if (detalle.getTipoItem() == TipoItemInventario.ACTIVO) {
             throw new IllegalArgumentException("Este detalle es de tipo ACTIVO; use el endpoint de recepcion de activo");
         }
+        recepcionGuards.validarDetalleRecibible(detalle.getEstado());
+        recepcionGuards.validarCantidad(request.getCantidad(),
+                detalle.getCantidadSolicitada(), detalle.getCantidadRecibida());
         int recibidoActual = detalle.getCantidadRecibida() == null ? 0 : detalle.getCantidadRecibida();
-        int pendiente = detalle.getCantidadSolicitada() - recibidoActual;
-        if (request.getCantidad() > pendiente) {
-            throw new IllegalArgumentException("La cantidad excede el pendiente: " + pendiente);
-        }
         BodegaJpa bodega = buscarBodegaActiva(request.getIdBodegaDestino());
         if (detalle.getConsumible() != null) {
             StockConsumibleBodegaJpa stock = stockRepo
@@ -242,14 +244,14 @@ public class InventarioService {
     public RecepcionLoteResponseDTO registrarRecepcionActivoPorDetalle(Integer idOC, Integer idDetalle,
             RegistrarRecepcionActivoRequestDTO request) {
         OrdenCompraJpa orden = buscarOrden(idOC);
+        recepcionGuards.validarOrdenRecibible(orden.getEstado());
         OrdenCompraDetalleJpa detalle = buscarDetalleDeOrden(idOC, idDetalle);
         if (detalle.getTipoItem() != TipoItemInventario.ACTIVO) {
             throw new IllegalArgumentException("Este detalle no es de tipo ACTIVO");
         }
+        recepcionGuards.validarDetalleRecibible(detalle.getEstado());
+        recepcionGuards.validarCantidad(1, detalle.getCantidadSolicitada(), detalle.getCantidadRecibida());
         int recibidoActual = detalle.getCantidadRecibida() == null ? 0 : detalle.getCantidadRecibida();
-        if (recibidoActual + 1 > detalle.getCantidadSolicitada()) {
-            throw new IllegalArgumentException("La recepcion excede la cantidad solicitada: " + detalle.getCantidadSolicitada());
-        }
         BodegaJpa bodega = buscarBodegaActiva(request.getIdBodegaDestino());
         CategoriaEquiposJpa categoria = buscarCategoria(request.getIdCategoria());
         MarcasJpa marca = buscarMarca(request.getIdMarca());

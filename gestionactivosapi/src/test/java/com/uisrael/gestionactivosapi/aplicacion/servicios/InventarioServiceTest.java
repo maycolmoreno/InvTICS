@@ -14,8 +14,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoInventarioActivo;
+import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoOrdenCompra;
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoOrdenCompraDetalle;
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.TipoItemInventario;
+import com.uisrael.gestionactivosapi.dominio.excepciones.CantidadExcedidaException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.CantidadInvalidaException;
+import com.uisrael.gestionactivosapi.dominio.excepciones.RecepcionNoPermitidaException;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.BodegaJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ConsumibleJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJpa;
@@ -234,6 +238,7 @@ class InventarioServiceTest {
         custodio.setEstado(true);
         when(equiposRepo.findById(8)).thenReturn(Optional.of(equipo));
         when(custodiosRepo.findById(4)).thenReturn(Optional.of(custodio));
+        when(bodegaRepo.findById(1)).thenReturn(Optional.of(bodega));
         when(custodiasRepo.save(any())).thenAnswer(invocation -> {
             CustodiasJpa custodia = invocation.getArgument(0);
             custodia.setIdCustodiaEquipo(99);
@@ -268,6 +273,99 @@ class InventarioServiceTest {
 
         assertThat(activos).hasSize(1);
         assertThat(activos.get(0).getEtiquetado()).isTrue();
+    }
+
+    @Test
+    void registrarRecepcionStock_rechazaOrdenNoRecibible() {
+        for (EstadoOrdenCompra estado : List.of(EstadoOrdenCompra.BORRADOR,
+                EstadoOrdenCompra.RECIBIDA, EstadoOrdenCompra.CANCELADA)) {
+            OrdenCompraJpa orden = orden(1);
+            orden.setEstado(estado);
+            when(ordenRepo.findById(1)).thenReturn(Optional.of(orden));
+
+            RegistrarRecepcionStockRequestDTO request = new RegistrarRecepcionStockRequestDTO();
+            request.setIdBodegaDestino(3);
+            request.setCantidad(1);
+
+            assertThatThrownBy(() -> service.registrarRecepcionStockPorDetalle(1, 2, request))
+                    .isInstanceOf(RecepcionNoPermitidaException.class);
+        }
+    }
+
+    @Test
+    void registrarRecepcionStock_rechazaDetalleNoRecibible() {
+        for (EstadoOrdenCompraDetalle estado : List.of(EstadoOrdenCompraDetalle.COMPLETO,
+                EstadoOrdenCompraDetalle.CANCELADO)) {
+            OrdenCompraJpa orden = orden(1);
+            OrdenCompraDetalleJpa detalle = detalle(2, orden, TipoItemInventario.STOCK);
+            detalle.setEstado(estado);
+            when(ordenRepo.findById(1)).thenReturn(Optional.of(orden));
+            when(detalleRepo.findById(2)).thenReturn(Optional.of(detalle));
+
+            RegistrarRecepcionStockRequestDTO request = new RegistrarRecepcionStockRequestDTO();
+            request.setIdBodegaDestino(3);
+            request.setCantidad(1);
+
+            assertThatThrownBy(() -> service.registrarRecepcionStockPorDetalle(1, 2, request))
+                    .isInstanceOf(RecepcionNoPermitidaException.class);
+        }
+    }
+
+    @Test
+    void registrarRecepcionStock_rechazaCantidadInvalidaOExcedida() {
+        OrdenCompraJpa orden = orden(1);
+        OrdenCompraDetalleJpa detalle = detalle(2, orden, TipoItemInventario.STOCK);
+        detalle.setCantidadRecibida(3);
+        detalle.setEstado(EstadoOrdenCompraDetalle.PARCIAL);
+        when(ordenRepo.findById(1)).thenReturn(Optional.of(orden));
+        when(detalleRepo.findById(2)).thenReturn(Optional.of(detalle));
+
+        RegistrarRecepcionStockRequestDTO cero = new RegistrarRecepcionStockRequestDTO();
+        cero.setIdBodegaDestino(3);
+        cero.setCantidad(0);
+        assertThatThrownBy(() -> service.registrarRecepcionStockPorDetalle(1, 2, cero))
+                .isInstanceOf(CantidadInvalidaException.class);
+
+        RegistrarRecepcionStockRequestDTO negativa = new RegistrarRecepcionStockRequestDTO();
+        negativa.setIdBodegaDestino(3);
+        negativa.setCantidad(-1);
+        assertThatThrownBy(() -> service.registrarRecepcionStockPorDetalle(1, 2, negativa))
+                .isInstanceOf(CantidadInvalidaException.class);
+
+        RegistrarRecepcionStockRequestDTO excede = new RegistrarRecepcionStockRequestDTO();
+        excede.setIdBodegaDestino(3);
+        excede.setCantidad(3);
+        assertThatThrownBy(() -> service.registrarRecepcionStockPorDetalle(1, 2, excede))
+                .isInstanceOf(CantidadExcedidaException.class);
+    }
+
+    @Test
+    void registrarRecepcionActivo_rechazaOrdenCancelada() {
+        OrdenCompraJpa orden = orden(1);
+        orden.setEstado(EstadoOrdenCompra.CANCELADA);
+        when(ordenRepo.findById(1)).thenReturn(Optional.of(orden));
+
+        RegistrarRecepcionActivoRequestDTO request = new RegistrarRecepcionActivoRequestDTO();
+        request.setIdBodegaDestino(3);
+
+        assertThatThrownBy(() -> service.registrarRecepcionActivoPorDetalle(1, 2, request))
+                .isInstanceOf(RecepcionNoPermitidaException.class);
+    }
+
+    @Test
+    void registrarRecepcionActivo_rechazaDetalleCompleto() {
+        OrdenCompraJpa orden = orden(1);
+        OrdenCompraDetalleJpa detalle = detalle(2, orden, TipoItemInventario.ACTIVO);
+        detalle.setCantidadRecibida(5);
+        detalle.setEstado(EstadoOrdenCompraDetalle.COMPLETO);
+        when(ordenRepo.findById(1)).thenReturn(Optional.of(orden));
+        when(detalleRepo.findById(2)).thenReturn(Optional.of(detalle));
+
+        RegistrarRecepcionActivoRequestDTO request = new RegistrarRecepcionActivoRequestDTO();
+        request.setIdBodegaDestino(3);
+
+        assertThatThrownBy(() -> service.registrarRecepcionActivoPorDetalle(1, 2, request))
+                .isInstanceOf(RecepcionNoPermitidaException.class);
     }
 
     private BodegaJpa bodega(Integer id, boolean estado) {
