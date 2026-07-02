@@ -18,4 +18,5 @@ public class MantenimientoManualRequestDTO {
     private String firmaCustodio;
     private List<ActividadManualRequestDTO> actividades;
     private List<ImagenMantenimientoRequestDTO> imagenes;
+    private Integer idProgramado;
 }

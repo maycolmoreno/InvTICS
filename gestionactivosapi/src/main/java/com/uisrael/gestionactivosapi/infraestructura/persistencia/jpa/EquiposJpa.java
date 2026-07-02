@@ -124,4 +124,10 @@ public class EquiposJpa extends AuditableEntity implements Serializable {
     @Column(name = "condicion_al_recibir", length = 30)
     private String condicionAlRecibir;
 
+    @Column(name = "baja_recomendada", nullable = false)
+    private boolean bajaRecomendada;
+
+    @Column(name = "baja_recomendada_origen")
+    private Integer bajaRecomendadaOrigen;
+
 }

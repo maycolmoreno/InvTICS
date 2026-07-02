@@ -61,9 +61,54 @@
     });
   }
 
+  // Prellena el formulario cuando se llega desde el boton "Iniciar baja" de
+  // una OT (resultadoTecnico IRREPARABLE/REQUIERE_BAJA). Solo carga datos:
+  // no marca el campo de confirmacion ni envia el formulario.
+  function precargarDesdeOT(form) {
+    var params = new URLSearchParams(window.location.search);
+    var otId = params.get("nuevoDesdeOT");
+    if (!otId) return;
+
+    var equipoId = params.get("equipoId");
+    var motivo = params.get("motivo");
+    var observacion = params.get("observacion");
+
+    var selectActivo = form.querySelector("#select-activo");
+    if (selectActivo && equipoId) {
+      var existe = Array.prototype.some.call(selectActivo.options, function (opt) {
+        return opt.value === equipoId;
+      });
+      if (existe) {
+        selectActivo.value = equipoId;
+        selectActivo.dispatchEvent(new Event("change"));
+      }
+    }
+
+    var selectMotivo = form.querySelector('[name="motivo"]');
+    if (selectMotivo && motivo) {
+      selectMotivo.value = motivo;
+      selectMotivo.dispatchEvent(new Event("change"));
+    }
+
+    var textareaObs = form.querySelector('[name="observacion"]');
+    if (textareaObs && observacion) {
+      textareaObs.value = observacion;
+      textareaObs.dispatchEvent(new Event("input"));
+    }
+
+    var banner = document.getElementById("banner-desde-ot");
+    var bannerTexto = document.getElementById("banner-desde-ot-texto");
+    if (banner && bannerTexto) {
+      bannerTexto.textContent = "OT-" + String(otId).padStart(5, "0");
+      banner.hidden = false;
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("form[data-baja-activo]").forEach(function (form) {
       var trigger = form.querySelector("[data-cui-confirm]");
+
+      precargarDesdeOT(form);
 
       actualizarMensajeConfirmacion(form);
 

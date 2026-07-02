@@ -15,5 +15,6 @@ public record MantenimientoManualComando(
 		String firmaCustodio,
 		String ipOrigen,
 		List<ActividadManualComando> actividades,
-		List<ImagenMantenimientoComando> imagenes) {
+		List<ImagenMantenimientoComando> imagenes,
+		Integer idProgramado) {
 }

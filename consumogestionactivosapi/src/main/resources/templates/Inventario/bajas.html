@@ -25,6 +25,29 @@
 
             <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
             <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+            <div id="banner-desde-ot" class="alert alert-info cui-alert d-flex align-items-center gap-2" hidden>
+                <i class="feather-info"></i>
+                <span>Formulario prellenado desde <strong id="banner-desde-ot-texto"></strong>. Verifique los datos antes de confirmar.</span>
+            </div>
+
+            <div class="alert alert-warning" th:if="${!#lists.isEmpty(pendientesBaja)}">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="feather-alert-triangle"></i>
+                    <strong th:text="${#lists.size(pendientesBaja)} + ' activo(s) con baja recomendada por mantenimiento'">1 activo</strong>
+                </div>
+                <ul class="mb-0 small">
+                    <li th:each="p : ${pendientesBaja}" class="d-flex align-items-center gap-2 py-1">
+                        <span th:text="${(p.codigoCresio ?: 'Sin codigo') + ' - ' + (p.modelo ?: 'Sin modelo')}">Activo</span>
+                        <a th:if="${p.bajaRecomendadaOrigen != null}"
+                           th:href="@{'/mantenimiento/' + ${p.bajaRecomendadaOrigen}}"
+                           th:text="'OT-' + ${#numbers.formatInteger(p.bajaRecomendadaOrigen, 5)}">OT</a>
+                        <a class="cui-btn cui-btn-sm cui-btn-warning"
+                           th:href="@{/inventario/bajas(nuevoDesdeOT=${p.bajaRecomendadaOrigen}, equipoId=${p.idEquipo}, motivo='DANIO_IRREPARABLE', observacion='Baja recomendada por mantenimiento')}">
+                            Iniciar baja
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
             <div class="itam-grid-2">
                 <section class="itam-panel">
@@ -114,6 +137,7 @@
                                     <th>Bodega origen</th>
                                     <th>Custodio</th>
                                     <th>Observación</th>
+                                    <th class="text-end">Acta</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -128,6 +152,13 @@
                                     <td class="text-truncate" style="max-width:180px"
                                         th:title="${m.observacion}"
                                         th:text="${m.observacion ?: '—'}">—</td>
+                                    <td class="text-end">
+                                        <a class="cui-btn cui-btn-sm cui-btn-secondary"
+                                           th:href="@{'/custodias/acta-baja/ver/' + ${m.idMovimientoInventario}}">Ver</a>
+                                        <a class="cui-btn cui-btn-sm cui-btn-secondary"
+                                           th:href="@{'/custodias/acta-baja/' + ${m.idMovimientoInventario} + '/pdf'}"
+                                           target="_blank">PDF</a>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

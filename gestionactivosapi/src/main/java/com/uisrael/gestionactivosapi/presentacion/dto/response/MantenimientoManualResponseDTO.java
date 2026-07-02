@@ -39,4 +39,5 @@ public class MantenimientoManualResponseDTO {
     private List<ImagenMantenimientoResponseDTO> imagenes;
     private List<EquipoEnMantenimientoDTO> equipos;
     private Integer totalEquipos;
+    private Integer idProgramado;
 }

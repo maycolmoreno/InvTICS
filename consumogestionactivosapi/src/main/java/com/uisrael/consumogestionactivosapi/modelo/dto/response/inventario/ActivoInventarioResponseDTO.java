@@ -16,6 +16,8 @@ public class ActivoInventarioResponseDTO {
     private String bodegaDestinoNombre;
     private String despachadorNombre;
     private String fechaSalida;
+    private boolean bajaRecomendada;
+    private Integer bajaRecomendadaOrigen;
 
     public Integer getIdEquipo() { return idEquipo; }
     public void setIdEquipo(Integer idEquipo) { this.idEquipo = idEquipo; }
@@ -47,4 +49,8 @@ public class ActivoInventarioResponseDTO {
     public void setDespachadorNombre(String despachadorNombre) { this.despachadorNombre = despachadorNombre; }
     public String getFechaSalida() { return fechaSalida; }
     public void setFechaSalida(String fechaSalida) { this.fechaSalida = fechaSalida; }
+    public boolean isBajaRecomendada() { return bajaRecomendada; }
+    public void setBajaRecomendada(boolean bajaRecomendada) { this.bajaRecomendada = bajaRecomendada; }
+    public Integer getBajaRecomendadaOrigen() { return bajaRecomendadaOrigen; }
+    public void setBajaRecomendadaOrigen(Integer bajaRecomendadaOrigen) { this.bajaRecomendadaOrigen = bajaRecomendadaOrigen; }
 }

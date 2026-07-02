@@ -34,14 +34,17 @@ public class OrdenTrabajoControlador {
         this.obtenerUseCase = obtenerUseCase;
     }
 
+    // RETIRADO (Fase C2): este subsistema de OT paralelo cerraba mantenimientos sin
+    // resultado tecnico, saltandose la RN-004. El flujo vigente es Mantenimiento Manual
+    // (/api/mantenimiento/**). Los endpoints de escritura quedan deshabilitados para
+    // impedir cierres inconsistentes por llamadas directas. La lectura se mantiene
+    // temporalmente hasta la eliminacion definitiva del vertical.
+    private static final String MENSAJE_RETIRADO =
+            "Endpoint retirado. Use el flujo de Mantenimiento Manual (/api/mantenimiento).";
+
     @PostMapping("/crear")
-    public ResponseEntity<OrdenCrearResponseDTO> crear(@RequestBody OrdenCrearRequestDTO request) {
-        Integer id = crearUseCase.crear(
-                request.getEquiposIds(),
-                request.getTipo(),
-                request.getPrioridad(),
-                request.getIdUsuarioTecnico());
-        return ResponseEntity.status(HttpStatus.CREATED).body(new OrdenCrearResponseDTO(id));
+    public ResponseEntity<String> crear(@RequestBody OrdenCrearRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.GONE).body(MENSAJE_RETIRADO);
     }
 
     @GetMapping("/{id}")
@@ -50,13 +53,7 @@ public class OrdenTrabajoControlador {
     }
 
     @PostMapping("/{id}/guardar")
-    public ResponseEntity<Void> guardar(@PathVariable Integer id, @RequestBody OrdenGuardarRequestDTO request) {
-        guardarUseCase.guardar(id, request.getActividades() == null ? java.util.List.of()
-                        : request.getActividades().stream()
-                                .map(a -> new ActividadRealizadaComando(a.getIdActividad(), a.getRealizada()))
-                                .toList(),
-                request.getObservaciones(),
-                request.getEstadoGeneral(), request.getFirmaBase64());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> guardar(@PathVariable Integer id, @RequestBody OrdenGuardarRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.GONE).body(MENSAJE_RETIRADO);
     }
 }

@@ -42,7 +42,6 @@ public class SecurityConfig {
 				.requestMatchers("/api/custodios/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 				.requestMatchers("/api/tickets/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 				.requestMatchers("/api/mantenimiento/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
-				.requestMatchers("/api/mantenimientos/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 				.requestMatchers("/api/orden/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 				.requestMatchers("/api/notificaciones/**").hasAnyRole("ADMINISTRADOR", "TECNICO")
 

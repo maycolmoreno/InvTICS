@@ -12,13 +12,11 @@ import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IActividadPlan
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICrearMantenimientosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IGuardarMantenimientoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IMantenimientoManualUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IMantenimientosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IObtenerChecklistPorCategoriaUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IObtenerHistorialEquipoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IObtenerOrdenTrabajoUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.CrearMantenimientosUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.GuardarMantenimientoUseCaseImpl;
-import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.MantenimientosUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ObtenerChecklistPorCategoriaUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ObtenerHistorialEquipoUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.ObtenerOrdenTrabajoUseCaseImpl;
@@ -58,11 +56,6 @@ import com.uisrael.gestionactivosapi.infraestructura.servicios.PushNotificacionS
 
 @Configuration
 public class MantenimientoConfig {
-
-	@Bean
-	IMantenimientosUseCase mantenimientosUseCase(MantenimientoRepositorioPuerto repositorio) {
-		return new MantenimientosUseCaseImpl(repositorio);
-	}
 
 	@Bean
 	MantenimientoRepositorioPuerto mantenimientosRepositorio(IMantenimientosJpaRepositorio jpaRepositorio,
@@ -146,9 +139,8 @@ public class MantenimientoConfig {
 	@Bean
 	IActividadPlanificadaUseCase actividadPlanificadaService(
 			IActividadPlanificadaJpaRepositorio actividadRepo,
-			IUsuariosJpaRepositorio usuariosRepo,
-			ICrearMantenimientosUseCase crearMantenimientosUseCase) {
-		return new ActividadPlanificadaService(actividadRepo, usuariosRepo, crearMantenimientosUseCase);
+			IUsuariosJpaRepositorio usuariosRepo) {
+		return new ActividadPlanificadaService(actividadRepo, usuariosRepo);
 	}
 
 	@Bean

@@ -34,6 +34,11 @@ public class MantenimientoProgramadoControlador {
         return programadoService.obtenerVencidosYProximos();
     }
 
+    @GetMapping("/equipo/{equipoId}")
+    public MantenimientoProgramadoResponseDTO obtenerPorEquipo(@PathVariable Integer equipoId) {
+        return programadoService.obtenerPorEquipo(equipoId);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public MantenimientoProgramadoResponseDTO guardar(@RequestBody MantenimientoProgramadoRequestDTO request) {

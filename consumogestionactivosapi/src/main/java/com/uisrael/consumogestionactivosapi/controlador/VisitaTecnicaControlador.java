@@ -26,11 +26,11 @@ public class VisitaTecnicaControlador {
         this.visitaServicio = visitaServicio;
     }
 
+    // RETIRADO (Fase C2): el vertical de Visita Tecnica se consolido en Mantenimiento
+    // Manual. La ruta se mantiene como redireccion para no romper enlaces antiguos.
     @GetMapping("/visita")
-    public String vistaPrincipal(Model model) {
-        List<UbicacionesResponseDTO> ubicaciones = ubicacionesServicio.listarUbicaciones();
-        model.addAttribute("ubicaciones", ubicaciones);
-        return "Visita/visita-tecnica";
+    public String vistaPrincipal() {
+        return "redirect:/mantenimiento/nuevo";
     }
 
     @GetMapping("/api/visita/equipos")

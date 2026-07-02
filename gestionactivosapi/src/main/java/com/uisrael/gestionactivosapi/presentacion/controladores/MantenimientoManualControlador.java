@@ -200,7 +200,8 @@ public class MantenimientoManualControlador {
                 request.getActividades() == null ? List.of() : request.getActividades().stream()
                         .map(a -> new ActividadManualComando(a.getIdActividad(), a.getRealizada()))
                         .toList(),
-                toImageCommands(request.getImagenes()));
+                toImageCommands(request.getImagenes()),
+                request.getIdProgramado());
     }
 
     private List<ImagenMantenimientoComando> toImageCommands(List<ImagenMantenimientoRequestDTO> imagenes) {

@@ -68,9 +68,16 @@
     </div>
 
     <div th:if="${error}" class="alert alert-danger cui-alert" th:text="${error}"></div>
+    <div th:if="${idProgramadoPreseleccionado != null}" class="alert alert-info cui-alert d-flex align-items-center gap-2">
+        <i class="feather-calendar" aria-hidden="true"></i>
+        <span>Generando OT desde el plan de mantenimiento programado. Se preseleccionó el equipo y el tipo Preventivo — verifique los datos antes de guardar.</span>
+    </div>
 
     <form th:action="@{/mantenimiento/guardar}" method="post" enctype="multipart/form-data"
           id="formMantenimiento" class="d-flex flex-column gap-4">
+
+        <input type="hidden" name="idProgramado" th:if="${idProgramadoPreseleccionado != null}"
+               th:value="${idProgramadoPreseleccionado}">
 
         <!-- ── 1. Tipo de custodio ────────────────────────────── -->
         <div>
@@ -254,7 +261,7 @@
                         <label class="form-label fw-semibold">Tipo de mantenimiento <span class="cui-required-mark">*</span></label>
                         <select name="tipoMantenimiento" class="form-select" required>
                             <option value="">Seleccione tipo</option>
-                            <option value="PREVENTIVO">Preventivo</option>
+                            <option value="PREVENTIVO" th:selected="${idProgramadoPreseleccionado != null}">Preventivo</option>
                             <option value="CORRECTIVO">Correctivo</option>
                         </select>
                     </div>

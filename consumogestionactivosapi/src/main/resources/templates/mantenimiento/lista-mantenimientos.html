@@ -15,10 +15,6 @@
                 <i class="feather-plus" aria-hidden="true"></i>
                 <span>Nuevo mantenimiento</span>
             </a>
-            <button type="button" class="cui-btn cui-btn-warning" data-cui-drawer-open="#drawerEnviarReparacion">
-                <i class="feather-tool" aria-hidden="true"></i>
-                <span>Enviar a reparacion</span>
-            </button>
         </div>
 
         <div class="cui-summary-strip" th:if="${!#lists.isEmpty(vencidosProximos)}">
@@ -422,6 +418,12 @@
                             </td>
                             <td class="text-end">
                                 <div class="cui-action-cell">
+                                    <a th:if="${p.equipoId != null}"
+                                       th:href="@{/mantenimiento/nuevo(equipoId=${p.equipoId}, idProgramado=${p.idProgramado})}"
+                                       class="cui-btn cui-btn-primary cui-btn-sm" title="Generar OT">
+                                        <i class="feather-plus-circle" aria-hidden="true"></i>
+                                        <span>Generar OT</span>
+                                    </a>
                                     <form th:action="@{/mantenimiento/programado/desactivar}" method="post">
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                         <input type="hidden" name="idProgramado" th:value="${p.idProgramado}">
@@ -481,132 +483,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- ── Drawer: enviar a reparacion ─────────────────────────── -->
-        <aside class="cui-drawer" id="drawerEnviarReparacion" aria-hidden="true" aria-label="Enviar a reparacion">
-            <div class="cui-drawer-header">
-                <div>
-                    <div class="fw-bold">Enviar a reparacion</div>
-                    <div class="small text-muted">Genera una Orden de Trabajo y registra el envio tecnico</div>
-                </div>
-                <button type="button" class="cui-icon-btn" data-cui-drawer-close aria-label="Cerrar">
-                    <i class="feather-x"></i>
-                </button>
-            </div>
-            <div class="cui-drawer-body">
-                <form th:action="@{/mantenimiento/reparaciones/enviar}"
-                      th:object="${enviarReparacionRequest}"
-                      method="post" id="formEnviarReparacion" class="row g-3">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <input type="hidden" name="custodioIdForm" id="rep-custodio-id-hidden">
-
-                    <!-- Activo -->
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Activo <span class="text-danger">*</span></label>
-                        <select class="form-select" th:field="*{equipoId}" id="repEquipoSelect" required>
-                            <option value="">Seleccione un activo</option>
-                            <option th:each="a : ${activosEnBodega}"
-                                    th:value="${a.idEquipo}"
-                                    th:text="${(a.codigoCresio ?: 'Sin codigo') + ' — ' + (a.modelo ?: 'Sin modelo')}"
-                                    th:attr="data-estado=${a.estadoInventario}">
-                            </option>
-                        </select>
-                        <div id="repCustodioInfo" class="form-text text-muted mt-1" hidden>
-                            <i class="feather-user" style="width:12px"></i>
-                            <span id="repCustodioLabel">—</span>
-                        </div>
-                    </div>
-
-                    <!-- Custodio manual (visible si el activo no tiene custodia activa) -->
-                    <div class="col-12" id="repCustodioManualGrupo" hidden>
-                        <label class="form-label fw-semibold">
-                            Custodio responsable <span class="text-danger">*</span>
-                        </label>
-                        <select class="form-select" id="repCustodioManualSelect" name="_custodioManual">
-                            <option value="">Seleccione el custodio responsable</option>
-                            <option th:each="c : ${custodiosActivos}"
-                                    th:value="${c.idCustodio}"
-                                    th:text="${c.nombre}">
-                            </option>
-                        </select>
-                        <div class="form-text text-muted">El activo esta en bodega sin custodia activa.</div>
-                    </div>
-
-                    <!-- Falla reportada -->
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Falla reportada <span class="text-danger">*</span></label>
-                        <input class="form-control" th:field="*{motivo}" placeholder="Descripcion de la falla" required>
-                    </div>
-
-                    <!-- Modalidad + Prioridad en la misma fila -->
-                    <div class="col-6">
-                        <label class="form-label fw-semibold">Modalidad <span class="text-danger">*</span></label>
-                        <select class="form-select" name="modalidad" id="repModalidadSelect" required>
-                            <option value="INTERNA">Interna</option>
-                            <option value="EXTERNA">Externa</option>
-                            <option value="GARANTIA">Garantia</option>
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label fw-semibold">Prioridad</label>
-                        <select class="form-select" name="prioridad">
-                            <option value="">— Sin prioridad —</option>
-                            <option value="BAJA">Baja</option>
-                            <option value="MEDIA" selected>Media</option>
-                            <option value="ALTA">Alta</option>
-                            <option value="CRITICA">Critica</option>
-                        </select>
-                    </div>
-
-                    <!-- Taller / Proveedor (condicional: oculto si INTERNA) -->
-                    <div class="col-12" id="repProveedorGrupo">
-                        <label class="form-label fw-semibold">Taller / Proveedor</label>
-                        <input class="form-control" th:field="*{proveedorTecnico}"
-                               placeholder="Nombre del taller o empresa">
-                    </div>
-
-                    <!-- Fecha estimada de retorno (condicional: oculto si INTERNA) -->
-                    <div class="col-12" id="repFechaRetornoGrupo">
-                        <label class="form-label fw-semibold">Fecha estimada de retorno</label>
-                        <input class="form-control" name="fechaEstimadaRetorno" type="date">
-                    </div>
-
-                    <!-- Técnico responsable -->
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Tecnico responsable</label>
-                        <select class="form-select" name="tecnicoId">
-                            <option value="">— Sin asignar —</option>
-                            <option th:each="u : ${listausuarios}"
-                                    th:value="${u.idUsuario}"
-                                    th:text="${u.nombre}">
-                            </option>
-                        </select>
-                    </div>
-
-                    <!-- Fecha de envio -->
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Fecha de envio</label>
-                        <input class="form-control" th:field="*{fechaEnvio}" type="date"
-                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
-                    </div>
-
-                    <!-- Observacion -->
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Observacion</label>
-                        <textarea class="form-control" th:field="*{observacion}" rows="2"
-                                  placeholder="Detalles adicionales"></textarea>
-                    </div>
-
-                    <div class="col-12 d-flex justify-content-end gap-2">
-                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
-                        <button class="cui-btn cui-btn-primary" type="submit">
-                            <i class="feather-tool" aria-hidden="true"></i>
-                            <span>Enviar a reparacion</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </aside>
 
         <!-- ── Drawer: retornar de reparacion ──────────────────────── -->
         <aside class="cui-drawer" id="drawerRetornarReparacion" aria-hidden="true" aria-label="Retornar de reparacion">
@@ -989,65 +865,6 @@
     });
 
     hideAllEquipoOptions();
-}());
-
-/* ── Drawer "Enviar a reparacion" ── */
-(function () {
-    var equipoSel      = document.getElementById('repEquipoSelect');
-    var custodioHidden = document.getElementById('rep-custodio-id-hidden');
-    var custodioInfo   = document.getElementById('repCustodioInfo');
-    var custodioLabel  = document.getElementById('repCustodioLabel');
-    var custodioManualGrupo  = document.getElementById('repCustodioManualGrupo');
-    var custodioManualSelect = document.getElementById('repCustodioManualSelect');
-    var modalidadSel   = document.getElementById('repModalidadSelect');
-    var proveedorGrupo = document.getElementById('repProveedorGrupo');
-    var fechaRetornoGrupo = document.getElementById('repFechaRetornoGrupo');
-
-    // custodiosPorEquipo viene del modelo Thymeleaf como objeto JS
-    var custodiosPorEquipo = /*[[${custodiosPorEquipo}]]*/ {};
-    // custodiosActivos: map de id → nombre para mostrar en el label
-    var custodiosActivosMap = /*[[${custodiosActivosMap}]]*/ {};
-
-    function actualizarCustodio() {
-        var equipoId = equipoSel ? equipoSel.value : '';
-        var custodiosStr = equipoId ? (custodiosPorEquipo[equipoId] || '') : '';
-        var ids = custodiosStr ? custodiosStr.split(',').map(function(v){ return v.trim(); }).filter(Boolean) : [];
-
-        if (ids.length > 0) {
-            var primerCustodioId = ids[0];
-            if (custodioHidden) custodioHidden.value = primerCustodioId;
-            if (custodioLabel)  custodioLabel.textContent = custodiosActivosMap[primerCustodioId] || 'Custodio #' + primerCustodioId;
-            if (custodioInfo)   custodioInfo.hidden = false;
-            if (custodioManualGrupo) custodioManualGrupo.hidden = true;
-            if (custodioManualSelect) custodioManualSelect.removeAttribute('required');
-        } else {
-            if (custodioHidden) custodioHidden.value = '';
-            if (custodioInfo)   custodioInfo.hidden = true;
-            if (custodioManualGrupo) { custodioManualGrupo.hidden = equipoId === ''; }
-            if (custodioManualSelect) custodioManualSelect.setAttribute('required', equipoId !== '' ? 'required' : '');
-        }
-    }
-
-    function actualizarModalidad() {
-        var modo = modalidadSel ? modalidadSel.value : 'INTERNA';
-        var esExterno = modo === 'EXTERNA' || modo === 'GARANTIA';
-        if (proveedorGrupo)   proveedorGrupo.hidden    = !esExterno;
-        if (fechaRetornoGrupo) fechaRetornoGrupo.hidden = !esExterno;
-    }
-
-    // Sincronizar custodioIdForm desde el select manual cuando se escoge
-    if (custodioManualSelect) {
-        custodioManualSelect.addEventListener('change', function () {
-            if (custodioHidden) custodioHidden.value = this.value;
-        });
-    }
-
-    if (equipoSel) equipoSel.addEventListener('change', actualizarCustodio);
-    if (modalidadSel) modalidadSel.addEventListener('change', actualizarModalidad);
-
-    // Estado inicial
-    actualizarModalidad();
-    actualizarCustodio();
 }());
 
 window.mntAbrirDrawerRetornar = function (btn) {

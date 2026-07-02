@@ -37,6 +37,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.Asign
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.MovimientoInventarioResponseDTO;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 import com.uisrael.consumogestionactivosapi.service.ActaStorageService;
 import com.uisrael.consumogestionactivosapi.service.CorreoServicio;
@@ -50,7 +51,9 @@ import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/custodias")
@@ -430,6 +433,66 @@ public class CustodiasControlador {
 		String observacionBaja = (String) session.getAttribute("ACTA_BAJA_OBSERVACION");
 
 		custodiasPdfService.generarActaBajaPdf(equiposBaja, fechaBaja, observacionBaja, response);
+	}
+
+	// C4: acta reconstruida desde el MovimientoInventario tipo BAJA persistido.
+	// No depende de la sesion: es consultable/descargable en cualquier momento.
+	@GetMapping("/acta-baja/ver/{idMovimiento}")
+	public String verActaBajaPersistida(@PathVariable Integer idMovimiento, Model model) {
+		MovimientoInventarioResponseDTO mov;
+		try {
+			mov = inventarioOperacionServicio.obtenerMovimiento(idMovimiento);
+		} catch (Exception ex) {
+			return "redirect:/inventario/bajas";
+		}
+		if (mov == null || !"BAJA".equals(mov.getTipoMovimiento())) {
+			return "redirect:/inventario/bajas";
+		}
+		model.addAttribute("equiposBaja", List.of(equipoDesdeMovimiento(mov)));
+		model.addAttribute("fechaBaja", mov.getFechaEfectiva() != null
+				? mov.getFechaEfectiva()
+				: (mov.getFechaMovimiento() != null ? mov.getFechaMovimiento().toLocalDate() : LocalDate.now()));
+		model.addAttribute("motivoBaja", mov.getMotivo());
+		model.addAttribute("observacionBaja", mov.getObservacion() != null ? mov.getObservacion() : "");
+		model.addAttribute("autorizadoPor", mov.getRealizadoPor());
+		model.addAttribute("returnUrl", "/inventario/bajas");
+		return "Custodias/actaBaja";
+	}
+
+	@GetMapping("/acta-baja/{idMovimiento}/pdf")
+	public void descargarActaBajaPersistidaPdf(@PathVariable Integer idMovimiento, HttpServletResponse response)
+			throws IOException {
+		MovimientoInventarioResponseDTO mov = inventarioOperacionServicio.obtenerMovimiento(idMovimiento);
+		if (mov == null || !"BAJA".equals(mov.getTipoMovimiento())) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+		LocalDate fechaBaja = mov.getFechaEfectiva() != null
+				? mov.getFechaEfectiva()
+				: (mov.getFechaMovimiento() != null ? mov.getFechaMovimiento().toLocalDate() : LocalDate.now());
+		custodiasPdfService.generarActaBajaPdf(List.of(equipoDesdeMovimiento(mov)),
+				fechaBaja, mov.getObservacion(), response);
+	}
+
+	// Enriquece el equipo del acta con modelo/serial (el movimiento solo trae el
+	// codigo); si el equipo ya no es consultable, cae a los datos del movimiento.
+	private EquiposResponseDTO equipoDesdeMovimiento(MovimientoInventarioResponseDTO mov) {
+		if (mov.getEquipoId() != null) {
+			try {
+				EquiposResponseDTO equipo = servicioEquipos.obtenerPorId(mov.getEquipoId());
+				if (equipo != null) {
+					return equipo;
+				}
+			} catch (Exception ex) {
+				log.warn("No se pudo enriquecer el equipo {} del acta: {}", mov.getEquipoId(), ex.getMessage());
+			}
+		}
+		EquiposResponseDTO fallback = new EquiposResponseDTO();
+		if (mov.getEquipoId() != null) {
+			fallback.setIdEquipo(mov.getEquipoId());
+		}
+		fallback.setCodigoCresio(mov.getEquipoCodigo());
+		return fallback;
 	}
 
 //=========================================================

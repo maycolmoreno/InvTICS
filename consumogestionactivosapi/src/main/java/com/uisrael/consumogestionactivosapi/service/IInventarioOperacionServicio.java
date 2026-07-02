@@ -13,9 +13,11 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BajaAc
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.ConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.DevolucionActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.DevolucionConsumibleRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.EnviarConOtRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.EnviarReparacionRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.OrdenCompraRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RetornarReparacionRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RetornarYCerrarRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.ConfirmarLlegadaActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AdoptarInventarioInicialRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarEtiquetaRequestDTO;
@@ -44,6 +46,7 @@ public interface IInventarioOperacionServicio {
     OrdenCompraResponseDTO cancelarOrdenCompra(Integer ordenCompraId);
     List<StockConsumibleResponseDTO> listarStockPorBodega(Integer bodegaId);
     List<MovimientoInventarioResponseDTO> listarMovimientosRecientes();
+    MovimientoInventarioResponseDTO obtenerMovimiento(Integer id);
     MovimientoPageResponseDTO buscarMovimientos(Integer page, Integer size, String tipo,
             String fechaDesde, String fechaHasta, String equipoCodigo);
     List<ActivoInventarioResponseDTO> listarActivosEnBodega();
@@ -58,6 +61,8 @@ public interface IInventarioOperacionServicio {
     ActivoInventarioResponseDTO darBajaActivo(BajaActivoRequestDTO request);
     ActivoInventarioResponseDTO enviarAReparacion(EnviarReparacionRequestDTO request);
     ActivoInventarioResponseDTO retornarDeReparacion(RetornarReparacionRequestDTO request);
+    ActivoInventarioResponseDTO enviarConOt(EnviarConOtRequestDTO request);
+    ActivoInventarioResponseDTO retornarYCerrar(RetornarYCerrarRequestDTO request);
     List<ActivoInventarioResponseDTO> listarActivosEnReparacion();
     List<ActivoInventarioResponseDTO> listarActivosEnTransito();
     ActivoInventarioResponseDTO confirmarLlegadaActivo(ConfirmarLlegadaActivoRequestDTO request);

@@ -9,7 +9,8 @@
      th:with="esCerrada=${mantenimiento.estadoInterno == 'CERRADO' or mantenimiento.estadoInterno == 'FINALIZADO'},
               totalAct=${#lists.size(mantenimiento.actividades)},
               realizadas=${#lists.size(mantenimiento.actividades.?[realizada == true])},
-              progreso=${totalAct == 0 ? 0 : (realizadas * 100 / totalAct)}">
+              progreso=${totalAct == 0 ? 0 : (realizadas * 100 / totalAct)},
+              requiereBajaOT=${esCerrada and (mantenimiento.resultadoTecnico == 'IRREPARABLE' or mantenimiento.resultadoTecnico == 'REQUIERE_BAJA')}">
 
     <!-- ── Breadcrumb ──────────────────────────────────────────── -->
     <nav class="cui-breadcrumb" aria-label="breadcrumb">
@@ -142,9 +143,21 @@
                         <span class="cui-row-title">Equipo sin descripcion</span>
                     </div>
                     <div th:unless="${#lists.isEmpty(mantenimiento.equipos)}" class="d-flex flex-column gap-2">
-                        <div th:each="equipoItem : ${mantenimiento.equipos}" class="cui-row-stack border-bottom pb-2">
-                            <span class="cui-row-title" th:text="${equipoItem.descripcion ?: 'Equipo sin descripcion'}">Equipo</span>
-                            <span class="cui-row-subtitle" th:text="${'Cod: ' + (equipoItem.codigoSap ?: '—')}">Cod</span>
+                        <div th:each="equipoItem : ${mantenimiento.equipos}"
+                             class="cui-row-stack border-bottom pb-2 d-flex align-items-center justify-content-between gap-2">
+                            <div>
+                                <span class="cui-row-title" th:text="${equipoItem.descripcion ?: 'Equipo sin descripcion'}">Equipo</span>
+                                <span class="cui-row-subtitle" th:text="${'Cod: ' + (equipoItem.codigoSap ?: '—')}">Cod</span>
+                            </div>
+                            <a th:if="${requiereBajaOT and equipoItem.equipoId != null}"
+                               th:href="@{/inventario/bajas(nuevoDesdeOT=${mantenimiento.idMantenimiento},
+                                                            equipoId=${equipoItem.equipoId},
+                                                            motivo='DANIO_IRREPARABLE',
+                                                            observacion=${'Baja originada desde OT-' + #numbers.formatInteger(mantenimiento.idMantenimiento, 5) + ' (' + (equipoItem.codigoSap ?: equipoItem.descripcion) + '). Resultado tecnico: ' + (mantenimiento.resultadoTecnico == 'IRREPARABLE' ? 'Irreparable' : 'Requiere baja')})}"
+                               class="cui-btn cui-btn-danger cui-btn-sm flex-shrink-0">
+                                <i class="feather-alert-octagon" aria-hidden="true"></i>
+                                <span>Iniciar baja</span>
+                            </a>
                         </div>
                     </div>
                 </div>

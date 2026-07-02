@@ -374,6 +374,12 @@ public class InventarioService {
                 .toList();
     }
 
+    public MovimientoInventarioResponseDTO obtenerMovimiento(Integer id) {
+        return movimientoRepo.findById(id)
+                .map(this::toMovimientoResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Movimiento no encontrado: " + id));
+    }
+
     public List<ActivoInventarioResponseDTO> listarActivosEnBodega() {
         return equiposRepo.findByEstadoInventarioAndEstadoTrue(EstadoInventarioActivo.EN_BODEGA.name())
                 .stream()
@@ -592,6 +598,8 @@ public class InventarioService {
         equipo.setEstadoEquipo("DADO_DE_BAJA");
         equipo.setBodegaActual(null);
         equipo.setObservacionEquipo(unirObservacion(equipo.getObservacionEquipo(), observacionBaja(request)));
+        equipo.setBajaRecomendada(false);
+        equipo.setBajaRecomendadaOrigen(null);
         EquiposJpa guardado = equiposRepo.save(equipo);
 
         registrarMovimiento(TipoMovimientoInventario.BAJA, guardado, null, 1,
@@ -1302,6 +1310,8 @@ public class InventarioService {
         dto.setSerial(equipo.getSerial());
         dto.setEstadoInventario(equipo.getEstadoInventario());
         dto.setEtiquetado(equipo.getEtiquetado());
+        dto.setBajaRecomendada(equipo.isBajaRecomendada());
+        dto.setBajaRecomendadaOrigen(equipo.getBajaRecomendadaOrigen());
         if (equipo.getBodegaActual() != null) {
             dto.setBodegaId(equipo.getBodegaActual().getIdBodega());
             dto.setBodegaNombre(equipo.getBodegaActual().getNombre());

@@ -101,6 +101,9 @@ public class InventarioExperienciaControlador {
                 new java.util.ArrayList<>(safeList(inventarioOperacionServicio.listarActivosEnBodega()));
         elegibles.addAll(safeList(inventarioOperacionServicio.listarActivosAsignados()));
         model.addAttribute("activosParaBaja", elegibles);
+        model.addAttribute("pendientesBaja", elegibles.stream()
+                .filter(com.uisrael.consumogestionactivosapi.modelo.dto.response.inventario.ActivoInventarioResponseDTO::isBajaRecomendada)
+                .toList());
         model.addAttribute("bajaActivoRequest", new BajaActivoRequestDTO());
         model.addAttribute("movimientos", safeList(inventarioOperacionServicio.listarMovimientosRecientes()).stream()
                 .filter(m -> "BAJA".equals(m.getTipoMovimiento()))

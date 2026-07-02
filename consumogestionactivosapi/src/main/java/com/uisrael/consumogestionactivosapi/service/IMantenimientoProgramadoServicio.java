@@ -11,6 +11,8 @@ public interface IMantenimientoProgramadoServicio {
 
     List<MantenimientoProgramadoResponseDTO> listarVencidosYProximos();
 
+    MantenimientoProgramadoResponseDTO obtenerPorEquipo(Integer equipoId);
+
     MantenimientoProgramadoResponseDTO guardar(MantenimientoProgramadoRequestDTO request);
 
     void desactivar(Long idProgramado);

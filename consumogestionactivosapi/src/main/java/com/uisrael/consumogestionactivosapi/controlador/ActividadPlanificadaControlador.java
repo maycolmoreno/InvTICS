@@ -19,6 +19,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.MetricasCumplimi
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 import com.uisrael.consumogestionactivosapi.service.IActividadPlanificadaServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
+import com.uisrael.consumogestionactivosapi.service.IMantenimientoProgramadoServicio;
 import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class ActividadPlanificadaControlador {
 	private final IActividadPlanificadaServicio actividadServicio;
 	private final IUsuariosServicio usuariosServicio;
 	private final IEquiposServicio equiposServicio;
+	private final IMantenimientoProgramadoServicio mantenimientoProgramadoServicio;
 	private final SesionUsuario sesionUsuario;
 
 	@GetMapping("/planificacion")
@@ -87,13 +89,38 @@ public class ActividadPlanificadaControlador {
 	@PostMapping("/planificacion/{id}/estado")
 	public String cambiarEstado(@PathVariable Long id, @ModelAttribute CambiarEstadoActividadRequestDTO request,
 			RedirectAttributes redirectAttributes) {
+		ActividadPlanificadaResponseDTO actividad;
 		try {
-			actividadServicio.cambiarEstado(id, request);
-			redirectAttributes.addFlashAttribute("mensaje", "Estado actualizado");
+			actividad = actividadServicio.cambiarEstado(id, request);
 		} catch (Exception e) {
 			redirectAttributes.addFlashAttribute("error", e.getMessage());
+			return "redirect:/planificacion";
+		}
+		redirectAttributes.addFlashAttribute("mensaje", "Estado actualizado");
+
+		if ("MANTENIMIENTO_PROGRAMADO".equals(actividad.getTipoActividad())
+				&& "COMPLETADA".equalsIgnoreCase(actividad.getEstado())
+				&& actividad.getFkEquipoId() != null) {
+			// El estado ya quedo guardado arriba: si esta parte falla, no debe
+			// aparentar que la actividad no se completo.
+			try {
+				return redirigirAGenerarOt(actividad.getFkEquipoId());
+			} catch (Exception e) {
+				redirectAttributes.addFlashAttribute("mensaje",
+						"Estado actualizado. No se pudo abrir el formulario de OT automaticamente; "
+								+ "use el boton \"Generar OT\" desde Programados.");
+			}
 		}
 		return "redirect:/planificacion";
+	}
+
+	private String redirigirAGenerarOt(Integer equipoId) {
+		var programado = mantenimientoProgramadoServicio.obtenerPorEquipo(equipoId);
+		String url = "redirect:/mantenimiento/nuevo?equipoId=" + equipoId;
+		if (programado != null && programado.getIdProgramado() != null) {
+			url += "&idProgramado=" + programado.getIdProgramado();
+		}
+		return url;
 	}
 
 	@GetMapping("/planificacion/metricas")

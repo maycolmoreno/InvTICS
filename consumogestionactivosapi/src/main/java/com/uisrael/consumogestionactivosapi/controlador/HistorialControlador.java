@@ -21,24 +21,11 @@ public class HistorialControlador {
         this.historialServicio = historialServicio;
     }
 
+    // RETIRADO (Fase C2): el historial-360 del vertical paralelo se consolido en la
+    // pestana de mantenimientos del expediente del activo. Se redirige para no romper
+    // enlaces antiguos.
     @GetMapping("/historial/{equipoId}")
-    public String verHistorial(@PathVariable Long equipoId,
-            @RequestParam(defaultValue = "historial") String tab,
-            Model model) {
-        String tabNormalizado = normalizarTab(tab);
-        HistorialCompletoDTO historial = historialServicio.obtenerHistorial(equipoId);
-        model.addAttribute("historial", historial);
-        model.addAttribute("tab", tabNormalizado);
-        return "Historial/historial-equipo";
-    }
-
-    private String normalizarTab(String tab) {
-        if (TAB_INFO.equalsIgnoreCase(tab)) {
-            return TAB_INFO;
-        }
-        if (TAB_STATS.equalsIgnoreCase(tab)) {
-            return TAB_STATS;
-        }
-        return TAB_HISTORIAL;
+    public String verHistorial(@PathVariable Long equipoId) {
+        return "redirect:/activos/equipos/" + equipoId + "/expediente#tab-mantenimientos";
     }
 }

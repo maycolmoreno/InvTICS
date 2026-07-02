@@ -32,7 +32,6 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.Bodega
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.ConsumibleRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.DevolucionActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.DevolucionConsumibleRequestDTO;
-import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.EnviarReparacionRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.OrdenCompraRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RetornarReparacionRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.AdoptarInventarioInicialRequestDTO;
@@ -476,36 +475,8 @@ public class InventarioControlador {
 		} catch (Exception ex) {
 			model.addAttribute("bodegas", List.of());
 		}
-		model.addAttribute("enviarReparacionRequest", new EnviarReparacionRequestDTO());
 		model.addAttribute("retornarReparacionRequest", new RetornarReparacionRequestDTO());
-		try {
-			model.addAttribute("activosEnBodega", inventarioOperacionServicio.listarActivosEnBodega());
-		} catch (Exception ex) {
-			model.addAttribute("activosEnBodega", List.of());
-		}
 		return "Inventario/reparaciones";
-	}
-
-	@PostMapping("/reparaciones/enviar")
-	public String enviarAReparacion(@ModelAttribute EnviarReparacionRequestDTO request, RedirectAttributes redirect) {
-		try {
-			var activo = inventarioOperacionServicio.enviarAReparacion(request);
-			redirect.addFlashAttribute("success", "Activo " + activo.getCodigoCresio() + " enviado a reparacion.");
-		} catch (Exception ex) {
-			redirect.addFlashAttribute("error", "No se pudo enviar a reparacion: " + ex.getMessage());
-		}
-		return "redirect:/inventario/reparaciones";
-	}
-
-	@PostMapping("/reparaciones/retornar")
-	public String retornarDeReparacion(@ModelAttribute RetornarReparacionRequestDTO request, RedirectAttributes redirect) {
-		try {
-			var activo = inventarioOperacionServicio.retornarDeReparacion(request);
-			redirect.addFlashAttribute("success", "Activo " + activo.getCodigoCresio() + " retornado a bodega.");
-		} catch (Exception ex) {
-			redirect.addFlashAttribute("error", "No se pudo retornar de reparacion: " + ex.getMessage());
-		}
-		return "redirect:/inventario/reparaciones";
 	}
 
 	@PostMapping("/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/stock")

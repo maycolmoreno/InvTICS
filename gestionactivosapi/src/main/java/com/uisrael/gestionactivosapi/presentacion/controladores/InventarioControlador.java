@@ -1,5 +1,6 @@
 package com.uisrael.gestionactivosapi.presentacion.controladores;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uisrael.gestionactivosapi.aplicacion.servicios.InventarioService;
+import com.uisrael.gestionactivosapi.aplicacion.servicios.ReparacionOrquestadorService;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AsignacionActivoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AsignacionLoteRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AsignacionConsumibleRequestDTO;
@@ -25,9 +27,11 @@ import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.Consumi
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.DevolucionActivoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.DevolucionConsumibleRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.ConfirmarLlegadaActivoRequestDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.EnviarConOtRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.EnviarReparacionRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.OrdenCompraRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RetornarReparacionRequestDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RetornarYCerrarRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.TrasladoActivoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.TrasladoConsumibleRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.inventario.ActivoInventarioResponseDTO;
@@ -50,9 +54,12 @@ import jakarta.validation.Valid;
 public class InventarioControlador {
 
     private final InventarioService inventarioService;
+    private final ReparacionOrquestadorService reparacionOrquestador;
 
-    public InventarioControlador(InventarioService inventarioService) {
+    public InventarioControlador(InventarioService inventarioService,
+            ReparacionOrquestadorService reparacionOrquestador) {
         this.inventarioService = inventarioService;
+        this.reparacionOrquestador = reparacionOrquestador;
     }
 
     @GetMapping("/bodegas")
@@ -147,6 +154,11 @@ public class InventarioControlador {
         return inventarioService.listarMovimientosRecientes();
     }
 
+    @GetMapping("/movimientos/{id}")
+    public MovimientoInventarioResponseDTO obtenerMovimiento(@PathVariable Integer id) {
+        return inventarioService.obtenerMovimiento(id);
+    }
+
     @GetMapping("/movimientos/buscar")
     public Page<MovimientoInventarioResponseDTO> buscarMovimientos(
             @RequestParam(defaultValue = "0")  int page,
@@ -237,6 +249,21 @@ public class InventarioControlador {
     public ResponseEntity<ActivoInventarioResponseDTO> retornarDeReparacion(
             @Valid @RequestBody RetornarReparacionRequestDTO request) {
         return ResponseEntity.ok(inventarioService.retornarDeReparacion(request));
+    }
+
+    // Fase C3: flujos compuestos transaccionales (crear OT + reparacion / retorno + cierre OT).
+    @PostMapping("/activos/reparacion/enviar-con-ot")
+    public ResponseEntity<ActivoInventarioResponseDTO> enviarConOt(
+            @Valid @RequestBody EnviarConOtRequestDTO request, Principal principal) {
+        String correo = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(reparacionOrquestador.enviarConOt(request, correo));
+    }
+
+    @PostMapping("/activos/reparacion/retornar-y-cerrar")
+    public ResponseEntity<ActivoInventarioResponseDTO> retornarYCerrar(
+            @Valid @RequestBody RetornarYCerrarRequestDTO request, Principal principal) {
+        String correo = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(reparacionOrquestador.retornarYCerrar(request, correo));
     }
 
     @PostMapping("/activos/traslado/confirmar")

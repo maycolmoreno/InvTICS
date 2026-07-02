@@ -50,11 +50,11 @@ public class OrdenTrabajoControlador {
         }
     }
 
+    // RETIRADO (Fase C2): el detalle de OT del vertical paralelo se consolido en el
+    // detalle de Mantenimiento Manual. Se redirige para no romper enlaces antiguos.
     @GetMapping("/orden/{id}")
-    public String verOrden(@PathVariable Integer id, Model model) {
-        OrdenTrabajoResponseDTO orden = ordenServicio.obtenerOrden(id);
-        model.addAttribute("orden", orden);
-        return "Orden/orden-trabajo";
+    public String verOrden(@PathVariable Integer id) {
+        return "redirect:/mantenimiento/" + id;
     }
 
     @PostMapping("/orden/{id}/guardar")

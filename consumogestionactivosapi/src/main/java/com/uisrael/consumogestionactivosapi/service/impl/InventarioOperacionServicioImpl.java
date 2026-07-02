@@ -5,7 +5,11 @@ import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
+import com.uisrael.consumogestionactivosapi.util.WebClientHelper;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.EnviarConOtRequestDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RetornarYCerrarRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.BodegaRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.inventario.RegistrarRecepcionStockRequestDTO;
@@ -123,6 +127,16 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
     }
 
     @Override
+    public MovimientoInventarioResponseDTO obtenerMovimiento(Integer id) {
+        try {
+            return clienteWeb.get().uri("/inventario/movimientos/{id}", id).retrieve()
+                    .body(MovimientoInventarioResponseDTO.class);
+        } catch (RestClientResponseException ex) {
+            throw WebClientHelper.manejarError(ex);
+        }
+    }
+
+    @Override
     public MovimientoPageResponseDTO buscarMovimientos(Integer page, Integer size, String tipo,
             String fechaDesde, String fechaHasta, String equipoCodigo) {
         StringBuilder uri = new StringBuilder("/inventario/movimientos/buscar?");
@@ -231,6 +245,26 @@ public class InventarioOperacionServicioImpl implements IInventarioOperacionServ
     public ActivoInventarioResponseDTO retornarDeReparacion(RetornarReparacionRequestDTO request) {
         return clienteWeb.post().uri("/inventario/activos/reparacion/retornar").body(request).retrieve()
                 .body(ActivoInventarioResponseDTO.class);
+    }
+
+    @Override
+    public ActivoInventarioResponseDTO enviarConOt(EnviarConOtRequestDTO request) {
+        try {
+            return clienteWeb.post().uri("/inventario/activos/reparacion/enviar-con-ot").body(request).retrieve()
+                    .body(ActivoInventarioResponseDTO.class);
+        } catch (RestClientResponseException ex) {
+            throw WebClientHelper.manejarError(ex);
+        }
+    }
+
+    @Override
+    public ActivoInventarioResponseDTO retornarYCerrar(RetornarYCerrarRequestDTO request) {
+        try {
+            return clienteWeb.post().uri("/inventario/activos/reparacion/retornar-y-cerrar").body(request).retrieve()
+                    .body(ActivoInventarioResponseDTO.class);
+        } catch (RestClientResponseException ex) {
+            throw WebClientHelper.manejarError(ex);
+        }
     }
 
     @Override

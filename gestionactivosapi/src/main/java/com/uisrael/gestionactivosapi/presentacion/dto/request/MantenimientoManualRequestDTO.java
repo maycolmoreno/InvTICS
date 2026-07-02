@@ -27,4 +27,5 @@ public class MantenimientoManualRequestDTO {
     private String ipOrigen;
     private List<ActividadManualRequestDTO> actividades;
     private List<ImagenMantenimientoRequestDTO> imagenes;
+    private Integer idProgramado;
 }

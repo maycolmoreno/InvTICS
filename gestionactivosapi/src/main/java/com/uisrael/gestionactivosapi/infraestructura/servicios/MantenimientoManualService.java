@@ -115,6 +115,7 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
         entity.setEstadoInterno(EstadoInternoMantenimiento.EN_PROCESO);
         entity.setEstado("MANUAL");
         entity.setTipoOrigen(TipoOrigenMantenimiento.MANUAL);
+        entity.setFkProgramado(request.idProgramado());
         entity.setSerieSnapshot(primerEquipo.getSerial());
         entity = mantenimientosRepo.save(entity);
 
@@ -210,17 +211,47 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
         }
         mantenimientosRepo.save(mantenimiento);
 
-        List<MantenimientoEquipoJpa> equiposOrden = mantenimientoEquipoRepo.findByMantenimientoId(idMantenimiento);
-        if (!equiposOrden.isEmpty()) {
-            for (MantenimientoEquipoJpa me : equiposOrden) {
-                programadoService.recalcularProximaFecha(me.getEquipoId());
+        // Se recalcula el plan preventivo si la OT esta vinculada a uno (fk_programado,
+        // seteado al crearla desde "Generar OT") o si es una OT preventiva creada
+        // manualmente sin pasar por ese flujo. Cerrar una OT correctiva no debe
+        // reiniciar el contador de mantenimiento preventivo del equipo.
+        if (mantenimiento.getFkProgramado() != null
+                || "PREVENTIVO".equalsIgnoreCase(mantenimiento.getTipoMantenimiento())) {
+            List<MantenimientoEquipoJpa> equiposOrden = mantenimientoEquipoRepo.findByMantenimientoId(idMantenimiento);
+            if (!equiposOrden.isEmpty()) {
+                for (MantenimientoEquipoJpa me : equiposOrden) {
+                    programadoService.recalcularProximaFecha(me.getEquipoId());
+                }
+            } else if (mantenimiento.getEquipoId() != null) {
+                programadoService.recalcularProximaFecha(mantenimiento.getEquipoId());
             }
-        } else if (mantenimiento.getEquipoId() != null) {
-            programadoService.recalcularProximaFecha(mantenimiento.getEquipoId());
+        }
+
+        if (resultadoTecnico == ResultadoTecnico.IRREPARABLE
+                || resultadoTecnico == ResultadoTecnico.REQUIERE_BAJA) {
+            marcarBajaRecomendada(mantenimiento);
         }
 
         notificacionService.marcarRelacionadasComoLeidas(idMantenimiento);
         return toDto(mantenimiento, true);
+    }
+
+    private void marcarBajaRecomendada(MantenimientosJpa mantenimiento) {
+        List<Integer> equipoIds = new ArrayList<>();
+        List<MantenimientoEquipoJpa> equiposOrden = mantenimientoEquipoRepo
+                .findByMantenimientoId(mantenimiento.getIdMantenimiento());
+        if (!equiposOrden.isEmpty()) {
+            equiposOrden.forEach(me -> equipoIds.add(me.getEquipoId()));
+        } else if (mantenimiento.getEquipoId() != null) {
+            equipoIds.add(mantenimiento.getEquipoId());
+        }
+        for (Integer equipoId : equipoIds) {
+            equiposRepo.findById(equipoId).ifPresent(equipo -> {
+                equipo.setBajaRecomendada(true);
+                equipo.setBajaRecomendadaOrigen(mantenimiento.getIdMantenimiento());
+                equiposRepo.save(equipo);
+            });
+        }
     }
 
     private void guardarActividades(Integer idMantenimiento, List<ActividadManualComando> actividades) {
@@ -394,6 +425,7 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
                 .imagenes(imagenes)
                 .equipos(equiposDtoList)
                 .totalEquipos(totalEquipos)
+                .idProgramado(mantenimiento.getFkProgramado())
                 .build();
     }
 

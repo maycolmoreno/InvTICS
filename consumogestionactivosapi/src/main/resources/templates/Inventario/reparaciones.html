@@ -17,10 +17,6 @@
                     <span>Asignaciones</span>
                 </a>
             </div>
-            <button type="button" class="cui-btn cui-btn-primary" data-cui-drawer-open="#drawerEnviarReparacion">
-                <i class="feather-tool" aria-hidden="true"></i>
-                <span>Enviar a reparacion</span>
-            </button>
         </div>
 
         <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
@@ -95,61 +91,6 @@
             </div>
         </section>
 
-        <!-- Drawer: Enviar a reparacion -->
-        <aside class="cui-drawer" id="drawerEnviarReparacion" aria-hidden="true" aria-label="Enviar a reparacion">
-            <div class="cui-drawer-header">
-                <div>
-                    <div class="fw-bold">Enviar a reparacion</div>
-                    <div class="small text-muted">Completa los datos del servicio tecnico</div>
-                </div>
-                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
-                    <i class="feather-x"></i>
-                </button>
-            </div>
-            <div class="cui-drawer-body">
-                <form th:action="@{/inventario/reparaciones/enviar}"
-                      th:object="${enviarReparacionRequest}"
-                      method="post" class="row g-3">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <div class="col-12">
-                        <label class="form-label">Activo <span class="text-danger">*</span></label>
-                        <select class="form-select" th:field="*{equipoId}" required>
-                            <option value="">Seleccione</option>
-                            <option th:each="a : ${activosEnBodega}"
-                                    th:value="${a.idEquipo}"
-                                    th:text="${(a.codigoCresio ?: 'Sin codigo') + ' — ' + (a.modelo ?: 'Sin modelo')}">
-                            </option>
-                        </select>
-                        <div class="form-text text-muted">Solo activos EN BODEGA o ASIGNADOS.</div>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Motivo <span class="text-danger">*</span></label>
-                        <input class="form-control" th:field="*{motivo}" placeholder="Falla reportada" required>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Proveedor tecnico</label>
-                        <input class="form-control" th:field="*{proveedorTecnico}" placeholder="Empresa o tecnico responsable">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Fecha de envio</label>
-                        <input class="form-control" th:field="*{fechaEnvio}" type="date"
-                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Observacion</label>
-                        <textarea class="form-control" th:field="*{observacion}" rows="3"
-                                  placeholder="Detalles adicionales"></textarea>
-                    </div>
-                    <div class="col-12 d-flex justify-content-end">
-                        <button class="cui-btn cui-btn-primary" type="submit">
-                            <i class="feather-tool" aria-hidden="true"></i>
-                            <span>Enviar a reparacion</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </aside>
-
         <!-- Drawer: Retornar de reparacion -->
         <aside class="cui-drawer" id="drawerRetornarReparacion" aria-hidden="true" aria-label="Retornar de reparacion">
             <div class="cui-drawer-header">
@@ -166,7 +107,7 @@
                 </button>
             </div>
             <div class="cui-drawer-body">
-                <form th:action="@{/inventario/reparaciones/retornar}"
+                <form th:action="@{/mantenimiento/reparaciones/retornar}"
                       th:object="${retornarReparacionRequest}"
                       method="post" class="row g-3">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
