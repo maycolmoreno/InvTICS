@@ -4,11 +4,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IAutenticarUsuarioUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ISetupInicialUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IUsuariosUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IVincularCustodioConUsuarioUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.AutenticarUsuarioUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.SetupInicialUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.UsuariosUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.VincularCustodioConUsuarioUseCaseImpl;
@@ -48,9 +46,4 @@ public class UsuariosConfig {
 		return new VincularCustodioConUsuarioUseCaseImpl(custodiosRepositorio, usuariosRepositorio);
 	}
 
-	@Bean
-	IAutenticarUsuarioUseCase autenticarUsuarioUseCase(UsuarioRepositorioPuerto usuariosRepositorio,
-			PasswordEncoder passwordEncoder) {
-		return new AutenticarUsuarioUseCaseImpl(usuariosRepositorio, passwordEncoder);
-	}
 }
