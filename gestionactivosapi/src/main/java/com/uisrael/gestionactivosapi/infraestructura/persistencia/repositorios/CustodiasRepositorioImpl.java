@@ -5,11 +5,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
-import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodiasRepositorioPuerto;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.mapeadores.ICustodiasJpaMapper;
@@ -71,15 +68,6 @@ public class CustodiasRepositorioImpl implements CustodiasRepositorioPuerto {
 	}
 
 	@Override
-	public Pagina<Custodias> listarPaginado(int pagina, int tamanio) {
-		Page<CustodiasJpa> page = jpaRepositorio.findAll(
-				PageRequest.of(pagina, tamanio, Sort.by("idCustodiaEquipo").descending()));
-		List<Custodias> contenido = page.getContent().stream().map(mapper::toDomain).collect(Collectors.toList());
-		return new Pagina<>(contenido, page.getNumber(), page.getSize(),
-				page.getTotalElements(), page.getTotalPages());
-	}
-
-	@Override
 	public boolean existeCustodiaActivaPorEquipo(int idEquipo) {
 		return jpaRepositorio.existsByFkEquipo_IdEquipoAndEstadoTrue(idEquipo);
 	}
@@ -87,11 +75,6 @@ public class CustodiasRepositorioImpl implements CustodiasRepositorioPuerto {
 	@Override
 	public boolean existeCustodiaActivaPorEquipoParaOtroRegistro(int idEquipo, int idCustodiaEquipo) {
 		return jpaRepositorio.existsByFkEquipo_IdEquipoAndEstadoTrueAndIdCustodiaEquipoNot(idEquipo, idCustodiaEquipo);
-	}
-
-	@Override
-	public long contarPorTipoMovimiento(String tipoMovimiento) {
-		return jpaRepositorio.countByTipoMovimiento(tipoMovimiento);
 	}
 
 	@Override

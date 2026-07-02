@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICustodiosUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IVincularCustodioConUsuarioUseCase;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodios;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.CustodiosRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.CustodiosResponseDTO;
@@ -27,13 +26,10 @@ import jakarta.validation.Valid;
 public class CustodiosControlador {
 
 	private final ICustodiosUseCase custodiosUseCase;
-	private final IVincularCustodioConUsuarioUseCase vincularCustodioConUsuarioUseCase;
 	private final ICustodiosDtoMapper mapper;
 
-	public CustodiosControlador(ICustodiosUseCase custodiosUseCase,
-			IVincularCustodioConUsuarioUseCase vincularCustodioConUsuarioUseCase, ICustodiosDtoMapper mapper) {
+	public CustodiosControlador(ICustodiosUseCase custodiosUseCase, ICustodiosDtoMapper mapper) {
 		this.custodiosUseCase = custodiosUseCase;
-		this.vincularCustodioConUsuarioUseCase = vincularCustodioConUsuarioUseCase;
 		this.mapper = mapper;
 	}
 
@@ -55,12 +51,6 @@ public class CustodiosControlador {
 	public ResponseEntity<?> actualizar(@PathVariable int id, @Valid @RequestBody CustodiosRequestDTO request) {
 
 		Custodios actualizado = custodiosUseCase.actualizar(id, mapper.toDomain(request));
-		return ResponseEntity.ok(mapper.toResponseDto(actualizado));
-	}
-
-	@PutMapping("/{idCustodio}/vincular-usuario/{idUsuario}")
-	public ResponseEntity<CustodiosResponseDTO> vincularUsuario(@PathVariable int idCustodio, @PathVariable int idUsuario) {
-		Custodios actualizado = vincularCustodioConUsuarioUseCase.ejecutar(idCustodio, idUsuario);
 		return ResponseEntity.ok(mapper.toResponseDto(actualizado));
 	}
 

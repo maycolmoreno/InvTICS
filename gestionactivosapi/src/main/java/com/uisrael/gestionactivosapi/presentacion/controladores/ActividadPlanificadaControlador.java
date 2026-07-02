@@ -101,11 +101,4 @@ public class ActividadPlanificadaControlador {
         return actividadService.obtenerMetricasGlobales(periodo);
     }
 
-    // ==================== MANTENIMIENTO ====================
-
-    @PostMapping("/marcar-vencidas")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void marcarVencidas() {
-        actividadService.marcarVencidas();
-    }
 }

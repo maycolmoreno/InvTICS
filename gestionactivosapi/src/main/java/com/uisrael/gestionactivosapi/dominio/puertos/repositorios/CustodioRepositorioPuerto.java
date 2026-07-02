@@ -106,24 +106,6 @@ public interface CustodioRepositorioPuerto {
     boolean existeCedulaParaOtro(String cedula, int idActual);
     
     /**
-     * Vincula un usuario con un custodio.
-     * 
-     * @param idCustodio el ID del custodio
-     * @param idUsuario el ID del usuario
-     * @return el custodio actualizado
-     */
-    Custodios vincularUsuario(int idCustodio, int idUsuario);
-    
-    /**
-     * Verifica si un usuario está vinculado con otro custodio.
-     * 
-     * @param idUsuario el ID del usuario
-     * @param idCustodioActual el ID del custodio actual
-     * @return true si el usuario está vinculado a otro custodio
-     */
-    boolean existeUsuarioVinculadoEnOtroCustodio(int idUsuario, int idCustodioActual);
-    
-    /**
      * Elimina un Custodios.
      * 
      * @param id el ID del Custodios a eliminar

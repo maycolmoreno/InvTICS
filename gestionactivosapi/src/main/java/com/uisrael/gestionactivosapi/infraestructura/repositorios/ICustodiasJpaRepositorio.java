@@ -27,8 +27,6 @@ public interface ICustodiasJpaRepositorio extends JpaRepository<CustodiasJpa, In
 
     boolean existsByFkEquipo_IdEquipoAndEstadoTrueAndIdCustodiaEquipoNot(Integer idEquipo, Integer idCustodiaEquipo);
 
-    long countByTipoMovimiento(String tipoMovimiento);
-
     java.util.Optional<CustodiasJpa> findFirstByFkEquipo_IdEquipoAndEstadoTrueAndFechaFinIsNullOrderByIdCustodiaEquipoDesc(
             Integer idEquipo);
 

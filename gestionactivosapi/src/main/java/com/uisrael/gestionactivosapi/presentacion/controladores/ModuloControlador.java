@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.persistence.EntityManager;
@@ -65,11 +64,6 @@ public class ModuloControlador {
                         m.getIcono(), m.getRuta(), m.getOrden(), m.isEstado(),
                         asignados.contains(m.getIdModulo())))
                 .toList();
-    }
-
-    @GetMapping("/codigos-por-rol")
-    public List<String> codigosModulosPorRol(@RequestParam("rol") String rolNombre) {
-        return rolModuloRepo.findCodigosModulosByRolNombre(rolNombre);
     }
 
     @PutMapping("/por-rol/{rolId}")

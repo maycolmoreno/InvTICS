@@ -44,15 +44,6 @@ public interface IActividadPlanificadaJpaRepositorio extends JpaRepository<Activ
            "WHERE a.tecnicoId = :tecnicoId AND a.estado = 'COMPLETADA' AND a.tiempoRealMinutos IS NOT NULL")
     double promedioTiempoRealMinutos(@Param("tecnicoId") Integer tecnicoId);
 
-    // Actividades vencidas (estado PENDIENTE o EN_PROGRESO con fecha_fin pasada)
-    @Query("SELECT a FROM ActividadPlanificadaJpa a WHERE a.estado IN ('PENDIENTE', 'EN_PROGRESO') " +
-           "AND a.fechaFin < :hoy")
-    List<ActividadPlanificadaJpa> findVencidas(@Param("hoy") LocalDate hoy);
-
-    @Query("SELECT a FROM ActividadPlanificadaJpa a WHERE a.tecnicoId = :tecnicoId " +
-           "AND a.estado IN ('PENDIENTE', 'EN_PROGRESO') AND a.fechaFin < :hoy")
-    List<ActividadPlanificadaJpa> findVencidasPorTecnico(@Param("tecnicoId") Integer tecnicoId, @Param("hoy") LocalDate hoy);
-
     // Métricas por rango de fechas
     @Query("SELECT COUNT(a) FROM ActividadPlanificadaJpa a WHERE a.tecnicoId = :tecnicoId " +
            "AND a.estado = 'COMPLETADA' AND a.fechaCompletada <= CAST(a.fechaFin AS timestamp) " +

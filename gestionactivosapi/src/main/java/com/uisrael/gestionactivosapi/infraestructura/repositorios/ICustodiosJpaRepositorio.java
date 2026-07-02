@@ -16,6 +16,5 @@ public interface ICustodiosJpaRepositorio extends JpaRepository<CustodiosJpa, In
 
 	boolean existsByFkUsuario_IdUsuario(Integer idUsuario);
 
-	boolean existsByFkUsuario_IdUsuarioAndIdCustodioNot(Integer idUsuario, Integer idCustodio);
 
 }

@@ -3,7 +3,6 @@ package com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas;
 import java.util.List;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
-import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 
 public interface ICustodiasUseCase {
 
@@ -13,13 +12,9 @@ public interface ICustodiasUseCase {
 
     List<Custodias> listar();
 
-    Pagina<Custodias> listarPaginado(int pagina, int tamanio);
-
     Custodias actualizar(int id, Custodias custodia);
 
     Custodias actualizarEstado(int id, Custodias custodia);
-
-    long contarPorTipoMovimiento(String tipoMovimiento);
 
     void registrarActaPdf(List<Integer> ids, String rutaPdf);
 

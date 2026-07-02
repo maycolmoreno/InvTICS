@@ -6,11 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ISetupInicialUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IUsuariosUseCase;
-import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.IVincularCustodioConUsuarioUseCase;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.SetupInicialUseCaseImpl;
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.UsuariosUseCaseImpl;
-import com.uisrael.gestionactivosapi.aplicacion.casosuso.impl.VincularCustodioConUsuarioUseCaseImpl;
-import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodioRepositorioPuerto;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.DepartamentoRepositorioPuerto;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.RolRepositorioPuerto;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.UsuarioRepositorioPuerto;
@@ -38,12 +35,6 @@ public class UsuariosConfig {
 	@Bean
 	UsuariosRepositorioImpl usuariosRepositorio(IUsuariosJpaRepositorio jpaRepositorio, IUsuariosJpaMapper mapper) {
 		return new UsuariosRepositorioImpl(jpaRepositorio, mapper);
-	}
-
-	@Bean
-	IVincularCustodioConUsuarioUseCase vincularCustodioConUsuarioUseCase(CustodioRepositorioPuerto custodiosRepositorio,
-			UsuarioRepositorioPuerto usuariosRepositorio) {
-		return new VincularCustodioConUsuarioUseCaseImpl(custodiosRepositorio, usuariosRepositorio);
 	}
 
 }

@@ -70,22 +70,8 @@ public class CustodiosRepositorioImpl implements CustodioRepositorioPuerto {
 	}
 
 	@Override
-	public Custodios vincularUsuario(int idCustodio, int idUsuario) {
-		CustodiosJpa custodio = jpaRepositorio.findById(idCustodio).orElseThrow();
-		UsuariosJpa usuario = new UsuariosJpa();
-		usuario.setIdUsuario(idUsuario);
-		custodio.setFkUsuario(usuario);
-		return mapper.toDomain(jpaRepositorio.save(custodio));
-	}
-
-	@Override
 	public boolean existeUsuarioVinculado(int idUsuario) {
 		return jpaRepositorio.existsByFkUsuario_IdUsuario(idUsuario);
-	}
-
-	@Override
-	public boolean existeUsuarioVinculadoEnOtroCustodio(int idUsuario, int idCustodio) {
-		return jpaRepositorio.existsByFkUsuario_IdUsuarioAndIdCustodioNot(idUsuario, idCustodio);
 	}
 
 	@Override

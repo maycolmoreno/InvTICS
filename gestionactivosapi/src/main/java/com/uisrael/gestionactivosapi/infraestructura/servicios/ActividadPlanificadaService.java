@@ -134,15 +134,6 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
                 .orElseThrow(() -> new RecursoNoEncontradoException("Actividad no encontrada"));
     }
 
-    @Transactional
-    public void marcarVencidas() {
-        List<ActividadPlanificadaJpa> vencidas = actividadRepo.findVencidas(LocalDate.now());
-        for (ActividadPlanificadaJpa a : vencidas) {
-            a.setEstado("VENCIDA");
-        }
-        actividadRepo.saveAll(vencidas);
-    }
-
     // ===================== MÉTRICAS =====================
 
     public MetricasCumplimientoResponseDTO obtenerMetricasTecnico(Integer tecnicoId, String periodo) {

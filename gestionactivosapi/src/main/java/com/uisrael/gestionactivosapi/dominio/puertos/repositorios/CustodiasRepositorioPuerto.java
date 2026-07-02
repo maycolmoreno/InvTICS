@@ -1,7 +1,6 @@
 package com.uisrael.gestionactivosapi.dominio.puertos.repositorios;
 
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
-import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,14 +69,6 @@ public interface CustodiasRepositorioPuerto {
     boolean existeCustodiaActivaPorEquipoParaOtroRegistro(int idEquipo, int idCustodiaEquipo);
     
     /**
-     * Cuenta custodias por tipo de movimiento.
-     * 
-     * @param tipoMovimiento el tipo de movimiento
-     * @return cantidad de custodias del tipo especificado
-     */
-    long contarPorTipoMovimiento(String tipoMovimiento);
-    
-    /**
      * Busca la custodia activa para un equipo.
      * 
      * @param idEquipo el ID del equipo
@@ -105,8 +96,6 @@ public interface CustodiasRepositorioPuerto {
     default List<Custodias> listarTodos() {
         return obtenerTodos();
     }
-
-    Pagina<Custodias> listarPaginado(int pagina, int tamanio);
 
     List<Custodias> buscarPorGrupoActa(int idCustodio, String tipoMovimiento, java.time.LocalDate fechaInicio);
 }

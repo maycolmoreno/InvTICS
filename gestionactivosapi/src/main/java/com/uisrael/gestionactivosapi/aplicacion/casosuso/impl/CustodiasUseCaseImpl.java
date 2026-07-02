@@ -8,7 +8,6 @@ import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICustodiasUseC
 import com.uisrael.gestionactivosapi.aplicacion.excepciones.DuplicidadException;
 import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
-import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.dominio.puertos.repositorios.CustodiasRepositorioPuerto;
 
 public class CustodiasUseCaseImpl implements ICustodiasUseCase {
@@ -38,11 +37,6 @@ public class CustodiasUseCaseImpl implements ICustodiasUseCase {
     @Override
     public List<Custodias> listar() {
         return custodiasRepositorio.listarTodos();
-    }
-
-    @Override
-    public Pagina<Custodias> listarPaginado(int pagina, int tamanio) {
-        return custodiasRepositorio.listarPaginado(pagina, tamanio);
     }
 
     @Override
@@ -76,11 +70,6 @@ public class CustodiasUseCaseImpl implements ICustodiasUseCase {
         custodiasRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Custodia no encontrada"));
         return custodiasRepositorio.actualizarEstado(id, custodia);
-    }
-
-    @Override
-    public long contarPorTipoMovimiento(String tipoMovimiento) {
-        return custodiasRepositorio.contarPorTipoMovimiento(tipoMovimiento);
     }
 
     @Override

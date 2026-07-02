@@ -3,10 +3,7 @@ package com.uisrael.gestionactivosapi.infraestructura.servicios;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
-import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.NotificacionJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.UsuariosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.repositorios.IMantenimientosJpaRepositorio;
@@ -60,14 +57,6 @@ public class NotificacionService {
 
     public List<NotificacionResponseDTO> listarPorUsuario(Integer usuarioId) {
         return notificacionRepo.findByUsuarioIdOrderByCreadoEnDesc(usuarioId).stream().map(this::toDto).toList();
-    }
-
-    public Pagina<NotificacionResponseDTO> listarPorUsuarioPaginado(Integer usuarioId, int pagina, int tamanio) {
-        Page<NotificacionJpa> page = notificacionRepo
-                .findByUsuarioIdOrderByCreadoEnDesc(usuarioId, PageRequest.of(pagina, tamanio));
-        List<NotificacionResponseDTO> contenido = page.getContent().stream().map(this::toDto).toList();
-        return new Pagina<>(contenido, page.getNumber(), page.getSize(),
-                page.getTotalElements(), page.getTotalPages());
     }
 
     public void marcarLeida(Long id) {

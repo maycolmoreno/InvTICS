@@ -24,10 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICustodiasUseCase;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodias;
-import com.uisrael.gestionactivosapi.dominio.modelo.Pagina;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.CustodiasRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.CustodiasResponseDTO;
-import com.uisrael.gestionactivosapi.presentacion.dto.response.PaginaResponse;
 import com.uisrael.gestionactivosapi.presentacion.mapeadores.ICustodiasDtoMapper;
 
 import jakarta.validation.Valid;
@@ -80,22 +78,6 @@ public class CustodiasControlador {
         return custodiasUseCase.listar().stream().map(mapper::toResponseDto).toList();
     }
 
-    @GetMapping("/paginado")
-    public PaginaResponse<CustodiasResponseDTO> listarPaginado(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Pagina<Custodias> pagina = custodiasUseCase.listarPaginado(page, size);
-        PaginaResponse<CustodiasResponseDTO> resp = new PaginaResponse<>();
-        resp.setContenido(pagina.contenido().stream().map(mapper::toResponseDto).toList());
-        resp.setPaginaActual(pagina.paginaActual());
-        resp.setTamanioPagina(pagina.tamanioPagina());
-        resp.setTotalElementos(pagina.totalElementos());
-        resp.setTotalPaginas(pagina.totalPaginas());
-        resp.setPrimera(pagina.paginaActual() == 0);
-        resp.setUltima(pagina.paginaActual() + 1 >= pagina.totalPaginas());
-        return resp;
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<CustodiasResponseDTO> obtenerPorId(@PathVariable int id) {
         return ResponseEntity.ok(mapper.toResponseDto(custodiasUseCase.obtenerPorId(id)));
@@ -125,28 +107,12 @@ public class CustodiasControlador {
         );
     }
 
-    @GetMapping("/conteo-tipo/{tipo}")
-    public ResponseEntity<Map<String, Long>> contarPorTipo(@PathVariable String tipo) {
-        long count = custodiasUseCase.contarPorTipoMovimiento(tipo);
-        return ResponseEntity.ok(Map.of("tipo", count));
-    }
-
     @PutMapping("/acta-pdf")
     public ResponseEntity<Void> registrarActaPdf(
             @RequestParam List<Integer> ids,
             @RequestParam String rutaPdf) {
         custodiasUseCase.registrarActaPdf(ids, rutaPdf);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{id}/acta-pdf")
-    public ResponseEntity<Map<String, String>> obtenerRutaActaPdf(@PathVariable int id) {
-        Custodias c = custodiasUseCase.obtenerPorId(id);
-        String ruta = c.getRutaActaPdf();
-        if (ruta == null || ruta.isBlank()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(Map.of("rutaActaPdf", ruta));
     }
 
     @PostMapping(value = "/{id}/acta-firmada", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

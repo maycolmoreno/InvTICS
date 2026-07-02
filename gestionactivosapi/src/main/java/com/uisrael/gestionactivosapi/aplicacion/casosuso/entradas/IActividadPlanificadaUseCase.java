@@ -26,8 +26,6 @@ public interface IActividadPlanificadaUseCase {
 
     ActividadPlanificadaResponseDTO obtenerPorId(Long id);
 
-    void marcarVencidas();
-
     MetricasCumplimientoResponseDTO obtenerMetricasTecnico(Integer tecnicoId, String periodo);
 
     List<MetricasCumplimientoResponseDTO> obtenerMetricasGlobales(String periodo);
