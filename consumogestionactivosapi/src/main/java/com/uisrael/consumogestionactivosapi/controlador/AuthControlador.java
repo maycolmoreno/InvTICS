@@ -1,6 +1,5 @@
 package com.uisrael.consumogestionactivosapi.controlador;
 
-import java.util.Base64;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -210,13 +209,26 @@ public class AuthControlador {
 			HttpSession session) {
 
 		try {
-			String credenciales = correo + ":" + contrasena;
-			String credencialesBase64 = Base64.getEncoder().encodeToString(credenciales.getBytes());
-
 			try {
+				// 1. Canjear credenciales por tokens JWT (la contrasena no se guarda)
+				Map<String, Object> tokens = publicRestClient.post()
+						.uri("/auth/token")
+						.body(Map.of("correo", correo, "contrasena", contrasena))
+						.retrieve()
+						.body(new ParameterizedTypeReference<Map<String, Object>>() {
+						});
+
+				if (tokens == null || tokens.get("accessToken") == null) {
+					return "redirect:/login?error";
+				}
+				String accessToken = (String) tokens.get("accessToken");
+				String refreshToken = (String) tokens.get("refreshToken");
+				long expiresIn = tokens.get("expiresIn") instanceof Number n ? n.longValue() : 900000L;
+
+				// 2. Obtener datos del usuario autenticado con el token emitido
 				Map<String, Object> respuestaUsuario = publicRestClient.get()
 						.uri("/auth/yo")
-						.header("Authorization", "Basic " + credencialesBase64)
+						.header("Authorization", "Bearer " + accessToken)
 						.retrieve()
 						.body(new ParameterizedTypeReference<Map<String, Object>>() {
 						});
@@ -227,7 +239,8 @@ public class AuthControlador {
 					Integer idUsuario = respuestaUsuario.get("idUsuario") != null
 							? ((Number) respuestaUsuario.get("idUsuario")).intValue()
 							: null;
-					sesionUsuario.iniciarSesion(correo, contrasena, nombreUsuario, rol, idUsuario);
+					sesionUsuario.iniciarSesion(correo, nombreUsuario, rol, idUsuario);
+					sesionUsuario.actualizarTokens(accessToken, refreshToken, expiresIn);
 
 					// Nombre completo y departamento del usuario (desde BD)
 					String nombre = (String) respuestaUsuario.get("nombre");
@@ -256,7 +269,8 @@ public class AuthControlador {
 					return "redirect:/inicio";
 				}
 
-				sesionUsuario.iniciarSesion(correo, contrasena, correo.split("@")[0], "AUDITOR");
+				sesionUsuario.iniciarSesion(correo, correo.split("@")[0], "AUDITOR", null);
+				sesionUsuario.actualizarTokens(accessToken, refreshToken, expiresIn);
 				return "redirect:/inicio";
 
 			} catch (RestClientResponseException e) {

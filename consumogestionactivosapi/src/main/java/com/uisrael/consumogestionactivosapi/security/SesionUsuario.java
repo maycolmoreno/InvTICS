@@ -1,9 +1,7 @@
 package com.uisrael.consumogestionactivosapi.security;
 
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Set;
-import java.nio.charset.StandardCharsets;
 
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
@@ -11,14 +9,19 @@ import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Datos de autenticación del usuario almacenados en la sesión HTTP.
- * No almacena la contraseña en texto plano; usa un token Basic Auth codificado.
+ * No almacena credenciales: guarda los tokens JWT emitidos por el backend.
  */
 @Component
 @SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SesionUsuario {
 
+	/** Margen antes de la expiración real para refrescar proactivamente. */
+	private static final long MARGEN_REFRESH_MS = 60_000;
+
 	private String correo;
-	private String basicAuthToken;
+	private String accessToken;
+	private String refreshToken;
+	private long accessTokenExpiraEn;
 	private String nombreUsuario;
 	private String nombre;
 	private String departamento;
@@ -32,26 +35,31 @@ public class SesionUsuario {
 		this.modulosPermitidos = Collections.emptySet();
 	}
 
-	public void iniciarSesion(String correo, String contrasena, String nombreUsuario, String rol) {
+	public void iniciarSesion(String correo, String nombreUsuario, String rol, Integer idUsuario) {
 		this.correo = correo;
-		this.basicAuthToken = codificarBasicAuth(correo, contrasena);
-		this.nombreUsuario = nombreUsuario;
-		this.rol = rol;
-		this.autenticado = true;
-	}
-
-	public void iniciarSesion(String correo, String contrasena, String nombreUsuario, String rol, Integer idUsuario) {
-		this.correo = correo;
-		this.basicAuthToken = codificarBasicAuth(correo, contrasena);
 		this.nombreUsuario = nombreUsuario;
 		this.rol = rol;
 		this.idUsuario = idUsuario;
 		this.autenticado = true;
 	}
 
+	/**
+	 * Guarda los tokens emitidos por el backend. En un refresh el backend
+	 * puede devolver un nuevo refresh token; si viene null se conserva el actual.
+	 */
+	public void actualizarTokens(String accessToken, String refreshToken, long expiresInMs) {
+		this.accessToken = accessToken;
+		if (refreshToken != null && !refreshToken.isBlank()) {
+			this.refreshToken = refreshToken;
+		}
+		this.accessTokenExpiraEn = System.currentTimeMillis() + expiresInMs;
+	}
+
 	public void cerrarSesion() {
 		this.correo = null;
-		this.basicAuthToken = null;
+		this.accessToken = null;
+		this.refreshToken = null;
+		this.accessTokenExpiraEn = 0;
 		this.nombreUsuario = null;
 		this.nombre = null;
 		this.departamento = null;
@@ -66,10 +74,20 @@ public class SesionUsuario {
 	}
 
 	/**
-	 * Devuelve el valor del header Authorization (Basic xxxxx) para llamadas al backend.
+	 * Devuelve el valor del header Authorization (Bearer xxxxx) para llamadas al backend.
 	 */
 	public String getAuthorizationHeader() {
-		return basicAuthToken != null ? "Basic " + basicAuthToken : null;
+		return accessToken != null ? "Bearer " + accessToken : null;
+	}
+
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	/** true si el access token venció o está por vencer dentro del margen. */
+	public boolean tokenPorVencer() {
+		return accessToken != null
+				&& System.currentTimeMillis() >= accessTokenExpiraEn - MARGEN_REFRESH_MS;
 	}
 
 	public String getNombreUsuario() {
@@ -118,11 +136,6 @@ public class SesionUsuario {
 			}
 		}
 		return false;
-	}
-
-	private String codificarBasicAuth(String correo, String contrasena) {
-		String credenciales = correo + ":" + contrasena;
-		return Base64.getEncoder().encodeToString(credenciales.getBytes(StandardCharsets.UTF_8));
 	}
 
 	public Set<String> getModulosPermitidos() {

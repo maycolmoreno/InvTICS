@@ -3,21 +3,37 @@ package com.uisrael.gestionactivosapi.infraestructura.configuracion;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import com.uisrael.gestionactivosapi.infraestructura.seguridad.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+	}
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+		return configuration.getAuthenticationManager();
 	}
 
 	@Bean
@@ -88,7 +104,10 @@ public class SecurityConfig {
 				.anyRequest().authenticated()
 			)
 
-			.httpBasic(basic -> basic.realmName("API Gestión de Activos"));
+			.httpBasic(basic -> basic.realmName("API Gestión de Activos"))
+			// JWT (BFF) convive con Basic Auth (app movil): si hay Bearer valido
+			// autentica antes; si no, la cadena sigue y Basic opera igual que antes.
+			.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
 
 		return http.build();
 	}
