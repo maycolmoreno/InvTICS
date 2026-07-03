@@ -82,11 +82,12 @@ public class ModulosDataInitializer implements CommandLineRunner {
             return;
         }
 
-        // Módulos para TECNICO
+        // Módulos para TECNICO: su trabajo es mantenimiento (web) y campo (móvil).
+        // EQUIPOS y NOTIFICACIONES se conservan porque la app móvil deriva sus
+        // capacidades de estos códigos; la web oculta EQUIPOS para este rol.
         Set<String> modulosTecnico = Set.of(
-            "EQUIPOS", "MANTENIMIENTO", "CUSTODIAS", "CUSTODIOS",
-            "REPORTES", "NOTIFICACIONES", "CHECKLIST", "PLANIFICACION",
-            "MONITOREO_GPS", "VISITA_TECNICA"
+            "EQUIPOS", "MANTENIMIENTO", "NOTIFICACIONES", "CHECKLIST",
+            "PLANIFICACION", "MONITOREO_GPS", "VISITA_TECNICA"
         );
 
         // Módulos para AUDITOR

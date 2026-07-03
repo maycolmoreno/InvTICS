@@ -27,7 +27,7 @@
         <!-- INICIO -->
         <div class="cui-nav-section">
             <ul class="cui-nav-list">
-                <li>
+                <li th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">
                     <a th:href="@{/inventario/dashboard}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-grid"></i></span>
                         <span class="cui-nav-text">Dashboard</span>
@@ -43,11 +43,15 @@
         </div>
 
         <!-- GESTIÓN DE ACTIVOS -->
+        <!-- EQUIPOS es un módulo compartido con la app móvil: el rol TECNICO lo
+             conserva para el móvil, pero en la web su ámbito es solo mantenimiento
+             (misma regla que aplica AuthInterceptor). -->
         <div class="cui-nav-section"
-             th:if="${sesionUsuario.tieneAlgunModulo('EQUIPOS','CUSTODIAS','CUSTODIOS')}">
+             th:if="${(sesionUsuario.tieneModulo('EQUIPOS') and !sesionUsuario.tieneRol('TECNICO'))
+                     or sesionUsuario.tieneAlgunModulo('CUSTODIAS','CUSTODIOS')}">
             <div class="cui-nav-label">Gestion de Activos</div>
             <ul class="cui-nav-list">
-                <li th:if="${sesionUsuario.tieneModulo('EQUIPOS')}">
+                <li th:if="${sesionUsuario.tieneModulo('EQUIPOS') and !sesionUsuario.tieneRol('TECNICO')}">
                     <a th:href="@{/equipos}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-monitor"></i></span>
                         <span class="cui-nav-text">Activos TI</span>
@@ -113,7 +117,7 @@
 
         <!-- MANTENIMIENTO -->
         <div class="cui-nav-section"
-             th:if="${sesionUsuario.tieneAlgunModulo('MANTENIMIENTO','CHECKLIST','INVENTARIO')}">
+             th:if="${sesionUsuario.tieneAlgunModulo('MANTENIMIENTO','PLANIFICACION','CHECKLIST','GPS_TIEMPO_REAL')}">
             <div class="cui-nav-label">Mantenimiento</div>
             <ul class="cui-nav-list">
                 <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
@@ -122,7 +126,7 @@
                         <span class="cui-nav-text">Ordenes de trabajo</span>
                     </a>
                 </li>
-                <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
+                <li th:if="${sesionUsuario.tieneModulo('PLANIFICACION')}">
                     <a th:href="@{/planificacion}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-clock"></i></span>
                         <span class="cui-nav-text">Planificación de actividades</span>
@@ -134,7 +138,7 @@
                         <span class="cui-nav-text">Checklist</span>
                     </a>
                 </li>
-                <li th:if="${sesionUsuario.tieneModulo('INVENTARIO')}">
+                <li th:if="${sesionUsuario.tieneModulo('GPS_TIEMPO_REAL')}">
                     <a th:href="@{/ubicaciones-tecnicos/tiempo-real}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-map-pin"></i></span>
                         <span class="cui-nav-text">Mapa de tecnicos</span>
@@ -144,7 +148,7 @@
         </div>
 
         <!-- REPORTES -->
-        <div class="cui-nav-section">
+        <div class="cui-nav-section" th:if="${sesionUsuario.tieneModulo('REPORTES')}">
             <div class="cui-nav-label">Reportes</div>
             <ul class="cui-nav-list">
                 <li>
@@ -159,7 +163,7 @@
                         <span class="cui-nav-text">Mantenimientos</span>
                     </a>
                 </li>
-                <li th:if="${sesionUsuario.tieneModulo('MANTENIMIENTO')}">
+                <li th:if="${sesionUsuario.tieneModulo('PLANIFICACION')}">
                     <a th:href="@{/planificacion/metricas}" class="cui-nav-link">
                         <span class="cui-nav-icon"><i class="feather-trending-up"></i></span>
                         <span class="cui-nav-text">Metricas</span>
