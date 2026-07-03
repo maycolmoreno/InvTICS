@@ -441,6 +441,62 @@
   pointer-events: auto;
 }
 
+/* Variante para drawers de acción irreversible (baja, eliminación) */
+.cui-drawer-danger {
+  border-top: 4px solid var(--cui-danger);
+}
+
+/* Placa de inventario: identidad del activo dentro de un drawer de acción */
+.cui-asset-tag {
+  background: var(--cui-surface-raised);
+  border: 1px solid var(--cui-border);
+  border-radius: var(--cui-radius-md);
+  padding: var(--cui-space-3) var(--cui-space-4);
+}
+
+.cui-asset-tag-codigo {
+  color: var(--cui-text-main);
+  display: block;
+  font-family: 'JetBrains Mono', 'Roboto Mono', ui-monospace, monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.cui-asset-tag-meta {
+  color: var(--cui-text-muted);
+  display: block;
+  font-size: 12.5px;
+}
+
+.cui-asset-tag-estado {
+  align-items: center;
+  display: flex;
+  gap: var(--cui-space-2);
+  margin-top: var(--cui-space-2);
+}
+
+/* Zona final de una acción irreversible */
+.cui-danger-zone {
+  background: var(--cui-red-soft);
+  border-radius: var(--cui-radius-md);
+  padding: var(--cui-space-4);
+}
+
+/* Campo de confirmación por palabra para acciones destructivas */
+.cui-confirm-word {
+  font-family: 'JetBrains Mono', 'Roboto Mono', ui-monospace, monospace;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.cui-confirm-word:focus {
+  border-color: var(--cui-danger);
+  box-shadow: 0 0 0 3px var(--cui-red-soft);
+}
+
 .cui-drawer-header {
   align-items: center;
   border-bottom: 1px solid var(--cui-border);

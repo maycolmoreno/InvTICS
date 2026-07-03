@@ -182,7 +182,7 @@
         </section>
 
         <!-- Drawer: Dar de baja -->
-        <aside class="cui-drawer" id="drawerBajaActivo" aria-hidden="true" aria-label="Dar de baja un activo">
+        <aside class="cui-drawer cui-drawer-danger" id="drawerBajaActivo" aria-hidden="true" aria-label="Dar de baja un activo">
             <div class="cui-drawer-header">
                 <div>
                     <div class="fw-bold">Dar de baja</div>
@@ -199,19 +199,15 @@
                     <input type="hidden" name="equipoId" id="baja-equipo-id">
 
                     <div class="col-12">
-                        <label class="form-label text-muted small">Activo</label>
-                        <div class="form-control bg-light" data-activo-label>
-                            <span class="inv-code" id="baja-activo-codigo">—</span>
-                            <span id="baja-activo-modelo" class="d-block small text-muted">—</span>
+                        <label class="form-label text-muted small">Activo a retirar</label>
+                        <div class="cui-asset-tag">
+                            <span class="cui-asset-tag-codigo" id="baja-activo-codigo" data-activo-label>—</span>
+                            <span class="cui-asset-tag-meta" id="baja-activo-modelo">—</span>
+                            <div class="cui-asset-tag-estado">
+                                <span id="baja-activo-estado">—</span>
+                                <span class="cui-asset-tag-meta" id="baja-activo-ubicacion">—</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label text-muted small">Estado</label>
-                        <div class="form-control bg-light" id="baja-activo-estado">—</div>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label text-muted small">Ubicación</label>
-                        <div class="form-control bg-light" id="baja-activo-ubicacion">—</div>
                     </div>
 
                     <div class="col-12" id="baja-aviso-asignado" hidden>
@@ -249,17 +245,21 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label small text-muted">Para confirmar, escriba <strong>BAJA</strong></label>
-                        <input type="text" class="form-control" data-baja-confirm-input
-                               autocomplete="off" placeholder="BAJA">
-                    </div>
-                    <div class="col-12 d-flex justify-content-end gap-2">
-                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
-                        <button class="cui-btn cui-btn-danger" type="submit"
-                                data-cui-confirm="Confirme la baja del activo.">
-                            <i class="feather-alert-triangle" aria-hidden="true"></i>
-                            <span>Dar de baja</span>
-                        </button>
+                        <div class="cui-danger-zone">
+                            <label class="form-label small mb-2">
+                                Esta acción es permanente. Para confirmar, escriba <strong>BAJA</strong>
+                            </label>
+                            <input type="text" class="form-control cui-confirm-word" data-baja-confirm-input
+                                   autocomplete="off" maxlength="4" placeholder="BAJA">
+                            <div class="d-flex justify-content-end gap-2 mt-3">
+                                <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                                <button class="cui-btn cui-btn-danger" type="submit"
+                                        data-cui-confirm="Confirme la baja del activo.">
+                                    <i class="feather-alert-triangle" aria-hidden="true"></i>
+                                    <span>Dar de baja</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
