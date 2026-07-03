@@ -3,121 +3,115 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{plantilla/plantillaui}">
 <head>
-    <title>Reportes y auditoria</title>
+    <title>Centro de reportes</title>
 </head>
 <body>
 <div layout:fragment="contenidopaginas">
     <div class="cui-page">
-        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Centro de Inteligencia Operacional', subtitle='Consulta, auditoria y exportacion de informacion de activos, custodias, inventario y mantenimiento.')}"></div>
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Centro de reportes', subtitle='Reportes exportables, distribución del parque tecnológico y cumplimiento de los técnicos.')}"></div>
 
-        <div class="cui-command-bar">
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a th:href="@{/inventario/dashboard}" class="cui-btn cui-btn-secondary">
-                    <i class="feather-grid" aria-hidden="true"></i>
-                    <span>Dashboard operativo</span>
-                </a>
-            </div>
-            <a th:href="@{/equipos/reporte-equipo/excel}" class="cui-btn cui-btn-primary">
-                <i class="feather-download" aria-hidden="true"></i>
-                <span>Excel equipos</span>
-            </a>
-        </div>
-
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Total equipos', value=${totalEquipos}, meta='Parque tecnologico', icon='feather-monitor', tone='primary')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Equipos activos', value=${equiposActivos}, meta='Disponibles en sistema', icon='feather-check-circle', tone='success')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Mantenimientos', value=${totalMantenimientos}, meta='Ordenes registradas', icon='feather-tool', tone='warning')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Abiertos', value=${mantenimientosAbiertos}, meta='Pendientes de cierre', icon='feather-alert-circle', tone='danger')}"></div>
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Custodios', value=${totalCustodios}, meta=${totalCustodias + ' actas'}, icon='feather-users', tone='info')}"></div>
-        </section>
-
+        <!-- Reportes disponibles -->
         <section class="cui-report-grid">
             <article class="cui-report-card">
                 <span class="cui-report-icon"><i class="feather-monitor" aria-hidden="true"></i></span>
                 <span class="cui-badge cui-badge-info">Operativo</span>
                 <h3>Reporte de activos</h3>
-                <p>Inventario, estado, marca, categoria y exportable.</p>
+                <p>Inventario, estado, marca, categoría y exportable.</p>
                 <div class="cui-report-actions">
-                    <a th:href="@{/equipos/reporte-equipo}" class="btn btn-outline-primary btn-sm">Ver reporte</a>
-                    <a th:href="@{/equipos/reporte-equipo/excel}" class="btn btn-light btn-sm">Excel</a>
+                    <a th:href="@{/equipos/reporte-equipo}" class="cui-btn cui-btn-sm cui-btn-secondary">Ver reporte</a>
+                    <a th:href="@{/equipos/reporte-equipo/excel}" class="cui-btn cui-btn-sm cui-btn-secondary">Excel</a>
                 </div>
             </article>
             <article class="cui-report-card">
                 <span class="cui-report-icon"><i class="feather-clipboard" aria-hidden="true"></i></span>
-                <span class="cui-badge cui-badge-asignado">Auditoria</span>
+                <span class="cui-badge cui-badge-asignado">Auditoría</span>
                 <h3>Reporte de custodias</h3>
                 <p>Actas, vigencias, responsables y trazabilidad documental.</p>
                 <div class="cui-report-actions">
-                    <a th:href="@{/custodias/reporte}" class="btn btn-outline-primary btn-sm">Ver reporte</a>
-                    <a th:href="@{/custodias/reporte/excel}" class="btn btn-light btn-sm">Excel</a>
+                    <a th:href="@{/custodias/reporte}" class="cui-btn cui-btn-sm cui-btn-secondary">Ver reporte</a>
+                    <a th:href="@{/custodias/reporte/excel}" class="cui-btn cui-btn-sm cui-btn-secondary">Excel</a>
                 </div>
             </article>
             <article class="cui-report-card">
                 <span class="cui-report-icon"><i class="feather-tool" aria-hidden="true"></i></span>
-                <span class="cui-badge cui-badge-en-reparacion">Tecnico</span>
+                <span class="cui-badge cui-badge-en-reparacion">Técnico</span>
                 <h3>Reporte de mantenimientos</h3>
-                <p>Estado, tipo, tecnico, fechas y proxima intervencion.</p>
+                <p>Estado, tipo, técnico, fechas y próxima intervención.</p>
                 <div class="cui-report-actions">
-                    <a th:href="@{/reportes/mantenimientos}" class="btn btn-outline-primary btn-sm">Ver reporte</a>
-                    <a th:href="@{/reportes/mantenimientos/excel}" class="btn btn-light btn-sm">Excel</a>
+                    <a th:href="@{/reportes/mantenimientos}" class="cui-btn cui-btn-sm cui-btn-secondary">Ver reporte</a>
+                    <a th:href="@{/reportes/mantenimientos/excel}" class="cui-btn cui-btn-sm cui-btn-secondary">Excel</a>
                 </div>
             </article>
             <article class="cui-report-card">
-                <span class="cui-report-icon"><i class="feather-activity" aria-hidden="true"></i></span>
-                <span class="cui-badge cui-badge-muted">Exportaciones</span>
-                <h3>Inventario y movimientos</h3>
-                <p>Dashboard operativo y timeline logistico de inventario.</p>
+                <span class="cui-report-icon"><i class="feather-grid" aria-hidden="true"></i></span>
+                <span class="cui-badge cui-badge-muted">Tiempo real</span>
+                <h3>Dashboard operativo</h3>
+                <p>Inventario, movimientos y timeline logístico en vivo.</p>
                 <div class="cui-report-actions">
-                    <a th:href="@{/inventario/dashboard}" class="btn btn-light btn-sm">Dashboard</a>
+                    <a th:href="@{/inventario/dashboard}" class="cui-btn cui-btn-sm cui-btn-secondary">Abrir dashboard</a>
                 </div>
             </article>
         </section>
 
-        <div class="cui-workspace-grid mt-4">
-            <section class="cui-exp-card">
-                <div class="cui-exp-card-header">
-                    <h2>Distribucion de equipos</h2>
-                    <span class="cui-badge cui-badge-info">Activos TI</span>
-                </div>
-                <div class="cui-exp-card-body">
-                    <div class="row g-4">
-                        <div class="col-lg-4"><canvas id="chartCategoria" height="230"></canvas></div>
-                        <div class="col-lg-4"><canvas id="chartMarca" height="230"></canvas></div>
-                        <div class="col-lg-4"><canvas id="chartEstado" height="230"></canvas></div>
+        <!-- Distribución del parque tecnológico -->
+        <section class="cui-exp-card mt-4">
+            <div class="cui-exp-card-header">
+                <h2>Distribución del parque tecnológico</h2>
+                <span class="cui-badge cui-badge-info">Activos TI</span>
+            </div>
+            <div class="cui-exp-card-body">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <p class="cui-eyebrow">Por categoría</p>
+                        <canvas id="chartCategoria" height="230"></canvas>
+                    </div>
+                    <div class="col-lg-4">
+                        <p class="cui-eyebrow">Por marca (top 10)</p>
+                        <canvas id="chartMarca" height="230"></canvas>
+                    </div>
+                    <div class="col-lg-4">
+                        <p class="cui-eyebrow">Por estado</p>
+                        <canvas id="chartEstado" height="230"></canvas>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section class="cui-exp-card">
-                <div class="cui-exp-card-header">
-                    <h2>Mantenimiento</h2>
-                    <span class="cui-badge cui-badge-en-reparacion">Control tecnico</span>
-                </div>
-                <div class="cui-exp-card-body">
-                    <div class="row g-4">
-                        <div class="col-lg-6"><canvas id="chartMntMes" height="210"></canvas></div>
-                        <div class="col-lg-6"><canvas id="chartMntTecnico" height="210"></canvas></div>
-                        <div class="col-lg-6"><canvas id="chartMntTipo" height="210"></canvas></div>
-                        <div class="col-lg-6"><canvas id="chartMntEstado" height="210"></canvas></div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <section class="cui-data-grid mt-4" th:if="${metricasTecnicos != null and !metricasTecnicos.isEmpty()}">
+        <!-- Cumplimiento por técnico -->
+        <section class="cui-data-grid mt-4">
             <div class="cui-data-grid-header">
                 <div>
-                    <p class="cui-eyebrow">Planificacion</p>
-                    <h2>Cumplimiento por tecnico</h2>
+                    <p class="cui-eyebrow">Planificación</p>
+                    <h2>Cumplimiento por técnico</h2>
                 </div>
-                <div class="cui-data-grid-meta" th:text="${#lists.size(metricasTecnicos) + ' registros'}">0 registros</div>
+                <form method="get" th:action="@{/reportes}" class="d-flex align-items-center gap-2" id="formPeriodo">
+                    <label class="form-label mb-0 small text-muted" for="selectPeriodo">Periodo</label>
+                    <select id="selectPeriodo" name="periodo" class="form-select form-select-sm w-auto">
+                        <option value="SEMANAL" th:selected="${periodoSeleccionado == 'SEMANAL'}">Esta semana</option>
+                        <option value="MENSUAL" th:selected="${periodoSeleccionado == 'MENSUAL'}">Este mes</option>
+                        <option value="GLOBAL" th:selected="${periodoSeleccionado == 'GLOBAL'}">Histórico</option>
+                    </select>
+                </form>
             </div>
             <div class="cui-data-grid-body">
-                <div class="table-responsive">
+
+                <div th:if="${metricasError}" class="cui-tab-pane-body">
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-alert-circle', title='No se pudieron cargar las métricas', message='El backend no respondió. Recarga la página o revisa la conexión con la API.')}"></div>
+                </div>
+
+                <div th:if="${!metricasError and #lists.isEmpty(metricasTecnicos) and !hayTecnicos}" class="cui-tab-pane-body">
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-users', title='Sin técnicos registrados', message='Las métricas de cumplimiento se calculan por usuario con rol TÉCNICO. Crea usuarios técnicos en Usuarios y asígnales actividades en Planificación.')}"></div>
+                </div>
+
+                <div th:if="${!metricasError and #lists.isEmpty(metricasTecnicos) and hayTecnicos}" class="cui-tab-pane-body">
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-calendar', title='Sin actividades en el periodo', message='Los técnicos no tienen actividades planificadas en el periodo seleccionado. Prueba con el periodo Histórico o planifica actividades.')}"></div>
+                </div>
+
+                <div th:if="${!metricasError and !#lists.isEmpty(metricasTecnicos)}" class="table-responsive">
                     <table class="table cui-table">
                         <thead>
                         <tr>
-                            <th>Tecnico</th>
+                            <th>Técnico</th>
                             <th>Total</th>
                             <th>Completadas</th>
                             <th>Pendientes</th>
@@ -129,7 +123,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="m : ${metricasTecnicos}">
-                            <td th:text="${m.tecnicoNombre}">Tecnico</td>
+                            <td th:text="${m.tecnicoNombre}">Técnico</td>
                             <td th:text="${m.totalActividades}">0</td>
                             <td><span class="cui-badge cui-badge-asignado" th:text="${m.completadas}">0</span></td>
                             <td><span class="cui-badge cui-badge-en-reparacion" th:text="${m.pendientes}">0</span></td>
@@ -149,71 +143,110 @@
     <script th:inline="javascript">
     /*<![CDATA[*/
     (function() {
-        const PALETA = ['#1d4ed8','#16a34a','#d97706','#dc2626','#6b7280','#0891b2','#7c3aed','#14b8a6','#f97316','#111827'];
-        function colorPaleta(n) {
-            const c = [];
-            for (let i = 0; i < n; i++) c.push(PALETA[i % PALETA.length]);
-            return c;
-        }
-        function chartOrEmpty(id, config) {
-            const canvas = document.getElementById(id);
-            if (!canvas || typeof Chart === 'undefined') return;
-            new Chart(canvas, config);
+        // El selector de periodo recarga las metricas sin boton adicional
+        var selectPeriodo = document.getElementById('selectPeriodo');
+        if (selectPeriodo) {
+            selectPeriodo.addEventListener('change', function () {
+                document.getElementById('formPeriodo').submit();
+            });
         }
 
-        const catLabels = /*[[${categoriasLabels}]]*/ [];
-        const catValues = /*[[${categoriasValores}]]*/ [];
-        chartOrEmpty('chartCategoria', {
+        if (typeof Chart === 'undefined') return;
+
+        // Colores del sistema CUI leidos de tokens.css (paleta validada CVD)
+        var css = getComputedStyle(document.documentElement);
+        function token(nombre, porDefecto) {
+            var v = css.getPropertyValue(nombre).trim();
+            return v || porDefecto;
+        }
+        var SUPERFICIE = token('--cui-surface', '#ffffff');
+        var TINTA_MUTED = token('--cui-text-muted', '#7b6fa0');
+        var GRIS_OTROS = token('--cui-disabled', '#9ca3af');
+        var CATEGORICA = [
+            token('--cui-primary-rich', '#5c36a0'),
+            token('--cui-secondary', '#0891b2'),
+            token('--cui-warning', '#d97706'),
+            token('--cui-success', '#16a34a'),
+            token('--cui-accent', '#e8412d')
+        ];
+        // Estados de equipo con color semantico fijo (no rota con los datos)
+        var ESTADO_COLOR = {
+            'OPERATIVO': token('--cui-success', '#16a34a'),
+            'EN_BODEGA': token('--cui-secondary', '#0891b2'),
+            'ASIGNADO': token('--cui-success', '#16a34a'),
+            'EN_REPARACION': token('--cui-warning', '#d97706'),
+            'EN_TRANSITO': token('--cui-primary-mid', '#7c56c0'),
+            'DADO_DE_BAJA': GRIS_OTROS
+        };
+
+        function coloresCategoricos(labels) {
+            var i = 0;
+            return labels.map(function (l) {
+                if (l === 'Otros') return GRIS_OTROS;
+                return CATEGORICA[i++ % CATEGORICA.length];
+            });
+        }
+
+        function coloresEstados(labels) {
+            var i = 0;
+            return labels.map(function (l) {
+                return ESTADO_COLOR[l] || CATEGORICA[i++ % CATEGORICA.length];
+            });
+        }
+
+        Chart.defaults.color = TINTA_MUTED;
+        Chart.defaults.font.family = css.getPropertyValue('--cui-font-family') || undefined;
+
+        function crear(id, config) {
+            var canvas = document.getElementById(id);
+            if (canvas) new Chart(canvas, config);
+        }
+
+        var catLabels = /*[[${categoriasLabels}]]*/ [];
+        var catValues = /*[[${categoriasValores}]]*/ [];
+        crear('chartCategoria', {
             type: 'doughnut',
-            data: { labels: catLabels, datasets: [{ data: catValues, backgroundColor: colorPaleta(catLabels.length) }] },
+            data: { labels: catLabels, datasets: [{
+                data: catValues,
+                backgroundColor: coloresCategoricos(catLabels),
+                borderColor: SUPERFICIE,
+                borderWidth: 2
+            }] },
             options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
         });
 
-        const marcaLabels = /*[[${marcasLabels}]]*/ [];
-        const marcaValues = /*[[${marcasValores}]]*/ [];
-        chartOrEmpty('chartMarca', {
+        var marcaLabels = /*[[${marcasLabels}]]*/ [];
+        var marcaValues = /*[[${marcasValores}]]*/ [];
+        crear('chartMarca', {
             type: 'bar',
-            data: { labels: marcaLabels, datasets: [{ label: 'Equipos', data: marcaValues, backgroundColor: '#1d4ed8' }] },
-            options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }
+            data: { labels: marcaLabels, datasets: [{
+                label: 'Equipos',
+                data: marcaValues,
+                backgroundColor: CATEGORICA[0],
+                borderRadius: 4,
+                maxBarThickness: 22
+            }] },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(71,38,127,.08)' } },
+                    y: { grid: { display: false } }
+                }
+            }
         });
 
-        const estLabels = /*[[${estadosLabels}]]*/ [];
-        const estValues = /*[[${estadosValores}]]*/ [];
-        chartOrEmpty('chartEstado', {
-            type: 'pie',
-            data: { labels: estLabels, datasets: [{ data: estValues, backgroundColor: colorPaleta(estLabels.length) }] },
-            options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
-        });
-
-        const mesLabels = /*[[${mntMesLabels}]]*/ [];
-        const mesValues = /*[[${mntMesValores}]]*/ [];
-        chartOrEmpty('chartMntMes', {
-            type: 'line',
-            data: { labels: mesLabels, datasets: [{ label: 'Mantenimientos', data: mesValues, borderColor: '#1d4ed8', backgroundColor: 'rgba(29,78,216,.12)', fill: true, tension: .3 }] },
-            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
-        });
-
-        const tecLabels = /*[[${mntTecnicoLabels}]]*/ [];
-        const tecValues = /*[[${mntTecnicoValores}]]*/ [];
-        chartOrEmpty('chartMntTecnico', {
-            type: 'bar',
-            data: { labels: tecLabels, datasets: [{ label: 'Mantenimientos', data: tecValues, backgroundColor: colorPaleta(tecLabels.length) }] },
-            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
-        });
-
-        const tipoLabels = /*[[${mntTipoLabels}]]*/ [];
-        const tipoValues = /*[[${mntTipoValores}]]*/ [];
-        chartOrEmpty('chartMntTipo', {
+        var estLabels = /*[[${estadosLabels}]]*/ [];
+        var estValues = /*[[${estadosValores}]]*/ [];
+        crear('chartEstado', {
             type: 'doughnut',
-            data: { labels: tipoLabels, datasets: [{ data: tipoValues, backgroundColor: colorPaleta(tipoLabels.length) }] },
-            options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
-        });
-
-        const mntEstLabels = /*[[${mntEstadoLabels}]]*/ [];
-        const mntEstValues = /*[[${mntEstadoValores}]]*/ [];
-        chartOrEmpty('chartMntEstado', {
-            type: 'doughnut',
-            data: { labels: mntEstLabels, datasets: [{ data: mntEstValues, backgroundColor: colorPaleta(mntEstLabels.length) }] },
+            data: { labels: estLabels, datasets: [{
+                data: estValues,
+                backgroundColor: coloresEstados(estLabels),
+                borderColor: SUPERFICIE,
+                borderWidth: 2
+            }] },
             options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
         });
     })();

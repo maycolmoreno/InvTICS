@@ -1,6 +1,5 @@
 package com.uisrael.consumogestionactivosapi.controlador;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -19,13 +18,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiasResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.EquiposResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MantenimientoManualResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MetricasCumplimientoResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.IActividadPlanificadaServicio;
-import com.uisrael.consumogestionactivosapi.service.ICustodiasServicio;
-import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IMantenimientoManualServicio;
 import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
@@ -40,38 +36,37 @@ public class ReportesControlador {
 
 	private final IEquiposServicio equiposServicio;
 	private final IMantenimientoManualServicio mantenimientoServicio;
-	private final ICustodiasServicio custodiasServicio;
-	private final ICustodiosServicio custodiosServicio;
 	private final IUsuariosServicio usuariosServicio;
 	private final IActividadPlanificadaServicio actividadPlanificadaServicio;
 	private final MantenimientosExcelService mantenimientosExcelService;
 
 	// ── Centro de Reportes ──────────────────────────────────
 
+	private static final List<String> PERIODOS_METRICAS = List.of("SEMANAL", "MENSUAL", "GLOBAL");
+	private static final int MAX_CATEGORIAS_GRAFICO = 5;
+
 	@GetMapping
-	public String centroReportes(Model model) {
+	public String centroReportes(@RequestParam(defaultValue = "MENSUAL") String periodo, Model model) {
 		List<EquiposResponseDTO> equipos = equiposServicio.listarEquipos();
-		List<MantenimientoManualResponseDTO> mantenimientos = mantenimientoServicio.listarTodos();
-		List<CustodiasResponseDTO> custodias = custodiasServicio.listarCustodias();
 
-		// ── KPIs generales ──
-		model.addAttribute("totalEquipos", equipos.size());
-		model.addAttribute("equiposActivos", equipos.stream().filter(EquiposResponseDTO::isEstado).count());
-		model.addAttribute("totalMantenimientos", mantenimientos.size());
-		model.addAttribute("mantenimientosAbiertos", mantenimientos.stream()
-				.filter(m -> !contiene(m.getEstadoInterno(), "cerrad", "complet", "finaliz")).count());
-		model.addAttribute("totalCustodias", custodias.size());
-		model.addAttribute("totalCustodios", custodiosServicio.listarCustodios().size());
-
-		// ── Equipos por categoría (para gráfico pie) ──
+		// ── Equipos por categoría: top 5 y el resto agrupado en "Otros" ──
 		Map<String, Long> equiposPorCategoria = equipos.stream()
 				.collect(Collectors.groupingBy(
 						e -> e.getFkCategoria() != null ? e.getFkCategoria().getNombre() : "Sin categoría",
 						Collectors.counting()));
-		model.addAttribute("categoriasLabels", equiposPorCategoria.keySet());
-		model.addAttribute("categoriasValores", equiposPorCategoria.values());
+		Map<String, Long> categoriasTop = equiposPorCategoria.entrySet().stream()
+				.sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+				.limit(MAX_CATEGORIAS_GRAFICO)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+		long otros = equiposPorCategoria.values().stream().mapToLong(Long::longValue).sum()
+				- categoriasTop.values().stream().mapToLong(Long::longValue).sum();
+		if (otros > 0) {
+			categoriasTop.put("Otros", otros);
+		}
+		model.addAttribute("categoriasLabels", categoriasTop.keySet());
+		model.addAttribute("categoriasValores", categoriasTop.values());
 
-		// ── Equipos por marca (para gráfico barras) ──
+		// ── Equipos por marca (top 10, serie única) ──
 		Map<String, Long> equiposPorMarca = equipos.stream()
 				.collect(Collectors.groupingBy(
 						e -> e.getFkMarca() != null ? e.getFkMarca().getNombre() : "Sin marca",
@@ -83,7 +78,7 @@ public class ReportesControlador {
 		model.addAttribute("marcasLabels", equiposPorMarca.keySet());
 		model.addAttribute("marcasValores", equiposPorMarca.values());
 
-		// ── Equipos por estado ──
+		// ── Equipos por estado (colores semánticos en el cliente) ──
 		Map<String, Long> equiposPorEstado = equipos.stream()
 				.collect(Collectors.groupingBy(
 						e -> e.getEstadoEquipo() != null ? e.getEstadoEquipo() : "Sin estado",
@@ -91,55 +86,26 @@ public class ReportesControlador {
 		model.addAttribute("estadosLabels", equiposPorEstado.keySet());
 		model.addAttribute("estadosValores", equiposPorEstado.values());
 
-		// ── Mantenimientos por tipo ──
-		Map<String, Long> mantenimientosPorTipo = mantenimientos.stream()
-				.collect(Collectors.groupingBy(
-						m -> m.getTipoMantenimiento() != null ? m.getTipoMantenimiento() : "Sin tipo",
-						Collectors.counting()));
-		model.addAttribute("mntTipoLabels", mantenimientosPorTipo.keySet());
-		model.addAttribute("mntTipoValores", mantenimientosPorTipo.values());
-
-		// ── Mantenimientos por estado interno ──
-		Map<String, Long> mantenimientosPorEstado = mantenimientos.stream()
-				.collect(Collectors.groupingBy(
-						m -> m.getEstadoInterno() != null ? m.getEstadoInterno() : "Sin estado",
-						Collectors.counting()));
-		model.addAttribute("mntEstadoLabels", mantenimientosPorEstado.keySet());
-		model.addAttribute("mntEstadoValores", mantenimientosPorEstado.values());
-
-		// ── Mantenimientos por técnico (top 10) ──
-		Map<String, Long> mantenimientosPorTecnico = mantenimientos.stream()
-				.collect(Collectors.groupingBy(
-						m -> m.getTecnicoNombre() != null ? m.getTecnicoNombre() : "Sin asignar",
-						Collectors.counting()));
-		mantenimientosPorTecnico = mantenimientosPorTecnico.entrySet().stream()
-				.sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-				.limit(10)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-		model.addAttribute("mntTecnicoLabels", mantenimientosPorTecnico.keySet());
-		model.addAttribute("mntTecnicoValores", mantenimientosPorTecnico.values());
-
-		// ── Mantenimientos por mes (últimos 6 meses) ──
-		LocalDate hace6Meses = LocalDate.now().minusMonths(6).withDayOfMonth(1);
-		Map<String, Long> mantenimientosPorMes = mantenimientos.stream()
-				.filter(m -> m.getFechaMantenimiento() != null && !m.getFechaMantenimiento().isBefore(hace6Meses))
-				.collect(Collectors.groupingBy(
-						m -> m.getFechaMantenimiento().format(DateTimeFormatter.ofPattern("yyyy-MM")),
-						Collectors.counting()));
-		mantenimientosPorMes = mantenimientosPorMes.entrySet().stream()
-				.sorted(Map.Entry.comparingByKey())
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-		model.addAttribute("mntMesLabels", mantenimientosPorMes.keySet());
-		model.addAttribute("mntMesValores", mantenimientosPorMes.values());
-
-		// ── Métricas de cumplimiento (actividades planificadas) ──
+		// ── Métricas de cumplimiento (actividades planificadas por técnico) ──
+		String periodoNormalizado = PERIODOS_METRICAS.contains(periodo.toUpperCase(Locale.ROOT))
+				? periodo.toUpperCase(Locale.ROOT)
+				: "MENSUAL";
+		List<MetricasCumplimientoResponseDTO> metricas = List.of();
+		boolean metricasError = false;
 		try {
-			List<MetricasCumplimientoResponseDTO> metricas = actividadPlanificadaServicio
-					.obtenerMetricasGlobales("MENSUAL");
-			model.addAttribute("metricasTecnicos", metricas);
+			metricas = actividadPlanificadaServicio.obtenerMetricasGlobales(periodoNormalizado);
 		} catch (Exception e) {
-			model.addAttribute("metricasTecnicos", List.of());
+			metricasError = true;
 		}
+		// El backend calcula métricas solo para usuarios con rol TECNICO: si no
+		// hay técnicos la lista llega vacía y el empty state debe explicarlo.
+		boolean hayTecnicos = !metricas.isEmpty() || usuariosServicio.listarUsuario().stream()
+				.anyMatch(u -> u.getFkRol() != null && u.getFkRol().getNombre() != null
+						&& u.getFkRol().getNombre().toUpperCase(Locale.ROOT).contains("TECNICO"));
+		model.addAttribute("metricasTecnicos", metricas);
+		model.addAttribute("metricasError", metricasError);
+		model.addAttribute("hayTecnicos", hayTecnicos);
+		model.addAttribute("periodoSeleccionado", periodoNormalizado);
 
 		return "reportes/centro-reportes";
 	}
@@ -222,14 +188,4 @@ public class ReportesControlador {
 				.body(bytes);
 	}
 
-	private boolean contiene(String value, String... terms) {
-		if (value == null)
-			return false;
-		String normalized = value.toLowerCase(Locale.ROOT);
-		for (String term : terms) {
-			if (normalized.contains(term))
-				return true;
-		}
-		return false;
-	}
 }
