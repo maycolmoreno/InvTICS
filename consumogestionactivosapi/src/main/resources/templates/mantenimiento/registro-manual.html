@@ -905,6 +905,11 @@
                     if (modoActual === 'FARMACIA' && (!ubicacionSelect || !ubicacionSelect.value)) { e.preventDefault(); alert('Debes seleccionar una sucursal.'); return; }
                 });
 
+                // Filtrar custodios por tipo ANTES de aplicar la preseleccion:
+                // filterCustodiosByTipo limpia custodioSelect.value, asi que si se
+                // ejecuta al final deshace la preseleccion (?equipoId= / ?equipoIds=).
+                filterCustodiosByTipo('ADMINISTRATIVO');
+
                 if (!custodioSelect.value) {
                     const presel = Array.from(equipoSelect.options).find(opt => opt.selected);
                     const custodios = (presel?.getAttribute('data-custodios') || '').split(',').map(v => v.trim()).filter(Boolean);
@@ -919,8 +924,6 @@
                 updateResumen();
                 updateSelectedEquipmentChips();
                 updateSubmitState();
-
-                filterCustodiosByTipo('ADMINISTRATIVO');
             })();
         </script>
     </form>
