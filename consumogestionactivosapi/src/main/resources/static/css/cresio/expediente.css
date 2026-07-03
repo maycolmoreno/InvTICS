@@ -224,7 +224,7 @@
 }
 
 .cui-exp-tabs .nav {
-  background: #f9fafb;
+  background: var(--cui-surface-raised);
   border-bottom: 1px solid var(--cui-border);
   gap: var(--cui-space-1);
   padding: var(--cui-space-3) var(--cui-space-4) 0;
@@ -251,14 +251,16 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.cui-detail-item {
-  background: #f9fafb;
+/* Variante tarjeta: solo dentro de .cui-detail-grid (expediente de custodio).
+   Sin acotar contaminaba la variante lista (.cui-detail-list dt/dd). */
+.cui-detail-grid .cui-detail-item {
+  background: var(--cui-surface-raised);
   border: 1px solid var(--cui-border);
   border-radius: var(--cui-radius-md);
   padding: var(--cui-space-3);
 }
 
-.cui-detail-item span {
+.cui-detail-grid .cui-detail-item span {
   color: var(--cui-text-muted);
   display: block;
   font-size: .72rem;
@@ -266,7 +268,7 @@
   text-transform: uppercase;
 }
 
-.cui-detail-item strong {
+.cui-detail-grid .cui-detail-item strong {
   color: var(--cui-text-main);
   display: block;
   margin-top: .25rem;
