@@ -43,3 +43,5 @@ build/
 *-firebase-adminsdk-*.json
 data/
 *.sql
+# Las migraciones Flyway SI se versionan (el *.sql de arriba es para dumps)
+!src/main/resources/db/migration/*.sql

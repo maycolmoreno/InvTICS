@@ -1,0 +1,7 @@
+UPDATE equipos
+SET estado = TRUE
+WHERE estado IS NULL;
+
+ALTER TABLE equipos
+    ALTER COLUMN estado SET DEFAULT TRUE,
+    ALTER COLUMN estado SET NOT NULL;
