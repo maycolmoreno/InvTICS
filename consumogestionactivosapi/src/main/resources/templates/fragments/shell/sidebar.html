@@ -65,6 +65,12 @@
                         <span class="cui-nav-text">Custodios</span>
                     </a>
                 </li>
+                <li th:if="${sesionUsuario.tieneModulo('CUSTODIOS') and sesionUsuario.tieneRol('ADMINISTRADOR')}">
+                    <a th:href="@{/custodios/sincronizacion}" class="cui-nav-link">
+                        <span class="cui-nav-icon"><i class="feather-refresh-cw"></i></span>
+                        <span class="cui-nav-text">Sincronización de empleados</span>
+                    </a>
+                </li>
             </ul>
         </div>
 

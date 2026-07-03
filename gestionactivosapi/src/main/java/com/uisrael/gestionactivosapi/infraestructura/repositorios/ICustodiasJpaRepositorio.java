@@ -32,4 +32,9 @@ public interface ICustodiasJpaRepositorio extends JpaRepository<CustodiasJpa, In
 
     java.util.List<CustodiasJpa> findByFkCustodio_IdCustodioAndTipoMovimientoAndFechaInicio(
             Integer idCustodio, String tipoMovimiento, java.time.LocalDate fechaInicio);
+
+    long countByFkCustodio_IdCustodioAndEstadoTrue(Integer idCustodio);
+
+    @EntityGraph(attributePaths = {"fkEquipo", "fkCustodio"})
+    java.util.List<CustodiasJpa> findByEstadoTrueAndFkCustodio_EstadoFalse();
 }

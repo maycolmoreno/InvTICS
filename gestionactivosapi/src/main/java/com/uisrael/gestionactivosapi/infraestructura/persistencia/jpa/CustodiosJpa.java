@@ -64,4 +64,12 @@ public class CustodiosJpa extends AuditableEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private UsuariosJpa fkUsuario;
+
+    /** true si el registro proviene de la sincronizacion de empleados. */
+    @Column(name = "origen_sync", nullable = false)
+    private boolean origenSync;
+
+    /** Ultima vez que la sincronizacion vio a este empleado en la fuente. */
+    @Column(name = "sincronizado_en")
+    private java.time.LocalDateTime sincronizadoEn;
 }
