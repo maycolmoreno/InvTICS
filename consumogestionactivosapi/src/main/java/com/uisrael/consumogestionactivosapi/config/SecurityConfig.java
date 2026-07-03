@@ -12,19 +12,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
-import com.uisrael.consumogestionactivosapi.security.JwtAuthenticationFilter;
-import com.uisrael.consumogestionactivosapi.security.JwtTokenProvider;
+import com.uisrael.consumogestionactivosapi.security.SesionAuthenticationFilter;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-	private final JwtTokenProvider jwtTokenProvider;
 	private final SesionUsuario sesionUsuario;
 
-	public SecurityConfig(JwtTokenProvider jwtTokenProvider, SesionUsuario sesionUsuario) {
-		this.jwtTokenProvider = jwtTokenProvider;
+	public SecurityConfig(SesionUsuario sesionUsuario) {
 		this.sesionUsuario = sesionUsuario;
 	}
 
@@ -34,8 +31,8 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter(jwtTokenProvider, sesionUsuario);
+	public SesionAuthenticationFilter sesionAuthenticationFilter() {
+		return new SesionAuthenticationFilter(sesionUsuario);
 	}
 
 	@Bean
@@ -54,8 +51,7 @@ public class SecurityConfig {
 				// Rutas públicas - sin autenticación requerida
 				.requestMatchers("/", "/login", "/setup").permitAll()
 				.requestMatchers("/auth/login", "/auth/refresh", "/auth/setup").permitAll()
-				.requestMatchers("/api/auth/login", "/api/auth/refresh").permitAll()
-				
+
 				// Recursos estáticos
 				.requestMatchers("/static/**", "/templates/**", "/assets/**", "/css/**", "/js/**", "/images/**").permitAll()
 				
@@ -67,7 +63,7 @@ public class SecurityConfig {
 					response.sendRedirect("/login");
 				})
 			)
-			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(sesionAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

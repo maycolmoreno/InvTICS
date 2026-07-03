@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -14,15 +13,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+/**
+ * Autentica las peticiones del navegador a partir de la sesión HTTP del BFF.
+ * Los tokens JWT del backend viven en {@link SesionUsuario} y solo viajan
+ * en las llamadas RestClient hacia la API; el BFF no valida ni emite JWT.
+ */
+public class SesionAuthenticationFilter extends OncePerRequestFilter {
 
-	private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(SesionAuthenticationFilter.class);
 
-	private final JwtTokenProvider tokenProvider;
 	private final SesionUsuario sesionUsuario;
 
-	public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, SesionUsuario sesionUsuario) {
-		this.tokenProvider = tokenProvider;
+	public SesionAuthenticationFilter(SesionUsuario sesionUsuario) {
 		this.sesionUsuario = sesionUsuario;
 	}
 
@@ -30,18 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
-			String jwt = getJwtFromRequest(request);
-
-			if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-				String username = tokenProvider.getUsernameFromToken(jwt);
-
-				if (username != null) {
-					Authentication authentication = new UsernamePasswordAuthenticationToken(
-							username, null, null);
-					SecurityContextHolder.getContext().setAuthentication(authentication);
-					logger.debug("Autenticación JWT establecida para usuario: {}", username);
-				}
-			} else if (sesionUsuario.isAutenticado()) {
+			if (sesionUsuario.isAutenticado()) {
 				Authentication authentication = new UsernamePasswordAuthenticationToken(
 						sesionUsuario.getCorreo(), null, null);
 				SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -52,16 +43,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		filterChain.doFilter(request, response);
-	}
-
-	/**
-	 * Extrae el token JWT del header Authorization
-	 */
-	private String getJwtFromRequest(HttpServletRequest request) {
-		String bearerToken = request.getHeader("Authorization");
-		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-			return bearerToken.substring(7);
-		}
-		return null;
 	}
 }
