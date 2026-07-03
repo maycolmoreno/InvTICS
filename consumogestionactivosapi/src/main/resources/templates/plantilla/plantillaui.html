@@ -97,7 +97,10 @@
         $(document).ready(function() {
             function cresioInitSelect2(scope) {
                 var $scope = scope ? $(scope) : $(document);
-                $scope.find('select.form-select:not([data-select2-selector])').each(function () {
+                // Los filtros de data-grid usan select nativo: select2 con width 100%
+                // los estira a fila completa y rompe la barra de filtros.
+                $scope.find('select.form-select:not([data-select2-selector])')
+                      .not('.cui-grid-filters select').each(function () {
                     var $sel = $(this);
                     if ($sel.hasClass('select2-hidden-accessible')) return;
                     $sel.select2({

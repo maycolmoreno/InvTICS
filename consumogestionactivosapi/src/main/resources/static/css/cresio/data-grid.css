@@ -77,7 +77,10 @@
 }
 
 .cui-grid-filters .form-select {
-  min-width: 180px;
+  flex: 0 1 auto;
+  max-width: 240px;
+  min-width: 160px;
+  width: auto;
 }
 
 .cui-saved-filters {
