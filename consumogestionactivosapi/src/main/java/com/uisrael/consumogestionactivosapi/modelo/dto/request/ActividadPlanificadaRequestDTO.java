@@ -17,5 +17,7 @@ public class ActividadPlanificadaRequestDTO {
     private Integer tiempoEstimadoMinutos;
     private Integer referenciaMantenimientoId;
     private Integer fkEquipoId;
+    /** Farmacia objetivo para mantenimiento programado general (alternativa al equipo). */
+    private Integer fkUbicacionId;
     private String observaciones;
 }

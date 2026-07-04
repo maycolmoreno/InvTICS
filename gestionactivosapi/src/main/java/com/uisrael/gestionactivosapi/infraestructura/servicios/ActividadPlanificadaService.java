@@ -38,8 +38,12 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
         validarTipoActividad(request.getTipoActividad());
         validarPrioridad(request.getPrioridad());
 
-        if ("MANTENIMIENTO_PROGRAMADO".equalsIgnoreCase(request.getTipoActividad()) && request.getFkEquipoId() == null) {
-            throw new IllegalArgumentException("El equipo es obligatorio para actividades de tipo Mantenimiento Programado");
+        // El mantenimiento programado apunta a un equipo específico o, si es un
+        // mantenimiento general, a una farmacia (ubicación) completa.
+        if ("MANTENIMIENTO_PROGRAMADO".equalsIgnoreCase(request.getTipoActividad())
+                && request.getFkEquipoId() == null && request.getFkUbicacionId() == null) {
+            throw new IllegalArgumentException(
+                    "Seleccione un equipo o una farmacia para el Mantenimiento Programado");
         }
 
         usuariosRepo.findById(request.getTecnicoId())
@@ -60,6 +64,7 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
         entity.setTiempoEstimadoMinutos(request.getTiempoEstimadoMinutos());
         entity.setReferenciaMantenimientoId(request.getReferenciaMantenimientoId());
         entity.setFkEquipoId(request.getFkEquipoId());
+        entity.setFkUbicacionId(request.getFkUbicacionId());
         entity.setObservaciones(request.getObservaciones());
 
         return toDto(actividadRepo.save(entity));
@@ -243,6 +248,8 @@ public class ActividadPlanificadaService implements IActividadPlanificadaUseCase
                         ? (entity.getFkEquipo().getCodigoSap() != null ? entity.getFkEquipo().getCodigoSap() + " - " : "")
                           + (entity.getFkEquipo().getModelo() != null ? entity.getFkEquipo().getModelo() : "Equipo #" + entity.getFkEquipoId())
                         : null)
+                .fkUbicacionId(entity.getFkUbicacionId())
+                .ubicacionNombre(entity.getFkUbicacion() != null ? entity.getFkUbicacion().getNombre() : null)
                 .observaciones(entity.getObservaciones())
                 .creadoEn(entity.getCreatedAt())
                 .actualizadoEn(entity.getUpdatedAt())

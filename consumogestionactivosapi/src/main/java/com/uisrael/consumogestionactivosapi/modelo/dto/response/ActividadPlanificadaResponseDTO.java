@@ -27,6 +27,8 @@ public class ActividadPlanificadaResponseDTO {
     private Integer referenciaMantenimientoId;
     private Integer fkEquipoId;
     private String equipoNombre;
+    private Integer fkUbicacionId;
+    private String ubicacionNombre;
     private String observaciones;
     private LocalDateTime creadoEn;
     private LocalDateTime actualizadoEn;

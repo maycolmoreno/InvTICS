@@ -54,12 +54,27 @@
                     </select>
                 </div>
             </div>
-            <div class="pf-group" id="grupoEquipo" style="display:none">
-                <label>Equipo * <small style="color:var(--pl-muted,#6d7a92);font-weight:400">(obligatorio para mantenimiento programado)</small></label>
+            <div class="pf-group" id="grupoObjetivo" hidden>
+                <label>Objetivo del mantenimiento *</label>
+                <select id="selectObjetivo">
+                    <option value="EQUIPO">Equipo específico</option>
+                    <option value="FARMACIA">Farmacia completa (mantenimiento general)</option>
+                </select>
+            </div>
+            <div class="pf-group" id="grupoEquipo" hidden>
+                <label>Equipo *</label>
                 <select th:field="*{fkEquipoId}" id="selectEquipo">
                     <option value="">Seleccionar equipo...</option>
                     <option th:each="e : ${equipos}" th:value="${e.idEquipo}"
                             th:text="${e.codigoSap + ' - ' + e.modelo + (e.serial != null ? ' (S/N: ' + e.serial + ')' : '')}"></option>
+                </select>
+            </div>
+            <div class="pf-group" id="grupoFarmacia" hidden>
+                <label>Farmacia *</label>
+                <select th:field="*{fkUbicacionId}" id="selectFarmacia">
+                    <option value="">Seleccionar farmacia...</option>
+                    <option th:each="u : ${ubicaciones}" th:value="${u.idUbicacion}"
+                            th:text="${u.nombre + (u.ciudad != null and !#strings.isEmpty(u.ciudad) ? ' - ' + u.ciudad : '')}"></option>
                 </select>
             </div>
             <div class="pf-row">
@@ -102,24 +117,46 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var selectTipo = document.getElementById('selectTipo');
+    var grupoObjetivo = document.getElementById('grupoObjetivo');
+    var selectObjetivo = document.getElementById('selectObjetivo');
     var grupoEquipo = document.getElementById('grupoEquipo');
     var selectEquipo = document.getElementById('selectEquipo');
+    var grupoFarmacia = document.getElementById('grupoFarmacia');
+    var selectFarmacia = document.getElementById('selectFarmacia');
 
-    function toggleEquipo() {
-        var esMant = selectTipo.value === 'MANTENIMIENTO_PROGRAMADO';
-        grupoEquipo.style.display = esMant ? '' : 'none';
-        selectEquipo.required = esMant;
-        if (!esMant) {
-            selectEquipo.value = '';
+    function limpiar(select) {
+        select.value = '';
+        if (typeof $ !== 'undefined' && $.fn.select2 && $(select).hasClass('select2-hidden-accessible')) {
+            $(select).val(null).trigger('change.select2');
         }
     }
 
-    selectTipo.addEventListener('change', toggleEquipo);
-    toggleEquipo();
+    // El mantenimiento programado apunta a un equipo especifico o a una
+    // farmacia completa (mantenimiento general): solo un campo viaja lleno.
+    function toggleObjetivo() {
+        var esMant = selectTipo.value === 'MANTENIMIENTO_PROGRAMADO';
+        var esFarmacia = esMant && selectObjetivo.value === 'FARMACIA';
+
+        grupoObjetivo.hidden = !esMant;
+        grupoEquipo.hidden = !esMant || esFarmacia;
+        grupoFarmacia.hidden = !esFarmacia;
+
+        selectEquipo.required = esMant && !esFarmacia;
+        selectFarmacia.required = esFarmacia;
+
+        if (!esMant || esFarmacia) limpiar(selectEquipo);
+        if (!esFarmacia) limpiar(selectFarmacia);
+    }
+
+    selectTipo.addEventListener('change', toggleObjetivo);
+    selectObjetivo.addEventListener('change', toggleObjetivo);
+    toggleObjetivo();
 
     if (typeof $ !== 'undefined' && $.fn.select2) {
         $('#selectEquipo').select2({ width: '100%', placeholder: 'Buscar equipo...' });
         $('#selectEquipo').on('change', function() { selectEquipo.value = this.value; });
+        $('#selectFarmacia').select2({ width: '100%', placeholder: 'Buscar farmacia...' });
+        $('#selectFarmacia').on('change', function() { selectFarmacia.value = this.value; });
     }
 });
 </script>

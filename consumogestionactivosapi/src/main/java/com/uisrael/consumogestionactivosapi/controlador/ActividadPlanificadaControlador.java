@@ -17,9 +17,11 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.request.CambiarEstadoActi
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.ActividadPlanificadaResponseDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MetricasCumplimientoResponseDTO;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO;
 import com.uisrael.consumogestionactivosapi.service.IActividadPlanificadaServicio;
 import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IMantenimientoProgramadoServicio;
+import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class ActividadPlanificadaControlador {
 	private final IActividadPlanificadaServicio actividadServicio;
 	private final IUsuariosServicio usuariosServicio;
 	private final IEquiposServicio equiposServicio;
+	private final IUbicacionesServicio ubicacionesServicio;
 	private final IMantenimientoProgramadoServicio mantenimientoProgramadoServicio;
 	private final SesionUsuario sesionUsuario;
 
@@ -55,6 +58,8 @@ public class ActividadPlanificadaControlador {
 		model.addAttribute("actividad", new ActividadPlanificadaRequestDTO());
 		model.addAttribute("tecnicos", usuariosServicio.listarUsuario());
 		model.addAttribute("equipos", equiposServicio.listarEquipos());
+		model.addAttribute("ubicaciones", ubicacionesServicio.listarUbicaciones().stream()
+				.filter(UbicacionesResponseDTO::isEstado).toList());
 		model.addAttribute("esTecnico", sesionUsuario.tieneRol("TECNICO"));
 		model.addAttribute("idUsuarioActual", sesionUsuario.getIdUsuario());
 		return "Planificacion/planificacion-form";

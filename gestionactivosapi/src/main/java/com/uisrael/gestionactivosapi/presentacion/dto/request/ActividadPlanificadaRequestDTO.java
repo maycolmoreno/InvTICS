@@ -39,5 +39,8 @@ public class ActividadPlanificadaRequestDTO {
 
     private Integer fkEquipoId;
 
+    /** Farmacia objetivo para mantenimiento programado general (alternativa al equipo). */
+    private Integer fkUbicacionId;
+
     private String observaciones;
 }

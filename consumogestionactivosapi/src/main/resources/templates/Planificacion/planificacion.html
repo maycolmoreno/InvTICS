@@ -128,7 +128,10 @@
                             </td>
                             <td>
                                 <span th:if="${a.equipoNombre}" th:text="${a.equipoNombre}" style="font-size:12px"></span>
-                                <span th:unless="${a.equipoNombre}" style="font-size:12px;color:var(--pl-muted)">—</span>
+                                <span th:if="${a.equipoNombre == null and a.ubicacionNombre != null}"
+                                      th:text="'Farmacia ' + ${a.ubicacionNombre} + ' (general)'" style="font-size:12px"></span>
+                                <span th:if="${a.equipoNombre == null and a.ubicacionNombre == null}"
+                                      style="font-size:12px;color:var(--pl-muted)">—</span>
                             </td>
                             <td>
                                 <span class="pl-badge"

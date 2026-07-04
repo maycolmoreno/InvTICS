@@ -101,4 +101,12 @@ public class ActividadPlanificadaJpa extends AuditableEntity implements Serializ
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "fk_equipo", insertable = false, updatable = false)
     private EquiposJpa fkEquipo;
+
+    /** Farmacia objetivo cuando el mantenimiento programado es general (sin equipo). */
+    @Column(name = "fk_ubicacion")
+    private Integer fkUbicacionId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "fk_ubicacion", insertable = false, updatable = false)
+    private UbicacionesJpa fkUbicacion;
 }
