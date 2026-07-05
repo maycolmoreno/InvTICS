@@ -4,10 +4,16 @@ import java.util.List;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.sync.CandidatoDirectorioDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.sync.CustodioResueltoDTO;
 
 public interface ICustodiosServicio {
 
     List<CustodiosResponseDTO> listarCustodios();
+
+    List<CandidatoDirectorioDTO> buscarEnDirectorio(String q);
+
+    CustodioResueltoDTO resolverDesdeDirectorio(String cedula);
 
     CustodiosResponseDTO obtenerPorId(Integer idCustodio);
 

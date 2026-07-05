@@ -72,4 +72,12 @@ public class CustodiosJpa extends AuditableEntity implements Serializable {
     /** Ultima vez que la sincronizacion vio a este empleado en la fuente. */
     @Column(name = "sincronizado_en")
     private java.time.LocalDateTime sincronizadoEn;
+
+    /** Cargo tal cual viene del directorio institucional externo (texto libre, sin catalogo). */
+    @Column(name = "cargo_directorio", length = 150)
+    private String cargoDirectorio;
+
+    /** Departamento tal cual viene del directorio institucional externo (texto libre, sin catalogo). */
+    @Column(name = "departamento_directorio", length = 150)
+    private String departamentoDirectorio;
 }

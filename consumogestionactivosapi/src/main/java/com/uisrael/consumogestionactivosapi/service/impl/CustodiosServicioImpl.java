@@ -10,6 +10,8 @@ import org.springframework.web.client.RestClientResponseException;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.sync.CandidatoDirectorioDTO;
+import com.uisrael.consumogestionactivosapi.modelo.dto.response.sync.CustodioResueltoDTO;
 import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 
 @Service
@@ -24,6 +26,22 @@ public class CustodiosServicioImpl implements ICustodiosServicio {
 	@Override
 	public List<CustodiosResponseDTO> listarCustodios() {
 		return clienteWeb.get().uri("/custodios").retrieve().body(new ParameterizedTypeReference<List<CustodiosResponseDTO>>() {});
+	}
+
+	@Override
+	public List<CandidatoDirectorioDTO> buscarEnDirectorio(String q) {
+		return clienteWeb.get()
+				.uri(uriBuilder -> uriBuilder.path("/custodios/directorio/buscar").queryParam("q", q).build())
+				.retrieve()
+				.body(new ParameterizedTypeReference<List<CandidatoDirectorioDTO>>() {});
+	}
+
+	@Override
+	public CustodioResueltoDTO resolverDesdeDirectorio(String cedula) {
+		return clienteWeb.post().uri("/custodios/directorio/resolver")
+				.body(java.util.Map.of("cedula", cedula))
+				.retrieve()
+				.body(CustodioResueltoDTO.class);
 	}
 
 	@Override

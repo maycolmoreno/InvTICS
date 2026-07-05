@@ -172,15 +172,60 @@
             var btnCamb  = document.getElementById('asi-colab-cambiar');
             var timer    = null;
 
-            function seleccionar(item) {
-                hid.value        = item.id;
-                nomEl.textContent = item.nombre;
-                metaEl.textContent = item.cedula ? ('CI: ' + item.cedula) : '';
+            function mostrarSeleccion(id, nombre, cedula) {
+                hid.value          = id;
+                nomEl.textContent  = nombre;
+                metaEl.textContent = cedula ? ('CI: ' + cedula) : '';
                 wrap.hidden = true;
                 card.hidden = false;
                 drop.hidden = true;
                 drop.innerHTML = '';
                 inp.value = '';
+            }
+
+            function seleccionar(item) {
+                if (item.origen !== 'DIRECTORIO') {
+                    mostrarSeleccion(item.id, item.nombre, item.cedula);
+                    return;
+                }
+                // Persona encontrada en el directorio institucional pero sin
+                // registro local todavia: se crea/actualiza el custodio local
+                // justo ahora, antes de poder asignarle un activo.
+                metaEl.textContent = 'Registrando en CRESIO...';
+                nomEl.textContent = item.nombre;
+                wrap.hidden = true;
+                card.hidden = false;
+                drop.hidden = true;
+
+                var csrfInput = document.querySelector('#formLote input[type=hidden][name]');
+                var body = new URLSearchParams();
+                body.set('cedula', item.cedula);
+                if (csrfInput) { body.set(csrfInput.name, csrfInput.value); }
+
+                fetch('/inventario/custodios/resolver-directorio', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: body
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.error) {
+                        resetear();
+                        window.alert('No se pudo registrar a ' + item.nombre + ': ' + data.error);
+                        return;
+                    }
+                    mostrarSeleccion(data.id, data.nombre, data.cedula);
+                    if (data.advertencias && data.advertencias.length) {
+                        window.alert('Colaborador registrado con advertencias:\n- ' + data.advertencias.join('\n- '));
+                    }
+                })
+                .catch(function () {
+                    resetear();
+                    window.alert('No se pudo registrar a ' + item.nombre + ' (error de conexion).');
+                });
             }
 
             function resetear() {
@@ -210,8 +255,14 @@
                             data.forEach(function (it) {
                                 var div = document.createElement('div');
                                 div.className = 'asi-drop-item';
-                                div.innerHTML = '<div class="asi-drop-nombre">' + it.nombre + '</div>'
-                                    + '<div class="asi-drop-meta">CI: ' + (it.cedula || '—') + '</div>';
+                                var metaPartes = ['CI: ' + (it.cedula || '—')];
+                                if (it.cargo) { metaPartes.push(it.cargo); }
+                                if (it.departamento) { metaPartes.push(it.departamento); }
+                                var etiquetaOrigen = it.origen === 'DIRECTORIO'
+                                    ? '<span class="cui-badge cui-badge-en-bodega">Directorio institucional</span>'
+                                    : '';
+                                div.innerHTML = '<div class="asi-drop-nombre">' + it.nombre + ' ' + etiquetaOrigen + '</div>'
+                                    + '<div class="asi-drop-meta">' + metaPartes.join(' · ') + '</div>';
                                 div.addEventListener('click', function () { seleccionar(it); });
                                 drop.appendChild(div);
                             });

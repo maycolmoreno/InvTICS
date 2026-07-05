@@ -221,25 +221,85 @@ public class InventarioControlador {
 	@ResponseBody
 	public List<Map<String, Object>> buscarCustodios(
 			@RequestParam(name = "q", defaultValue = "") String q) {
+		String busq = sinTildes(q.toLowerCase().trim());
+		List<Map<String, Object>> resultado = new ArrayList<>();
+		Set<String> cedulasLocales = new HashSet<>();
+
 		try {
-			String busq = sinTildes(q.toLowerCase().trim());
-			return custodiosServicio.listarCustodios().stream()
+			custodiosServicio.listarCustodios().stream()
 				.filter(c -> c != null && c.isEstado())
 				.filter(c -> busq.isEmpty()
 					|| (c.getNombre() != null && sinTildes(c.getNombre().toLowerCase()).contains(busq))
 					|| (c.getCedula() != null && c.getCedula().contains(busq)))
 				.limit(12)
-				.map(c -> {
+				.forEach(c -> {
+					if (c.getCedula() != null) {
+						cedulasLocales.add(c.getCedula());
+					}
 					Map<String, Object> m = new LinkedHashMap<>();
 					m.put("id", c.getIdCustodio());
 					m.put("nombre", c.getNombre() != null ? c.getNombre() : "");
 					m.put("cedula", c.getCedula() != null ? c.getCedula() : "");
-					return m;
-				})
-				.toList();
+					m.put("origen", "LOCAL");
+					resultado.add(m);
+				});
 		} catch (Exception ex) {
-			return List.of();
+			// si el backend local falla, se sigue intentando el directorio
 		}
+
+		if (!q.isBlank() || resultado.size() < 12) {
+			try {
+				custodiosServicio.buscarEnDirectorio(q).stream()
+					.filter(c -> c.getCedula() != null && !cedulasLocales.contains(c.getCedula()))
+					.limit(12 - resultado.size())
+					.forEach(c -> {
+						Map<String, Object> m = new LinkedHashMap<>();
+						m.put("id", (Object) null);
+						m.put("nombre", c.getNombre() != null ? c.getNombre() : "");
+						m.put("cedula", c.getCedula() != null ? c.getCedula() : "");
+						m.put("cargo", c.getCargo());
+						m.put("departamento", c.getDepartamento());
+						m.put("origen", "DIRECTORIO");
+						resultado.add(m);
+					});
+			} catch (Exception ex) {
+				// directorio institucional no disponible: no bloquea la busqueda local
+			}
+		}
+
+		return resultado;
+	}
+
+	/** Crea/actualiza el custodio local a partir de alguien elegido desde el directorio, antes de asignarle un activo. */
+	@PostMapping(value = "/custodios/resolver-directorio", produces = "application/json")
+	@ResponseBody
+	public Map<String, Object> resolverDirectorio(@RequestParam String cedula) {
+		try {
+			var resuelto = custodiosServicio.resolverDesdeDirectorio(cedula);
+			Map<String, Object> m = new LinkedHashMap<>();
+			m.put("id", resuelto.getIdCustodio());
+			m.put("nombre", resuelto.getNombre());
+			m.put("cedula", resuelto.getCedula());
+			m.put("advertencias", resuelto.getAdvertencias());
+			return m;
+		} catch (RestClientResponseException ex) {
+			Map<String, Object> m = new LinkedHashMap<>();
+			m.put("error", mensajeErrorDirectorio(ex));
+			return m;
+		}
+	}
+
+	private static String mensajeErrorDirectorio(RestClientResponseException ex) {
+		try {
+			com.fasterxml.jackson.databind.JsonNode cuerpo = new com.fasterxml.jackson.databind.ObjectMapper()
+					.readTree(ex.getResponseBodyAsString());
+			if (cuerpo.hasNonNull("error")) {
+				return cuerpo.get("error").asText();
+			}
+		} catch (Exception ignorada) {
+			// cuerpo no era JSON
+		}
+		return "No se pudo resolver la persona del directorio (" + ex.getStatusCode().value() + ")";
 	}
 
 	private static String sinTildes(String s) {

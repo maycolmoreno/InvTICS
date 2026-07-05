@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uisrael.gestionactivosapi.aplicacion.casosuso.entradas.ICustodiosUseCase;
+import com.uisrael.gestionactivosapi.aplicacion.servicios.SincronizacionEmpleadosService;
 import com.uisrael.gestionactivosapi.dominio.entidades.Custodios;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.CustodiosRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.CustodiosResponseDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.sync.CandidatoDirectorioDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.sync.CustodioResueltoDTO;
 import com.uisrael.gestionactivosapi.presentacion.mapeadores.ICustodiosDtoMapper;
 
 import jakarta.validation.Valid;
@@ -27,10 +30,13 @@ public class CustodiosControlador {
 
 	private final ICustodiosUseCase custodiosUseCase;
 	private final ICustodiosDtoMapper mapper;
+	private final SincronizacionEmpleadosService sincronizacionEmpleadosService;
 
-	public CustodiosControlador(ICustodiosUseCase custodiosUseCase, ICustodiosDtoMapper mapper) {
+	public CustodiosControlador(ICustodiosUseCase custodiosUseCase, ICustodiosDtoMapper mapper,
+			SincronizacionEmpleadosService sincronizacionEmpleadosService) {
 		this.custodiosUseCase = custodiosUseCase;
 		this.mapper = mapper;
+		this.sincronizacionEmpleadosService = sincronizacionEmpleadosService;
 	}
 
 	@PostMapping
@@ -84,5 +90,22 @@ public class CustodiosControlador {
 				: custodiosUseCase.existeCorreoParaOtro(correo, id);
 
 		return ResponseEntity.ok(existe);
+	}
+
+	/** Busca en vivo en el directorio institucional externo (sin persistir). */
+	@GetMapping("/directorio/buscar")
+	public List<CandidatoDirectorioDTO> buscarEnDirectorio(@RequestParam(defaultValue = "") String q) {
+		return sincronizacionEmpleadosService.buscarEnDirectorio(q);
+	}
+
+	/** Crea o actualiza el custodio local a partir de una persona del directorio, para asignarle un activo. */
+	@PostMapping("/directorio/resolver")
+	public ResponseEntity<?> resolverDesdeDirectorio(@RequestBody java.util.Map<String, String> body) {
+		try {
+			CustodioResueltoDTO resultado = sincronizacionEmpleadosService.resolverDesdeDirectorio(body.get("cedula"));
+			return ResponseEntity.ok(resultado);
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+		}
 	}
 }

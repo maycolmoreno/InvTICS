@@ -66,6 +66,8 @@ public class CustodiosUseCaseImpl implements ICustodiosUseCase {
                 custodio.getFkCargo()
         );
         actualizado.setFkUbicacion(custodio.getFkUbicacion());
+        actualizado.setCargoDirectorio(custodio.getCargoDirectorio());
+        actualizado.setDepartamentoDirectorio(custodio.getDepartamentoDirectorio());
 
         return custodioRepositorio.actualizar(id, actualizado);
     }
@@ -86,6 +88,8 @@ public class CustodiosUseCaseImpl implements ICustodiosUseCase {
                 custodio.getFkCargo()
         );
         actualizado.setFkUbicacion(custodio.getFkUbicacion());
+        actualizado.setCargoDirectorio(custodio.getCargoDirectorio());
+        actualizado.setDepartamentoDirectorio(custodio.getDepartamentoDirectorio());
 
         return custodioRepositorio.actualizarEstado(id, actualizado);
     }

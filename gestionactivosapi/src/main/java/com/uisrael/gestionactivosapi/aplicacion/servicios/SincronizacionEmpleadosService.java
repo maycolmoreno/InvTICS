@@ -1,6 +1,8 @@
 package com.uisrael.gestionactivosapi.aplicacion.servicios;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,14 +13,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CargosJpa;
@@ -34,6 +45,8 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.ISyncEmpleados
 import com.uisrael.gestionactivosapi.presentacion.dto.request.sync.EmpleadoSyncDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.sync.AlertaCustodioInactivoDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.sync.CambioSyncDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.sync.CandidatoDirectorioDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.response.sync.CustodioResueltoDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.sync.EstadoSincronizacionDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.response.sync.SincronizacionResultadoDTO;
 
@@ -47,8 +60,9 @@ import com.uisrael.gestionactivosapi.presentacion.dto.response.sync.Sincronizaci
  * - Empleado existente: actualiza nombre/correo/telefono/cargo si cambiaron.
  * - Empleado inactivo en la fuente: inactiva el custodio y, si mantiene
  *   custodias activas, registra una ALERTA_ACTIVOS.
- * - Cargos se resuelven por nombre ignorando mayusculas y tildes; si no
- *   existen se registra una ADVERTENCIA (no se crean catalogos automaticamente).
+ * - Cargos se vinculan por nombre (sin tildes/mayusculas) solo si ya existen
+ *   en CRESIO; no se crean ni se validan cargos/departamentos, no son datos
+ *   necesarios para el historial de custodias.
  */
 @Service
 public class SincronizacionEmpleadosService {
@@ -67,13 +81,26 @@ public class SincronizacionEmpleadosService {
     private final ICargosJpaRepositorio cargosRepo;
     private final ISyncEmpleadosEjecucionJpaRepositorio ejecucionRepo;
     private final ISyncEmpleadosCambioJpaRepositorio cambioRepo;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    private static final Pattern CSRF_TOKEN_PATTERN = Pattern
+            .compile("name=[\"']csrf_token[\"'][^>]*value=[\"']([^\"']+)[\"']");
 
     @Value("${empleados.sync.url:}")
     private String fuenteUrl;
 
     @Value("${empleados.sync.archivo:}")
     private String fuenteArchivo;
+
+    @Value("${empleados.sync.usuario:}")
+    private String fuenteUsuario;
+
+    @Value("${empleados.sync.contrasena:}")
+    private String fuenteContrasena;
+
+    /** Cookie de sesion de la fuente URL, cacheada entre llamadas mientras siga valida. */
+    private volatile String cookieSesionFuente;
 
     public SincronizacionEmpleadosService(ICustodiosJpaRepositorio custodiosRepo,
             ICustodiasJpaRepositorio custodiasRepo,
@@ -103,23 +130,192 @@ public class SincronizacionEmpleadosService {
 
     /** Lee la fuente configurada (URL o archivo) y sincroniza. */
     public SincronizacionResultadoDTO sincronizarDesdeFuente(String ejecutadoPor) {
-        String json;
-        String origen;
+        String[] origenYJson = leerFuenteConfigurada();
+        return sincronizar(parsearEmpleados(origenYJson[1]), origenYJson[0], ejecutadoPor);
+    }
+
+    /** Lee la fuente configurada (URL o archivo) sin sincronizar. Devuelve {origen, json}. */
+    private String[] leerFuenteConfigurada() {
         if (!fuenteUrl.isBlank()) {
-            origen = "URL";
-            json = RestClient.create().get().uri(fuenteUrl).retrieve().body(String.class);
-        } else if (!fuenteArchivo.isBlank()) {
-            origen = "ARCHIVO";
+            return new String[] { "URL", leerUrlConSesion() };
+        }
+        if (!fuenteArchivo.isBlank()) {
             try {
-                json = Files.readString(Path.of(fuenteArchivo), StandardCharsets.UTF_8);
+                String json = Files.readString(Path.of(fuenteArchivo), StandardCharsets.UTF_8);
+                return new String[] { "ARCHIVO", json };
             } catch (IOException e) {
                 throw new IllegalStateException("No se pudo leer el archivo de empleados: " + e.getMessage(), e);
             }
-        } else {
-            throw new IllegalStateException(
-                    "No hay fuente de empleados configurada. Defina EMPLEADOS_SYNC_URL o EMPLEADOS_SYNC_ARCHIVO.");
         }
-        return sincronizar(parsearEmpleados(json), origen, ejecutadoPor);
+        throw new IllegalStateException(
+                "No hay fuente de empleados configurada. Defina EMPLEADOS_SYNC_URL o EMPLEADOS_SYNC_ARCHIVO.");
+    }
+
+    /**
+     * Lee la URL configurada. Si no requiere login (usuario/clave vacios) hace
+     * una llamada anonima simple. Si requiere login, reutiliza la cookie de
+     * sesion cacheada y, si la fuente la rechaza (sesion vencida), vuelve a
+     * iniciar sesion una vez y reintenta.
+     */
+    private String leerUrlConSesion() {
+        if (fuenteUsuario.isBlank() || fuenteContrasena.isBlank()) {
+            return RestClient.create().get().uri(fuenteUrl).retrieve().body(String.class);
+        }
+
+        String cookie = cookieSesionFuente != null ? cookieSesionFuente : iniciarSesionYObtenerCookie();
+        String cuerpo = obtenerConCookie(cookie);
+        if (pareceHtmlDeLogin(cuerpo)) {
+            cookie = iniciarSesionYObtenerCookie();
+            cuerpo = obtenerConCookie(cookie);
+            if (pareceHtmlDeLogin(cuerpo)) {
+                throw new IllegalStateException(
+                        "La fuente sigue exigiendo login tras reautenticar. Verifique EMPLEADOS_SYNC_USUARIO/EMPLEADOS_SYNC_CONTRASENA.");
+            }
+        }
+        return cuerpo;
+    }
+
+    private String obtenerConCookie(String cookie) {
+        return RestClient.create().get().uri(fuenteUrl)
+                .header(HttpHeaders.COOKIE, cookie)
+                .retrieve()
+                .body(String.class);
+    }
+
+    private static boolean pareceHtmlDeLogin(String cuerpo) {
+        return cuerpo == null || cuerpo.stripLeading().startsWith("<");
+    }
+
+    /** Cliente sin seguimiento automatico de redirecciones, para poder leer el Set-Cookie del 302 de login. */
+    private static RestClient clienteSinRedireccion() {
+        HttpClient httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
+        return RestClient.builder().requestFactory(new JdkClientHttpRequestFactory(httpClient)).build();
+    }
+
+    private synchronized String iniciarSesionYObtenerCookie() {
+        String origen = origenDeFuente();
+        RestClient cliente = clienteSinRedireccion();
+
+        ResponseEntity<String> paginaLogin = cliente.get().uri(origen + "/login").retrieve().toEntity(String.class);
+        String csrfToken = extraerCsrfToken(paginaLogin.getBody());
+        String cookiePagina = primeraCookie(paginaLogin.getHeaders());
+
+        MultiValueMap<String, String> formulario = new LinkedMultiValueMap<>();
+        formulario.add("csrf_token", csrfToken);
+        formulario.add("username", fuenteUsuario);
+        formulario.add("password", fuenteContrasena);
+        formulario.add("user_id", "");
+        formulario.add("acepta_terminos", "false");
+
+        RestClient.RequestBodySpec peticion = cliente.post().uri(origen + "/login")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED);
+        if (cookiePagina != null) {
+            peticion = (RestClient.RequestBodySpec) peticion.header(HttpHeaders.COOKIE, cookiePagina);
+        }
+        ResponseEntity<String> respuestaLogin = peticion.body(formulario).retrieve().toEntity(String.class);
+
+        String cookieSesion = primeraCookie(respuestaLogin.getHeaders());
+        if (cookieSesion == null) {
+            throw new IllegalStateException(
+                    "El login contra el directorio no devolvio cookie de sesion (usuario o clave invalidos?)");
+        }
+        this.cookieSesionFuente = cookieSesion;
+        return cookieSesion;
+    }
+
+    private String origenDeFuente() {
+        URI uri = URI.create(fuenteUrl);
+        return uri.getScheme() + "://" + uri.getAuthority();
+    }
+
+    private static String extraerCsrfToken(String html) {
+        if (html == null) {
+            return "";
+        }
+        Matcher m = CSRF_TOKEN_PATTERN.matcher(html);
+        return m.find() ? m.group(1) : "";
+    }
+
+    /** Junta todas las cookies devueltas (Set-Cookie puede venir en varias lineas) en un solo header Cookie. */
+    private static String primeraCookie(HttpHeaders headers) {
+        List<String> setCookie = headers.get(HttpHeaders.SET_COOKIE);
+        if (setCookie == null || setCookie.isEmpty()) {
+            return null;
+        }
+        List<String> pares = setCookie.stream().map(c -> c.split(";", 2)[0]).toList();
+        return String.join("; ", pares);
+    }
+
+    /**
+     * Busca en vivo en la fuente configurada (sin persistir nada) candidatos
+     * cuyo nombre o cedula coincidan con q. Usado por el autocompletar de
+     * asignaciones para encontrar personas que aun no son custodios locales.
+     */
+    public List<CandidatoDirectorioDTO> buscarEnDirectorio(String q) {
+        List<EmpleadoSyncDTO> empleados = parsearEmpleados(leerFuenteConfigurada()[1]);
+        String busqueda = normalizar(q);
+        return empleados.stream()
+                .filter(e -> e.getCedula() != null && !e.getCedula().isBlank())
+                .filter(e -> busqueda.isBlank()
+                        || normalizar(e.getNombre()).contains(busqueda)
+                        || e.getCedula().contains(busqueda))
+                .limit(12)
+                .map(e -> new CandidatoDirectorioDTO(e.getCedula().trim(), e.getNombre(), e.getCargo(),
+                        e.getDepartamento()))
+                .toList();
+    }
+
+    /**
+     * Ubica en la fuente configurada a la persona con esa cedula y crea o
+     * actualiza su custodio local (misma resolucion de cargo que usa el lote).
+     * Se usa al asignar un activo a alguien que todavia no tiene registro local.
+     */
+    @Transactional
+    public CustodioResueltoDTO resolverDesdeDirectorio(String cedula) {
+        String cedulaBuscada = cedula == null ? "" : cedula.trim();
+        if (cedulaBuscada.isBlank()) {
+            throw new IllegalArgumentException("Cedula requerida");
+        }
+
+        List<EmpleadoSyncDTO> empleados = parsearEmpleados(leerFuenteConfigurada()[1]);
+        EmpleadoSyncDTO empleado = empleados.stream()
+                .filter(e -> cedulaBuscada.equalsIgnoreCase(Objects.toString(e.getCedula(), "").trim()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "La persona ya no aparece en el directorio institucional"));
+
+        if (Boolean.FALSE.equals(empleado.getActivo())) {
+            throw new IllegalArgumentException(
+                    "No se puede asignar: el empleado figura inactivo en el directorio institucional");
+        }
+        if (empleado.getNombre() == null || empleado.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El directorio no tiene un nombre valido para esta persona");
+        }
+
+        Optional<CustodiosJpa> existente = custodiosRepo.findFirstByCedulaIgnoreCase(cedulaBuscada);
+        boolean esNuevo = existente.isEmpty();
+        CustodiosJpa custodio = existente.orElseGet(CustodiosJpa::new);
+
+        LocalDateTime ahora = LocalDateTime.now();
+        custodio.setCedula(cedulaBuscada);
+        custodio.setNombre(empleado.getNombre().trim());
+        if (vacioANull(empleado.getCorreo()) != null) {
+            custodio.setCorreo(vacioANull(empleado.getCorreo()));
+        }
+        if (vacioANull(empleado.getTelefono()) != null) {
+            custodio.setTelefono(vacioANull(empleado.getTelefono()));
+        }
+        custodio.setEstado(true);
+        custodio.setOrigenSync(true);
+        custodio.setSincronizadoEn(ahora);
+        custodio.setCargoDirectorio(vacioANull(empleado.getCargo()));
+        custodio.setDepartamentoDirectorio(vacioANull(empleado.getDepartamento()));
+        resolverCargo(empleado).ifPresent(custodio::setFkCargo);
+
+        CustodiosJpa guardado = custodiosRepo.save(custodio);
+
+        return new CustodioResueltoDTO(guardado.getIdCustodio(), guardado.getNombre(), guardado.getCedula(),
+                guardado.getCargoDirectorio(), guardado.getDepartamentoDirectorio(), esNuevo, List.of());
     }
 
     /** Acepta un array raiz o un objeto con la clave "empleados". */
@@ -210,7 +406,9 @@ public class SincronizacionEmpleadosService {
             nuevo.setEstado(true);
             nuevo.setOrigenSync(true);
             nuevo.setSincronizadoEn(ahora);
-            resolverCargo(empleado, ejecucion, cambios, cedula).ifPresent(nuevo::setFkCargo);
+            nuevo.setCargoDirectorio(vacioANull(empleado.getCargo()));
+            nuevo.setDepartamentoDirectorio(vacioANull(empleado.getDepartamento()));
+            resolverCargo(empleado).ifPresent(nuevo::setFkCargo);
             CustodiosJpa guardado = custodiosRepo.save(nuevo);
             ejecucion.setCreados(ejecucion.getCreados() + 1);
             cambios.add(cambio(ejecucion, cedula, TIPO_CREADO,
@@ -264,12 +462,21 @@ public class SincronizacionEmpleadosService {
             custodio.setTelefono(telefono);
             camposCambiados.add("telefono");
         }
-        Optional<CargosJpa> cargoResuelto = resolverCargo(empleado, ejecucion, cambios, cedula);
+        String cargoDirectorio = vacioANull(empleado.getCargo());
+        if (cargoDirectorio != null && !cargoDirectorio.equals(custodio.getCargoDirectorio())) {
+            custodio.setCargoDirectorio(cargoDirectorio);
+            camposCambiados.add("cargo");
+        }
+        String departamentoDirectorio = vacioANull(empleado.getDepartamento());
+        if (departamentoDirectorio != null && !departamentoDirectorio.equals(custodio.getDepartamentoDirectorio())) {
+            custodio.setDepartamentoDirectorio(departamentoDirectorio);
+            camposCambiados.add("departamento");
+        }
+        Optional<CargosJpa> cargoResuelto = resolverCargo(empleado);
         if (cargoResuelto.isPresent()
                 && (custodio.getFkCargo() == null
                         || custodio.getFkCargo().getIdCargo() != cargoResuelto.get().getIdCargo())) {
             custodio.setFkCargo(cargoResuelto.get());
-            camposCambiados.add("cargo");
         }
 
         custodiosRepo.save(custodio);
@@ -283,33 +490,19 @@ public class SincronizacionEmpleadosService {
     }
 
     /**
-     * Resuelve el cargo por nombre ignorando mayusculas y tildes. Si el JSON
-     * trae departamento y no coincide con el del cargo, deja una advertencia.
+     * Vincula el cargo si ya existe en CRESIO con ese nombre (sin tildes ni
+     * mayusculas). Cargos y departamentos no se crean ni se validan: no son
+     * datos necesarios para el historial de custodias, asi que si no hay un
+     * cargo local que coincida, el custodio se guarda igual, sin cargo.
      */
-    private Optional<CargosJpa> resolverCargo(EmpleadoSyncDTO empleado, SyncEmpleadosEjecucionJpa ejecucion,
-            List<SyncEmpleadosCambioJpa> cambios, String cedula) {
+    private Optional<CargosJpa> resolverCargo(EmpleadoSyncDTO empleado) {
         String nombreCargo = vacioANull(empleado.getCargo());
         if (nombreCargo == null) {
             return Optional.empty();
         }
-        Optional<CargosJpa> cargo = cargosRepo.findAll().stream()
+        return cargosRepo.findAll().stream()
                 .filter(c -> normalizar(c.getNombre()).equals(normalizar(nombreCargo)))
                 .findFirst();
-        if (cargo.isEmpty()) {
-            ejecucion.setAdvertencias(ejecucion.getAdvertencias() + 1);
-            cambios.add(cambio(ejecucion, cedula, TIPO_ADVERTENCIA,
-                    "Cargo \"" + nombreCargo + "\" no existe en CRESIO: se conserva el actual", null));
-            return Optional.empty();
-        }
-        String departamento = vacioANull(empleado.getDepartamento());
-        if (departamento != null && cargo.get().getFkDepartamento() != null
-                && !normalizar(cargo.get().getFkDepartamento().getNombre()).equals(normalizar(departamento))) {
-            ejecucion.setAdvertencias(ejecucion.getAdvertencias() + 1);
-            cambios.add(cambio(ejecucion, cedula, TIPO_ADVERTENCIA,
-                    "Departamento de la fuente (" + departamento + ") no coincide con el del cargo ("
-                            + cargo.get().getFkDepartamento().getNombre() + ")", null));
-        }
-        return cargo;
     }
 
     @Transactional(readOnly = true)

@@ -15,6 +15,8 @@ public class Custodios {
 	private Cargos fkCargo;
 	private Ubicaciones fkUbicacion;
 	private Usuarios fkUsuario;
+	private String cargoDirectorio;
+	private String departamentoDirectorio;
 
 	public Custodios(int idCustodio, String nombre, String cedula, String correo, String telefono,
 			LocalDate fechaIngreso, boolean estado, Cargos fkCargo) {
@@ -82,6 +84,22 @@ public class Custodios {
 
 	public void setFkUsuario(Usuarios fkUsuario) {
 		this.fkUsuario = fkUsuario;
+	}
+
+	public String getCargoDirectorio() {
+		return cargoDirectorio;
+	}
+
+	public void setCargoDirectorio(String cargoDirectorio) {
+		this.cargoDirectorio = cargoDirectorio;
+	}
+
+	public String getDepartamentoDirectorio() {
+		return departamentoDirectorio;
+	}
+
+	public void setDepartamentoDirectorio(String departamentoDirectorio) {
+		this.departamentoDirectorio = departamentoDirectorio;
 	}
 
 	@Override

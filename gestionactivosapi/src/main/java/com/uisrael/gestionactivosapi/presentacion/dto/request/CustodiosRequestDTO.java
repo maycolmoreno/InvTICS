@@ -31,4 +31,8 @@ public class CustodiosRequestDTO {
     private CargosRequestDTO fkCargo;
 
     private UbicacionesRequestDTO fkUbicacion;
+
+    /** Cargo/departamento tal cual vienen del directorio institucional externo, texto libre sin catalogo. */
+    private String cargoDirectorio;
+    private String departamentoDirectorio;
 }

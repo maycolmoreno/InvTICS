@@ -77,14 +77,14 @@ public class CustodiosControlador {
     public String editar(@PathVariable Integer id, Model model) {
         CustodiosResponseDTO dto = servicioCustodios.obtenerPorId(id);
 
-        Integer idDepartamento = dto.getFkDepartamento().getIdDepartamento();
+        Integer idDepartamento = dto.getFkDepartamento() != null ? dto.getFkDepartamento().getIdDepartamento() : 0;
 
         model.addAttribute("listadepartamento",
                 servicioDepartamento.listarDepartamentos().stream().filter(
                         departamento -> departamento.isEstado() || departamento.getIdDepartamento() == idDepartamento)
                         .toList());
 
-        Integer idCargo = dto.getFkCargo().getIdCargo();
+        Integer idCargo = dto.getFkCargo() != null ? dto.getFkCargo().getIdCargo() : 0;
 
         model.addAttribute("listacargo", servicioCargo.listarCargos().stream()
                 .filter(cargo -> cargo.isEstado() || cargo.getIdCargo() == idCargo).toList());
@@ -99,6 +99,20 @@ public class CustodiosControlador {
             UbicacionesResponseDTO sinUbicacion = new UbicacionesResponseDTO();
             sinUbicacion.setIdUbicacion(0);
             dto.setFkUbicacion(sinUbicacion);
+        }
+
+        if (dto.getFkDepartamento() == null) {
+            com.uisrael.consumogestionactivosapi.modelo.dto.response.DepartamentosResponseDTO sinDepartamento =
+                    new com.uisrael.consumogestionactivosapi.modelo.dto.response.DepartamentosResponseDTO();
+            sinDepartamento.setIdDepartamento(0);
+            dto.setFkDepartamento(sinDepartamento);
+        }
+
+        if (dto.getFkCargo() == null) {
+            com.uisrael.consumogestionactivosapi.modelo.dto.response.CargosResponseDTO sinCargo =
+                    new com.uisrael.consumogestionactivosapi.modelo.dto.response.CargosResponseDTO();
+            sinCargo.setIdCargo(0);
+            dto.setFkCargo(sinCargo);
         }
 
         model.addAttribute("custodio", dto);

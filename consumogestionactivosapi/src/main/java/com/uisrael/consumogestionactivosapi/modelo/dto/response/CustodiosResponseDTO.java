@@ -29,4 +29,7 @@ public class CustodiosResponseDTO {
 	private CargosResponseDTO fkCargo;
 
 	private UbicacionesResponseDTO fkUbicacion;
+
+	private String cargoDirectorio;
+	private String departamentoDirectorio;
 }

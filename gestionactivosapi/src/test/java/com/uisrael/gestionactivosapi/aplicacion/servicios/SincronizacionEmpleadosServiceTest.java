@@ -182,15 +182,30 @@ class SincronizacionEmpleadosServiceTest {
     }
 
     @Test
-    void advierteCuandoElCargoNoExiste() {
+    void noCreaCargoNiAdvierteSiNoExisteEnCresio() {
         EmpleadoSyncDTO nuevo = empleado("0102030405", "Ana Perez", true);
         nuevo.setCargo("Cargo Fantasma");
+        nuevo.setDepartamento("Departamento Fantasma");
         SincronizacionResultadoDTO r = service.sincronizar(List.of(nuevo), "MANUAL", "admin");
 
         assertThat(r.getCreados()).isEqualTo(1);
-        assertThat(r.getAdvertencias()).isEqualTo(1);
-        assertThat(r.getCambios()).anySatisfy(c ->
+        assertThat(r.getAdvertencias()).isZero();
+        assertThat(r.getCambios()).noneSatisfy(c ->
                 assertThat(c.getTipo()).isEqualTo(SincronizacionEmpleadosService.TIPO_ADVERTENCIA));
+    }
+
+    @Test
+    void guardaCargoYDepartamentoDelDirectorioComoTextoLibreAunSinCatalogo() {
+        EmpleadoSyncDTO nuevo = empleado("0102030405", "Ana Perez", true);
+        nuevo.setCargo("Cargo Fantasma");
+        nuevo.setDepartamento("Departamento Fantasma");
+        service.sincronizar(List.of(nuevo), "MANUAL", "admin");
+
+        org.mockito.ArgumentCaptor<CustodiosJpa> captor = org.mockito.ArgumentCaptor.forClass(CustodiosJpa.class);
+        org.mockito.Mockito.verify(custodiosRepo).save(captor.capture());
+        assertThat(captor.getValue().getCargoDirectorio()).isEqualTo("Cargo Fantasma");
+        assertThat(captor.getValue().getDepartamentoDirectorio()).isEqualTo("Departamento Fantasma");
+        assertThat(captor.getValue().getFkCargo()).isNull();
     }
 
     @Test

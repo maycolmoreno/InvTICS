@@ -18,6 +18,25 @@ public class CustodiosResponseDTO {
 
 	private UbicacionesResponseDTO fkUbicacion;
 
+	private String cargoDirectorio;
+	private String departamentoDirectorio;
+
+	public String getCargoDirectorio() {
+		return cargoDirectorio;
+	}
+
+	public void setCargoDirectorio(String cargoDirectorio) {
+		this.cargoDirectorio = cargoDirectorio;
+	}
+
+	public String getDepartamentoDirectorio() {
+		return departamentoDirectorio;
+	}
+
+	public void setDepartamentoDirectorio(String departamentoDirectorio) {
+		this.departamentoDirectorio = departamentoDirectorio;
+	}
+
 	public int getIdCustodio() {
 		return idCustodio;
 	}
