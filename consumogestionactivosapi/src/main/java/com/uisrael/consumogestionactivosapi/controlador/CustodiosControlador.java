@@ -204,15 +204,6 @@ public class CustodiosControlador {
             }
         }
 
-        if (custodio.getFkDepartamento().getIdDepartamento() <= 0) {
-            model.addAttribute("errorSeleccionDepartamento", "Debe seleccionar un departamento");
-            hayErrores = true;
-        }
-
-        if (custodio.getFkCargo().getIdCargo() <= 0) {
-            model.addAttribute("errorSeleccionCargo", "Debe seleccionar un cargo");
-            hayErrores = true;
-        }
         if (custodio.getFkDepartamento().getIdDepartamento() > 0 && custodio.getFkCargo().getIdCargo() > 0) {
             var cargoSeleccionado = servicioCargo.obtenerPorId(custodio.getFkCargo().getIdCargo());
             boolean cargoInvalido = cargoSeleccionado == null || cargoSeleccionado.getFkDepartamento() == null
@@ -239,9 +230,15 @@ public class CustodiosControlador {
             return ubicacionesFormulario(custodio);
         }
 
-        // Limpiar fkUbicacion si no se seleccionó ninguna
+        // Limpiar selects sin seleccionar (departamento/cargo del catalogo son opcionales)
         if (custodio.getFkUbicacion().getIdUbicacion() <= 0) {
             custodio.setFkUbicacion(null);
+        }
+        if (custodio.getFkDepartamento().getIdDepartamento() <= 0) {
+            custodio.setFkDepartamento(null);
+        }
+        if (custodio.getFkCargo().getIdCargo() <= 0) {
+            custodio.setFkCargo(null);
         }
 
         if (custodio.getIdCustodio() > 0) {
