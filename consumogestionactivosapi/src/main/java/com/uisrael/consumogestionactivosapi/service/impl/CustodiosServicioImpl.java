@@ -1,6 +1,7 @@
 package com.uisrael.consumogestionactivosapi.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,21 @@ public class CustodiosServicioImpl implements ICustodiosServicio {
 				.body(java.util.Map.of("cedula", cedula))
 				.retrieve()
 				.body(CustodioResueltoDTO.class);
+	}
+
+	@Override
+	public Optional<CandidatoDirectorioDTO> previsualizarDesdeDirectorio(String cedula) {
+		try {
+			return Optional.ofNullable(clienteWeb.get()
+					.uri(uriBuilder -> uriBuilder.path("/custodios/directorio/{cedula}").build(cedula))
+					.retrieve()
+					.body(CandidatoDirectorioDTO.class));
+		} catch (RestClientResponseException e) {
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return Optional.empty();
+			}
+			throw e;
+		}
 	}
 
 	@Override

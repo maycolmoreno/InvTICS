@@ -1,6 +1,7 @@
 package com.uisrael.consumogestionactivosapi.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CustodiosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CustodiosResponseDTO;
@@ -14,6 +15,8 @@ public interface ICustodiosServicio {
     List<CandidatoDirectorioDTO> buscarEnDirectorio(String q);
 
     CustodioResueltoDTO resolverDesdeDirectorio(String cedula);
+
+    Optional<CandidatoDirectorioDTO> previsualizarDesdeDirectorio(String cedula);
 
     CustodiosResponseDTO obtenerPorId(Integer idCustodio);
 

@@ -260,9 +260,29 @@ public class SincronizacionEmpleadosService {
                         || normalizar(e.getNombre()).contains(busqueda)
                         || e.getCedula().contains(busqueda))
                 .limit(12)
-                .map(e -> new CandidatoDirectorioDTO(e.getCedula().trim(), e.getNombre(), e.getCargo(),
-                        e.getDepartamento()))
+                .map(SincronizacionEmpleadosService::aCandidato)
                 .toList();
+    }
+
+    /**
+     * Busca en vivo en la fuente configurada a la persona con esa cedula
+     * exacta, sin persistir nada. Se usa para previsualizar/refrescar los
+     * datos de un custodio ya existente antes de decidir guardarlos.
+     */
+    public Optional<CandidatoDirectorioDTO> buscarPorCedulaEnDirectorio(String cedula) {
+        String cedulaBuscada = cedula == null ? "" : cedula.trim();
+        if (cedulaBuscada.isBlank()) {
+            return Optional.empty();
+        }
+        return parsearEmpleados(leerFuenteConfigurada()[1]).stream()
+                .filter(e -> cedulaBuscada.equalsIgnoreCase(Objects.toString(e.getCedula(), "").trim()))
+                .findFirst()
+                .map(SincronizacionEmpleadosService::aCandidato);
+    }
+
+    private static CandidatoDirectorioDTO aCandidato(EmpleadoSyncDTO e) {
+        return new CandidatoDirectorioDTO(e.getCedula().trim(), e.getNombre(), e.getCargo(), e.getDepartamento(),
+                e.getCorreo(), e.getTelefono());
     }
 
     /**

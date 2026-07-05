@@ -120,6 +120,16 @@ public class CustodiosControlador {
         return "Custodios/editarCustodio";
     }
 
+    /** Previsualiza en vivo los datos del directorio institucional para una cedula, sin guardar nada. */
+    @GetMapping(value = "/directorio-preview", produces = "application/json")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<?> previsualizarDirectorio(@RequestParam String cedula) {
+        return servicioCustodios.previsualizarDesdeDirectorio(cedula)
+                .<org.springframework.http.ResponseEntity<?>>map(org.springframework.http.ResponseEntity::ok)
+                .orElseGet(() -> org.springframework.http.ResponseEntity.status(404)
+                        .body(java.util.Map.of("error", "La persona no aparece en el directorio institucional")));
+    }
+
     @PostMapping
     public String guardar(@ModelAttribute CustodiosRequestDTO custodio, Model model) {
 

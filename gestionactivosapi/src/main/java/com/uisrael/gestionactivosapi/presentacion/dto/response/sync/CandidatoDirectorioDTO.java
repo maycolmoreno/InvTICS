@@ -19,4 +19,6 @@ public class CandidatoDirectorioDTO {
     private String nombre;
     private String cargo;
     private String departamento;
+    private String correo;
+    private String telefono;
 }

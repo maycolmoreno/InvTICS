@@ -108,4 +108,17 @@ public class CustodiosControlador {
 			return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
 		}
 	}
+
+	/** Previsualiza en vivo los datos de una cedula en el directorio, sin guardar nada. */
+	@GetMapping("/directorio/{cedula}")
+	public ResponseEntity<?> previsualizarDesdeDirectorio(@PathVariable String cedula) {
+		try {
+			return sincronizacionEmpleadosService.buscarPorCedulaEnDirectorio(cedula)
+					.<ResponseEntity<?>>map(ResponseEntity::ok)
+					.orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+							.body(java.util.Map.of("error", "La persona no aparece en el directorio institucional")));
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+		}
+	}
 }
