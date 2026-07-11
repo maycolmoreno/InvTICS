@@ -116,10 +116,17 @@ public class InventarioControlador {
 				redirect.addFlashAttribute("error", "El custodio responsable debe estar activo.");
 				return "redirect:/inventario/catalogos";
 			}
-			String depto = custodio.getFkCargo() != null && custodio.getFkCargo().getFkDepartamento() != null
+			// El departamento se busca tanto en el catalogo propio (fkCargo.fkDepartamento)
+			// como en el texto libre del directorio institucional (departamentoDirectorio):
+			// muchos custodios sincronizados no tienen catalogo vinculado. La validacion
+			// autoritativa vive en el backend (InventarioService); esto es solo feedback rapido.
+			String deptoCatalogo = custodio.getFkCargo() != null && custodio.getFkCargo().getFkDepartamento() != null
 					? custodio.getFkCargo().getFkDepartamento().getNombre()
 					: null;
-			if (!DEPARTAMENTO_TIC.equalsIgnoreCase(depto)) {
+			String deptoDirectorio = custodio.getDepartamentoDirectorio();
+			boolean perteneceTic = sinTildes(DEPARTAMENTO_TIC).equalsIgnoreCase(sinTildes(deptoCatalogo))
+					|| sinTildes(DEPARTAMENTO_TIC).equalsIgnoreCase(sinTildes(deptoDirectorio));
+			if (!perteneceTic) {
 				redirect.addFlashAttribute("error",
 						"El custodio responsable debe pertenecer al departamento TECNOLOGÍAS E INNOVACIÓN.");
 				return "redirect:/inventario/catalogos";

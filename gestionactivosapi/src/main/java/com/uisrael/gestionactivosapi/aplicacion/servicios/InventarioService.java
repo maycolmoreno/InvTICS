@@ -674,16 +674,54 @@ public class InventarioService {
         return toActivoResponse(guardado);
     }
 
+    private static final String DEPARTAMENTO_TIC_NORMALIZADO = normalizarTexto("TECNOLOGÍAS E INNOVACIÓN");
+
     private void aplicarBodega(BodegaRequestDTO request, BodegaJpa bodega) {
         bodega.setNombre(request.getNombre());
         bodega.setCiudad(request.getCiudad());
         bodega.setDireccion(request.getDireccion());
         bodega.setEstado(request.getEstado() == null || request.getEstado());
-        if (request.getCustodioResponsableId() != null) {
-            CustodiosJpa custodio = custodiosRepo.findById(request.getCustodioResponsableId())
-                    .orElseThrow(() -> new IllegalArgumentException("Custodio no encontrado"));
-            bodega.setCustodioResponsable(custodio);
+        if (request.getCustodioResponsableId() == null) {
+            throw new IllegalArgumentException("Debe seleccionar un custodio responsable");
         }
+        CustodiosJpa custodio = custodiosRepo.findById(request.getCustodioResponsableId())
+                .orElseThrow(() -> new IllegalArgumentException("Custodio no encontrado"));
+        validarCustodioResponsableBodega(custodio);
+        bodega.setCustodioResponsable(custodio);
+    }
+
+    /**
+     * El custodio responsable de una bodega debe estar activo y pertenecer al
+     * departamento TECNOLOGIAS E INNOVACION. El departamento se busca tanto en
+     * el catalogo propio (fkCargo.fkDepartamento) como en el texto libre que
+     * llega del directorio institucional externo (departamentoDirectorio),
+     * ya que muchos custodios sincronizados no tienen catalogo vinculado.
+     */
+    private void validarCustodioResponsableBodega(CustodiosJpa custodio) {
+        if (!custodio.isEstado()) {
+            throw new IllegalArgumentException("El custodio responsable debe estar activo");
+        }
+        String deptoCatalogo = custodio.getFkCargo() != null && custodio.getFkCargo().getFkDepartamento() != null
+                ? custodio.getFkCargo().getFkDepartamento().getNombre()
+                : null;
+        String deptoDirectorio = custodio.getDepartamentoDirectorio();
+        boolean perteneceTic = DEPARTAMENTO_TIC_NORMALIZADO.equals(normalizarTexto(deptoCatalogo))
+                || DEPARTAMENTO_TIC_NORMALIZADO.equals(normalizarTexto(deptoDirectorio));
+        if (!perteneceTic) {
+            throw new IllegalArgumentException(
+                    "El custodio responsable debe pertenecer al departamento TECNOLOGÍAS E INNOVACIÓN");
+        }
+    }
+
+    /** Comparacion robusta: ignora mayusculas/minusculas y tildes. */
+    private static String normalizarTexto(String valor) {
+        if (valor == null) {
+            return "";
+        }
+        return Normalizer.normalize(valor, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT)
+                .trim();
     }
 
     private void aplicarConsumible(ConsumibleRequestDTO request, ConsumibleJpa consumible) {

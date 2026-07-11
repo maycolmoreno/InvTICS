@@ -290,6 +290,7 @@ public class MantenimientoControlador {
     public String nuevo(@RequestParam(required = false) Integer equipoId,
             @RequestParam(required = false) String equipoIds,
             @RequestParam(required = false) Integer idProgramado,
+            @RequestParam(required = false) Integer custodioId,
             Model model) {
         List<Integer> preseleccion = new ArrayList<>();
         if (equipoId != null) {
@@ -337,6 +338,7 @@ public class MantenimientoControlador {
         model.addAttribute("custodiosPorEquipo", custodiosPorEquipo);
         model.addAttribute("hoy", LocalDate.now());
         model.addAttribute("idProgramadoPreseleccionado", idProgramado);
+        model.addAttribute("custodioPreseleccionado", custodioId);
         return "mantenimiento/registro-manual";
     }
 

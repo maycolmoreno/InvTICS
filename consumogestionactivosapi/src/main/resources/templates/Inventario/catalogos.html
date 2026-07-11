@@ -123,7 +123,8 @@
                                         <input type="hidden" name="estado" th:value="${!c.estado}">
                                         <button type="submit"
                                                 th:class="${c.estado} ? 'btn btn-outline-danger btn-sm' : 'btn btn-outline-success btn-sm'"
-                                                th:title="${c.estado} ? 'Dar de baja' : 'Reactivar'">
+                                                th:title="${c.estado} ? 'Dar de baja' : 'Reactivar'"
+                                                th:attr="data-cui-confirm=${c.estado} ? 'Esta accion dara de baja el consumible seleccionado.' : null">
                                             <i th:class="${c.estado} ? 'feather-slash' : 'feather-refresh-cw'" aria-hidden="true"></i>
                                             <span th:text="${c.estado} ? 'Dar de baja' : 'Reactivar'">Estado</span>
                                         </button>

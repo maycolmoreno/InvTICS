@@ -23,18 +23,6 @@
       </div>
     </section>
 
-    <div class="cui-summary-strip">
-        <div class="cui-summary-item">
-            <span class="cui-summary-label">Activos</span>
-            <strong class="cui-summary-value success" th:text="${#lists.size(listadepartamento.?[estado])}">0</strong>
-        </div>
-        <span class="cui-summary-sep" aria-hidden="true">·</span>
-        <div class="cui-summary-item">
-            <span class="cui-summary-label">Inactivos</span>
-            <strong class="cui-summary-value" th:text="${#lists.size(listadepartamento.?[!estado])}">0</strong>
-        </div>
-    </div>
-
     <section class="cui-data-grid" data-cui-grid>
       <div class="cui-data-grid-header">
         <div>

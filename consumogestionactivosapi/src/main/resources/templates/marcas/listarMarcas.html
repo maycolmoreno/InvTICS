@@ -21,18 +21,6 @@
             </a>
         </section>
 
-        <div class="cui-summary-strip">
-            <div class="cui-summary-item">
-                <span class="cui-summary-label">Activas</span>
-                <strong class="cui-summary-value success" th:text="${#lists.size(listarmarcas.?[estado])}">0</strong>
-            </div>
-            <span class="cui-summary-sep" aria-hidden="true">·</span>
-            <div class="cui-summary-item">
-                <span class="cui-summary-label">Inactivas</span>
-                <strong class="cui-summary-value danger" th:text="${#lists.size(listarmarcas.?[!estado])}">0</strong>
-            </div>
-        </div>
-
         <section class="cui-data-grid" id="brandsAdminGrid" data-cui-grid>
             <div class="cui-data-grid-header">
                 <div>

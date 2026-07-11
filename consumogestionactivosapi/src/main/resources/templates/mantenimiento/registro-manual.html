@@ -78,6 +78,7 @@
 
         <input type="hidden" name="idProgramado" th:if="${idProgramadoPreseleccionado != null}"
                th:value="${idProgramadoPreseleccionado}">
+        <input type="hidden" id="custodioPreseleccionadoValue" th:value="${custodioPreseleccionado}">
 
         <!-- ── 1. Tipo de custodio ────────────────────────────── -->
         <div>
@@ -905,22 +906,39 @@
                     if (modoActual === 'FARMACIA' && (!ubicacionSelect || !ubicacionSelect.value)) { e.preventDefault(); alert('Debes seleccionar una sucursal.'); return; }
                 });
 
-                // Filtrar custodios por tipo ANTES de aplicar la preseleccion:
-                // filterCustodiosByTipo limpia custodioSelect.value, asi que si se
-                // ejecuta al final deshace la preseleccion (?equipoId= / ?equipoIds=).
-                filterCustodiosByTipo('ADMINISTRATIVO');
+                // Preseleccion explicita por ?custodioId= (entra desde el listado o
+                // el expediente del custodio, ej. boton "Crear mantenimiento").
+                var custodioPreseleccionadoValue = document.getElementById('custodioPreseleccionadoValue').value;
+                var optPreselCustodio = custodioPreseleccionadoValue
+                    ? Array.from(custodioSelect.options).find(function(o) { return o.value === custodioPreseleccionadoValue; })
+                    : null;
+                var tipoPresel = optPreselCustodio ? (optPreselCustodio.getAttribute('data-tipo') || 'ADMINISTRATIVO') : null;
 
-                if (!custodioSelect.value) {
+                if (tipoPresel === 'FARMACIA') {
+                    cambiarModo('FARMACIA');
+                    var ubiIdPresel = optPreselCustodio.getAttribute('data-ubicacion-id') || '';
+                    if (ubicacionSelect && ubiIdPresel) {
+                        ubicacionSelect.value = ubiIdPresel;
+                        refreshCustodioOptionsSucursal();
+                    }
+                } else {
+                    // Filtrar custodios por tipo ANTES de aplicar la preseleccion:
+                    // filterCustodiosByTipo limpia custodioSelect.value, asi que si se
+                    // ejecuta al final deshace la preseleccion (?equipoId= / ?equipoIds= / ?custodioId=).
+                    filterCustodiosByTipo('ADMINISTRATIVO');
+                }
+
+                if (optPreselCustodio) {
+                    optPreselCustodio.hidden = false;
+                    optPreselCustodio.disabled = false;
+                    custodioSelect.value = custodioPreseleccionadoValue;
+                } else if (!custodioSelect.value) {
                     const presel = Array.from(equipoSelect.options).find(opt => opt.selected);
                     const custodios = (presel?.getAttribute('data-custodios') || '').split(',').map(v => v.trim()).filter(Boolean);
                     if (custodios.length > 0) custodioSelect.value = custodios[0];
                 }
 
-                refreshEquipoOptionsCustodio();
-                if (custodioSelect.value) {
-                    var initOpt = custodioSelect.options[custodioSelect.selectedIndex];
-                    if (initOpt) fillCustodioInfo(initOpt);
-                }
+                handleCustodioChange();
                 updateResumen();
                 updateSelectedEquipmentChips();
                 updateSubmitState();

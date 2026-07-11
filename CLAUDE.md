@@ -393,30 +393,34 @@ No mostrar:
 
 ## Reglas de integración de empleados/custodios
 
-Si se consume información de empleados desde JSON externo:
+Fuente: directorio institucional externo `data.cresio.com` (login por sesión Flask, credenciales vía `EMPLEADOS_SYNC_URL`/`EMPLEADOS_SYNC_USUARIO`/`EMPLEADOS_SYNC_CONTRASENA` como variables de entorno — nunca hardcodeadas en `application.properties` ni en git).
 
-No consultar el JSON en vivo durante una asignación.
+Decisión vigente (revierte el diseño original de "no consultar en vivo"): la búsqueda en vivo contra el directorio SÍ está permitida, pero **únicamente** en el flujo de Asignaciones (`/inventario/asignaciones`, que es donde se generan las custodias). Ningún otro punto de CRESIO debe consultar el directorio en vivo.
 
-Usar sincronización controlada:
+Flujo vigente:
 
 ```text
-JSON empleados
+Buscar custodio en /inventario/asignaciones
   ↓
-Servicio de sincronización
+Resultado local (ya en custodios) o del directorio (aun no local)
   ↓
-Tabla local empleados/custodios
+Si es del directorio: al seleccionarlo se crea/actualiza el custodio local
+  automáticamente ("resolución al vuelo"), sin sincronización previa
   ↓
-CRESIO valida asignaciones localmente
+CRESIO valida la asignación contra el registro local recién creado/actualizado
 ```
 
 Reglas:
 
+* Cargo y departamento del directorio se guardan como **texto libre** en `custodios.cargo_directorio` / `custodios.departamento_directorio` — no se crean ni se exigen entradas en el catálogo propio de `cargos`/`departamentos` de CRESIO. Ese catálogo sigue existiendo para otros usos (ver regla de bodegas) y se vincula por `fk_cargo` solo si ya hay un match exacto por nombre; nunca bloquea guardar.
 * No asignar activos o gastos a empleados inactivos.
 * Detectar empleados fuera de servicio.
 * Generar alerta si un empleado inactivo tiene activos asignados.
 * Registrar fecha de última sincronización.
 * Registrar cambios relevantes.
 * No guardar credenciales en texto plano.
+
+Pantalla `/custodios/sincronizacion` (sincronización por lote, solo ADMIN): se mantiene como respaldo para sincronización masiva (ej. detectar bajas), independiente de la resolución al vuelo. El editor de custodio (`/custodios/editar-custodio/{id}`) tiene un botón "Actualizar desde el directorio" que trae los datos en vivo sin guardar automáticamente.
 
 ## Reglas de BD/Flyway
 
@@ -444,29 +448,28 @@ No eliminar sin revisión.
 
 ## Prioridades actuales
 
-1. Corregir drift técnico BD/JPA de compras:
+Estado verificado contra código el 2026-07-10. Auditoría completa en memoria de sesión; no volver a tratar 1-5 como pendientes sin re-verificar código.
 
-   * `ordenes_compra.version`.
-   * Check de estados de OC.
-   * Check de tipo item en detalle.
-2. Consolidar flujo:
-
-   * OC → Detalle → Recepción por línea.
-3. Eliminar recepción libre como flujo principal.
-4. Rediseñar Stock:
-
-   * acción contextual por fila.
-   * drawers precargados.
-5. Rediseñar Traslados:
-
-   * historial y acciones desde Stock/Activos.
-6. Validar bodegas con custodio de `TECNOLOGÍAS E INNOVACIÓN`.
-7. Completar reglas de ciclo de vida del activo.
-8. Mantener UI Enterprise limpia y sin formularios redundantes.
-9. Tests básicos por cada cambio funcional.
+1. ~~Corregir drift técnico BD/JPA de compras~~ — **Hecho.** Migración V24 aplicada (`ordenes_compra.version`, check de estados, check de tipo item).
+2. ~~Consolidar flujo OC → Detalle → Recepción por línea~~ — **Hecho.** Endpoints de recepción por línea + máquinas de estado (`OrdenCompraStateMachine`, `OrdenCompraDetalleStateMachine`) con tests.
+3. ~~Eliminar recepción libre como flujo principal~~ — **Hecho.** `GET /inventario/recepcion` es solo redirect de compatibilidad a `/inventario/compras`.
+4. ~~Rediseñar Stock (acción contextual + drawers)~~ — **Hecho.** `stock.html` usa `cui-drawer` por fila.
+5. ~~Rediseñar Traslados (historial + acciones desde fila)~~ — **Hecho.** `traslados.html` idem.
+6. ~~Validar bodegas con custodio de `TECNOLOGÍAS E INNOVACIÓN`~~ — **Hecho (2026-07-10).** Validación autoritativa en `InventarioService.aplicarBodega()`/`validarCustodioResponsableBodega()` (backend): custodio responsable obligatorio, debe estar activo, y su departamento debe coincidir (sin tildes/mayúsculas) con TIC — buscado tanto en el catálogo propio (`fkCargo.fkDepartamento`) como en el texto libre del directorio (`departamentoDirectorio`), ya que muchos custodios sincronizados no tienen catálogo vinculado. El BFF (`InventarioControlador.crearBodega()`) replica la misma comparación robusta como feedback rápido antes del round-trip. 5 tests nuevos en `InventarioServiceTest`.
+7. ~~Completar reglas de ciclo de vida del activo~~ — **Hecho para el flujo activo (2026-07-10).** Las 5 reglas de asignación (`EN_BODEGA`, etiquetado, bodega asignada, sin custodia activa, custodio destino activo) están implementadas en `InventarioService.asignarActivosLote()` (usado por `asignarActivo` y por toda asignación real desde `/inventario/asignaciones`) y en `adoptarInventarioInicial()` (con mensajes/tipos de excepción no idénticos entre sí — deuda menor, no funcional). **Riesgo aceptado y documentado, no corregido:** el endpoint legacy `POST /api/custodias` (`CustodiasUseCaseImpl.crear`, detrás del tipo `ACTA_INICIAL`) solo valida 1 de las 5 reglas y no actualiza el estado del equipo al crear la custodia. Ninguna pantalla actual lo usa para crear (solo queda como filtro de listado histórico), pero el endpoint crudo sigue alcanzable. Decisión explícita del usuario: no tocar salvo que aparezca un bug real ahí (ver memoria de sesión).
+8. Mantener UI Enterprise limpia y sin formularios redundantes — **auditoría completa (2026-07-10), remediación en curso.** ~10 pantallas cumplen (Custodias, Activos, Mantenimiento/notificaciones, Dashboard, Stock, Traslados). Violaciones restantes, de mayor a menor prioridad:
+   * ~~Summary strips que duplicaban la columna Estado~~ — **Hecho (2026-07-10)** en `cargos/listarCargos.html`, `marcas/listarMarcas.html`, `departamentos/listarDepartamentos.html`, `categorias_equipo/listarCategorias.html`, `ubicaciones/listarUbicaciones.html`. Pendiente el mismo patrón en `Inventario/reparaciones.html` (no incluido en esta pasada).
+   * ~~`mantenimiento/registro-manual.html`: select de custodio redundante~~ — **Mitigado (2026-07-10), sin reescribir el formulario.** El formulario sigue siendo una página completa (wizard multi-sección con checklist/firmas/evidencias, no apto para drawer sin una reescritura mayor), pero ahora acepta `?custodioId=` en `GET /mantenimiento/nuevo` y preselecciona automáticamente al custodio (incluye el caso Farmacia con sucursal). Nuevo punto de entrada por fila: botón "Crear mantenimiento" en `Custodios/listarCustodios.html` y en el dropdown de `Custodias/expedienteCustodio.html`. El dropdown de búsqueda manual se mantiene para cuando no se conoce el custodio de antemano.
+   * ~~Módulo `Planificacion/*`: CSS propio desconectado de `cui-*`~~ — **Hecho (2026-07-10).** Los 3 archivos (`planificacion.html`, `planificacion-form.html`, `metricas.html`) migrados a `cui-*`/tokens, sin `<style>` propio. `planificacion.html` pasó de paginación custom a `cui-data-grid` + `data-grid.js` compartido (búsqueda/filtros en vivo, sin paginación — decisión explícita: ninguna otra pantalla del sistema pagina). Bug real encontrado y corregido de paso: los 3 formularios POST (`guardar`, `Iniciar`, `Completar`) no tenían token CSRF pese a que el sistema lo exige (`CookieCsrfTokenRepository`, sin JS global que lo inyecte) — confirmado con prueba en vivo que el POST fallaba sin el fix y funciona con él.
+   * Patrón "página fija en vez de drawer" replicado en 8+ CRUDs simples: Custodios, Equipos, Roles, Usuarios, Cargos, Marcas, Departamentos, Categorías de equipo, Ubicaciones, Checklist.
+   * ~~`Inventario/catalogos.html`: "Dar de baja/Reactivar" consumible sin `data-cui-confirm`~~ — **Hecho (2026-07-10).** Confirmación agregada solo para "Dar de baja" (accion destructiva); "Reactivar" no la necesita.
+   * `Inventario/porSucursal.html`, `porDepartamento.html`, `porCustodio.html`: Bootstrap crudo pre-`cui-*`, KPI decorativo.
+   * `importar/importarEquipos.html`: Bootstrap crudo pre-`cui-*`.
+   * Bootstrap crudo puntual (`btn btn-outline-*` en vez de `cui-btn`) disperso en la mayoría de pantallas migradas.
+9. Tests básicos por cada cambio funcional — **hueco real.** Bien cubierto solo en Compras/OC/Recepción e Inventario Operacional (BFF). **0 de 23 controladores del backend (`gestionactivosapi`) tienen test.** BFF: solo 4 de 29 controladores con test.
 10. Resiliencia BFF:
 
-* timeouts.
-* ControllerAdvice.
-* sesiones.
-* circuit breaker si se aprueba.
+* timeouts — **hecho** (`WebClientConfig`, `api.connect-timeout`/`api.read-timeout`).
+* ControllerAdvice — **hecho** (ambos módulos).
+* sesiones — solo configuración básica (`SessionCreationPolicy.IF_REQUIRED`), sin timeout explícito.
+* circuit breaker — **no implementado**, condicionado a aprobación explícita (no hay dependencia de resilience4j en ningún `pom.xml`).

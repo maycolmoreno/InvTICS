@@ -111,6 +111,10 @@
                                             <i class="feather-more-vertical" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item" th:href="@{/mantenimiento/nuevo(custodioId=${custodio.idCustodio})}">
+                                                <i class="feather-tool" aria-hidden="true"></i>
+                                                Crear mantenimiento
+                                            </a>
                                             <a class="dropdown-item" th:href="@{/custodios/editar-custodio/{id}(id=${custodio.idCustodio})}">
                                                 <i class="feather-edit-2" aria-hidden="true"></i>
                                                 Editar

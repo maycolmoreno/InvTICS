@@ -5,79 +5,42 @@
 <head>
 <meta charset="utf-8">
 <title>Planificación de Actividades</title>
-<style>
-    :root {
-        --pl-bg: #f4f6fb;
-        --pl-card: #ffffff;
-        --pl-line: #e3e7ef;
-        --pl-text: #152238;
-        --pl-muted: #6d7a92;
-        --pl-primary: #4e4acb;
-        --pl-primary-soft: #eeedff;
-        --pl-danger: #b22222;
-        --pl-warning: #9a5d00;
-        --pl-ok: #1f7a3f;
-        --pl-shadow: 0 10px 26px rgba(16, 24, 40, 0.06);
-    }
-    .pl-page { display: grid; gap: 14px; }
-    .pl-shell { background: var(--pl-card); border: 1px solid var(--pl-line); border-radius: 16px; box-shadow: var(--pl-shadow); overflow: hidden; }
-    .pl-top { padding: 14px 18px; border-bottom: 1px solid var(--pl-line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .pl-title { margin: 0; font-size: 24px; font-weight: 800; color: var(--pl-text); }
-    .pl-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .pl-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; border: none; cursor: pointer; transition: .2s; }
-    .pl-btn-primary { background: var(--pl-primary); color: #fff; }
-    .pl-btn-primary:hover { opacity: .85; }
-    .pl-btn-outline { background: transparent; border: 1px solid var(--pl-line); color: var(--pl-text); }
-    .pl-btn-outline:hover { background: var(--pl-primary-soft); }
-    .pl-filters { padding: 12px 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--pl-line); }
-    .pl-filters select, .pl-filters input { padding: 6px 10px; border: 1px solid var(--pl-line); border-radius: 8px; font-size: 14px; }
-    .pl-table-wrap { overflow-x: auto; }
-    .pl-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    .pl-table th { background: #f8f9fc; padding: 10px 14px; text-align: left; font-weight: 700; color: var(--pl-muted); border-bottom: 2px solid var(--pl-line); white-space: nowrap; }
-    .pl-table td { padding: 10px 14px; border-bottom: 1px solid var(--pl-line); color: var(--pl-text); }
-    .pl-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-    .pl-badge-pendiente { background: #fff3cd; color: var(--pl-warning); }
-    .pl-badge-progreso { background: #d1ecf1; color: #0c5460; }
-    .pl-badge-completada { background: #d4edda; color: var(--pl-ok); }
-    .pl-badge-vencida { background: #f8d7da; color: var(--pl-danger); }
-    .pl-badge-cancelada { background: #e2e3e5; color: #383d41; }
-    .pl-badge-alta, .pl-badge-urgente { background: #f8d7da; color: var(--pl-danger); }
-    .pl-badge-media { background: #fff3cd; color: var(--pl-warning); }
-    .pl-badge-baja { background: #d4edda; color: var(--pl-ok); }
-    .pl-empty { padding: 40px; text-align: center; color: var(--pl-muted); }
-    .pl-alert { padding: 12px 18px; border-radius: 8px; margin: 10px 18px; font-size: 14px; }
-    .pl-alert-success { background: #d4edda; color: var(--pl-ok); }
-    .pl-alert-error { background: #f8d7da; color: var(--pl-danger); }
-    .pl-table th[data-sort] { user-select: none; }
-    .pl-table th[data-sort]:hover { background: #eef0f5; }
-    .sort-icon { font-size: 11px; opacity: .4; }
-    .sort-icon.asc::after { content: ' ▲'; opacity: 1; }
-    .sort-icon.desc::after { content: ' ▼'; opacity: 1; }
-</style>
 </head>
 <body>
 <div layout:fragment="contenidopaginas">
-    <div class="pl-page">
-        <div th:if="${mensaje}" class="pl-alert pl-alert-success" th:text="${mensaje}"></div>
-        <div th:if="${error}" class="pl-alert pl-alert-error" th:text="${error}"></div>
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Planificación de actividades', subtitle='Tareas, mantenimientos y visitas asignadas al equipo tecnico.')}"></div>
 
-        <div class="pl-shell">
-            <div class="pl-top">
-                <h1 class="pl-title">📋 Planificación de Actividades</h1>
-                <div class="pl-actions">
-                    <a href="/planificacion/metricas" class="pl-btn pl-btn-outline">📊 Ver Métricas</a>
-                    <a href="/planificacion/nueva" class="pl-btn pl-btn-primary">+ Nueva Actividad</a>
+        <div class="alert alert-success cui-alert" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
+
+        <div class="cui-command-bar">
+            <a th:href="@{/planificacion/metricas}" class="cui-btn cui-btn-secondary">
+                <i class="feather-bar-chart-2" aria-hidden="true"></i>
+                <span>Ver métricas</span>
+            </a>
+            <a th:href="@{/planificacion/nueva}" class="cui-btn cui-btn-primary">
+                <i class="feather-plus" aria-hidden="true"></i>
+                <span>Nueva actividad</span>
+            </a>
+        </div>
+
+        <section class="cui-data-grid" id="actividadesGrid" data-cui-grid>
+            <div class="cui-data-grid-header">
+                <div>
+                    <h2>Actividades planificadas</h2>
+                    <span class="cui-data-grid-meta" data-cui-grid-count>0 registros</span>
                 </div>
             </div>
 
-            <div class="pl-filters">
-                <input id="searchInput" type="text" placeholder="Buscar actividad..." style="max-width:200px">
-                <select id="filtroTecnico" th:unless="${esTecnico}">
-                    <option value="">Todos los técnicos</option>
+            <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar actividad, tecnico, equipo o farmacia...', exportHref=null)}"></div>
+
+            <div class="cui-grid-filters">
+                <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="tecnico" th:unless="${esTecnico}">
+                    <option value="">Todos los tecnicos</option>
                     <option th:each="t : ${tecnicos}" th:value="${t.idUsuario}" th:text="${t.nombre}"></option>
                 </select>
-                <input type="hidden" id="filtroTecnico" value="" th:if="${esTecnico}">
-                <select id="filtroEstado">
+                <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="estado">
                     <option value="">Todos los estados</option>
                     <option value="PENDIENTE">Pendiente</option>
                     <option value="EN_PROGRESO">En progreso</option>
@@ -85,260 +48,91 @@
                     <option value="VENCIDA">Vencida</option>
                     <option value="CANCELADA">Cancelada</option>
                 </select>
-                <select id="filtroTipo">
+                <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="tipo">
                     <option value="">Todos los tipos</option>
                     <option value="TAREA_DIARIA">Tarea diaria</option>
                     <option value="TAREA_SEMANAL">Tarea semanal</option>
                     <option value="MANTENIMIENTO_PROGRAMADO">Mantenimiento programado</option>
-                    <option value="VISITA_TECNICA">Visita técnica</option>
+                    <option value="VISITA_TECNICA">Visita tecnica</option>
                     <option value="OBJETIVO_MENSUAL">Objetivo mensual</option>
                 </select>
-                <span style="margin-left:auto;font-size:13px;color:var(--pl-muted)"><span id="rowCount">0</span> actividades</span>
             </div>
 
-            <div class="pl-table-wrap">
-                <table class="pl-table" id="tablaActividades">
-                    <thead>
+            <div class="cui-data-grid-body">
+                <div class="table-responsive">
+                    <table class="table cui-table">
+                        <thead>
                         <tr>
-                            <th data-sort="num" style="cursor:pointer"># <span class="sort-icon"></span></th>
-                            <th data-sort="text" style="cursor:pointer">Título <span class="sort-icon"></span></th>
-                            <th data-sort="text" style="cursor:pointer">Técnico <span class="sort-icon"></span></th>
-                            <th data-sort="text" style="cursor:pointer">Tipo <span class="sort-icon"></span></th>
-                            <th data-sort="text" style="cursor:pointer">Equipo <span class="sort-icon"></span></th>
-                            <th data-sort="text" style="cursor:pointer">Prioridad <span class="sort-icon"></span></th>
-                            <th data-sort="text" style="cursor:pointer">Estado <span class="sort-icon"></span></th>
-                            <th data-sort="date" style="cursor:pointer">Fecha inicio <span class="sort-icon"></span></th>
-                            <th data-sort="date" style="cursor:pointer">Fecha fin <span class="sort-icon"></span></th>
-                            <th>Acciones</th>
+                            <th>#</th>
+                            <th>Título</th>
+                            <th>Técnico</th>
+                            <th>Tipo</th>
+                            <th>Equipo / Farmacia</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Fecha inicio</th>
+                            <th>Fecha fin</th>
+                            <th class="text-end">Acciones</th>
                         </tr>
-                    </thead>
-                    <tbody id="actividadesTbody">
-                        <tr class="fila-actividad" th:each="a : ${actividades}"
+                        </thead>
+                        <tbody>
+                        <tr th:each="a : ${actividades}"
+                            data-cui-grid-row
                             th:data-tecnico="${a.tecnicoId}"
                             th:data-estado="${a.estado}"
-                            th:data-tipo="${a.tipoActividad}">
-                            <td th:text="${a.idActividadPlanificada}"></td>
+                            th:data-tipo="${a.tipoActividad}"
+                            th:attr="data-search=${#strings.toLowerCase((a.titulo ?: '') + ' ' + (a.descripcion ?: '') + ' ' + (a.tecnicoNombre ?: '') + ' ' + (a.tipoActividad ?: '') + ' ' + (a.equipoNombre ?: '') + ' ' + (a.ubicacionNombre ?: ''))}">
+                            <td th:text="${a.idActividadPlanificada}">1</td>
                             <td>
-                                <strong th:text="${a.titulo}"></strong>
-                                <br><small th:text="${a.descripcion}" style="color:var(--pl-muted)"></small>
+                                <div class="cui-row-title" th:text="${a.titulo}">Titulo</div>
+                                <div class="cui-row-subtitle" th:text="${a.descripcion}">Descripcion</div>
                             </td>
-                            <td th:text="${a.tecnicoNombre}"></td>
+                            <td th:text="${a.tecnicoNombre}">Tecnico</td>
+                            <td th:text="${a.tipoActividad != null ? a.tipoActividad.replace('_', ' ') : '-'}">Tipo</td>
                             <td>
-                                <span th:text="${a.tipoActividad.replace('_', ' ')}" style="font-size:12px"></span>
-                            </td>
-                            <td>
-                                <span th:if="${a.equipoNombre}" th:text="${a.equipoNombre}" style="font-size:12px"></span>
+                                <span th:if="${a.equipoNombre}" th:text="${a.equipoNombre}">Equipo</span>
                                 <span th:if="${a.equipoNombre == null and a.ubicacionNombre != null}"
-                                      th:text="'Farmacia ' + ${a.ubicacionNombre} + ' (general)'" style="font-size:12px"></span>
-                                <span th:if="${a.equipoNombre == null and a.ubicacionNombre == null}"
-                                      style="font-size:12px;color:var(--pl-muted)">—</span>
+                                      th:text="'Farmacia ' + ${a.ubicacionNombre} + ' (general)'">Farmacia</span>
+                                <span th:if="${a.equipoNombre == null and a.ubicacionNombre == null}" class="text-muted">—</span>
                             </td>
                             <td>
-                                <span class="pl-badge"
-                                    th:classappend="${a.prioridad == 'ALTA' || a.prioridad == 'URGENTE'} ? 'pl-badge-alta' : (${a.prioridad == 'MEDIA'} ? 'pl-badge-media' : 'pl-badge-baja')"
-                                    th:text="${a.prioridad}"></span>
+                                <span th:replace="~{fragments/components/status-badge :: statusBadge(${a.prioridad}, ${(a.prioridad == 'ALTA' or a.prioridad == 'URGENTE') ? 'danger' : (a.prioridad == 'MEDIA' ? 'warning' : 'success')})}"></span>
                             </td>
                             <td>
-                                <span class="pl-badge"
-                                    th:classappend="${a.estado == 'PENDIENTE'} ? 'pl-badge-pendiente' : (${a.estado == 'EN_PROGRESO'} ? 'pl-badge-progreso' : (${a.estado == 'COMPLETADA'} ? 'pl-badge-completada' : (${a.estado == 'VENCIDA'} ? 'pl-badge-vencida' : 'pl-badge-cancelada')))"
-                                    th:text="${a.estado.replace('_', ' ')}"></span>
+                                <span th:replace="~{fragments/components/status-badge :: statusBadge(${a.estado != null ? a.estado.replace('_', ' ') : '-'}, ${a.estado == 'PENDIENTE' ? 'warning' : (a.estado == 'EN_PROGRESO' ? 'info' : (a.estado == 'COMPLETADA' ? 'success' : (a.estado == 'VENCIDA' ? 'danger' : 'muted')))})}"></span>
                             </td>
-                            <td th:text="${a.fechaInicio}"></td>
-                            <td th:text="${a.fechaFin}"></td>
+                            <td th:text="${a.fechaInicio}">Fecha</td>
+                            <td th:text="${a.fechaFin}">Fecha</td>
                             <td>
-                                <div th:if="${a.estado != 'COMPLETADA' and a.estado != 'CANCELADA'}" style="display:flex;gap:4px">
-                                    <form th:if="${a.estado == 'PENDIENTE'}" th:action="@{'/planificacion/' + ${a.idActividadPlanificada} + '/estado'}" method="post" style="display:inline">
+                                <div class="cui-action-cell" th:if="${a.estado != 'COMPLETADA' and a.estado != 'CANCELADA'}">
+                                    <form th:if="${a.estado == 'PENDIENTE'}" th:action="@{'/planificacion/' + ${a.idActividadPlanificada} + '/estado'}" method="post">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                         <input type="hidden" name="estado" value="EN_PROGRESO">
-                                        <button class="pl-btn pl-btn-outline" style="padding:4px 8px;font-size:12px" type="submit">▶ Iniciar</button>
+                                        <button class="cui-btn cui-btn-secondary cui-btn-sm" type="submit">
+                                            <i class="feather-play" aria-hidden="true"></i>
+                                            <span>Iniciar</span>
+                                        </button>
                                     </form>
-                                    <form th:action="@{'/planificacion/' + ${a.idActividadPlanificada} + '/estado'}" method="post" style="display:inline">
+                                    <form th:action="@{'/planificacion/' + ${a.idActividadPlanificada} + '/estado'}" method="post">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                         <input type="hidden" name="estado" value="COMPLETADA">
-                                        <button class="pl-btn pl-btn-primary" style="padding:4px 8px;font-size:12px" type="submit">✓ Completar</button>
+                                        <button class="cui-btn cui-btn-primary cui-btn-sm" type="submit">
+                                            <i class="feather-check" aria-hidden="true"></i>
+                                            <span>Completar</span>
+                                        </button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+                <div data-cui-empty-state th:hidden="${!#lists.isEmpty(actividades)}">
+                    <div th:replace="~{fragments/components/empty-state :: empty(icon='feather-calendar', title='No hay actividades planificadas', message='Crea la primera actividad para empezar a planificar el trabajo del equipo.')}"></div>
+                </div>
             </div>
-
-            <div th:if="${#lists.isEmpty(actividades)}" class="pl-empty">
-                No hay actividades planificadas aún.
-            </div>
-
-            <div class="pagination-bar" style="padding:10px 18px;border-top:1px solid var(--pl-line)">
-                <div class="page-size-wrap">Mostrar <select id="pageSizeSelect"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select> filas</div>
-                <div class="pagination-info" id="paginationInfo"></div>
-                <div class="pagination-nav" id="paginationNav"></div>
-            </div>
-        </div>
+        </section>
     </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var searchInput = document.getElementById('searchInput');
-  var filtroTecnico = document.getElementById('filtroTecnico');
-  var filtroEstado = document.getElementById('filtroEstado');
-  var filtroTipo = document.getElementById('filtroTipo');
-  var rowCountEl = document.getElementById('rowCount');
-  var pageSizeSelect = document.getElementById('pageSizeSelect');
-  var paginationInfo = document.getElementById('paginationInfo');
-  var paginationNav = document.getElementById('paginationNav');
-  var thead = document.querySelector('#tablaActividades thead tr');
-
-  var allRows = Array.from(document.querySelectorAll('#actividadesTbody .fila-actividad'));
-  var filteredRows = [];
-  var currentPage = 1;
-  var pageSize = parseInt(pageSizeSelect.value, 10);
-  var sortCol = -1, sortDir = 'asc';
-
-  // Select2 opcional
-  if (typeof $ !== 'undefined' && $.fn.select2) {
-    $('#filtroTecnico').select2({ width: '100%' });
-  }
-
-  // ==================== FILTROS ====================
-  function applyFilters() {
-    var t = searchInput.value.trim().toLowerCase();
-    var tec = filtroTecnico.value;
-    var est = filtroEstado.value;
-    var tip = filtroTipo.value;
-
-    filteredRows = allRows.filter(function(r) {
-      if (t && r.textContent.toLowerCase().indexOf(t) < 0) return false;
-      if (tec && r.getAttribute('data-tecnico') !== tec) return false;
-      if (est && r.getAttribute('data-estado') !== est) return false;
-      if (tip && r.getAttribute('data-tipo') !== tip) return false;
-      return true;
-    });
-
-    currentPage = 1;
-    renderPage();
-  }
-
-  // ==================== ORDENAMIENTO ====================
-  function sortRows(colIndex, type) {
-    filteredRows.sort(function(a, b) {
-      var cellA = a.cells[colIndex], cellB = b.cells[colIndex];
-      var vA = (cellA ? cellA.textContent.trim() : '');
-      var vB = (cellB ? cellB.textContent.trim() : '');
-
-      if (type === 'num') {
-        vA = parseFloat(vA) || 0;
-        vB = parseFloat(vB) || 0;
-      } else if (type === 'date') {
-        vA = vA ? new Date(vA).getTime() : 0;
-        vB = vB ? new Date(vB).getTime() : 0;
-      } else {
-        vA = vA.toLowerCase();
-        vB = vB.toLowerCase();
-      }
-
-      if (vA < vB) return sortDir === 'asc' ? -1 : 1;
-      if (vA > vB) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    currentPage = 1;
-    renderPage();
-  }
-
-  thead.addEventListener('click', function(ev) {
-    var th = ev.target.closest('th[data-sort]');
-    if (!th) return;
-
-    var colIndex = Array.from(thead.children).indexOf(th);
-    var type = th.getAttribute('data-sort');
-
-    if (sortCol === colIndex) {
-      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-    } else {
-      sortCol = colIndex;
-      sortDir = 'asc';
-    }
-
-    // Actualizar iconos
-    thead.querySelectorAll('.sort-icon').forEach(function(ic) {
-      ic.className = 'sort-icon';
-    });
-    th.querySelector('.sort-icon').className = 'sort-icon ' + sortDir;
-
-    sortRows(colIndex, type);
-  });
-
-  // ==================== PAGINACIÓN ====================
-  function renderPage() {
-    var total = filteredRows.length;
-    var tp = Math.max(1, Math.ceil(total / pageSize));
-    if (currentPage > tp) currentPage = tp;
-    var s = (currentPage - 1) * pageSize;
-    var e = Math.min(s + pageSize, total);
-    var visible = new Set(filteredRows.slice(s, e));
-
-    allRows.forEach(function(r) {
-      r.style.display = visible.has(r) ? '' : 'none';
-    });
-
-    rowCountEl.textContent = total;
-    paginationInfo.innerHTML = total === 0 ? 'Sin resultados'
-      : '<strong>' + (s + 1) + '</strong> \u2013 <strong>' + e + '</strong> de <strong>' + total + '</strong>';
-    renderPaginationNav(tp);
-  }
-
-  function renderPaginationNav(tp) {
-    var h = '<button class="pg-btn" data-page="prev"' + (currentPage <= 1 ? ' disabled' : '') +
-      '><i class="feather feather-chevron-left" style="font-size:14px"></i></button>';
-    buildPN(currentPage, tp).forEach(function(p) {
-      if (p === '...') h += '<span class="pg-ellipsis">&hellip;</span>';
-      else h += '<button class="pg-btn' + (p === currentPage ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>';
-    });
-    h += '<button class="pg-btn" data-page="next"' + (currentPage >= tp ? ' disabled' : '') +
-      '><i class="feather feather-chevron-right" style="font-size:14px"></i></button>';
-    paginationNav.innerHTML = h;
-  }
-
-  function buildPN(c, t) {
-    if (t <= 7) return Array.from({length: t}, function(_, i) { return i + 1; });
-    var p = [1];
-    if (c > 3) p.push('...');
-    for (var i = Math.max(2, c - 1); i <= Math.min(t - 1, c + 1); i++) p.push(i);
-    if (c < t - 2) p.push('...');
-    p.push(t);
-    return p;
-  }
-
-  paginationNav.addEventListener('click', function(ev) {
-    var b = ev.target.closest('.pg-btn');
-    if (!b || b.disabled) return;
-    var v = b.dataset.page;
-    var tp = Math.max(1, Math.ceil(filteredRows.length / pageSize));
-    if (v === 'prev') currentPage = Math.max(1, currentPage - 1);
-    else if (v === 'next') currentPage = Math.min(tp, currentPage + 1);
-    else currentPage = parseInt(v, 10);
-    renderPage();
-  });
-
-  pageSizeSelect.addEventListener('change', function() {
-    pageSize = parseInt(this.value, 10);
-    currentPage = 1;
-    renderPage();
-  });
-
-  // ==================== EVENT LISTENERS ====================
-  searchInput.addEventListener('input', applyFilters);
-  filtroEstado.addEventListener('change', applyFilters);
-  filtroTipo.addEventListener('change', applyFilters);
-
-  // Técnico: Select2 o nativo
-  if (typeof $ !== 'undefined' && $.fn.select2) {
-    $('#filtroTecnico').on('change', applyFilters);
-  } else {
-    filtroTecnico.addEventListener('change', applyFilters);
-  }
-
-  applyFilters();
-});
-</script>
 </div>
 </body>
 </html>

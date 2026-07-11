@@ -21,9 +21,11 @@ import com.uisrael.gestionactivosapi.dominio.excepciones.CantidadExcedidaExcepti
 import com.uisrael.gestionactivosapi.dominio.excepciones.CantidadInvalidaException;
 import com.uisrael.gestionactivosapi.dominio.excepciones.RecepcionNoPermitidaException;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.BodegaJpa;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CargosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ConsumibleJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiosJpa;
+import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.DepartamentosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.EquiposJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.MovimientoInventarioJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.OrdenCompraDetalleJpa;
@@ -44,6 +46,7 @@ import com.uisrael.gestionactivosapi.infraestructura.repositorios.IStockConsumib
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AsignacionActivoRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AsignacionLoteRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.AsignacionConsumibleRequestDTO;
+import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.BodegaRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.OrdenCompraDetalleRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.OrdenCompraRequestDTO;
 import com.uisrael.gestionactivosapi.presentacion.dto.request.inventario.RegistrarRecepcionActivoRequestDTO;
@@ -366,6 +369,84 @@ class InventarioServiceTest {
 
         assertThatThrownBy(() -> service.registrarRecepcionActivoPorDetalle(1, 2, request))
                 .isInstanceOf(RecepcionNoPermitidaException.class);
+    }
+
+    @Test
+    void crearBodega_rechazaSinCustodioResponsable() {
+        BodegaRequestDTO request = bodegaRequest("BOD-01", null);
+
+        assertThatThrownBy(() -> service.crearBodega(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("custodio responsable");
+    }
+
+    @Test
+    void crearBodega_rechazaCustodioInactivo() {
+        CustodiosJpa custodio = custodioConDepartamento(1, false, "TECNOLOGÍAS E INNOVACIÓN");
+        when(custodiosRepo.findById(1)).thenReturn(Optional.of(custodio));
+        BodegaRequestDTO request = bodegaRequest("BOD-02", 1);
+
+        assertThatThrownBy(() -> service.crearBodega(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("activo");
+    }
+
+    @Test
+    void crearBodega_rechazaCustodioFueraDeDepartamentoTic() {
+        CustodiosJpa custodio = custodioConDepartamento(2, true, "OFICINA DE VALOR");
+        when(custodiosRepo.findById(2)).thenReturn(Optional.of(custodio));
+        BodegaRequestDTO request = bodegaRequest("BOD-03", 2);
+
+        assertThatThrownBy(() -> service.crearBodega(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("TECNOLOGÍAS E INNOVACIÓN");
+    }
+
+    @Test
+    void crearBodega_aceptaDepartamentoDelCatalogoIgnorandoTildesYMayusculas() {
+        CustodiosJpa custodio = custodioConDepartamento(3, true, "tecnologias e innovacion");
+        when(custodiosRepo.findById(3)).thenReturn(Optional.of(custodio));
+        when(bodegaRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        BodegaRequestDTO request = bodegaRequest("BOD-04", 3);
+
+        service.crearBodega(request);
+
+        verify(bodegaRepo).save(any());
+    }
+
+    @Test
+    void crearBodega_aceptaDepartamentoDelDirectorioCuandoNoHayCatalogo() {
+        CustodiosJpa custodio = new CustodiosJpa();
+        custodio.setIdCustodio(4);
+        custodio.setEstado(true);
+        custodio.setDepartamentoDirectorio("Tecnologías e Innovación");
+        when(custodiosRepo.findById(4)).thenReturn(Optional.of(custodio));
+        when(bodegaRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        BodegaRequestDTO request = bodegaRequest("BOD-05", 4);
+
+        service.crearBodega(request);
+
+        verify(bodegaRepo).save(any());
+    }
+
+    private BodegaRequestDTO bodegaRequest(String codigo, Integer custodioResponsableId) {
+        BodegaRequestDTO request = new BodegaRequestDTO();
+        request.setCodigo(codigo);
+        request.setNombre("Bodega TIC");
+        request.setCustodioResponsableId(custodioResponsableId);
+        return request;
+    }
+
+    private CustodiosJpa custodioConDepartamento(int id, boolean estado, String nombreDepartamento) {
+        DepartamentosJpa departamento = new DepartamentosJpa();
+        departamento.setNombre(nombreDepartamento);
+        CargosJpa cargo = new CargosJpa();
+        cargo.setFkDepartamento(departamento);
+        CustodiosJpa custodio = new CustodiosJpa();
+        custodio.setIdCustodio(id);
+        custodio.setEstado(estado);
+        custodio.setFkCargo(cargo);
+        return custodio;
     }
 
     private BodegaJpa bodega(Integer id, boolean estado) {

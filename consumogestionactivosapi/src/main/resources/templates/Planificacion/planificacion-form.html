@@ -5,112 +5,115 @@
 <head>
 <meta charset="utf-8">
 <title>Nueva Actividad</title>
-<style>
-    .pf-shell { background: #fff; border: 1px solid #e3e7ef; border-radius: 16px; box-shadow: 0 10px 26px rgba(16,24,40,.06); max-width: 700px; margin: 0 auto; padding: 24px; }
-    .pf-title { font-size: 22px; font-weight: 800; margin-bottom: 20px; }
-    .pf-group { margin-bottom: 16px; }
-    .pf-group label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #152238; }
-    .pf-group input, .pf-group select, .pf-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #e3e7ef; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
-    .pf-group textarea { resize: vertical; min-height: 80px; }
-    .pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .pf-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: .2s; }
-    .pf-btn-primary { background: #4e4acb; color: #fff; }
-    .pf-btn-primary:hover { opacity: .85; }
-    .pf-btn-cancel { background: transparent; border: 1px solid #e3e7ef; color: #152238; text-decoration: none; }
-    .pf-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-</style>
 </head>
 <body>
 <div layout:fragment="contenidopaginas">
-    <div class="pf-shell">
-        <h1 class="pf-title">Nueva Actividad Planificada</h1>
-        <form th:action="@{/planificacion/guardar}" method="post" th:object="${actividad}">
-            <div class="pf-group">
-                <label>Título *</label>
-                <input type="text" th:field="*{titulo}" required maxlength="200" placeholder="Ej: Revisión equipos piso 3">
+    <div class="cui-page">
+        <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Nueva actividad planificada', subtitle='Registra una tarea, mantenimiento o visita para el equipo tecnico.')}"></div>
+
+        <div class="cui-exp-card" style="max-width:760px;margin:0 auto;">
+            <div class="cui-exp-card-body">
+                <form th:action="@{/planificacion/guardar}" method="post" th:object="${actividad}" class="d-flex flex-column gap-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                    <div>
+                        <label class="form-label fw-semibold">Título <span class="cui-required-mark">*</span></label>
+                        <input type="text" class="form-control" th:field="*{titulo}" required maxlength="200" placeholder="Ej: Revision equipos piso 3">
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-semibold">Descripción</label>
+                        <textarea class="form-control" th:field="*{descripcion}" rows="3" placeholder="Detalle de la actividad..."></textarea>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6" th:unless="${esTecnico}">
+                            <label class="form-label fw-semibold">Técnico asignado <span class="cui-required-mark">*</span></label>
+                            <select class="form-select" th:field="*{tecnicoId}" required>
+                                <option value="">Seleccionar...</option>
+                                <option th:each="t : ${tecnicos}" th:value="${t.idUsuario}" th:text="${t.nombre}"></option>
+                            </select>
+                        </div>
+                        <input type="hidden" th:if="${esTecnico}" name="tecnicoId" th:value="${idUsuarioActual}">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tipo de actividad <span class="cui-required-mark">*</span></label>
+                            <select class="form-select" th:field="*{tipoActividad}" required id="selectTipo">
+                                <option value="">Seleccionar...</option>
+                                <option value="TAREA_DIARIA">Tarea diaria</option>
+                                <option value="TAREA_SEMANAL">Tarea semanal</option>
+                                <option value="MANTENIMIENTO_PROGRAMADO">Mantenimiento programado</option>
+                                <option value="VISITA_TECNICA">Visita tecnica</option>
+                                <option value="OBJETIVO_MENSUAL">Objetivo mensual</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="grupoObjetivo" hidden>
+                        <label class="form-label fw-semibold">Objetivo del mantenimiento <span class="cui-required-mark">*</span></label>
+                        <select class="form-select" id="selectObjetivo">
+                            <option value="EQUIPO">Equipo específico</option>
+                            <option value="FARMACIA">Farmacia completa (mantenimiento general)</option>
+                        </select>
+                    </div>
+                    <div id="grupoEquipo" hidden>
+                        <label class="form-label fw-semibold">Equipo <span class="cui-required-mark">*</span></label>
+                        <select class="form-select" th:field="*{fkEquipoId}" id="selectEquipo">
+                            <option value="">Seleccionar equipo...</option>
+                            <option th:each="e : ${equipos}" th:value="${e.idEquipo}"
+                                    th:text="${e.codigoSap + ' - ' + e.modelo + (e.serial != null ? ' (S/N: ' + e.serial + ')' : '')}"></option>
+                        </select>
+                    </div>
+                    <div id="grupoFarmacia" hidden>
+                        <label class="form-label fw-semibold">Farmacia <span class="cui-required-mark">*</span></label>
+                        <select class="form-select" th:field="*{fkUbicacionId}" id="selectFarmacia">
+                            <option value="">Seleccionar farmacia...</option>
+                            <option th:each="u : ${ubicaciones}" th:value="${u.idUbicacion}"
+                                    th:text="${u.nombre + (u.ciudad != null and !#strings.isEmpty(u.ciudad) ? ' - ' + u.ciudad : '')}"></option>
+                        </select>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Prioridad</label>
+                            <select class="form-select" th:field="*{prioridad}">
+                                <option value="BAJA">Baja</option>
+                                <option value="MEDIA" selected>Media</option>
+                                <option value="ALTA">Alta</option>
+                                <option value="URGENTE">Urgente</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tiempo estimado (min)</label>
+                            <input type="number" class="form-control" th:field="*{tiempoEstimadoMinutos}" min="0" placeholder="Ej: 60">
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Fecha inicio <span class="cui-required-mark">*</span></label>
+                            <input type="date" class="form-control" th:field="*{fechaInicio}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Fecha fin <span class="cui-required-mark">*</span></label>
+                            <input type="date" class="form-control" th:field="*{fechaFin}" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-semibold">Observaciones</label>
+                        <textarea class="form-control" th:field="*{observaciones}" rows="3" placeholder="Notas adicionales..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end pt-2">
+                        <a th:href="@{/planificacion}" class="cui-btn cui-btn-secondary">Cancelar</a>
+                        <button type="submit" class="cui-btn cui-btn-primary">
+                            <i class="feather-save" aria-hidden="true"></i>
+                            <span>Guardar actividad</span>
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="pf-group">
-                <label>Descripción</label>
-                <textarea th:field="*{descripcion}" placeholder="Detalle de la actividad..."></textarea>
-            </div>
-            <div class="pf-row">
-                <div class="pf-group" th:unless="${esTecnico}">
-                    <label>Técnico asignado *</label>
-                    <select th:field="*{tecnicoId}" required>
-                        <option value="">Seleccionar...</option>
-                        <option th:each="t : ${tecnicos}" th:value="${t.idUsuario}" th:text="${t.nombre}"></option>
-                    </select>
-                </div>
-                <input type="hidden" th:if="${esTecnico}" name="tecnicoId" th:value="${idUsuarioActual}">
-                <div class="pf-group">
-                    <label>Tipo de actividad *</label>
-                    <select th:field="*{tipoActividad}" required id="selectTipo">
-                        <option value="">Seleccionar...</option>
-                        <option value="TAREA_DIARIA">Tarea diaria</option>
-                        <option value="TAREA_SEMANAL">Tarea semanal</option>
-                        <option value="MANTENIMIENTO_PROGRAMADO">Mantenimiento programado</option>
-                        <option value="VISITA_TECNICA">Visita técnica</option>
-                        <option value="OBJETIVO_MENSUAL">Objetivo mensual</option>
-                    </select>
-                </div>
-            </div>
-            <div class="pf-group" id="grupoObjetivo" hidden>
-                <label>Objetivo del mantenimiento *</label>
-                <select id="selectObjetivo">
-                    <option value="EQUIPO">Equipo específico</option>
-                    <option value="FARMACIA">Farmacia completa (mantenimiento general)</option>
-                </select>
-            </div>
-            <div class="pf-group" id="grupoEquipo" hidden>
-                <label>Equipo *</label>
-                <select th:field="*{fkEquipoId}" id="selectEquipo">
-                    <option value="">Seleccionar equipo...</option>
-                    <option th:each="e : ${equipos}" th:value="${e.idEquipo}"
-                            th:text="${e.codigoSap + ' - ' + e.modelo + (e.serial != null ? ' (S/N: ' + e.serial + ')' : '')}"></option>
-                </select>
-            </div>
-            <div class="pf-group" id="grupoFarmacia" hidden>
-                <label>Farmacia *</label>
-                <select th:field="*{fkUbicacionId}" id="selectFarmacia">
-                    <option value="">Seleccionar farmacia...</option>
-                    <option th:each="u : ${ubicaciones}" th:value="${u.idUbicacion}"
-                            th:text="${u.nombre + (u.ciudad != null and !#strings.isEmpty(u.ciudad) ? ' - ' + u.ciudad : '')}"></option>
-                </select>
-            </div>
-            <div class="pf-row">
-                <div class="pf-group">
-                    <label>Prioridad</label>
-                    <select th:field="*{prioridad}">
-                        <option value="BAJA">Baja</option>
-                        <option value="MEDIA" selected>Media</option>
-                        <option value="ALTA">Alta</option>
-                        <option value="URGENTE">Urgente</option>
-                    </select>
-                </div>
-                <div class="pf-group">
-                    <label>Tiempo estimado (min)</label>
-                    <input type="number" th:field="*{tiempoEstimadoMinutos}" min="0" placeholder="Ej: 60">
-                </div>
-            </div>
-            <div class="pf-row">
-                <div class="pf-group">
-                    <label>Fecha inicio *</label>
-                    <input type="date" th:field="*{fechaInicio}" required>
-                </div>
-                <div class="pf-group">
-                    <label>Fecha fin *</label>
-                    <input type="date" th:field="*{fechaFin}" required>
-                </div>
-            </div>
-            <div class="pf-group">
-                <label>Observaciones</label>
-                <textarea th:field="*{observaciones}" placeholder="Notas adicionales..."></textarea>
-            </div>
-            <div class="pf-actions">
-                <a href="/planificacion" class="pf-btn pf-btn-cancel">Cancelar</a>
-                <button type="submit" class="pf-btn pf-btn-primary">💾 Guardar Actividad</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 <th:block layout:fragment="scripts">
