@@ -6,7 +6,6 @@ import lombok.Data;
 public class ActividadChecklistRequestDTO {
     private int idActividad;
     private String nombre;
-    private String categoria;
     private Integer orden;
     private Boolean estado;
 }

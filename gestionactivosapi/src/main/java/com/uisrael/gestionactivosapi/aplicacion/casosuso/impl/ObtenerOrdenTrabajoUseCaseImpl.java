@@ -73,7 +73,6 @@ public class ObtenerOrdenTrabajoUseCaseImpl implements IObtenerOrdenTrabajoUseCa
             OrdenActividadResponseDTO dto = new OrdenActividadResponseDTO();
             dto.setIdActividad(a.getIdActividad());
             dto.setNombre(a.getNombre());
-            dto.setCategoria(a.getCategoria());
             dto.setOrden(a.getOrden());
             dto.setRealizada(Boolean.TRUE.equals(realizadasMap.get(a.getIdActividad())));
             return dto;

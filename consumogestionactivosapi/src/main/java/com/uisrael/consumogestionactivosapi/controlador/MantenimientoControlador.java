@@ -553,7 +553,7 @@ public class MantenimientoControlador {
                     ActividadManualRequestDTO dto = new ActividadManualRequestDTO();
                     dto.setIdActividad(act.getIdActividad());
                     dto.setNombreActividad(act.getNombre());
-                    dto.setCategoriaActividad(act.getCategoria());
+                    dto.setCategoriaActividad(null);
                     dto.setRealizada(Boolean.FALSE);
                     return dto;
                 })
@@ -565,7 +565,7 @@ public class MantenimientoControlador {
             ActividadManualRequestDTO dto = new ActividadManualRequestDTO();
             dto.setIdActividad(act.getIdActividad());
             dto.setNombreActividad(act.getNombre());
-            dto.setCategoriaActividad(act.getCategoria());
+            dto.setCategoriaActividad(null);
             dto.setRealizada(actividadIds.contains(act.getIdActividad()));
             return dto;
         }).toList();

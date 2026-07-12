@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.DepartamentosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.RolesRequestDTO;
@@ -40,30 +41,28 @@ public class UsuariosControlador {
         List<UsuariosResponseDTO> contenidoBD = servicioUsuarios.listarUsuario();
         contenidoBD.sort(Comparator.comparing(UsuariosResponseDTO::getIdUsuario));
         model.addAttribute("listarusuarios", contenidoBD);
+        model.addAttribute("roles", servicioRoles.listarRol());
+        model.addAttribute("departamentos", servicioDepartamentos.listarDepartamentos());
         return "usuarios/listarUsuarios";
     }
 
+    /** El alta/edicion ahora se hace desde un drawer en el listado. */
     @GetMapping("/nuevo-usuario")
-    public String nuevoUsuario(Model model) {
-        model.addAttribute("nuevousuario", new UsuariosRequestDTO());
-        List<RolesResponseDTO> roles = servicioRoles.listarRol();
-        model.addAttribute("roles", roles);
-        List<DepartamentosResponseDTO> departamentos = servicioDepartamentos.listarDepartamentos();
-        model.addAttribute("departamentos", departamentos);
-        return "usuarios/nuevoUsuario";
+    public String nuevoUsuario() {
+        return "redirect:/usuarios";
+    }
+
+    /** El alta/edicion ahora se hace desde un drawer en el listado. */
+    @GetMapping("/editar-usuario/{id}")
+    public String editarUsuario() {
+        return "redirect:/usuarios";
     }
 
     @PostMapping
     public String guardarUsuario(@ModelAttribute UsuariosRequestDTO nuevousuario, @RequestParam Integer fkRolId,
-            @RequestParam Integer fkDepartamentoId, Model model) {
+            @RequestParam Integer fkDepartamentoId, RedirectAttributes redirectAttributes) {
         if (!CedulaEcuatorianaUtils.esValida(nuevousuario.getCedula())) {
-            model.addAttribute("errorGeneral", "La cédula debe ser ecuatoriana válida de 10 dígitos");
-            model.addAttribute("nuevousuario", nuevousuario);
-            List<RolesResponseDTO> roles = servicioRoles.listarRol();
-            model.addAttribute("roles", roles);
-            List<DepartamentosResponseDTO> departamentos = servicioDepartamentos.listarDepartamentos();
-            model.addAttribute("departamentos", departamentos);
-            return nuevousuario.getIdUsuario() > 0 ? "usuarios/editarUsuario" : "usuarios/nuevoUsuario";
+            return error(redirectAttributes, "La cédula debe ser ecuatoriana válida de 10 dígitos");
         }
 
         try {
@@ -77,64 +76,30 @@ public class UsuariosControlador {
 
             if (nuevousuario.getIdUsuario() > 0) {
                 servicioUsuarios.actualizarUsuario(nuevousuario.getIdUsuario(), nuevousuario);
+                redirectAttributes.addFlashAttribute("success", "Usuario actualizado correctamente.");
             } else {
                 servicioUsuarios.nuevoUsuario(nuevousuario);
+                redirectAttributes.addFlashAttribute("success", "Usuario creado correctamente.");
             }
-            return "redirect:/usuarios";
         } catch (BackendException e) {
-            model.addAttribute("errorGeneral", e.getMessage());
-            model.addAttribute("nuevousuario", nuevousuario);
-            List<RolesResponseDTO> roles = servicioRoles.listarRol();
-            model.addAttribute("roles", roles);
-            List<DepartamentosResponseDTO> departamentos = servicioDepartamentos.listarDepartamentos();
-            model.addAttribute("departamentos", departamentos);
-            return nuevousuario.getIdUsuario() > 0 ? "usuarios/editarUsuario" : "usuarios/nuevoUsuario";
+            return error(redirectAttributes, e.getMessage());
         }
+
+        return "redirect:/usuarios";
     }
 
-    @GetMapping("/editar-usuario/{id}")
-    public String editarUsuario(@PathVariable Integer id, Model model) {
-        UsuariosResponseDTO usuarioResponse = servicioUsuarios.obtenerUsuario(id);
-
-        UsuariosRequestDTO usuarioRequest = new UsuariosRequestDTO();
-        usuarioRequest.setIdUsuario(usuarioResponse.getIdUsuario());
-        usuarioRequest.setNombre(usuarioResponse.getNombre());
-        usuarioRequest.setCedula(usuarioResponse.getCedula());
-        usuarioRequest.setCorreo(usuarioResponse.getCorreo());
-        usuarioRequest.setEstado(usuarioResponse.isEstado());
-
-        if (usuarioResponse.getFkRol() != null) {
-            RolesRequestDTO rol = new RolesRequestDTO();
-            rol.setIdRol(usuarioResponse.getFkRol().getIdRol());
-            rol.setNombre(usuarioResponse.getFkRol().getNombre());
-            usuarioRequest.setFkRol(rol);
-        }
-
-        if (usuarioResponse.getFkDepartamento() != null) {
-            DepartamentosRequestDTO departamento = new DepartamentosRequestDTO();
-            departamento.setIdDepartamento(usuarioResponse.getFkDepartamento().getIdDepartamento());
-            departamento.setNombre(usuarioResponse.getFkDepartamento().getNombre());
-            usuarioRequest.setFkDepartamento(departamento);
-        }
-
-        List<RolesResponseDTO> roles = servicioRoles.listarRol();
-        List<DepartamentosResponseDTO> departamentos = servicioDepartamentos.listarDepartamentos();
-        model.addAttribute("nuevousuario", usuarioRequest);
-        model.addAttribute("roles", roles);
-        model.addAttribute("departamentos", departamentos);
-        return "usuarios/editarUsuario";
+    private String error(RedirectAttributes redirectAttributes, String mensaje) {
+        redirectAttributes.addFlashAttribute("error", mensaje);
+        return "redirect:/usuarios";
     }
 
     @PostMapping("/eliminar/{id}")
-    public String eliminarUsuario(@PathVariable Integer id, Model model) {
+    public String eliminarUsuario(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         try {
             servicioUsuarios.eliminarUsuario(id);
-            return "redirect:/usuarios";
         } catch (BackendException e) {
-            List<UsuariosResponseDTO> contenidoBD = servicioUsuarios.listarUsuario();
-            model.addAttribute("listarusuarios", contenidoBD);
-            model.addAttribute("errorEliminar", e.getMessage());
-            return "usuarios/listarUsuarios";
+            redirectAttributes.addFlashAttribute("errorEliminar", e.getMessage());
         }
+        return "redirect:/usuarios";
     }
 }

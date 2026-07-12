@@ -67,6 +67,7 @@ public class CategoriaEquiposUseCaseImpl implements ICategoriaEquiposUseCase {
 	}
 
 	@Override
+	@CacheEvict(value = "categorias", allEntries = true)
 	public void eliminar(int id) {
 		CategoriaEquipos categoria = categoriaRepositorio.buscarPorId(id)
 			.orElseThrow(() -> new RecursoNoEncontradoException("Categoría no encontrada con ID: " + id));

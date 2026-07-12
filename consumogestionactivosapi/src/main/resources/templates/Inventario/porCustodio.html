@@ -4,87 +4,63 @@
 	layout:decorate="~{plantilla/plantillaui}">
 
 <head>
+<meta charset="utf-8">
 <title>Inventario por Custodio</title>
 </head>
 
 <body>
 	<div layout:fragment="contenidopaginas">
+	<div class="cui-page">
+		<div th:replace="~{fragments/shell/page-header :: pageHeader(title='Inventario por custodio', subtitle='Equipos asignados agrupados por custodio, via custodias activas.')}"></div>
 
-		<div class="page-header">
-			<div class="page-header-left d-flex align-items-center">
-				<div class="page-header-title">
-					<h5 class="m-b-10">Inventario por Custodio</h5>
-				</div>
-				<ul class="breadcrumb">
-					<li class="breadcrumb-item"><a th:href="@{/inicio}">Inicio</a></li>
-					<li class="breadcrumb-item">Inventario</li>
-					<li class="breadcrumb-item">Por Custodio</li>
-				</ul>
-			</div>
-			<div class="page-header-right ms-auto">
-				<span class="badge bg-primary fs-6">
-					Total equipos asignados: <span th:text="${totalEquipos}">0</span>
-				</span>
-			</div>
+		<div th:if="${#maps.isEmpty(agrupado)}">
+			<div th:replace="~{fragments/components/empty-state :: empty(icon='feather-inbox', title='Sin equipos asignados', message='No hay equipos asignados en custodias activas.')}"></div>
 		</div>
 
-		<div class="main-content">
-			<div class="row">
-				<div class="col-lg-12" th:each="entry : ${agrupado}">
-					<div class="card stretch stretch-full mb-4">
-						<div class="card-header d-flex justify-content-between align-items-center">
-							<h5 class="card-title mb-0">
-								<i class="feather-user me-2"></i>
-								<span th:text="${entry.key}">Custodio</span>
-							</h5>
-							<span class="badge bg-soft-primary text-primary fs-6"
-								th:text="${conteo[entry.key]} + ' equipo(s)'">0 equipo(s)</span>
-						</div>
-						<div class="card-body p-0">
-							<div class="table-responsive">
-								<table class="table table-hover mb-0">
-									<thead>
-										<tr>
-											<th>#</th>
-											<th>Código</th>
-											<th>Categoría</th>
-											<th>Marca</th>
-											<th>Modelo</th>
-											<th>Serial</th>
-											<th>Departamento</th>
-											<th>Sucursal</th>
-											<th>Estado</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr th:each="c, iter : ${entry.value}">
-											<td th:text="${iter.count}">1</td>
-											<td th:text="${c.fkEquipo?.codigoSap ?: 'N/A'}">COD</td>
-											<td th:text="${c.fkEquipo?.fkCategoria?.nombre ?: 'N/A'}">Cat</td>
-											<td th:text="${c.fkEquipo?.fkMarca?.nombre ?: 'N/A'}">Marca</td>
-											<td th:text="${c.fkEquipo?.modelo ?: 'N/A'}">Modelo</td>
-											<td th:text="${c.fkEquipo?.serial ?: 'N/A'}">Serial</td>
-											<td th:text="${c.fkCustodio?.fkDepartamento?.nombre ?: 'N/A'}">Depto</td>
-											<td th:text="${c.fkCustodio?.fkUbicacion?.nombre ?: 'N/A'}">Sucursal</td>
-											<td>
-												<span class="badge"
-													th:classappend="${c.fkEquipo?.estadoEquipo == 'BUENO'} ? 'bg-soft-success text-success' : (${c.fkEquipo?.estadoEquipo == 'MALO'} ? 'bg-soft-danger text-danger' : 'bg-soft-warning text-warning')"
-													th:text="${c.fkEquipo?.estadoEquipo ?: 'N/A'}">BUENO</span>
-											</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-				</div>
+		<section class="cui-card mb-3" th:each="entry : ${agrupado}">
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h2 class="d-flex align-items-center gap-2 mb-0" style="font-size:16px">
+					<i class="feather-user" aria-hidden="true"></i>
+					<span th:text="${entry.key}">Custodio</span>
+				</h2>
+				<span class="cui-badge cui-badge-info" th:text="${conteo[entry.key]} + ' equipo(s)'">0 equipo(s)</span>
 			</div>
-
-			<div th:if="${#maps.isEmpty(agrupado)}" class="text-center py-5">
-				<i class="feather-inbox" style="font-size: 48px; color: #ccc;"></i>
-				<p class="text-muted mt-3">No hay equipos asignados en custodias activas.</p>
+			<div class="table-responsive">
+				<table class="table cui-table mb-0">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Código</th>
+							<th>Categoría</th>
+							<th>Marca</th>
+							<th>Modelo</th>
+							<th>Serial</th>
+							<th>Departamento</th>
+							<th>Sucursal</th>
+							<th>Estado</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="c, iter : ${entry.value}">
+							<td th:text="${iter.count}">1</td>
+							<td th:text="${c.fkEquipo?.codigoSap ?: 'N/A'}">COD</td>
+							<td th:text="${c.fkEquipo?.fkCategoria?.nombre ?: 'N/A'}">Cat</td>
+							<td th:text="${c.fkEquipo?.fkMarca?.nombre ?: 'N/A'}">Marca</td>
+							<td th:text="${c.fkEquipo?.modelo ?: 'N/A'}">Modelo</td>
+							<td th:text="${c.fkEquipo?.serial ?: 'N/A'}">Serial</td>
+							<td th:text="${c.fkCustodio?.fkDepartamento?.nombre ?: 'N/A'}">Depto</td>
+							<td th:text="${c.fkCustodio?.fkUbicacion?.nombre ?: 'N/A'}">Sucursal</td>
+							<td>
+								<span class="cui-badge"
+									th:classappend="${c.fkEquipo?.estadoEquipo == 'BUENO'} ? ' cui-badge-success' : (${c.fkEquipo?.estadoEquipo == 'MALO'} ? ' cui-badge-danger' : ' cui-badge-warning')"
+									th:text="${c.fkEquipo?.estadoEquipo ?: 'N/A'}">BUENO</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
-		</div>
+		</section>
+	</div>
 	</div>
 </body>
 </html>

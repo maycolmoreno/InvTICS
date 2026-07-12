@@ -70,7 +70,6 @@ public class ActividadChecklistControlador {
         return ActividadChecklistResponseDTO.builder()
                 .idActividad(act.getIdActividad())
                 .nombre(act.getNombre())
-                .categorias(act.getCategoria() != null ? List.of(act.getCategoria()) : List.of())
                 .orden(act.getOrden())
                 .estado(act.isEstado())
                 .build();
@@ -79,7 +78,6 @@ public class ActividadChecklistControlador {
     private ActividadChecklist toDomain(ActividadChecklistRequestDTO dto) {
         ActividadChecklist act = new ActividadChecklist();
         act.setNombre(dto.nombre());
-        act.setCategoria(dto.categoria());
         act.setOrden(dto.orden());
         act.setEstado(dto.estado() != null ? dto.estado() : true);
         return act;

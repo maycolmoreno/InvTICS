@@ -15,12 +15,14 @@
                 <h1>Roles y permisos</h1>
                 <p>Catalogo de perfiles y alcance funcional del sistema.</p>
             </div>
-            <a th:href="@{/roles/nuevo-rol}" class="cui-btn cui-btn-primary">
+            <button type="button" class="cui-btn cui-btn-primary" data-action="rol-nuevo" data-cui-drawer-open="#drawerRol">
                 <i class="feather-plus-circle" aria-hidden="true"></i>
                 <span>Nuevo rol</span>
-            </a>
+            </button>
         </section>
 
+        <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
         <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorEliminar}">
             <strong>Error:</strong> <span th:text="${errorEliminar}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
@@ -60,7 +62,11 @@
                             </td>
                         </tr>
                         <tr th:each="rol : ${listarroles}" data-cui-grid-row
-                            th:attr="data-search=${#strings.toLowerCase(rol.nombre)},data-estado=${rol.estado ? 'activo' : 'inactivo'}">
+                            th:attr="data-search=${#strings.toLowerCase(rol.nombre)},
+                                     data-estado=${rol.estado ? 'activo' : 'inactivo'},
+                                     data-id-rol=${rol.idRol},
+                                     data-nombre=${rol.nombre ?: ''},
+                                     data-estado-activo=${rol.estado}">
                             <td><span class="cui-row-title" th:text="${rol.idRol}">1</span></td>
                             <td th:text="${rol.nombre}">Administrador</td>
                             <td>
@@ -68,16 +74,16 @@
                             </td>
                             <td>
                                 <div class="cui-action-cell">
-                                    <a th:href="@{/roles/permisos/{id}(id=${rol.idRol})}" class="btn btn-outline-primary btn-sm">Permisos</a>
+                                    <a th:href="@{/roles/permisos/{id}(id=${rol.idRol})}" class="cui-btn cui-btn-secondary cui-btn-sm">Permisos</a>
                                     <div class="dropdown cui-action-menu">
-                                        <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                        <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                                             <i class="feather-more-vertical" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
-                                            <a class="dropdown-item" th:href="@{/roles/editar-rol/{id}(id=${rol.idRol})}">
+                                            <button type="button" class="dropdown-item" data-action="rol-editar" data-cui-drawer-open="#drawerRol">
                                                 <i class="feather-edit-2" aria-hidden="true"></i>
                                                 Editar
-                                            </a>
+                                            </button>
                                             <form th:if="${rol.estado}" th:action="@{/roles/eliminar/{id}(id=${rol.idRol})}" method="post">
                                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                                 <button type="submit" class="cui-document-action text-danger" data-cui-confirm="Seguro que deseas desactivar este rol?">
@@ -98,7 +104,96 @@
                 </div>
             </div>
         </section>
+
+        <!-- Drawer: Nuevo / Editar rol -->
+        <aside class="cui-drawer" id="drawerRol" aria-hidden="true" aria-label="Rol">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold" id="drawerRolTitulo">Nuevo rol</div>
+                    <div class="small text-muted">Configura un rol base para ordenar menus, permisos y responsabilidades.</div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form id="formRol" th:action="@{/roles}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="idRol" value="0">
+
+                    <div class="col-12">
+                        <label class="form-label">Nombre del rol <span class="cui-required-mark">*</span></label>
+                        <select class="form-select" name="nombre" id="rolNombreSelect" required>
+                            <option value="">Seleccione un rol</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Tecnico">Tecnico</option>
+                            <option value="Auditor">Auditor</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12" id="drawerRolEstadoWrap" hidden>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="estado" value="true" id="rolEstadoSwitch" checked>
+                            <label class="form-check-label" for="rolEstadoSwitch">Activo</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end gap-2 pt-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="cui-btn cui-btn-primary" type="submit">
+                            <i class="feather-save" aria-hidden="true"></i>
+                            <span>Guardar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
     </div>
 </div>
+
+<th:block layout:fragment="scripts">
+    <script>
+    (function () {
+        var form = document.getElementById('formRol');
+        var selNombre = document.getElementById('rolNombreSelect');
+        var drawerTitulo = document.getElementById('drawerRolTitulo');
+        var estadoWrap = document.getElementById('drawerRolEstadoWrap');
+
+        function setValue(name, value) {
+            var el = form.querySelector('[name="' + name + '"]');
+            if (el) el.value = value || '';
+        }
+
+        function abrirDrawerNuevo() {
+            form.reset();
+            setValue('idRol', '0');
+            selNombre.value = '';
+            drawerTitulo.textContent = 'Nuevo rol';
+            estadoWrap.hidden = true;
+        }
+
+        function abrirDrawerEditar(row) {
+            var d = row.dataset;
+            form.reset();
+            drawerTitulo.textContent = 'Editar rol';
+            setValue('idRol', d.idRol);
+            selNombre.value = d.nombre;
+            estadoWrap.hidden = false;
+            document.getElementById('rolEstadoSwitch').checked = d.estadoActivo === 'true';
+        }
+
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            if (btn.dataset.action === 'rol-nuevo') {
+                abrirDrawerNuevo();
+            } else if (btn.dataset.action === 'rol-editar') {
+                var row = btn.closest('tr');
+                if (row) abrirDrawerEditar(row);
+            }
+        });
+    })();
+    </script>
+</th:block>
 </body>
 </html>

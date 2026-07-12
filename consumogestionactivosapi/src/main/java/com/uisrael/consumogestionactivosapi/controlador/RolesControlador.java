@@ -38,47 +38,53 @@ public class RolesControlador {
 		return "roles/listarRoles";
 	}
 
+	/** El alta/edicion ahora se hace desde un drawer en el listado. */
 	@GetMapping("/nuevo-rol")
-	public String nuevoRol(Model model) {
-		model.addAttribute("nuevorol", new RolesRequestDTO());
-		return "roles/nuevoRol";
+	public String nuevoRol() {
+		return "redirect:/roles";
+	}
+
+	/** El alta/edicion ahora se hace desde un drawer en el listado. */
+	@GetMapping("/editar-rol/{id}")
+	public String editarRol() {
+		return "redirect:/roles";
 	}
 
 	@PostMapping
-	public String guardarRol(@ModelAttribute RolesRequestDTO nuevorol, Model model) {
+	public String guardarRol(@ModelAttribute RolesRequestDTO nuevorol, RedirectAttributes redirectAttributes) {
+		if (nuevorol.getNombre() == null || nuevorol.getNombre().trim().isEmpty()) {
+			return error(redirectAttributes, "El nombre es obligatorio");
+		}
+
 		try {
 			if (nuevorol.getIdRol() > 0) {
 				servicioRoles.actualizarRol(nuevorol.getIdRol(), nuevorol);
+				redirectAttributes.addFlashAttribute("success", "Rol actualizado correctamente.");
 			} else {
 				nuevorol.setEstado(true);
 				servicioRoles.nuevoRol(nuevorol);
+				redirectAttributes.addFlashAttribute("success", "Rol creado correctamente.");
 			}
-			return "redirect:/roles";
 		} catch (BackendException e) {
-			model.addAttribute("errorNombre", e.getMessage());
-			model.addAttribute("nuevorol", nuevorol);
-			return nuevorol.getIdRol() > 0 ? "roles/editarRol" : "roles/nuevoRol";
+			return error(redirectAttributes, e.getMessage());
 		}
+
+		return "redirect:/roles";
 	}
 
-	@GetMapping("/editar-rol/{id}")
-	public String editarRol(@PathVariable Integer id, Model model) {
-		RolesResponseDTO rol = servicioRoles.obtenerRol(id);
-		model.addAttribute("nuevorol", rol);
-		return "roles/editarRol";
+	private String error(RedirectAttributes redirectAttributes, String mensaje) {
+		redirectAttributes.addFlashAttribute("error", mensaje);
+		return "redirect:/roles";
 	}
 
 	@PostMapping("/eliminar/{id}")
-	public String eliminarRol(@PathVariable Integer id, Model model) {
+	public String eliminarRol(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
 		try {
 			servicioRoles.eliminarRol(id);
-			return "redirect:/roles";
 		} catch (BackendException e) {
-			List<RolesResponseDTO> contenidoBD = servicioRoles.listarRol();
-			model.addAttribute("listarroles", contenidoBD);
-			model.addAttribute("errorEliminar", e.getMessage());
-			return "roles/listarRoles";
+			redirectAttributes.addFlashAttribute("errorEliminar", e.getMessage());
 		}
+		return "redirect:/roles";
 	}
 
 	@GetMapping("/permisos/{id}")

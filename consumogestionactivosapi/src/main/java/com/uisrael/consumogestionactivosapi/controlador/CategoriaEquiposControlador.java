@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CategoriaEquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.CategoriaEquiposResponseDTO;
@@ -33,47 +34,53 @@ public class CategoriaEquiposControlador {
 		return "categorias_equipo/listarCategorias";
 	}
 
+	/** El alta/edicion ahora se hace desde un drawer en el listado. */
 	@GetMapping("/nueva-categoria")
-	public String nuevaCategoria(Model model) {
-		model.addAttribute("nuevacategoria", new CategoriaEquiposRequestDTO());
-		return "categorias_equipo/nuevaCategoria";
+	public String nuevaCategoria() {
+		return "redirect:/categorias-equipo";
+	}
+
+	/** El alta/edicion ahora se hace desde un drawer en el listado. */
+	@GetMapping("/editar-categoria/{id}")
+	public String editarCategoria() {
+		return "redirect:/categorias-equipo";
 	}
 
 	@PostMapping
-	public String guardarCategoria(@ModelAttribute CategoriaEquiposRequestDTO nuevacategoria, Model model) {
+	public String guardarCategoria(@ModelAttribute CategoriaEquiposRequestDTO nuevacategoria,
+			RedirectAttributes redirectAttributes) {
+		if (nuevacategoria.getNombre() == null || nuevacategoria.getNombre().trim().isEmpty()) {
+			return error(redirectAttributes, "El nombre es obligatorio");
+		}
+
 		try {
 			if (nuevacategoria.getIdCategoria() > 0) {
 				servicioCategoriaEquipos.actualizarCategoriaEquipo(nuevacategoria.getIdCategoria(), nuevacategoria);
+				redirectAttributes.addFlashAttribute("success", "Categoria actualizada correctamente.");
 			} else {
 				nuevacategoria.setEstado(true);
 				servicioCategoriaEquipos.nuevoCategoriaEquipo(nuevacategoria);
+				redirectAttributes.addFlashAttribute("success", "Categoria creada correctamente.");
 			}
-			return "redirect:/categorias-equipo";
 		} catch (BackendException e) {
-			model.addAttribute("errorNombre", e.getMessage());
-			model.addAttribute("nuevacategoria", nuevacategoria);
-			return nuevacategoria.getIdCategoria() > 0 ? "categorias_equipo/editarCategoria"
-					: "categorias_equipo/nuevaCategoria";
+			return error(redirectAttributes, e.getMessage());
 		}
+
+		return "redirect:/categorias-equipo";
 	}
 
-	@GetMapping("/editar-categoria/{id}")
-	public String editarCategoria(@PathVariable Integer id, Model model) {
-		CategoriaEquiposResponseDTO categoria = servicioCategoriaEquipos.obtenerCategoriaEquipo(id);
-		model.addAttribute("nuevacategoria", categoria);
-		return "categorias_equipo/editarCategoria";
+	private String error(RedirectAttributes redirectAttributes, String mensaje) {
+		redirectAttributes.addFlashAttribute("error", mensaje);
+		return "redirect:/categorias-equipo";
 	}
 
 	@PostMapping("/eliminar/{id}")
-	public String eliminarCategoria(@PathVariable Integer id, Model model) {
+	public String eliminarCategoria(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
 		try {
 			servicioCategoriaEquipos.eliminarCategoriaEquipo(id);
-			return "redirect:/categorias-equipo";
 		} catch (BackendException e) {
-			List<CategoriaEquiposResponseDTO> contenidoBD = servicioCategoriaEquipos.listarCategoriaEquipo();
-			model.addAttribute("listarcategorias", contenidoBD);
-			model.addAttribute("errorEliminar", e.getMessage());
-			return "categorias_equipo/listarCategorias";
+			redirectAttributes.addFlashAttribute("errorEliminar", e.getMessage());
 		}
+		return "redirect:/categorias-equipo";
 	}
 }

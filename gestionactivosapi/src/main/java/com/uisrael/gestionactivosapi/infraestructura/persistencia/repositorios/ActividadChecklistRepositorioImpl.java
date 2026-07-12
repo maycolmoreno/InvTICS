@@ -49,7 +49,6 @@ public class ActividadChecklistRepositorioImpl implements ActividadChecklistRepo
 		ActividadChecklist actividad = new ActividadChecklist();
 		actividad.setIdActividad(entity.getIdActividad());
 		actividad.setNombre(entity.getNombre());
-		actividad.setCategoria(null);
 		actividad.setOrden(entity.getOrden());
 		actividad.setEstado(Boolean.TRUE.equals(entity.getEstado()));
 		return actividad;

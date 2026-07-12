@@ -5,23 +5,22 @@
 <head>
 <meta charset="utf-8">
 <title>Ubicaciones</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
 <div layout:fragment="contenidopaginas">
-  <div class="page-shell admin-shell">
-    <section class="cui-admin-header">
-      <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
-        <div>
-          <div class="cui-data-grid-meta">Administracion / Ubicaciones</div>
-          <h1>Ubicaciones</h1>
-          <p>Sedes, agencias y referencias geograficas utilizadas por activos e inventario.</p>
-        </div>
-        <a th:href="@{/ubicaciones/nueva-ubicacion}" class="cui-btn cui-btn-primary">
-          <i class="feather-plus-circle"></i>
-          Agregar ubicacion
-        </a>
-      </div>
-    </section>
+  <div class="cui-page">
+    <div th:replace="~{fragments/shell/page-header :: pageHeader(title='Ubicaciones', subtitle='Sedes, agencias y referencias geograficas utilizadas por activos e inventario.')}"></div>
+
+    <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
+    <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
+
+    <div class="cui-command-bar">
+      <button type="button" class="cui-btn cui-btn-primary" data-action="ubicacion-nuevo" data-cui-drawer-open="#drawerUbicacion">
+        <i class="feather-plus-circle" aria-hidden="true"></i>
+        <span>Agregar ubicacion</span>
+      </button>
+    </div>
 
     <section class="cui-data-grid" data-cui-grid>
       <div class="cui-data-grid-header">
@@ -29,26 +28,9 @@
           <h2>Listado de ubicaciones</h2>
           <span class="cui-data-grid-meta" data-cui-grid-count>0 registros</span>
         </div>
-        <span class="badge text-bg-light">Configuracion</span>
       </div>
 
-      <div class="cui-data-grid-toolbar">
-        <label class="cui-search-control">
-          <i class="feather-search"></i>
-          <input type="search" class="form-control" placeholder="Buscar nombre, agencia, provincia o ciudad..." data-cui-grid-search>
-        </label>
-        <div class="cui-toolbar-actions">
-          <button type="button" class="btn btn-outline-secondary btn-sm" data-cui-filter-reset>
-            <i class="feather-rotate-ccw me-1"></i>Limpiar filtros
-          </button>
-          <button type="button" class="btn btn-outline-secondary btn-sm">
-            <i class="feather-columns me-1"></i>Columnas
-          </button>
-          <button type="button" class="btn btn-outline-secondary btn-sm">
-            <i class="feather-download me-1"></i>Exportar
-          </button>
-        </div>
-      </div>
+      <div th:replace="~{fragments/components/data-grid-toolbar :: toolbar(searchPlaceholder='Buscar nombre, agencia, provincia o ciudad...', exportHref=null)}"></div>
 
       <div class="cui-grid-filters">
         <select class="form-select form-select-sm" data-cui-grid-filter data-filter-key="provincia">
@@ -82,9 +64,20 @@
             <tbody>
             <tr th:each="ubicacion : ${listaubicacion}"
                 data-cui-grid-row
-                th:data-search="${((ubicacion.nombre != null ? ubicacion.nombre : '') + ' ' + (ubicacion.agencia != null ? ubicacion.agencia : '') + ' ' + (ubicacion.provincia != null ? ubicacion.provincia : '') + ' ' + (ubicacion.ciudad != null ? ubicacion.ciudad : '') + ' ' + (ubicacion.direccion != null ? ubicacion.direccion : '')).toLowerCase()}"
-                th:data-provincia="${ubicacion.provincia != null ? ubicacion.provincia : ''}"
-                th:data-estado="${ubicacion.estado ? 'activo' : 'inactivo'}">
+                th:attr="data-search=${#strings.toLowerCase((ubicacion.nombre ?: '') + ' ' + (ubicacion.agencia ?: '') + ' ' + (ubicacion.provincia ?: '') + ' ' + (ubicacion.ciudad ?: '') + ' ' + (ubicacion.direccion ?: ''))},
+                         data-provincia=${ubicacion.provincia ?: ''},
+                         data-estado=${ubicacion.estado ? 'activo' : 'inactivo'},
+                         data-id-ubicacion=${ubicacion.idUbicacion},
+                         data-nombre=${ubicacion.nombre ?: ''},
+                         data-agencia=${ubicacion.agencia ?: ''},
+                         data-departamento-id=${ubicacion.fkDepartamento != null ? ubicacion.fkDepartamento.idDepartamento : 0},
+                         data-ciudad=${ubicacion.ciudad ?: ''},
+                         data-parroquia=${ubicacion.parroquia ?: ''},
+                         data-direccion=${ubicacion.direccion ?: ''},
+                         data-latitud=${ubicacion.latitud ?: ''},
+                         data-longitud=${ubicacion.longitud ?: ''},
+                         data-link-coordenada=${ubicacion.linkCoordenada ?: ''},
+                         data-estado-activo=${ubicacion.estado}">
               <td>
                 <div class="cui-row-title" th:text="${ubicacion.nombre}">Ubicacion</div>
                 <div class="cui-row-subtitle" th:text="${ubicacion.agencia != null and !#strings.isEmpty(ubicacion.agencia) ? 'Agencia: ' + ubicacion.agencia : 'Sin agencia'}">Agencia</div>
@@ -104,9 +97,9 @@
               </td>
               <td>
                 <div class="cui-action-cell">
-                  <a th:href="@{/ubicaciones/editar-ubicacion/{id}(id=${ubicacion.idUbicacion})}" class="btn btn-outline-primary btn-sm">Editar</a>
+                  <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" data-action="ubicacion-editar" data-cui-drawer-open="#drawerUbicacion">Editar</button>
                   <div class="dropdown cui-action-menu">
-                    <button class="btn btn-light btn-sm cui-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                    <button class="cui-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                       <i class="feather-more-vertical"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -122,6 +115,7 @@
                       </li>
                       <li>
                         <form th:if="${ubicacion.estado}" th:action="@{/ubicaciones/eliminar-logico}" method="post">
+                          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                           <input type="hidden" name="idUbicacion" th:value="${ubicacion.idUbicacion}">
                           <button type="submit" class="cui-document-action text-danger" data-cui-confirm="Esta accion desactivara la ubicacion seleccionada.">
                             <i class="feather-slash"></i>Desactivar
@@ -146,7 +140,237 @@
         </div>
       </div>
     </section>
+
+    <!-- Drawer: Nueva / Editar ubicacion -->
+    <aside class="cui-drawer" id="drawerUbicacion" aria-hidden="true" aria-label="Ubicacion">
+      <div class="cui-drawer-header">
+        <div>
+          <div class="fw-bold" id="drawerUbicacionTitulo">Nueva ubicacion</div>
+          <div class="small text-muted">Registra la sede y sus coordenadas para asociarla a activos e inventario.</div>
+        </div>
+        <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+          <i class="feather-x"></i>
+        </button>
+      </div>
+      <div class="cui-drawer-body">
+        <form id="formUbicacion" th:action="@{/ubicaciones}" method="post" class="row g-3">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <input type="hidden" name="idUbicacion" value="0">
+
+          <div class="col-12">
+            <label class="form-label">Nombre <span class="cui-required-mark">*</span></label>
+            <input type="text" class="form-control" name="nombre" placeholder="Ej. Agencia Norte" maxlength="100">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Agencia <span class="cui-required-mark">*</span></label>
+            <input type="text" class="form-control" name="agencia" placeholder="Codigo o alias interno" maxlength="100">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Departamento <span class="cui-required-mark">*</span></label>
+            <div class="d-flex gap-2">
+              <select class="form-select" name="fkDepartamento.idDepartamento" id="cbdepartamentos">
+                <option value="0">Seleccione un departamento</option>
+                <option th:each="dep : ${listadepartamento}" th:value="${dep.idDepartamento}" th:text="${dep.nombre}"></option>
+              </select>
+              <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" title="Crear departamento" data-bs-toggle="modal" data-bs-target="#modalCrearDepartamento"><i class="feather-plus"></i></button>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <label class="form-label">Provincia</label>
+            <input type="text" class="form-control" name="provincia" placeholder="Provincia" maxlength="100">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Ciudad</label>
+            <input type="text" class="form-control" name="ciudad" placeholder="Ciudad" maxlength="100">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Parroquia</label>
+            <input type="text" class="form-control" name="parroquia" placeholder="Parroquia" maxlength="150">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Direccion</label>
+            <input type="text" class="form-control" name="direccion" placeholder="Direccion de referencia" maxlength="255">
+          </div>
+
+          <div class="col-6">
+            <label class="form-label">Latitud</label>
+            <input type="text" class="form-control" name="latitud" placeholder="Ej. -0.1807" maxlength="50" id="inputLatitud">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Longitud</label>
+            <input type="text" class="form-control" name="longitud" placeholder="Ej. -78.4678" maxlength="50" id="inputLongitud">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Enlace de coordenada</label>
+            <input type="text" class="form-control" name="linkCoordenada" placeholder="URL de Google Maps u otra referencia" maxlength="500">
+          </div>
+          <div class="col-12">
+            <div id="mapContainer" style="height:220px;border-radius:var(--cui-radius-md, 8px);overflow:hidden;"></div>
+          </div>
+
+          <div class="col-12" id="drawerUbicacionEstadoWrap" hidden>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" name="estado" value="true" id="ubicacionEstadoSwitch" checked>
+              <label class="form-check-label" for="ubicacionEstadoSwitch">Activa</label>
+            </div>
+          </div>
+
+          <div class="col-12 d-flex justify-content-end gap-2 pt-2">
+            <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+            <button class="cui-btn cui-btn-primary" type="submit">
+              <i class="feather-save" aria-hidden="true"></i>
+              <span>Guardar</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Modal Crear Departamento -->
+    <div class="modal fade" id="modalCrearDepartamento" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">Nuevo Departamento</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="modalDepNombre" maxlength="100" /></div>
+            <div class="text-danger small" id="modalDepError"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="cui-btn cui-btn-primary cui-btn-sm" id="btnCrearDep">Crear</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<th:block layout:fragment="scripts">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+  (function () {
+    document.querySelectorAll('.modal').forEach(function(m) { document.body.appendChild(m); });
+
+    var form = document.getElementById('formUbicacion');
+    var selDep = document.getElementById('cbdepartamentos');
+    var drawerTitulo = document.getElementById('drawerUbicacionTitulo');
+    var estadoWrap = document.getElementById('drawerUbicacionEstadoWrap');
+    var latInput = document.getElementById('inputLatitud');
+    var lngInput = document.getElementById('inputLongitud');
+    var map, marker;
+
+    function setValue(name, value) {
+      var el = form.querySelector('[name="' + name + '"]');
+      if (el) el.value = value || '';
+    }
+
+    function initMap(lat, lng) {
+      if (!map) {
+        map = L.map('mapContainer').setView([lat, lng], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+        map.on('click', function (e) {
+          latInput.value = e.latlng.lat.toFixed(6);
+          lngInput.value = e.latlng.lng.toFixed(6);
+          updateMarker(e.latlng.lat, e.latlng.lng);
+        });
+      } else {
+        map.setView([lat, lng], 15);
+      }
+      updateMarker(lat, lng);
+      setTimeout(function () { map.invalidateSize(); }, 150);
+    }
+
+    function updateMarker(lat, lng) {
+      if (marker) map.removeLayer(marker);
+      marker = L.marker([lat, lng]).addTo(map);
+    }
+
+    function tryShowMap() {
+      var lat = parseFloat(latInput.value);
+      var lng = parseFloat(lngInput.value);
+      if (isNaN(lat) || isNaN(lng)) {
+        lat = -0.1807;
+        lng = -78.4678;
+      }
+      initMap(lat, lng);
+    }
+
+    latInput.addEventListener('change', tryShowMap);
+    lngInput.addEventListener('change', tryShowMap);
+
+    function abrirDrawerNuevo() {
+      form.reset();
+      setValue('idUbicacion', '0');
+      selDep.value = '0';
+      drawerTitulo.textContent = 'Nueva ubicacion';
+      estadoWrap.hidden = true;
+      setTimeout(tryShowMap, 50);
+    }
+
+    function abrirDrawerEditar(row) {
+      var d = row.dataset;
+      form.reset();
+      drawerTitulo.textContent = 'Editar ubicacion';
+      setValue('idUbicacion', d.idUbicacion);
+      setValue('nombre', d.nombre);
+      setValue('agencia', d.agencia);
+      selDep.value = (d.departamentoId && d.departamentoId !== '0') ? d.departamentoId : '0';
+      setValue('ciudad', d.ciudad);
+      setValue('parroquia', d.parroquia);
+      setValue('direccion', d.direccion);
+      setValue('latitud', d.latitud);
+      setValue('longitud', d.longitud);
+      setValue('linkCoordenada', d.linkCoordenada);
+      estadoWrap.hidden = false;
+      document.getElementById('ubicacionEstadoSwitch').checked = d.estadoActivo === 'true';
+      setTimeout(tryShowMap, 50);
+    }
+
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      if (btn.dataset.action === 'ubicacion-nuevo') {
+        abrirDrawerNuevo();
+      } else if (btn.dataset.action === 'ubicacion-editar') {
+        var row = btn.closest('tr');
+        if (row) abrirDrawerEditar(row);
+      }
+    });
+
+    function ajaxCrear(url, body, errorElId, onOk, btnEl) {
+      var errorEl = document.getElementById(errorElId);
+      btnEl.disabled = true;
+      fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) {
+        if (r.status === 409) return r.json().then(function (d) { throw new Error(d.error || 'Ya existe'); });
+        if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Error'); });
+        return r.json();
+      })
+      .then(function (data) { onOk(data); })
+      .catch(function (e) { errorEl.textContent = e.message; })
+      .finally(function () { btnEl.disabled = false; });
+    }
+
+    document.getElementById('btnCrearDep').addEventListener('click', function () {
+      var n = document.getElementById('modalDepNombre').value.trim();
+      if (!n) { document.getElementById('modalDepError').textContent = 'El nombre es obligatorio'; return; }
+      ajaxCrear('/api/relaciones/departamentos', { nombre: n }, 'modalDepError', function (data) {
+        var opt = new Option(data.nombre, data.idDepartamento, true, true);
+        selDep.appendChild(opt);
+        bootstrap.Modal.getInstance(document.getElementById('modalCrearDepartamento')).hide();
+        document.getElementById('modalDepNombre').value = '';
+        document.getElementById('modalDepError').textContent = '';
+      }, this);
+    });
+  })();
+  </script>
+</th:block>
 </body>
 </html>

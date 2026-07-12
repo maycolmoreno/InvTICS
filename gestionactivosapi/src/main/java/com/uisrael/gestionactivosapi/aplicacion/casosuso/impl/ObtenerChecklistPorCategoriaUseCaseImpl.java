@@ -39,9 +39,6 @@ public class ObtenerChecklistPorCategoriaUseCaseImpl implements IObtenerChecklis
         if (actividad.getNombre() == null || actividad.getNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre de la actividad es obligatorio");
         }
-        if (actividad.getCategoria() == null || actividad.getCategoria().isBlank()) {
-            throw new IllegalArgumentException("La categoria es obligatoria");
-        }
         actividad.setEstado(true);
         return actividadChecklistRepository.guardar(actividad);
     }

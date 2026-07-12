@@ -2,16 +2,15 @@ package com.uisrael.consumogestionactivosapi.controlador;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.ActividadChecklistRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.ActividadChecklistResponseDTO;
@@ -29,67 +28,50 @@ public class ActividadChecklistControlador {
     @GetMapping
     public String listar(Model model) {
         List<ActividadChecklistResponseDTO> actividades = checklistServicio.listarActivas();
-        actividades.sort(Comparator
-                .comparing(ActividadChecklistResponseDTO::getCategoria, Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(ActividadChecklistResponseDTO::getOrden, Comparator.nullsLast(Comparator.naturalOrder())));
-
-        Map<String, List<ActividadChecklistResponseDTO>> porCategoria = actividades.stream()
-                .collect(Collectors.groupingBy(
-                        a -> a.getCategoria() != null ? a.getCategoria() : "Sin categoria",
-                        Collectors.toList()));
+        actividades.sort(Comparator.comparing(ActividadChecklistResponseDTO::getOrden,
+                Comparator.nullsLast(Comparator.naturalOrder())));
 
         model.addAttribute("actividades", actividades);
-        model.addAttribute("porCategoria", porCategoria);
-        model.addAttribute("totalActividades", actividades.size());
-        model.addAttribute("totalCategorias", porCategoria.size());
         return "checklist/listarChecklist";
     }
 
+    /** El alta/edicion ahora se hace desde un drawer en el listado. */
     @GetMapping("/nueva")
-    public String nueva(Model model) {
-        ActividadChecklistRequestDTO actividad = new ActividadChecklistRequestDTO();
-        actividad.setEstado(true);
-        actividad.setOrden(1);
-        model.addAttribute("actividad", actividad);
-        return "checklist/nuevaActividad";
+    public String nueva() {
+        return "redirect:/checklist";
     }
 
+    /** El alta/edicion ahora se hace desde un drawer en el listado. */
     @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Integer id, Model model) {
-        ActividadChecklistResponseDTO actividad = checklistServicio.obtenerPorId(id);
-        model.addAttribute("actividad", actividad);
-        return "checklist/editarActividad";
+    public String editar() {
+        return "redirect:/checklist";
     }
 
     @PostMapping
-    public String guardar(@ModelAttribute ActividadChecklistRequestDTO actividad, Model model) {
+    public String guardar(@ModelAttribute ActividadChecklistRequestDTO actividad, RedirectAttributes redirectAttributes) {
         if (actividad.getNombre() == null || actividad.getNombre().trim().isEmpty()) {
-            model.addAttribute("errorNombre", "El nombre es obligatorio");
-            model.addAttribute("actividad", actividad);
-            return formulario(actividad);
-        }
-        if (actividad.getCategoria() == null || actividad.getCategoria().trim().isEmpty()) {
-            model.addAttribute("errorCategoria", "La categoria es obligatoria");
-            model.addAttribute("actividad", actividad);
-            return formulario(actividad);
+            return error(redirectAttributes, "El nombre es obligatorio");
         }
 
         if (actividad.getIdActividad() > 0) {
             checklistServicio.actualizar(actividad.getIdActividad(), actividad);
+            redirectAttributes.addFlashAttribute("success", "Actividad actualizada correctamente.");
         } else {
             actividad.setEstado(true);
             checklistServicio.crear(actividad);
+            redirectAttributes.addFlashAttribute("success", "Actividad creada correctamente.");
         }
         return "redirect:/checklist";
     }
 
-    @PostMapping("/eliminar")
-    public String eliminar(@org.springframework.web.bind.annotation.RequestParam Integer idActividad) {
-        checklistServicio.eliminar(idActividad);
+    private String error(RedirectAttributes redirectAttributes, String mensaje) {
+        redirectAttributes.addFlashAttribute("error", mensaje);
         return "redirect:/checklist";
     }
 
-    private String formulario(ActividadChecklistRequestDTO actividad) {
-        return (actividad.getIdActividad() > 0) ? "checklist/editarActividad" : "checklist/nuevaActividad";
+    @PostMapping("/eliminar")
+    public String eliminar(@RequestParam Integer idActividad) {
+        checklistServicio.eliminar(idActividad);
+        return "redirect:/checklist";
     }
 }

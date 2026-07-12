@@ -15,12 +15,14 @@
                 <h1>Usuarios</h1>
                 <p>Consola empresarial para administrar cuentas, roles y disponibilidad.</p>
             </div>
-            <a th:href="@{/usuarios/nuevo-usuario}" class="cui-btn cui-btn-primary">
+            <button type="button" class="cui-btn cui-btn-primary" data-action="usuario-nuevo" data-cui-drawer-open="#drawerUsuario">
                 <i class="feather-plus-circle" aria-hidden="true"></i>
                 <span>Nuevo usuario</span>
-            </a>
+            </button>
         </section>
 
+        <div class="alert alert-success cui-alert" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-danger cui-alert" th:if="${error}" th:text="${error}"></div>
         <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorEliminar}">
             <strong>Error:</strong> <span th:text="${errorEliminar}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
@@ -67,7 +69,15 @@
                                      departamento=${usuario.fkDepartamento != null ? usuario.fkDepartamento.nombre : 'Sin departamento'},
                                      estadoFiltro=${usuario.estado ? 'activo' : 'inactivo'},
                                      busqueda=${(usuario.nombre ?: '') + ' ' + (usuario.correo ?: '') + ' ' + (usuario.cedula ?: '') + ' ' + rol + ' ' + departamento}"
-                            th:attr="data-search=${#strings.toLowerCase(busqueda)},data-estado=${estadoFiltro}">
+                            th:attr="data-search=${#strings.toLowerCase(busqueda)},
+                                     data-estado=${estadoFiltro},
+                                     data-id-usuario=${usuario.idUsuario},
+                                     data-nombre=${usuario.nombre ?: ''},
+                                     data-correo=${usuario.correo ?: ''},
+                                     data-cedula=${usuario.cedula ?: ''},
+                                     data-rol-id=${usuario.fkRol != null ? usuario.fkRol.idRol : 0},
+                                     data-departamento-id=${usuario.fkDepartamento != null ? usuario.fkDepartamento.idDepartamento : 0},
+                                     data-estado-activo=${usuario.estado}">
                             <td>
                                 <div class="cui-person-cell">
                                     <span class="cui-admin-avatar" th:text="${#strings.toUpperCase(usuario.nombre != null and usuario.nombre.length() >= 2 ? usuario.nombre.substring(0,2) : (usuario.nombre != null ? usuario.nombre : 'US'))}">US</span>
@@ -85,10 +95,10 @@
                             </td>
                             <td>
                                 <div class="cui-action-cell">
-                                    <a th:href="@{/usuarios/editar-usuario/{id}(id=${usuario.idUsuario})}" class="btn btn-outline-primary btn-sm">Editar</a>
+                                    <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" data-action="usuario-editar" data-cui-drawer-open="#drawerUsuario">Editar</button>
                                     <form th:if="${usuario.estado}" th:action="@{/usuarios/eliminar/{id}(id=${usuario.idUsuario})}" method="post">
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" data-cui-confirm="Seguro que deseas desactivar este usuario?">
+                                        <button type="submit" class="cui-btn cui-btn-danger cui-btn-sm" data-cui-confirm="Seguro que deseas desactivar este usuario?">
                                             Desactivar
                                         </button>
                                     </form>
@@ -103,7 +113,355 @@
                 </div>
             </div>
         </section>
+
+        <!-- Drawer: Nuevo / Editar usuario -->
+        <aside class="cui-drawer" id="drawerUsuario" aria-hidden="true" aria-label="Usuario">
+            <div class="cui-drawer-header">
+                <div>
+                    <div class="fw-bold" id="drawerUsuarioTitulo">Nuevo usuario</div>
+                    <div class="small text-muted">Registra una identidad interna con rol, departamento y credenciales alineadas al uso real del sistema.</div>
+                </div>
+                <button type="button" class="cui-icon-button" data-cui-drawer-close aria-label="Cerrar panel">
+                    <i class="feather-x"></i>
+                </button>
+            </div>
+            <div class="cui-drawer-body">
+                <form id="formUsuario" th:action="@{/usuarios}" method="post" class="row g-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="idUsuario" value="0">
+                    <input type="hidden" name="estado" id="usuarioEstadoHidden" value="true">
+
+                    <div class="col-12">
+                        <label class="form-label">Nombre completo <span class="cui-required-mark">*</span></label>
+                        <input type="text" class="form-control" name="nombre" placeholder="Ej. Juan Perez" required minlength="3" maxlength="50"
+                               pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo letras y espacios, maximo 50 caracteres.">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Correo institucional <span class="cui-required-mark">*</span></label>
+                        <input type="email" class="form-control" name="correo" placeholder="usuario@empresa.com" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Cedula <span class="cui-required-mark">*</span></label>
+                        <input type="text" class="form-control" name="cedula" placeholder="10 digitos" required minlength="10" maxlength="10"
+                               inputmode="numeric" pattern="\d{10}" title="Ingrese una cedula valida de 10 digitos.">
+                    </div>
+                    <div class="col-12" id="drawerUsuarioPasswordWrap">
+                        <label class="form-label" id="drawerUsuarioPasswordLabel">Contrasena inicial <span class="cui-required-mark">*</span></label>
+                        <input type="password" class="form-control" name="contrasena" id="usuarioContrasena" placeholder="Minimo 8 caracteres" minlength="8"
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$" title="Debe incluir mayusculas, minusculas y numeros.">
+                        <small class="text-muted" id="drawerUsuarioPasswordHint" hidden>Deja en blanco para no cambiar la clave actual.</small>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Rol <span class="cui-required-mark">*</span></label>
+                        <div class="d-flex gap-2">
+                            <select class="form-select" id="selRol" name="fkRolId" required>
+                                <option value="">Seleccione un rol</option>
+                                <option th:each="rol : ${roles}" th:if="${rol.estado}" th:value="${rol.idRol}" th:text="${rol.nombre}"></option>
+                            </select>
+                            <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" title="Crear rol" data-bs-toggle="modal" data-bs-target="#modalCrearRol"><i class="feather-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Departamento <span class="cui-required-mark">*</span></label>
+                        <div class="d-flex gap-2">
+                            <select class="form-select" id="selDepartamento" name="fkDepartamentoId" required>
+                                <option value="">Seleccione un departamento</option>
+                                <option th:each="departamento : ${departamentos}" th:if="${departamento.estado}" th:value="${departamento.idDepartamento}" th:text="${departamento.nombre}"></option>
+                            </select>
+                            <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" title="Crear departamento" data-bs-toggle="modal" data-bs-target="#modalCrearDepartamento"><i class="feather-plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="col-12" id="drawerUsuarioEstadoWrap" hidden>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="usuarioEstadoSwitch" checked>
+                            <label class="form-check-label" for="usuarioEstadoSwitch">Activo</label>
+                        </div>
+                    </div>
+
+                    <!-- Modulos del Rol -->
+                    <div class="col-12" id="modulosCard" hidden>
+                        <hr>
+                        <h6 class="mb-1">Modulos asignados al rol</h6>
+                        <p class="small text-muted">Selecciona los modulos que tendra disponible este rol. Los cambios aplican a <strong>todos los usuarios</strong> con el mismo rol.</p>
+
+                        <div id="modulosLoading" class="text-center py-3" hidden>
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <span class="ms-2 text-muted">Cargando modulos...</span>
+                        </div>
+
+                        <div id="modulosGrid" class="row g-2"></div>
+
+                        <div id="modulosVacio" class="text-muted small py-2" hidden>
+                            No hay modulos configurados en el sistema.
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted" id="modulosContador"></small>
+                            <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" id="btnGuardarModulos" hidden>
+                                <i class="feather-save me-1"></i>Guardar permisos del rol
+                            </button>
+                        </div>
+                        <div class="text-success small mt-2" id="modulosExito" hidden></div>
+                        <div class="text-danger small mt-2" id="modulosError" hidden></div>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end gap-2 pt-2">
+                        <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
+                        <button class="cui-btn cui-btn-primary" type="submit">
+                            <i class="feather-save" aria-hidden="true"></i>
+                            <span>Guardar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Modal Crear Rol -->
+        <div class="modal fade" id="modalCrearRol" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">Nuevo Rol</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="modalRolNombre" maxlength="100" /></div>
+                        <div class="text-danger small" id="modalRolError"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="cui-btn cui-btn-primary cui-btn-sm" id="btnCrearRol">Crear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Crear Departamento -->
+        <div class="modal fade" id="modalCrearDepartamento" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">Nuevo Departamento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="modalDepNombre" maxlength="100" /></div>
+                        <div class="text-danger small" id="modalDepError"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="cui-btn cui-btn-primary cui-btn-sm" id="btnCrearDep">Crear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<th:block layout:fragment="scripts">
+    <script>
+    (function () {
+        document.querySelectorAll('.modal').forEach(function(m) { document.body.appendChild(m); });
+
+        var form = document.getElementById('formUsuario');
+        var selRol = document.getElementById('selRol');
+        var selDep = document.getElementById('selDepartamento');
+        var drawerTitulo = document.getElementById('drawerUsuarioTitulo');
+        var estadoWrap = document.getElementById('drawerUsuarioEstadoWrap');
+        var estadoSwitch = document.getElementById('usuarioEstadoSwitch');
+        var estadoHidden = document.getElementById('usuarioEstadoHidden');
+        var contrasenaInput = document.getElementById('usuarioContrasena');
+        var passwordLabel = document.getElementById('drawerUsuarioPasswordLabel');
+        var passwordHint = document.getElementById('drawerUsuarioPasswordHint');
+
+        function setValue(name, value) {
+            var el = form.querySelector('[name="' + name + '"]');
+            if (el) el.value = value || '';
+        }
+
+        estadoSwitch.addEventListener('change', function () {
+            estadoHidden.value = estadoSwitch.checked ? 'true' : 'false';
+        });
+
+        function abrirDrawerNuevo() {
+            form.reset();
+            setValue('idUsuario', '0');
+            selRol.value = '';
+            selDep.value = '';
+            drawerTitulo.textContent = 'Nuevo usuario';
+            estadoWrap.hidden = true;
+            estadoHidden.value = 'true';
+            contrasenaInput.required = true;
+            passwordLabel.innerHTML = 'Contrasena inicial <span class="cui-required-mark">*</span>';
+            passwordHint.hidden = true;
+            modulosCard.hidden = true;
+        }
+
+        function abrirDrawerEditar(row) {
+            var d = row.dataset;
+            form.reset();
+            drawerTitulo.textContent = 'Editar usuario';
+            setValue('idUsuario', d.idUsuario);
+            setValue('nombre', d.nombre);
+            setValue('correo', d.correo);
+            setValue('cedula', d.cedula);
+            selRol.value = (d.rolId && d.rolId !== '0') ? d.rolId : '';
+            selDep.value = (d.departamentoId && d.departamentoId !== '0') ? d.departamentoId : '';
+            estadoWrap.hidden = false;
+            estadoSwitch.checked = d.estadoActivo === 'true';
+            estadoHidden.value = estadoSwitch.checked ? 'true' : 'false';
+            contrasenaInput.required = false;
+            passwordLabel.textContent = 'Nueva contrasena';
+            passwordHint.hidden = false;
+            if (selRol.value) cargarModulos(selRol.value);
+        }
+
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            if (btn.dataset.action === 'usuario-nuevo') {
+                abrirDrawerNuevo();
+            } else if (btn.dataset.action === 'usuario-editar') {
+                var row = btn.closest('tr');
+                if (row) abrirDrawerEditar(row);
+            }
+        });
+
+        function ajaxCrear(url, body, errorElId, onOk, btnEl) {
+            var errorEl = document.getElementById(errorElId);
+            btnEl.disabled = true;
+            fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+            .then(function (r) {
+                if (r.status === 409) return r.json().then(function (d) { throw new Error(d.error || 'Ya existe'); });
+                if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Error'); });
+                return r.json();
+            })
+            .then(function (data) { onOk(data); })
+            .catch(function (e) { errorEl.textContent = e.message; })
+            .finally(function () { btnEl.disabled = false; });
+        }
+
+        document.getElementById('btnCrearRol').addEventListener('click', function () {
+            var n = document.getElementById('modalRolNombre').value.trim();
+            if (!n) { document.getElementById('modalRolError').textContent = 'El nombre es obligatorio'; return; }
+            ajaxCrear('/api/relaciones/roles', { nombre: n }, 'modalRolError', function (data) {
+                var opt = new Option(data.nombre, data.idRol, true, true);
+                selRol.appendChild(opt);
+                selRol.dispatchEvent(new Event('change'));
+                bootstrap.Modal.getInstance(document.getElementById('modalCrearRol')).hide();
+                document.getElementById('modalRolNombre').value = '';
+                document.getElementById('modalRolError').textContent = '';
+            }, this);
+        });
+
+        document.getElementById('btnCrearDep').addEventListener('click', function () {
+            var n = document.getElementById('modalDepNombre').value.trim();
+            if (!n) { document.getElementById('modalDepError').textContent = 'El nombre es obligatorio'; return; }
+            ajaxCrear('/api/relaciones/departamentos', { nombre: n }, 'modalDepError', function (data) {
+                var opt = new Option(data.nombre, data.idDepartamento, true, true);
+                selDep.appendChild(opt);
+                bootstrap.Modal.getInstance(document.getElementById('modalCrearDepartamento')).hide();
+                document.getElementById('modalDepNombre').value = '';
+                document.getElementById('modalDepError').textContent = '';
+            }, this);
+        });
+
+        // ── Modulos por Rol ─────────────────────────────────────
+        var modulosCard = document.getElementById('modulosCard');
+        var modulosGrid = document.getElementById('modulosGrid');
+        var modulosLoading = document.getElementById('modulosLoading');
+        var modulosVacio = document.getElementById('modulosVacio');
+        var modulosContador = document.getElementById('modulosContador');
+        var btnGuardarModulos = document.getElementById('btnGuardarModulos');
+        var modulosExito = document.getElementById('modulosExito');
+        var modulosError = document.getElementById('modulosError');
+        var rolIdActual = null;
+
+        function cargarModulos(rolId) {
+            modulosExito.hidden = true;
+            modulosError.hidden = true;
+            if (!rolId) {
+                modulosCard.hidden = true;
+                return;
+            }
+            rolIdActual = rolId;
+            modulosCard.hidden = false;
+            modulosGrid.innerHTML = '';
+            modulosVacio.hidden = true;
+            btnGuardarModulos.hidden = true;
+            modulosLoading.hidden = false;
+            modulosContador.textContent = '';
+
+            fetch('/api/relaciones/modulos-por-rol/' + rolId)
+                .then(function (r) { return r.json(); })
+                .then(function (modulos) {
+                    modulosLoading.hidden = true;
+                    if (!modulos || modulos.length === 0) {
+                        modulosVacio.hidden = false;
+                        return;
+                    }
+                    modulos.sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
+                    modulos.forEach(function (m) {
+                        var col = document.createElement('div');
+                        col.className = 'col-6';
+                        col.innerHTML =
+                            '<label class="d-flex align-items-center gap-2 p-2 rounded border modulo-check-label">' +
+                                '<input type="checkbox" class="form-check-input m-0 modulo-cb" value="' + m.idModulo + '"' + (m.asignado ? ' checked' : '') + '>' +
+                                '<i class="' + (m.icono || 'feather-box') + '"></i>' +
+                                '<span class="small">' + m.nombre + '</span>' +
+                            '</label>';
+                        modulosGrid.appendChild(col);
+                    });
+                    btnGuardarModulos.hidden = false;
+                    actualizarContador();
+                    modulosGrid.addEventListener('change', actualizarContador);
+                })
+                .catch(function () {
+                    modulosLoading.hidden = true;
+                    modulosVacio.textContent = 'Error al cargar modulos.';
+                    modulosVacio.hidden = false;
+                });
+        }
+
+        function actualizarContador() {
+            var total = modulosGrid.querySelectorAll('.modulo-cb').length;
+            var seleccionados = modulosGrid.querySelectorAll('.modulo-cb:checked').length;
+            modulosContador.textContent = seleccionados + ' de ' + total + ' modulos seleccionados';
+        }
+
+        selRol.addEventListener('change', function () { cargarModulos(this.value); });
+
+        btnGuardarModulos.addEventListener('click', function () {
+            if (!rolIdActual) return;
+            var ids = [];
+            modulosGrid.querySelectorAll('.modulo-cb:checked').forEach(function (cb) {
+                ids.push(parseInt(cb.value));
+            });
+            btnGuardarModulos.disabled = true;
+            modulosExito.hidden = true;
+            modulosError.hidden = true;
+
+            fetch('/api/relaciones/modulos-por-rol/' + rolIdActual, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ids)
+            })
+            .then(function (r) {
+                if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'Error'); });
+                return r.json();
+            })
+            .then(function () {
+                modulosExito.textContent = 'Permisos del rol actualizados correctamente.';
+                modulosExito.hidden = false;
+            })
+            .catch(function (e) {
+                modulosError.textContent = e.message;
+                modulosError.hidden = false;
+            })
+            .finally(function () { btnGuardarModulos.disabled = false; });
+        });
+    })();
+    </script>
+</th:block>
 </body>
 </html>

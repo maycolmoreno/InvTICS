@@ -7,9 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.DepartamentosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.DepartamentosResponseDTO;
@@ -32,65 +33,53 @@ public class DepartamentosControlador {
 		return "departamentos/listarDepartamentos";
 	}
 
+	/** El alta/edicion ahora se hace desde un drawer en el listado. */
 	@GetMapping("/nuevo-departamento")
-	public String nuevoDepartamento(Model model) {
-		DepartamentosRequestDTO departamento = new DepartamentosRequestDTO();
-		departamento.setEstado(true);
-		model.addAttribute("departamento", departamento);
-		return "departamentos/nuevoDepartamento";
+	public String nuevoDepartamento() {
+		return "redirect:/departamentos";
 	}
 
+	/** El alta/edicion ahora se hace desde un drawer en el listado. */
 	@GetMapping("/editar-departamento/{id}")
-	public String modificarDepartamento(@PathVariable Integer id, Model model) {
-		DepartamentosResponseDTO departamento = servicioDepartamento.obtenerPorId(id);
-		model.addAttribute("departamento", departamento);
-		return "departamentos/editarDepartamento";
+	public String modificarDepartamento() {
+		return "redirect:/departamentos";
 	}
 
 	@PostMapping
-	public String guardarDepartamento(@ModelAttribute DepartamentosRequestDTO departamento, Model model) {
-
-		boolean hayErrores = false;
+	public String guardarDepartamento(@ModelAttribute DepartamentosRequestDTO departamento,
+			RedirectAttributes redirectAttributes) {
 
 		if (departamento.getNombre() == null || departamento.getNombre().trim().isEmpty()) {
-			model.addAttribute("errorNombre", "El nombre es obligatorio");
-			hayErrores = true;
-		} else {
-			boolean nombreRepetido;
-			if (departamento.getIdDepartamento() > 0) {
-				nombreRepetido = servicioDepartamento.nombreExisteParaOtro(departamento.getNombre().trim(),
-						departamento.getIdDepartamento());
-			} else {
-				nombreRepetido = servicioDepartamento.nombreExiste(departamento.getNombre().trim());
-			}
-			if (nombreRepetido) {
-				model.addAttribute("errorNombre", "Ya existe un departamento con ese nombre");
-				hayErrores = true;
-			}
+			return error(redirectAttributes, "El nombre es obligatorio");
 		}
 
-		if (hayErrores) {
-			model.addAttribute("departamento", departamento);
-			return formularioDepartamento(departamento);
+		boolean nombreRepetido = departamento.getIdDepartamento() > 0
+				? servicioDepartamento.nombreExisteParaOtro(departamento.getNombre().trim(),
+						departamento.getIdDepartamento())
+				: servicioDepartamento.nombreExiste(departamento.getNombre().trim());
+		if (nombreRepetido) {
+			return error(redirectAttributes, "Ya existe un departamento con ese nombre");
 		}
 
 		if (departamento.getIdDepartamento() > 0) {
 			servicioDepartamento.actualizarDepartamento(departamento.getIdDepartamento(), departamento);
+			redirectAttributes.addFlashAttribute("success", "Departamento actualizado correctamente.");
 		} else {
 			departamento.setEstado(true);
 			servicioDepartamento.crearDepartamento(departamento);
+			redirectAttributes.addFlashAttribute("success", "Departamento creado correctamente.");
 		}
 
 		return "redirect:/departamentos";
 	}
 
-	private String formularioDepartamento(DepartamentosRequestDTO departamento) {
-		return (departamento.getIdDepartamento() > 0) ? "departamentos/editarDepartamento"
-				: "departamentos/nuevoDepartamento";
+	private String error(RedirectAttributes redirectAttributes, String mensaje) {
+		redirectAttributes.addFlashAttribute("error", mensaje);
+		return "redirect:/departamentos";
 	}
 
 	@PostMapping("/eliminar-departamento")
-	public String eliminarLogico(@org.springframework.web.bind.annotation.RequestParam Integer idDepartamento) {
+	public String eliminarLogico(@RequestParam Integer idDepartamento) {
 		servicioDepartamento.actualizarEstado(idDepartamento, false);
 		return "redirect:/departamentos";
 	}

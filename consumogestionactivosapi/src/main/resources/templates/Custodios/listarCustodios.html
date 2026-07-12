@@ -119,11 +119,11 @@
                             </td>
                             <td>
                                 <div class="cui-action-cell">
-                                    <a class="btn btn-outline-primary btn-sm" th:href="@{/custodias/expediente/{id}(id=${custodio.idCustodio})}">
+                                    <a class="cui-btn cui-btn-secondary cui-btn-sm" th:href="@{/custodias/expediente/{id}(id=${custodio.idCustodio})}">
                                         Expediente
                                     </a>
                                     <div class="dropdown cui-action-menu">
-                                        <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                        <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                                             <i class="feather-more-vertical" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
@@ -183,7 +183,7 @@
                         <label class="form-label">Cedula <span class="text-danger">*</span></label>
                         <div class="d-flex gap-2">
                             <input type="text" class="form-control" name="cedula" placeholder="Ej: 0912345675" maxlength="10" minlength="10" inputmode="numeric" pattern="\d{10}" title="Ingrese una cédula ecuatoriana válida de 10 dígitos" id="inpCedula">
-                            <button type="button" class="btn btn-outline-primary btn-sm text-nowrap" id="btnActualizarDirectorio" title="Trae nombre, correo, telefono, cargo y departamento actuales desde el directorio institucional">
+                            <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm text-nowrap" id="btnActualizarDirectorio" title="Trae nombre, correo, telefono, cargo y departamento actuales desde el directorio institucional">
                                 <i class="feather-refresh-cw"></i> Actualizar
                             </button>
                         </div>
@@ -218,7 +218,7 @@
                                 <option value="0">Sin departamento del catalogo</option>
                                 <option th:each="d : ${listadepartamento}" th:value="${d.idDepartamento}" th:text="${d.nombre}" th:data-tipo="${d.tipo != null ? d.tipo : 'ADMINISTRATIVO'}"></option>
                             </select>
-                            <button type="button" class="btn btn-outline-primary btn-sm" title="Crear departamento" data-bs-toggle="modal" data-bs-target="#modalCrearDepartamento"><i class="feather-plus"></i></button>
+                            <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" title="Crear departamento" data-bs-toggle="modal" data-bs-target="#modalCrearDepartamento"><i class="feather-plus"></i></button>
                         </div>
                     </div>
 
@@ -231,7 +231,7 @@
                                 <option th:each="c : ${listacargo}" th:value="${c.idCargo}"
                                         th:text="${c.nombre}" th:data-dep="${c.fkDepartamento != null ? c.fkDepartamento.idDepartamento : 0}"></option>
                             </select>
-                            <button type="button" class="btn btn-outline-primary btn-sm" title="Crear cargo" data-bs-toggle="modal" data-bs-target="#modalCrearCargo"><i class="feather-plus"></i></button>
+                            <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" title="Crear cargo" data-bs-toggle="modal" data-bs-target="#modalCrearCargo"><i class="feather-plus"></i></button>
                         </div>
                     </div>
 
@@ -244,7 +244,7 @@
                                 <option th:each="u : ${listaubicacion}" th:value="${u.idUbicacion}" th:text="${u.nombre + ' - ' + u.agencia}"
                                         th:data-dep-tipo="${u.fkDepartamento != null and u.fkDepartamento.tipo != null ? u.fkDepartamento.tipo : 'ADMINISTRATIVO'}"></option>
                             </select>
-                            <button type="button" class="btn btn-outline-primary btn-sm" title="Crear ubicacion" data-bs-toggle="modal" data-bs-target="#modalCrearUbicacion"><i class="feather-plus"></i></button>
+                            <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" title="Crear ubicacion" data-bs-toggle="modal" data-bs-target="#modalCrearUbicacion"><i class="feather-plus"></i></button>
                         </div>
                     </div>
 
@@ -283,8 +283,8 @@
                         <div class="text-danger small" id="modalDepError"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary btn-sm" id="btnCrearDep">Crear</button>
+                        <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="cui-btn cui-btn-primary cui-btn-sm" id="btnCrearDep">Crear</button>
                     </div>
                 </div>
             </div>
@@ -302,8 +302,8 @@
                         <div class="text-danger small" id="modalCarError"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary btn-sm" id="btnCrearCar">Crear</button>
+                        <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="cui-btn cui-btn-primary cui-btn-sm" id="btnCrearCar">Crear</button>
                     </div>
                 </div>
             </div>
@@ -323,8 +323,8 @@
                         <div class="text-danger small" id="modalUbiError"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary btn-sm" id="btnCrearUbi">Crear</button>
+                        <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="cui-btn cui-btn-primary cui-btn-sm" id="btnCrearUbi">Crear</button>
                     </div>
                 </div>
             </div>
@@ -339,11 +339,11 @@
                     </div>
                     <div class="modal-body" id="textoModalToggleCustodio">Esta seguro?</div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="cui-btn cui-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <form id="formToggleCustodio" method="post">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <input type="hidden" name="idCustodio" id="idCustodioToggle">
-                            <button type="submit" class="btn" id="btnToggleCustodio">Confirmar</button>
+                            <button type="submit" class="cui-btn" id="btnToggleCustodio">Confirmar</button>
                         </form>
                     </div>
                 </div>
@@ -589,12 +589,12 @@
                     texto.textContent = "Esta seguro de desactivar este custodio?";
                     formToggle.action = "/custodios/eliminar-custodio";
                     btnToggle.textContent = "Si, desactivar";
-                    btnToggle.className = "btn btn-danger";
+                    btnToggle.className = "cui-btn cui-btn-danger";
                 } else {
                     texto.textContent = "Esta seguro de activar este custodio?";
                     formToggle.action = "/custodios/activar-custodio";
                     btnToggle.textContent = "Si, activar";
-                    btnToggle.className = "btn btn-success";
+                    btnToggle.className = "cui-btn cui-btn-primary";
                 }
             });
         })();

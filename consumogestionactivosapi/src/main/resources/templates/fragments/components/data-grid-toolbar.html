@@ -11,12 +11,12 @@
                autocomplete="off">
     </div>
     <div class="cui-toolbar-actions">
-        <button type="button" class="btn btn-light cui-btn-soft" data-cui-filters-toggle>
+        <button type="button" class="cui-btn cui-btn-secondary" data-cui-filters-toggle>
             <i class="feather-filter" aria-hidden="true"></i>
             <span>Filtros</span>
         </button>
         <div class="dropdown">
-            <button type="button" class="btn btn-light cui-btn-soft dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <button type="button" class="cui-btn cui-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="feather-columns" aria-hidden="true"></i>
                 <span>Columnas</span>
             </button>
@@ -25,7 +25,7 @@
                 <div class="px-3 py-2 text-muted small">Configure columnas desde cada vista.</div>
             </div>
         </div>
-        <a th:if="${exportHref != null}" class="btn btn-outline-primary" th:href="${exportHref}">
+        <a th:if="${exportHref != null}" class="cui-btn cui-btn-secondary" th:href="${exportHref}">
             <i class="feather-download" aria-hidden="true"></i>
             <span>Exportar</span>
         </a>

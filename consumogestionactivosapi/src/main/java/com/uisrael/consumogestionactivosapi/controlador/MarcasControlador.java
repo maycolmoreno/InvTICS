@@ -9,17 +9,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.MarcasRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.MarcasResponseDTO;
-import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
 
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/marcas") // url
+@RequestMapping("/marcas")
 public class MarcasControlador {
 
 	private final IMarcasServicio servicioMarcas;
@@ -28,76 +29,56 @@ public class MarcasControlador {
 	public String listarMarcas(Model model) {
 		List<MarcasResponseDTO> contenidoBD = servicioMarcas.listarMarca();
 		model.addAttribute("listarmarcas", contenidoBD);
-		return "marcas/listarMarcas"; // ubicacion fisica page
+		return "marcas/listarMarcas";
 	}
 
-	// GET: muestra el formulario
+	/** El alta/edicion ahora se hace desde un drawer en el listado. */
 	@GetMapping("/nuevaMarcas")
-	public String nuevaMarcas(Model model) {
-		model.addAttribute("nuevamarca", new MarcasRequestDTO());
-		return "marcas/nuevaMarcas"; // ubicacion fisica page
+	public String nuevaMarcas() {
+		return "redirect:/marcas";
 	}
 
-	// POST: guarda en BD
-	@PostMapping
-	public String guardarMarcas(@ModelAttribute("nuevamarca") MarcasRequestDTO nuevamarca, Model model) {
-
-		try {
-			servicioMarcas.nuevaMarca(nuevamarca);
-			return "redirect:/marcas";
-
-		} catch (IllegalArgumentException e) {
-
-			model.addAttribute("error", e.getMessage());
-
-			// IMPORTANTE: asegurar que el objeto vuelva al modelo con el mismo nombre
-			model.addAttribute("nuevamarca", nuevamarca);
-
-			return "marcas/nuevaMarcas";
-		}
-	}
-
-	// GET: EDITAR
+	/** El alta/edicion ahora se hace desde un drawer en el listado. */
 	@GetMapping("/editarMarcas/{id}")
-	public String editarMarca(@PathVariable Integer id, Model model) {
-
-		MarcasResponseDTO marca = servicioMarcas.obtenerMarca(id);
-
-		model.addAttribute("nuevamarca", marca);
-
-		return "marcas/editarMarcas";
+	public String editarMarca() {
+		return "redirect:/marcas";
 	}
 
-	// POST ACTUALIZAR
-	@PostMapping("/actualizar/{id}")
-	public String actualizarMarca(@PathVariable Integer id, @ModelAttribute("nuevamarca") MarcasRequestDTO dto,
-			Model model) {
+	@PostMapping
+	public String guardarMarcas(@ModelAttribute MarcasRequestDTO marca, RedirectAttributes redirectAttributes) {
+		if (marca.getNombre() == null || marca.getNombre().trim().isEmpty()) {
+			return error(redirectAttributes, "El nombre es obligatorio");
+		}
 
 		try {
-			servicioMarcas.actualizarMarca(id, dto);
-			return "redirect:/marcas";
-
+			if (marca.getIdMarca() > 0) {
+				servicioMarcas.actualizarMarca(marca.getIdMarca(), marca);
+				redirectAttributes.addFlashAttribute("success", "Marca actualizada correctamente.");
+			} else {
+				marca.setEstado(true);
+				servicioMarcas.nuevaMarca(marca);
+				redirectAttributes.addFlashAttribute("success", "Marca creada correctamente.");
+			}
 		} catch (IllegalArgumentException e) {
-
-			model.addAttribute("error", e.getMessage());
-			model.addAttribute("nuevamarca", dto);
-
-			return "marcas/editarMarcas"; // ✅ te quedas en editar
+			return error(redirectAttributes, e.getMessage());
 		}
+
+		return "redirect:/marcas";
 	}
 
-	// POST:ELIMINAR
+	private String error(RedirectAttributes redirectAttributes, String mensaje) {
+		redirectAttributes.addFlashAttribute("error", mensaje);
+		return "redirect:/marcas";
+	}
+
 	@PostMapping("/eliminar/{id}")
-	public String eliminarMarca(@PathVariable Integer id, Model model) {
+	public String eliminarMarca(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
 		try {
 			servicioMarcas.eliminarMarca(id);
-			return "redirect:/marcas";
 		} catch (BackendException e) {
-			List<MarcasResponseDTO> contenidoBD = servicioMarcas.listarMarca();
-			model.addAttribute("listarmarca", contenidoBD);
-			model.addAttribute("errorEliminar", e.getMessage());
-			return "marcas/listarMarcas";
+			redirectAttributes.addFlashAttribute("errorEliminar", e.getMessage());
 		}
+		return "redirect:/marcas";
 	}
 
 }

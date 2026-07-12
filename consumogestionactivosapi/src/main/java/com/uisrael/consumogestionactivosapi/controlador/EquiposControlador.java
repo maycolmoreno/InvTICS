@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.CategoriaEquiposRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.EquiposRequestDTO;
@@ -52,6 +53,7 @@ public class EquiposControlador {
 		model.addAttribute("tamanioPagina", pagina.getTamanioPagina());
 		var bodegas = inventarioOperacionServicio.listarBodegas();
 		model.addAttribute("bodegas", bodegas != null ? bodegas : List.of());
+		cargarCombos(model, 0, 0);
 
 		return "Equipos/listarEquipos";
 	}
@@ -61,45 +63,20 @@ public class EquiposControlador {
 		return "redirect:/mantenimiento/nuevo";
 	}
 
+	/** El alta/edicion ahora se hace desde un drawer en el listado. */
 	@GetMapping("/nuevo-equipo")
-	public String nuevoEquipo(Model model) {
-
-		EquiposRequestDTO equipo = new EquiposRequestDTO();
-		equipo.setEstado(true);
-
-		equipo.setFkMarca(new MarcasRequestDTO());
-		equipo.getFkMarca().setIdMarca(0);
-
-		equipo.setFkCategoria(new CategoriaEquiposRequestDTO());
-		equipo.getFkCategoria().setIdCategoria(0);
-
-		// combos
-		cargarCombos(model, 0, 0);
-		model.addAttribute("equipo", equipo);
-		return "Equipos/nuevoEquipo";
+	public String nuevoEquipo() {
+		return "redirect:/equipos";
 	}
 
+	/** El alta/edicion ahora se hace desde un drawer en el listado; se preselecciona el equipo via query param. */
 	@GetMapping("/editar-equipo/{id}")
-	public String editar(@PathVariable Integer id, Model model) {
-		EquiposResponseDTO dto = servicioEquipos.obtenerPorId(id);
-
-		Integer idMarca = dto.getFkMarca().getIdMarca();
-
-		Integer idCategoria = dto.getFkCategoria().getIdCategoria();
-
-		model.addAttribute("listamarcas", servicioMarcas.listarMarca().stream()
-				.filter(marca -> marca.isEstado() || marca.getIdMarca() == idMarca).toList());
-
-		model.addAttribute("listacategorias", servicioCategoriaEquipos.listarCategoriaEquipo().stream()
-				.filter(cate -> cate.isEstado() || cate.getIdCategoria() == idCategoria).toList());
-
-		model.addAttribute("equipo", dto);
-
-		return "Equipos/editarEquipo";
+	public String editar(@PathVariable Integer id) {
+		return "redirect:/equipos?editarEquipo=" + id;
 	}
 
 	@PostMapping
-	public String guardarEquipo(@ModelAttribute EquiposRequestDTO equipo, Model model) {
+	public String guardarEquipo(@ModelAttribute EquiposRequestDTO equipo, RedirectAttributes redirectAttributes) {
 
 		if (equipo.getFkMarca() == null) {
 			equipo.setFkMarca(new MarcasRequestDTO());
@@ -109,100 +86,66 @@ public class EquiposControlador {
 			equipo.setFkCategoria(new CategoriaEquiposRequestDTO());
 			equipo.getFkCategoria().setIdCategoria(0);
 		}
-		boolean hayErrores = false;
 
 		if (equipo.getModelo() == null || equipo.getModelo().trim().isEmpty()) {
-			model.addAttribute("errorModelo", "El modelo es obligatorio");
-			hayErrores = true;
+			return error(redirectAttributes, "El modelo es obligatorio");
 		}
 
 		if (equipo.getSerial() == null || equipo.getSerial().trim().isEmpty()) {
-			model.addAttribute("errorSerial", "El serial es obligatorio");
-			hayErrores = true;
+			return error(redirectAttributes, "El serial es obligatorio");
 		}
 
 		if (equipo.getFkMarca().getIdMarca() <= 0) {
-			model.addAttribute("errorMarca", "Debe seleccionar una marca");
-			hayErrores = true;
+			return error(redirectAttributes, "Debe seleccionar una marca");
 		}
 		if (equipo.getFkCategoria().getIdCategoria() <= 0) {
-			model.addAttribute("errorCategoria", "Debe seleccionar una categoría");
-			hayErrores = true;
+			return error(redirectAttributes, "Debe seleccionar una categoría");
 		}
 
-		boolean serialRepetido;
 		if (equipo.getSerial() != null && !equipo.getSerial().isBlank()) {
-
-			if (equipo.getIdEquipo() > 0) {
-				// edición
-				serialRepetido = servicioEquipos.existeSerialParaOtro(equipo.getSerial().trim(), equipo.getIdEquipo());
-			} else {
-				// creación
-				serialRepetido = servicioEquipos.existeSerial(equipo.getSerial().trim());
-			}
-
+			boolean serialRepetido = equipo.getIdEquipo() > 0
+					? servicioEquipos.existeSerialParaOtro(equipo.getSerial().trim(), equipo.getIdEquipo())
+					: servicioEquipos.existeSerial(equipo.getSerial().trim());
 			if (serialRepetido) {
-				model.addAttribute("errorSerial", "Ya existe un equipo con ese Serial");
-				hayErrores = true;
+				return error(redirectAttributes, "Ya existe un equipo con ese Serial");
 			}
 		}
 
-		boolean codigoRepetido;
 		if (equipo.getCodigoSap() != null && !equipo.getCodigoSap().isBlank()) {
-
-			if (equipo.getIdEquipo() > 0) {
-				// edición
-				codigoRepetido = servicioEquipos.existeCodigoParaOtro(equipo.getCodigoSap().trim(),
-						equipo.getIdEquipo());
-			} else {
-				// creación
-				codigoRepetido = servicioEquipos.existeCodigo(equipo.getCodigoSap().trim());
-			}
-
+			boolean codigoRepetido = equipo.getIdEquipo() > 0
+					? servicioEquipos.existeCodigoParaOtro(equipo.getCodigoSap().trim(), equipo.getIdEquipo())
+					: servicioEquipos.existeCodigo(equipo.getCodigoSap().trim());
 			if (codigoRepetido) {
-				model.addAttribute("errorCodigo", "Ya existe un equipo con ese Código SAP");
-				hayErrores = true;
+				return error(redirectAttributes, "Ya existe un equipo con ese Código SAP");
 			}
 		}
 
-		boolean macRepetida;
 		if (equipo.getMac() != null && !equipo.getMac().isBlank()) {
-
-			if (equipo.getIdEquipo() > 0) {
-				// edición
-				macRepetida = servicioEquipos.existeMACParaOtro(equipo.getMac().trim(), equipo.getIdEquipo());
-			} else {
-				// creación
-				macRepetida = servicioEquipos.existeMAC(equipo.getMac().trim());
-			}
-
-			if (macRepetida) {
-				model.addAttribute("errorMac", "Ya existe un equipo con esa dirección MAC");
-				hayErrores = true;
-			}
-
 			if (!esMacValida(equipo.getMac())) {
-				model.addAttribute("errorMac", "La MAC no tiene un formato válido");
-				hayErrores = true;
+				return error(redirectAttributes, "La MAC no tiene un formato válido");
 			}
-		}
-
-		if (hayErrores) {
-			int idMarca = equipo.getFkMarca().getIdMarca();
-			int idCat = equipo.getFkCategoria().getIdCategoria();
-
-			cargarCombos(model, idMarca, idCat);
-			model.addAttribute("equipo", equipo);
-			return ubicacionesFormulario(equipo); // solo nuevo (si luego haces editar, se ajusta)
+			boolean macRepetida = equipo.getIdEquipo() > 0
+					? servicioEquipos.existeMACParaOtro(equipo.getMac().trim(), equipo.getIdEquipo())
+					: servicioEquipos.existeMAC(equipo.getMac().trim());
+			if (macRepetida) {
+				return error(redirectAttributes, "Ya existe un equipo con esa dirección MAC");
+			}
 		}
 
 		if (equipo.getIdEquipo() > 0) {
 			servicioEquipos.actualizarEquipo(equipo.getIdEquipo(), equipo);
+			redirectAttributes.addFlashAttribute("success", "Equipo actualizado correctamente.");
 		} else {
 			equipo.setEstado(true);
 			servicioEquipos.crearEquipo(equipo);
+			redirectAttributes.addFlashAttribute("success", "Equipo creado correctamente.");
 		}
 
+		return "redirect:/equipos";
+	}
+
+	private String error(RedirectAttributes redirectAttributes, String mensaje) {
+		redirectAttributes.addFlashAttribute("error", mensaje);
 		return "redirect:/equipos";
 	}
 
@@ -216,10 +159,6 @@ public class EquiposControlador {
 	public String activarEquipo(@RequestParam Integer idEquipo) {
 		servicioEquipos.actualizarEstado(idEquipo, true);
 		return "redirect:/equipos";
-	}
-
-	private String ubicacionesFormulario(EquiposRequestDTO equipo) {
-		return (equipo.getIdEquipo() > 0) ? "Equipos/editarEquipo" : "Equipos/nuevoEquipo";
 	}
 
 	private void cargarCombos(Model model, int idMarcaSel, int idCatSel) {

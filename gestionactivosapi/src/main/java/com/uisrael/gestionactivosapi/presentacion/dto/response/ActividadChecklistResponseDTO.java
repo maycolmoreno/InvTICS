@@ -1,7 +1,5 @@
 package com.uisrael.gestionactivosapi.presentacion.dto.response;
 
-import java.util.List;
-
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,5 +10,4 @@ public class ActividadChecklistResponseDTO {
     private String nombre;
     private Integer orden;
     private Boolean estado;
-    private List<String> categorias;
 }
