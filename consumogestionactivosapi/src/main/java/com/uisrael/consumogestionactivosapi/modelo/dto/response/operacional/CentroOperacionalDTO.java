@@ -24,6 +24,9 @@ public class CentroOperacionalDTO {
     private List<CustodioTopDTO> top5Custodios = new ArrayList<>();
     private Map<String, Long> activosPorUbicacion = new LinkedHashMap<>();
 
+    /** true si alguna consulta al backend fallo: los indicadores pueden estar incompletos. */
+    private boolean datosIncompletos;
+
     public long getPendientesHoy() {
         return bandejas.stream().mapToLong(WorkQueueResumenDTO::getCantidad).sum();
     }

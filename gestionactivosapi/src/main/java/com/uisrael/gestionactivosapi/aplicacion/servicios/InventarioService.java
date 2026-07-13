@@ -1352,6 +1352,13 @@ public class InventarioService {
         dto.setEtiquetado(equipo.getEtiquetado());
         dto.setBajaRecomendada(equipo.isBajaRecomendada());
         dto.setBajaRecomendadaOrigen(equipo.getBajaRecomendadaOrigen());
+        dto.setEstadoEquipo(equipo.getEstadoEquipo());
+        if (equipo.getFkMarcas() != null) {
+            dto.setMarcaNombre(equipo.getFkMarcas().getNombre());
+        }
+        if (equipo.getFkCategoria() != null) {
+            dto.setCategoriaNombre(equipo.getFkCategoria().getNombre());
+        }
         if (equipo.getBodegaActual() != null) {
             dto.setBodegaId(equipo.getBodegaActual().getIdBodega());
             dto.setBodegaNombre(equipo.getBodegaActual().getNombre());

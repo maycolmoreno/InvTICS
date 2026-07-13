@@ -3,59 +3,67 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{plantilla/plantilla-auth}">
 <head>
-    <title>Login</title>
+    <title>Iniciar sesion</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div layout:fragment="contenidoauth" class="auth-container">
-        <div class="auth-card login-card login-card-pro">
-            <div class="auth-showcase">
-                <div class="auth-brand auth-brand-left">
-                    <div class="auth-brand-name">CRESIO</div>
-                </div>
+    <div layout:fragment="contenidoauth" class="tag-scene">
+        <main class="tag-card" aria-labelledby="tituloLogin">
+            <div class="tag-hole" aria-hidden="true"></div>
+
+            <div class="tag-band" aria-hidden="true">
+                <span class="tag-code">CRES-0001 &middot; PUNTO DE ACCESO</span>
+                <span class="tag-barcode"></span>
             </div>
 
-            <div class="auth-form-panel">
-                <div class="auth-panel-top">
-                    <h2 class="auth-title">Iniciar sesion</h2>
+            <div class="tag-body">
+                <div class="tag-brand">
+                    <span class="tag-brand-name">CRESIO</span>
+                    <span class="tag-brand-sub">Gestion de activos TIC</span>
                 </div>
 
-                <div th:if="${exito}" class="alert alert-success" role="alert">
-                    <i class="feather-check-circle me-2"></i>
+                <h1 class="tag-title" id="tituloLogin">Iniciar sesion</h1>
+
+                <div th:if="${exito}" class="tag-alert tag-alert-ok" role="alert">
+                    <i class="feather-check-circle" aria-hidden="true"></i>
                     <span th:text="${exito}"></span>
                 </div>
 
-                <div th:if="${error}" class="alert alert-danger" role="alert">
-                    <i class="feather-alert-circle me-2"></i>
+                <div th:if="${error}" class="tag-alert tag-alert-error" role="alert">
+                    <i class="feather-alert-circle" aria-hidden="true"></i>
                     <span th:text="${error}"></span>
                 </div>
 
                 <form th:action="@{/login}" method="post">
-                    <div class="mb-3">
-                        <label for="correo" class="form-label">Correo</label>
-                        <input type="email" class="form-control" id="correo" name="correo"
-                               placeholder="usuario@cresio.com" required autofocus>
+                    <div class="tag-field">
+                        <label for="correo">Correo institucional</label>
+                        <input type="email" id="correo" name="correo"
+                               placeholder="usuario@cresio.com" autocomplete="username"
+                               required autofocus>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="contrasena" class="form-label">Clave</label>
-                        <input type="password" class="form-control" id="contrasena" name="contrasena"
-                               placeholder="Tu clave" required>
+                    <div class="tag-field">
+                        <label for="contrasena">Contrasena</label>
+                        <input type="password" id="contrasena" name="contrasena"
+                               placeholder="Tu contrasena" autocomplete="current-password"
+                               required>
                     </div>
 
-                    <button type="submit" class="btn btn-auth">
-                        <i class="feather-log-in me-2"></i>
-                        Entrar al sistema
+                    <button type="submit" class="tag-submit">
+                        <i class="feather-log-in" aria-hidden="true"></i>
+                        Iniciar sesion
                     </button>
                 </form>
 
-                <div class="auth-footer">
-                    <small class="text-muted">
-                        CRESIO · Plataforma de gestion de activos corporativos
-                    </small>
-                </div>
+                <p class="tag-help">
+                    &iquest;No puedes entrar? Escribe a Tecnologias e Innovacion.
+                </p>
             </div>
-        </div>
-    </div>
+        </main>
 
+        <p class="tag-scene-footer">
+            Cada activo etiquetado &middot; cada custodia registrada
+        </p>
+    </div>
 </body>
 </html>

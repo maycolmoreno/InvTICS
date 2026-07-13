@@ -136,7 +136,8 @@
                                 <label class="form-label fw-semibold">
                                     Custodio <span class="cui-required-mark">*</span>
                                 </label>
-                                <select id="custodioId" name="custodioId" class="form-select" required>
+                                <select id="custodioId" name="custodioId" class="form-select" required
+                                        data-select2-selector="custodio-manual">
                                     <option value="">Seleccione un custodio</option>
                                     <option th:each="custodio : ${custodiosAdmin}"
                                             th:value="${custodio.idCustodio}"
@@ -438,6 +439,41 @@
 
                 let modoActual = 'ADMINISTRATIVO';
                 let ubicacionFiltro = '';
+
+                /* ============ SELECT2 DEL CUSTODIO (matcher propio) ============
+                   El layout base convierte todo select.form-select en Select2, pero
+                   Select2 ignora el atributo "hidden" de las <option> (solo lo usa
+                   la plantilla nativa). Por eso este campo queda excluido del
+                   autoinit generico (data-select2-selector="custodio-manual") y se
+                   inicializa con un matcher que SI respeta opt.hidden, para que
+                   el filtro por tipo/sucursal que ya arma refreshCustodioOptionsSucursal()
+                   y filterCustodiosByTipo() se refleje de verdad en el desplegable.
+                   OJO: jQuery/select2 se cargan al final del <body> (despues de este
+                   script), asi que la init se difiere a window.load — igual que el
+                   binding select2:select ya existente mas abajo. */
+                function initCustodioSelect2() {
+                    if (!(window.jQuery && window.jQuery.fn.select2)) return;
+                    window.jQuery(custodioSelect).select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        dropdownParent: document.body,
+                        language: { noResults: function () {
+                            return (modoActual === 'FARMACIA' && (!ubicacionSelect || !ubicacionSelect.value))
+                                ? 'Selecciona primero una sucursal'
+                                : 'Sin resultados';
+                        } },
+                        matcher: function(params, data) {
+                            var value = data.id;
+                            if (value) {
+                                var opt = data.element || Array.from(custodioSelect.options).find(function(o) { return o.value === value; });
+                                if (opt && opt.hidden) return null;
+                            }
+                            if (!params.term || params.term.trim() === '') return data;
+                            var text = (data.text || '').toUpperCase();
+                            return text.indexOf(params.term.trim().toUpperCase()) > -1 ? data : null;
+                        }
+                    });
+                }
 
                 /* ============ MODO TOGGLE ============ */
                 window.cambiarModo = function(modo) {
@@ -875,21 +911,35 @@
                     else { updateFarmaciaSummary(); updateSubmitState(); }
                 }
 
+                function handleUbicacionChange() {
+                    if (modoActual !== 'FARMACIA') return;
+                    refreshCustodioOptionsSucursal();
+                    refreshEquipoOptionsSucursal();
+                    updateFarmaciaSummary();
+                }
+
                 custodioSelect.addEventListener('change', handleCustodioChange);
+                if (ubicacionSelect) {
+                    // Solo captura el select nativo (sin jQuery cargado). Cuando el
+                    // select es Select2, el cambio llega via jQuery.trigger('change'),
+                    // que NO ejecuta listeners de addEventListener — ver binding en load.
+                    ubicacionSelect.addEventListener('change', handleUbicacionChange);
+                }
+
                 window.addEventListener('load', function() {
-                    if (window.jQuery && window.jQuery.fn.select2) {
+                    if (!window.jQuery) return;
+                    initCustodioSelect2();
+                    if (window.jQuery.fn.select2) {
                         window.jQuery(custodioSelect).on('select2:select select2:clear', handleCustodioChange);
                     }
+                    if (ubicacionSelect) {
+                        // El select de sucursal lo convierte a Select2 el autoinit del
+                        // layout (document.ready, corre antes de load). Select2 notifica
+                        // con jQuery.trigger('change'), invisible para addEventListener:
+                        // sin este binding, elegir sucursal jamas refresca custodios/equipos.
+                        window.jQuery(ubicacionSelect).on('change', handleUbicacionChange);
+                    }
                 });
-
-                if (ubicacionSelect) {
-                    ubicacionSelect.addEventListener('change', function() {
-                        if (modoActual !== 'FARMACIA') return;
-                        refreshCustodioOptionsSucursal();
-                        refreshEquipoOptionsSucursal();
-                        updateFarmaciaSummary();
-                    });
-                }
 
                 document.querySelectorAll('[data-clear]').forEach(btn => btn.addEventListener('click', function() {
                     const canvas = document.getElementById(this.dataset.clear);

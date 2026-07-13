@@ -1,6 +1,8 @@
 package com.uisrael.consumogestionactivosapi.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -77,6 +79,32 @@ class CentroOperacionalServicioImplTest {
         assertEquals(1, cantidad(centro, "ACTIVOS_SIN_ETIQUETA"));
         assertEquals(1, centro.getMovimientosRecientes().size());
         assertEquals(4, centro.getRiesgos().size());
+        assertFalse(centro.isDatosIncompletos());
+    }
+
+    @Test
+    void obtenerCentroOperacional_marcaDatosIncompletosSiUnaConsultaFalla() {
+        CentroOperacionalServicioImpl servicio = new CentroOperacionalServicioImpl(
+                inventarioOperacionServicio, equiposServicio, custodiasServicio);
+
+        // Todas las consultas fallan (backend caido): el dashboard no debe
+        // fingir normalidad con ceros, debe marcar los datos como incompletos.
+        RuntimeException caida = new RuntimeException("backend no disponible");
+        when(inventarioOperacionServicio.listarOrdenesCompra()).thenThrow(caida);
+        when(inventarioOperacionServicio.listarActivosEnTransito()).thenThrow(caida);
+        when(inventarioOperacionServicio.listarActivosEnBodega()).thenThrow(caida);
+        when(inventarioOperacionServicio.listarActivosEnReparacion()).thenThrow(caida);
+        when(inventarioOperacionServicio.listarSinInventario()).thenThrow(caida);
+        when(inventarioOperacionServicio.listarBodegas()).thenThrow(caida);
+        when(inventarioOperacionServicio.buscarMovimientos(0, 10, null, null, null, null)).thenThrow(caida);
+        when(equiposServicio.listarEquipos()).thenThrow(caida);
+        when(custodiasServicio.listarCustodias()).thenThrow(caida);
+
+        CentroOperacionalDTO centro = servicio.obtenerCentroOperacional();
+
+        assertTrue(centro.isDatosIncompletos());
+        assertEquals(0, centro.getTotalActivos());
+        assertTrue(centro.getRiesgos().isEmpty());
     }
 
     private long cantidad(CentroOperacionalDTO centro, String tipo) {

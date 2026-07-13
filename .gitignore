@@ -1,1 +1,7 @@
 /.metadata/
+.env.local
+.env.local.data
+run-local.ps1
+.planning/forensics/report-20260712-231500.md
+run-local.ps1
+.gitignore

@@ -32,7 +32,9 @@ import com.uisrael.consumogestionactivosapi.service.IEquiposServicio;
 import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio {
@@ -46,15 +48,16 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
     @Override
     public CentroOperacionalDTO obtenerCentroOperacional() {
         CentroOperacionalDTO centro = new CentroOperacionalDTO();
+        java.util.concurrent.atomic.AtomicBoolean fallo = new java.util.concurrent.atomic.AtomicBoolean(false);
 
-        List<OrdenCompraResponseDTO> ordenes = safe(() -> inventarioOperacionServicio.listarOrdenesCompra());
-        List<ActivoInventarioResponseDTO> enTransito = safe(() -> inventarioOperacionServicio.listarActivosEnTransito());
-        List<ActivoInventarioResponseDTO> enBodega = safe(() -> inventarioOperacionServicio.listarActivosEnBodega());
-        List<ActivoInventarioResponseDTO> enReparacion = safe(() -> inventarioOperacionServicio.listarActivosEnReparacion());
-        List<ActivoInventarioResponseDTO> sinInventario = safe(() -> inventarioOperacionServicio.listarSinInventario());
-        List<StockConsumibleResponseDTO> stock = stockDisponible();
-        List<EquiposResponseDTO> equipos = safe(() -> equiposServicio.listarEquipos());
-        List<CustodiasResponseDTO> custodias = safe(() -> custodiasServicio.listarCustodias());
+        List<OrdenCompraResponseDTO> ordenes = safe("ordenes de compra", fallo, () -> inventarioOperacionServicio.listarOrdenesCompra());
+        List<ActivoInventarioResponseDTO> enTransito = safe("activos en transito", fallo, () -> inventarioOperacionServicio.listarActivosEnTransito());
+        List<ActivoInventarioResponseDTO> enBodega = safe("activos en bodega", fallo, () -> inventarioOperacionServicio.listarActivosEnBodega());
+        List<ActivoInventarioResponseDTO> enReparacion = safe("activos en reparacion", fallo, () -> inventarioOperacionServicio.listarActivosEnReparacion());
+        List<ActivoInventarioResponseDTO> sinInventario = safe("activos sin inventario", fallo, () -> inventarioOperacionServicio.listarSinInventario());
+        List<StockConsumibleResponseDTO> stock = stockDisponible(fallo);
+        List<EquiposResponseDTO> equipos = safe("equipos", fallo, () -> equiposServicio.listarEquipos());
+        List<CustodiasResponseDTO> custodias = safe("custodias", fallo, () -> custodiasServicio.listarCustodias());
 
         long recepcionesPendientes = ordenes.stream().filter(this::requiereRecepcion).count();
         long stockCritico = stock.stream()
@@ -114,7 +117,7 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
                 accion("Registrar reparacion", "Enviar o retornar activos de reparacion.", "/inventario/reparaciones",
                         "feather-tool", "secondary")));
 
-        centro.setMovimientosRecientes(safe(() -> inventarioOperacionServicio.buscarMovimientos(0, 10, null, null, null, null)
+        centro.setMovimientosRecientes(safe("movimientos recientes", fallo, () -> inventarioOperacionServicio.buscarMovimientos(0, 10, null, null, null, null)
                 .getContent()).stream().limit(10).map(this::movimiento).toList());
 
         // KPIs
@@ -169,13 +172,15 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
         }
         centro.setActivosPorUbicacion(ubicFinal);
 
+        centro.setDatosIncompletos(fallo.get());
         return centro;
     }
 
-    private List<StockConsumibleResponseDTO> stockDisponible() {
-        return safe(() -> inventarioOperacionServicio.listarBodegas()).stream()
+    private List<StockConsumibleResponseDTO> stockDisponible(java.util.concurrent.atomic.AtomicBoolean fallo) {
+        return safe("bodegas", fallo, () -> inventarioOperacionServicio.listarBodegas()).stream()
                 .filter(BodegaResponseDTO::isEstado)
-                .flatMap(b -> safe(() -> inventarioOperacionServicio.listarStockPorBodega(b.getIdBodega())).stream())
+                .flatMap(b -> safe("stock de bodega " + b.getIdBodega(), fallo,
+                        () -> inventarioOperacionServicio.listarStockPorBodega(b.getIdBodega())).stream())
                 .toList();
     }
 
@@ -230,11 +235,18 @@ public class CentroOperacionalServicioImpl implements ICentroOperacionalServicio
         return valor == null ? "" : valor;
     }
 
-    private <T> List<T> safe(Source<List<T>> source) {
+    /**
+     * Nunca tumba el dashboard por una consulta fallida, pero tampoco finge
+     * normalidad: marca el fallo (banner "datos incompletos" en la vista) y lo
+     * deja en el log en vez de tragarselo en silencio.
+     */
+    private <T> List<T> safe(String recurso, java.util.concurrent.atomic.AtomicBoolean fallo, Source<List<T>> source) {
         try {
             List<T> value = source.get();
             return value == null ? List.of() : value;
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            fallo.set(true);
+            log.warn("Dashboard: fallo consultando {} — {}", recurso, ex.getMessage());
             return List.of();
         }
     }

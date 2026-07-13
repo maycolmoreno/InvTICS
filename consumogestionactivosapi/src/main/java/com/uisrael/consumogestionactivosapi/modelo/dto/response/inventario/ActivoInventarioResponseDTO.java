@@ -18,6 +18,9 @@ public class ActivoInventarioResponseDTO {
     private String fechaSalida;
     private boolean bajaRecomendada;
     private Integer bajaRecomendadaOrigen;
+    private String marcaNombre;
+    private String categoriaNombre;
+    private String estadoEquipo;
 
     public Integer getIdEquipo() { return idEquipo; }
     public void setIdEquipo(Integer idEquipo) { this.idEquipo = idEquipo; }
@@ -53,4 +56,10 @@ public class ActivoInventarioResponseDTO {
     public void setBajaRecomendada(boolean bajaRecomendada) { this.bajaRecomendada = bajaRecomendada; }
     public Integer getBajaRecomendadaOrigen() { return bajaRecomendadaOrigen; }
     public void setBajaRecomendadaOrigen(Integer bajaRecomendadaOrigen) { this.bajaRecomendadaOrigen = bajaRecomendadaOrigen; }
+    public String getMarcaNombre() { return marcaNombre; }
+    public void setMarcaNombre(String marcaNombre) { this.marcaNombre = marcaNombre; }
+    public String getCategoriaNombre() { return categoriaNombre; }
+    public void setCategoriaNombre(String categoriaNombre) { this.categoriaNombre = categoriaNombre; }
+    public String getEstadoEquipo() { return estadoEquipo; }
+    public void setEstadoEquipo(String estadoEquipo) { this.estadoEquipo = estadoEquipo; }
 }

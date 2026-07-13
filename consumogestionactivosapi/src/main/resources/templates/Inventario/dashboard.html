@@ -27,6 +27,13 @@
         </div>
     </div>
 
+    <!-- Aviso de datos incompletos: alguna consulta al backend fallo -->
+    <div class="alert alert-warning cui-alert" th:if="${centro.datosIncompletos}" role="alert">
+        <i class="feather-alert-triangle me-2" aria-hidden="true"></i>
+        No se pudo consultar parte del inventario. Los indicadores y alertas pueden estar
+        incompletos: recarga la pagina y, si persiste, revisa el servicio backend.
+    </div>
+
     <!-- ── KPI Strip ──────────────────────────────────────────────────────── -->
     <div class="cui-stat-strip">
         <div class="cui-stat-item">
@@ -128,9 +135,13 @@
                           th:text="${#lists.size(centro.riesgos) + ' activas'}">0</span>
                 </div>
                 <div class="cui-exp-card-body">
-                    <div class="cui-db-empty" th:if="${#lists.isEmpty(centro.riesgos)}">
+                    <div class="cui-db-empty" th:if="${#lists.isEmpty(centro.riesgos) and !centro.datosIncompletos}">
                         <i class="feather-check-circle" aria-hidden="true"></i>
                         <p>Sin alertas activas. La operacion esta en orden.</p>
+                    </div>
+                    <div class="cui-db-empty" th:if="${#lists.isEmpty(centro.riesgos) and centro.datosIncompletos}">
+                        <i class="feather-alert-triangle" aria-hidden="true"></i>
+                        <p>No se pudieron consultar las alertas. Recarga la pagina.</p>
                     </div>
                     <div class="cui-db-alert-list" th:unless="${#lists.isEmpty(centro.riesgos)}">
                         <div th:each="r : ${centro.riesgos}"
