@@ -124,7 +124,8 @@
                                 <option value="">Selecciona una sucursal</option>
                                 <option th:each="ubi : ${listaubicaciones}"
                                         th:value="${ubi.idUbicacion}"
-                                        th:text="${ubi.nombre + (ubi.ciudad != null ? ' - ' + ubi.ciudad : '')}">
+                                        th:text="${ubi.nombre + (ubi.ciudad != null ? ' - ' + ubi.ciudad : '')}"
+                                        th:attr="data-encargado-id=${ubi.idCustodioEncargado ?: ''}">
                                 </option>
                             </select>
                             <div class="form-text">Selecciona una sucursal para cargar sus equipos y custodios.</div>
@@ -651,8 +652,24 @@
                         opt.disabled = !visible;
                         if (!visible) opt.selected = false;
                     });
+
+                    // Autoselecciona al administrador encargado de la sucursal, si tiene uno
+                    // asignado (Ubicaciones > editar > Administrador encargado). El usuario
+                    // puede cambiarlo igual por otro custodio de la misma sucursal.
+                    var ubiOptSel = ubicacionSelect ? ubicacionSelect.selectedOptions[0] : null;
+                    var encargadoId = ubiOptSel ? (ubiOptSel.getAttribute('data-encargado-id') || '') : '';
+                    if (encargadoId) {
+                        var optEncargado = Array.from(custodioSelect.options).find(function(opt) {
+                            return opt.value === encargadoId && !opt.hidden;
+                        });
+                        if (optEncargado) {
+                            optEncargado.selected = true;
+                            fillCustodioInfo(optEncargado);
+                        }
+                    }
+
                     if (window.jQuery && window.jQuery.fn.select2) {
-                        window.jQuery(custodioSelect).val(null).trigger('change.select2');
+                        window.jQuery(custodioSelect).val(custodioSelect.value || null).trigger('change.select2');
                     }
                 }
 
