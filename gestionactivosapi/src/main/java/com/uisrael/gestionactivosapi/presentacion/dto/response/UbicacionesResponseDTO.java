@@ -20,5 +20,7 @@ public class UbicacionesResponseDTO {
 	private String linkCoordenada;
 
 	private DepartamentosResponseDTO fkDepartamento;
+	private Integer idCustodioEncargado;
+	private String nombreCustodioEncargado;
 
 }

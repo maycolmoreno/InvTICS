@@ -22,5 +22,6 @@ public class UbicacionesRequestDTO {
 	private String linkCoordenada;
 
 	private DepartamentosRequestDTO fkDepartamento;
+	private Integer idCustodioEncargado;
 
 }

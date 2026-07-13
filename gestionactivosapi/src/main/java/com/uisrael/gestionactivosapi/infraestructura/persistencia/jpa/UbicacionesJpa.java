@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -68,4 +69,8 @@ public class UbicacionesJpa extends AuditableEntity implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "fk_departamento")
 	private DepartamentosJpa fkDepartamento;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_custodio_encargado")
+	private CustodiosJpa fkCustodioEncargado;
 }

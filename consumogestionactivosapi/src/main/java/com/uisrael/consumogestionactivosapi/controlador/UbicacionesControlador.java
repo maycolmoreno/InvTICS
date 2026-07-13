@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.DepartamentosRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.request.UbicacionesRequestDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.UbicacionesResponseDTO;
+import com.uisrael.consumogestionactivosapi.service.ICustodiosServicio;
 import com.uisrael.consumogestionactivosapi.service.IDepartamentosServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 
@@ -27,6 +28,7 @@ public class UbicacionesControlador {
 
 	private final IUbicacionesServicio servicioUbicacion;
 	private final IDepartamentosServicio servicioDepartamento;
+	private final ICustodiosServicio servicioCustodio;
 
 	@GetMapping
 	public String listarUbicaciones(Model model) {
@@ -35,6 +37,8 @@ public class UbicacionesControlador {
 		model.addAttribute("listaubicacion", contenidoBD);
 		model.addAttribute("listadepartamento",
 				servicioDepartamento.listarDepartamentos().stream().filter(d -> d.isEstado()).toList());
+		model.addAttribute("listacustodio",
+				servicioCustodio.listarCustodios().stream().filter(c -> c.isEstado()).toList());
 		return "ubicaciones/listarUbicaciones";
 	}
 
@@ -75,6 +79,11 @@ public class UbicacionesControlador {
 
 		if (ubicacion.getFkDepartamento().getIdDepartamento() <= 0) {
 			return error(redirectAttributes, "Debe seleccionar un departamento");
+		}
+
+		// El encargado es opcional: 0 (opcion "Sin encargado" del select) equivale a ninguno.
+		if (ubicacion.getIdCustodioEncargado() != null && ubicacion.getIdCustodioEncargado() <= 0) {
+			ubicacion.setIdCustodioEncargado(null);
 		}
 
 		if (ubicacion.getIdUbicacion() > 0) {

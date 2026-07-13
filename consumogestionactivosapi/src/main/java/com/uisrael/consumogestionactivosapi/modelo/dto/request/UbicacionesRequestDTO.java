@@ -17,5 +17,6 @@ public class UbicacionesRequestDTO {
 	private String provincia;
 	private String linkCoordenada;
 	private DepartamentosRequestDTO fkDepartamento;
+	private Integer idCustodioEncargado;
 
 }

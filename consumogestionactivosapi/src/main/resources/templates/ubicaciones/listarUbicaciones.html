@@ -71,6 +71,7 @@
                          data-nombre=${ubicacion.nombre ?: ''},
                          data-agencia=${ubicacion.agencia ?: ''},
                          data-departamento-id=${ubicacion.fkDepartamento != null ? ubicacion.fkDepartamento.idDepartamento : 0},
+                         data-custodio-encargado-id=${ubicacion.idCustodioEncargado ?: 0},
                          data-ciudad=${ubicacion.ciudad ?: ''},
                          data-parroquia=${ubicacion.parroquia ?: ''},
                          data-direccion=${ubicacion.direccion ?: ''},
@@ -81,6 +82,8 @@
               <td>
                 <div class="cui-row-title" th:text="${ubicacion.nombre}">Ubicacion</div>
                 <div class="cui-row-subtitle" th:text="${ubicacion.agencia != null and !#strings.isEmpty(ubicacion.agencia) ? 'Agencia: ' + ubicacion.agencia : 'Sin agencia'}">Agencia</div>
+                <div class="cui-row-subtitle" th:if="${ubicacion.nombreCustodioEncargado != null and !#strings.isEmpty(ubicacion.nombreCustodioEncargado)}"
+                     th:text="'Encargado: ' + ${ubicacion.nombreCustodioEncargado}">Encargado</div>
               </td>
               <td th:text="${ubicacion.provincia != null and !#strings.isEmpty(ubicacion.provincia) ? ubicacion.provincia : 'No registrado'}">Provincia</td>
               <td th:text="${ubicacion.ciudad != null and !#strings.isEmpty(ubicacion.ciudad) ? ubicacion.ciudad : 'No registrado'}">Ciudad</td>
@@ -187,6 +190,15 @@
             <input type="text" class="form-control" name="ciudad" placeholder="Ciudad" maxlength="100">
           </div>
           <div class="col-12">
+            <label class="form-label">Administrador encargado</label>
+            <select class="form-select" name="idCustodioEncargado" id="cbcustodioencargado">
+              <option value="0">Sin encargado</option>
+              <option th:each="cus : ${listacustodio}" th:value="${cus.idCustodio}" th:text="${cus.nombre}"></option>
+            </select>
+            <div class="form-text">Se usara para autoseleccionar el custodio al crear un mantenimiento en esta sucursal.</div>
+          </div>
+
+          <div class="col-12">
             <label class="form-label">Parroquia</label>
             <input type="text" class="form-control" name="parroquia" placeholder="Parroquia" maxlength="150">
           </div>
@@ -258,6 +270,7 @@
 
     var form = document.getElementById('formUbicacion');
     var selDep = document.getElementById('cbdepartamentos');
+    var selEncargado = document.getElementById('cbcustodioencargado');
     var drawerTitulo = document.getElementById('drawerUbicacionTitulo');
     var estadoWrap = document.getElementById('drawerUbicacionEstadoWrap');
     var latInput = document.getElementById('inputLatitud');
@@ -309,6 +322,7 @@
       form.reset();
       setValue('idUbicacion', '0');
       selDep.value = '0';
+      selEncargado.value = '0';
       drawerTitulo.textContent = 'Nueva ubicacion';
       estadoWrap.hidden = true;
       setTimeout(tryShowMap, 50);
@@ -322,6 +336,7 @@
       setValue('nombre', d.nombre);
       setValue('agencia', d.agencia);
       selDep.value = (d.departamentoId && d.departamentoId !== '0') ? d.departamentoId : '0';
+      selEncargado.value = (d.custodioEncargadoId && d.custodioEncargadoId !== '0') ? d.custodioEncargadoId : '0';
       setValue('ciudad', d.ciudad);
       setValue('parroquia', d.parroquia);
       setValue('direccion', d.direccion);

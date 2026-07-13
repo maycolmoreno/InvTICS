@@ -17,6 +17,8 @@ public class Ubicaciones {
 	private final String linkCoordenada;
 
 	private Departamentos fkDepartamento;
+	private Integer idCustodioEncargado;
+	private String nombreCustodioEncargado;
 
 	public Ubicaciones(int idUbicacion, String nombre, String agencia, boolean estado,
 			BigDecimal latitud, BigDecimal longitud, String direccion, String ciudad,
@@ -48,6 +50,11 @@ public class Ubicaciones {
 
 	public Departamentos getFkDepartamento() { return fkDepartamento; }
 	public void setFkDepartamento(Departamentos fkDepartamento) { this.fkDepartamento = fkDepartamento; }
+
+	public Integer getIdCustodioEncargado() { return idCustodioEncargado; }
+	public void setIdCustodioEncargado(Integer idCustodioEncargado) { this.idCustodioEncargado = idCustodioEncargado; }
+	public String getNombreCustodioEncargado() { return nombreCustodioEncargado; }
+	public void setNombreCustodioEncargado(String nombreCustodioEncargado) { this.nombreCustodioEncargado = nombreCustodioEncargado; }
 
 	@Override
 	public String toString() {
