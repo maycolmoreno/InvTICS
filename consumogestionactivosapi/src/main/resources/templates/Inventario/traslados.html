@@ -71,7 +71,7 @@
                             <td>
                                 <div class="cui-action-cell">
                                     <button type="button"
-                                            class="btn btn-outline-success btn-sm"
+                                            class="cui-btn cui-btn-primary cui-btn-sm"
                                             data-action="confirmar-llegada"
                                             data-cui-drawer-open="#drawerConfirmarLlegada">
                                         <i class="feather-check-circle" aria-hidden="true"></i>
@@ -135,13 +135,13 @@
                             <td>
                                 <div class="cui-action-cell">
                                     <button type="button"
-                                            class="btn btn-outline-primary btn-sm"
+                                            class="cui-btn cui-btn-secondary cui-btn-sm"
                                             data-action="trasladar-activo"
                                             data-cui-drawer-open="#drawerTrasladarActivo">
                                         <i class="feather-truck" aria-hidden="true"></i>
                                         Trasladar
                                     </button>
-                                    <a class="btn btn-light btn-sm"
+                                    <a class="cui-btn cui-btn-secondary cui-btn-sm"
                                        th:href="@{/activos/equipos/{id}/expediente(id=${a.idEquipo})}">
                                         Expediente
                                     </a>

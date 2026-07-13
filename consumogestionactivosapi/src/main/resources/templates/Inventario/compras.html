@@ -105,11 +105,11 @@
                             <td>
                                 <div class="cui-action-cell">
                                     <a th:href="@{/inventario/ordenes-compra/{id}/gestionar(id=${oc.idOrdenCompra})}"
-                                       class="btn btn-outline-primary btn-sm">
+                                       class="cui-btn cui-btn-secondary cui-btn-sm">
                                         Gestionar
                                     </a>
                                     <div class="dropdown cui-action-menu">
-                                        <button type="button" class="btn btn-light cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
+                                        <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                                             <i class="feather-more-vertical" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
@@ -195,11 +195,11 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <label class="form-label mb-0">Items de la orden <span class="text-danger">*</span></label>
                             <div class="d-flex gap-1">
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="ocAgregarActivo()">
+                                <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" onclick="ocAgregarActivo()">
                                     <i class="feather-monitor" aria-hidden="true"></i>
                                     + Activo TIC
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="ocAgregarConsumible()">
+                                <button type="button" class="cui-btn cui-btn-secondary cui-btn-sm" onclick="ocAgregarConsumible()">
                                     <i class="feather-package" aria-hidden="true"></i>
                                     + Consumible
                                 </button>
@@ -233,7 +233,7 @@
                 <div class="row g-2 align-items-center">
                     <input type="hidden" name="detalles[__N__].tipoItem" value="ACTIVO">
                     <div class="col-auto">
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:.7rem;">
+                        <span class="cui-badge cui-badge-info" style="font-size:.7rem;">
                             <i class="feather-monitor" style="font-size:.75rem;"></i> Activo TIC
                         </span>
                     </div>
@@ -264,7 +264,7 @@
                     <input type="hidden" name="detalles[__N__].tipoItem" value="STOCK">
                     <input type="hidden" name="detalles[__N__].descripcion" class="oc-consumible-desc" value="">
                     <div class="col-auto">
-                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle" style="font-size:.7rem;">
+                        <span class="cui-badge cui-badge-muted" style="font-size:.7rem;">
                             <i class="feather-package" style="font-size:.75rem;"></i> Consumible
                         </span>
                     </div>

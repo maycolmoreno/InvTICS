@@ -333,7 +333,7 @@
                                                     <td>
                                                         <div class="cui-action-cell">
                                                             <a th:if="${equipo != null}" th:href="@{/activos/equipos/{id}/expediente(id=${equipo.idEquipo})}" class="cui-btn cui-btn-secondary">Expediente</a>
-                                                            <button th:unless="${equipo != null}" type="button" class="btn btn-outline-secondary btn-sm" disabled>Sin activo</button>
+                                                            <button th:unless="${equipo != null}" type="button" class="cui-btn cui-btn-secondary cui-btn-sm" disabled>Sin activo</button>
                                                             <div class="dropdown cui-action-menu">
                                                                 <button type="button" class="cui-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mas acciones">
                                                                     <i class="feather-more-vertical" aria-hidden="true"></i>
@@ -606,7 +606,7 @@
                     </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
-                        <button class="btn btn-danger" type="submit"
+                        <button class="cui-btn cui-btn-danger" type="submit"
                                 data-cui-confirm="Confirme la baja del activo.">
                             <i class="feather-alert-triangle" aria-hidden="true"></i>
                             <span>Dar de baja</span>

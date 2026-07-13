@@ -54,8 +54,8 @@
                 <p class="view-subtitle">Consulta el cierre registrado y mantén el respaldo documental disponible para auditoría y seguimiento.</p>
             </div>
             <div class="d-flex gap-2 flex-wrap">
-                <a th:href="@{/custodias}" class="btn btn-light px-4 py-3">Volver</a>
-                <a th:href="@{/custodias/acta-salida/pdf}" class="btn btn-primary px-4 py-3">
+                <a th:href="@{/custodias}" class="cui-btn cui-btn-secondary">Volver</a>
+                <a th:href="@{/custodias/acta-salida/pdf}" class="cui-btn cui-btn-primary">
                     <i class="feather-download me-2"></i>Descargar PDF
                 </a>
             </div>
@@ -100,7 +100,7 @@
             </div>
             <div class="content-card pt-0">
                 <div class="table-responsive">
-                    <table class="table inventory-table mb-0">
+                    <table class="table cui-table mb-0">
                         <thead>
                         <tr>
                             <th>ID</th>
@@ -112,7 +112,7 @@
                         </thead>
                         <tbody>
                         <tr th:if="${detalles == null or #lists.isEmpty(detalles)}">
-                            <td colspan="6">
+                            <td colspan="5">
                                 <div class="table-empty-state">
                                     <i class="feather-inbox"></i>
                                     <div>No hay equipos asociados a esta acta.</div>

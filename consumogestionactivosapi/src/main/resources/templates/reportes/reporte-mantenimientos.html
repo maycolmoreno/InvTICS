@@ -22,10 +22,6 @@
             </a>
         </div>
 
-        <section class="cui-kpi-grid">
-            <div th:replace="~{fragments/components/kpi-card :: kpiCard(label='Registros', value=${#lists.size(listaMantenimientos)}, meta='Resultado filtrado', icon='feather-tool', tone='primary')}"></div>
-        </section>
-
         <section class="cui-data-grid" id="maintenanceReportGrid" data-cui-grid>
             <div class="cui-data-grid-header">
                 <div>
@@ -53,7 +49,7 @@
                         <option value="" th:selected="${tecnicoSeleccionado == null}">Todos los tecnicos</option>
                         <option th:each="u : ${listaUsuarios}" th:value="${u.idUsuario}" th:text="${u.nombre}" th:selected="${tecnicoSeleccionado != null && tecnicoSeleccionado == u.idUsuario}"></option>
                     </select>
-                    <a th:href="@{/reportes/mantenimientos}" class="btn btn-light cui-btn-soft">
+                    <a th:href="@{/reportes/mantenimientos}" class="cui-btn cui-btn-secondary">
                         <i class="feather-x" aria-hidden="true"></i>
                         <span>Limpiar</span>
                     </a>

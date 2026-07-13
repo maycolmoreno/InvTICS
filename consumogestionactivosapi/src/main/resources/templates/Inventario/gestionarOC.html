@@ -111,7 +111,7 @@
                                 <div class="cui-action-cell" th:if="${det.recibible}">
                                     <button th:if="${det.tipoItem == 'STOCK' or det.tipoItem == 'CONSUMIBLE'}"
                                             type="button"
-                                            class="btn btn-outline-primary btn-sm"
+                                            class="cui-btn cui-btn-secondary cui-btn-sm"
                                             data-action="recibir-stock"
                                             data-cui-drawer-open="#drawerRecibirStock"
                                             th:attr="data-url=@{/inventario/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/stock(idOC=${oc.idOrdenCompra},idDetalle=${det.idOrdenCompraDetalle})},
@@ -123,7 +123,7 @@
                                     </button>
                                     <button th:if="${det.tipoItem == 'ACTIVO'}"
                                             type="button"
-                                            class="btn btn-outline-primary btn-sm"
+                                            class="cui-btn cui-btn-secondary cui-btn-sm"
                                             data-action="recibir-activo"
                                             data-cui-drawer-open="#drawerRecibirActivo"
                                             th:attr="data-url=@{/inventario/ordenes-compra/{idOC}/detalles/{idDetalle}/recepciones/activo(idOC=${oc.idOrdenCompra},idDetalle=${det.idOrdenCompraDetalle})},

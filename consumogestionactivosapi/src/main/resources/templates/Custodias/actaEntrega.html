@@ -18,7 +18,7 @@
 			<div class="page-header-right ms-auto">
 				<!-- Botón para descargar PDF y volver -->
 				<button id="btnDescargarVolver" type="button"
-					class="btn btn-primary ms-2">
+					class="cui-btn cui-btn-primary ms-2">
 					<i class="feather-download me-2"></i><span>Descargar PDF y
 						Volver</span>
 				</button>
@@ -56,13 +56,14 @@
 
 					<h6>Equipos entregados</h6>
 					<div class="table-responsive">
-						<table class="table table-hover align-middle">
+						<table class="table cui-table align-middle">
 							<thead>
 								<tr>
 									<th>ID</th>
 									<th>Código</th>
 									<th>Modelo</th>
 									<th>Serial</th>
+									<th>Ubicación</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -71,11 +72,10 @@
 									<td th:text="${d.fkEquipo != null ? d.fkEquipo.codigoSap : ''}"></td>
 									<td th:text="${d.fkEquipo != null ? d.fkEquipo.modelo : ''}"></td>
 									<td th:text="${d.fkEquipo != null ? d.fkEquipo.serial : ''}"></td>
-											<td th:text="${d.fkCustodio != null and d.fkCustodio.fkUbicacion != null ? d.fkCustodio.fkUbicacion.nombre : ''}"></td>
-									</tr>
-									<tr th:if="${detalles == null or #lists.isEmpty(detalles)}">
-										<td colspan="6" class="text-center text-muted">Sin
-										detalles</td>
+									<td th:text="${d.fkCustodio != null and d.fkCustodio.fkUbicacion != null ? d.fkCustodio.fkUbicacion.nombre : ''}"></td>
+								</tr>
+								<tr th:if="${detalles == null or #lists.isEmpty(detalles)}">
+									<td colspan="5" class="text-center text-muted">Sin detalles</td>
 								</tr>
 							</tbody>
 						</table>
