@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.uisrael.gestionactivosapi.dominio.excepciones.MantenimientoNoModificableException;
 import com.uisrael.gestionactivosapi.dominio.excepciones.RecursoNoEncontradoException;
 import com.uisrael.gestionactivosapi.dominio.entidades.EstadoInternoMantenimiento;
 import com.uisrael.gestionactivosapi.dominio.entidades.FirmaMantenimiento;
@@ -200,6 +201,12 @@ public class MantenimientoManualService implements IMantenimientoManualUseCase {
         }
         MantenimientosJpa mantenimiento = mantenimientosRepo.findById(idMantenimiento)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mantenimiento no encontrado"));
+        // Un re-cierre sobrescribiria resultado/fecha/cerradoPor, volveria a correr
+        // el plan preventivo y reenviaria el informe: una OT cerrada es inmutable.
+        if (mantenimiento.getEstadoInterno() == EstadoInternoMantenimiento.CERRADO) {
+            throw new MantenimientoNoModificableException(idMantenimiento,
+                    mantenimiento.getEstadoInterno().name());
+        }
         mantenimiento.setDescripcion(actualizarDescripcionCierre(
                 mantenimiento.getDescripcion(),
                 descripcionTrabajoRealizado));

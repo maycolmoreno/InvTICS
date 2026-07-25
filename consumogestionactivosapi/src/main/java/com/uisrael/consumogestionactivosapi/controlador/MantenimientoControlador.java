@@ -347,6 +347,7 @@ public class MantenimientoControlador {
             @RequestParam List<Integer> equipoIds,
             @RequestParam Integer custodioId,
             @RequestParam(defaultValue = "ADMINISTRATIVO") String modoSeleccion,
+            @RequestParam(required = false) Integer ubicacionId,
             @RequestParam String tipoMantenimiento,
             @RequestParam LocalDate fechaMantenimiento,
             @RequestParam(required = false) LocalDate proximaFecha,
@@ -369,9 +370,15 @@ public class MantenimientoControlador {
 
         List<Integer> ids = equipoIds.stream().distinct().toList();
         boolean modoAdministrativo = "ADMINISTRATIVO".equalsIgnoreCase(modoSeleccion);
-        if (modoAdministrativo && !equiposPertenecenACustodio(ids, custodioId)) {
+        if (modoAdministrativo) {
+            if (!equiposPertenecenACustodio(ids, custodioId)) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Uno o mas equipos seleccionados no estan asignados al custodio indicado.");
+                return redirectNuevoConContexto(equipoIds, idProgramado);
+            }
+        } else if (!custodioYEquiposPertenecenASucursal(ids, custodioId, ubicacionId)) {
             redirectAttributes.addFlashAttribute("error",
-                    "Uno o mas equipos seleccionados no estan asignados al custodio indicado.");
+                    "El custodio o alguno de los equipos seleccionados no pertenece a la sucursal indicada.");
             return redirectNuevoConContexto(equipoIds, idProgramado);
         }
 
@@ -600,6 +607,40 @@ public class MantenimientoControlador {
                 .collect(Collectors.toSet());
 
         return !equiposAsignados.isEmpty() && equiposAsignados.containsAll(equipoIds);
+    }
+
+    // Espejo en servidor del filtro que ya aplica refreshEquipoOptionsSucursal() en
+    // registro-manual.html (modo FARMACIA): un equipo es de la sucursal si su
+    // custodia activa apunta a CUALQUIER custodio de esa sucursal, no solo al
+    // custodio seleccionado en el formulario (varios custodios de una misma
+    // sucursal pueden compartir equipos). Sin este chequeo, un POST manipulado
+    // podia registrar un mantenimiento con equipos/custodio de sucursales
+    // distintas, algo que el formulario nunca permite armar.
+    private boolean custodioYEquiposPertenecenASucursal(List<Integer> equipoIds, Integer custodioId, Integer ubicacionId) {
+        if (custodioId == null || ubicacionId == null || equipoIds == null || equipoIds.isEmpty()) {
+            return false;
+        }
+
+        Set<Integer> custodiosEnSucursal = custodiosServicio.listarCustodios().stream()
+                .filter(CustodiosResponseDTO::isEstado)
+                .filter(c -> c.getFkUbicacion() != null && ubicacionId.equals(c.getFkUbicacion().getIdUbicacion()))
+                .map(CustodiosResponseDTO::getIdCustodio)
+                .collect(Collectors.toSet());
+
+        if (!custodiosEnSucursal.contains(custodioId)) {
+            return false;
+        }
+
+        Set<Integer> equiposEnSucursal = custodiasServicio.listarCustodias().stream()
+                .filter(CustodiasResponseDTO::isEstado)
+                .filter(custodia -> custodiosEnSucursal.contains(idCustodio(custodia)))
+                .map(CustodiasResponseDTO::getFkEquipo)
+                .filter(Objects::nonNull)
+                .map(EquiposResponseDTO::getIdEquipo)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        return equiposEnSucursal.containsAll(equipoIds);
     }
 
     private Integer idCustodio(CustodiasResponseDTO custodia) {

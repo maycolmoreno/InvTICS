@@ -49,12 +49,15 @@ public class MantenimientoArchivoService {
                 if (imagen.getSize() > MAX_IMAGE_BYTES) {
                     throw new IllegalArgumentException("Una imagen supera el limite de 5MB");
                 }
-                String original = imagen.getOriginalFilename() != null ? imagen.getOriginalFilename() : "evidencia";
-                Path destino = carpeta.resolve(original);
+                String nombreSeguro = sanearNombreArchivo(imagen.getOriginalFilename());
+                Path destino = carpeta.resolve(nombreSeguro).normalize();
+                if (!destino.startsWith(carpeta)) {
+                    throw new IllegalArgumentException("Nombre de archivo no valido: " + imagen.getOriginalFilename());
+                }
                 Files.copy(imagen.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
 
                 ImagenMantenimientoRequestDTO dto = new ImagenMantenimientoRequestDTO();
-                dto.setNombreArchivo(original);
+                dto.setNombreArchivo(nombreSeguro);
                 dto.setRutaArchivo(destino.toString().replace('\\', '/'));
                 dto.setTamanioBytes(imagen.getSize());
                 metadata.add(dto);
@@ -63,6 +66,24 @@ public class MantenimientoArchivoService {
         } catch (IOException e) {
             throw new RuntimeException("No se pudieron guardar las imagenes del mantenimiento", e);
         }
+    }
+
+    /**
+     * El nombre lo envia el cliente y puede traer rutas ("../", "C:\...") o
+     * caracteres fuera de [a-zA-Z0-9._-], el unico patron que despues acepta
+     * el endpoint que sirve las imagenes: se recorta al nombre base y todo
+     * caracter fuera de ese patron se reemplaza por "_" para que lo guardado
+     * sea siempre servible.
+     */
+    static String sanearNombreArchivo(String original) {
+        String nombre = original == null ? "" : original;
+        int separador = Math.max(nombre.lastIndexOf('/'), nombre.lastIndexOf('\\'));
+        if (separador >= 0) {
+            nombre = nombre.substring(separador + 1);
+        }
+        nombre = nombre.replaceAll("[^a-zA-Z0-9._-]", "_");
+        boolean sinContenido = nombre.chars().allMatch(c -> c == '.' || c == '_');
+        return sinContenido ? "evidencia" : nombre;
     }
 
     public byte[] leerPdf(Integer idMantenimiento) {
