@@ -102,6 +102,21 @@ public class MantenimientoArchivoService {
         return Files.exists(obtenerRutaPdf(idMantenimiento));
     }
 
+    /**
+     * Se invoca cuando falla la regeneracion del PDF al cerrar una OT: sin esto,
+     * el PDF cacheado de antes del cierre (ej. "en proceso", sin resultado
+     * tecnico) queda serviendose para siempre como si fuera el informe final.
+     * Al borrarlo, la proxima consulta fuerza una regeneracion real en vez de
+     * mostrar contenido obsoleto en silencio.
+     */
+    public void eliminarPdfSiExiste(Integer idMantenimiento) {
+        try {
+            Files.deleteIfExists(obtenerRutaPdf(idMantenimiento));
+        } catch (IOException e) {
+            throw new RuntimeException("No se pudo eliminar el PDF cacheado del mantenimiento", e);
+        }
+    }
+
     public byte[] leerImagen(Integer idMantenimiento, String nombreArchivo) {
         try {
             Path imagen = basePath.resolve("imagenes")

@@ -1,6 +1,5 @@
 package com.uisrael.consumogestionactivosapi.controlador;
 
-import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -54,6 +53,8 @@ import com.uisrael.consumogestionactivosapi.service.IInventarioOperacionServicio
 import com.uisrael.consumogestionactivosapi.service.IMarcasServicio;
 import com.uisrael.consumogestionactivosapi.service.ActaStorageService;
 import com.uisrael.consumogestionactivosapi.service.CustodiasPdfService;
+import com.uisrael.consumogestionactivosapi.util.TextNormalizer;
+import com.uisrael.consumogestionactivosapi.util.WebClientHelper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.client.RestClientResponseException;
@@ -67,20 +68,7 @@ public class InventarioControlador {
 	private static final String DEPARTAMENTO_TIC = "TECNOLOGÍAS E INNOVACIÓN";
 
 	private static String mensajeError(Exception ex) {
-		if (ex instanceof RestClientResponseException rce) {
-			String body = rce.getResponseBodyAsString();
-			if (body != null && body.contains("\"message\"")) {
-				try {
-					int ini = body.indexOf("\"message\"") + 10;
-					int desde = body.indexOf('"', ini) + 1;
-					int hasta = body.indexOf('"', desde);
-					if (desde > 0 && hasta > desde) {
-						return body.substring(desde, hasta);
-					}
-				} catch (Exception ignored) {}
-			}
-		}
-		return ex.getMessage();
+		return WebClientHelper.extraerMensajeError(ex);
 	}
 
 	private final ICustodiasServicio servicioCustodias;
@@ -124,8 +112,9 @@ public class InventarioControlador {
 					? custodio.getFkCargo().getFkDepartamento().getNombre()
 					: null;
 			String deptoDirectorio = custodio.getDepartamentoDirectorio();
-			boolean perteneceTic = sinTildes(DEPARTAMENTO_TIC).equalsIgnoreCase(sinTildes(deptoCatalogo))
-					|| sinTildes(DEPARTAMENTO_TIC).equalsIgnoreCase(sinTildes(deptoDirectorio));
+			String departamentoTicNormalizado = TextNormalizer.normalizeForComparison(DEPARTAMENTO_TIC);
+			boolean perteneceTic = departamentoTicNormalizado.equals(TextNormalizer.normalizeForComparison(deptoCatalogo))
+					|| departamentoTicNormalizado.equals(TextNormalizer.normalizeForComparison(deptoDirectorio));
 			if (!perteneceTic) {
 				redirect.addFlashAttribute("error",
 						"El custodio responsable debe pertenecer al departamento TECNOLOGÍAS E INNOVACIÓN.");
@@ -228,7 +217,7 @@ public class InventarioControlador {
 	@ResponseBody
 	public List<Map<String, Object>> buscarCustodios(
 			@RequestParam(name = "q", defaultValue = "") String q) {
-		String busq = sinTildes(q.toLowerCase().trim());
+		String busq = TextNormalizer.normalizeForComparison(q);
 		List<Map<String, Object>> resultado = new ArrayList<>();
 		Set<String> cedulasLocales = new HashSet<>();
 
@@ -236,7 +225,7 @@ public class InventarioControlador {
 			custodiosServicio.listarCustodios().stream()
 				.filter(c -> c != null && c.isEstado())
 				.filter(c -> busq.isEmpty()
-					|| (c.getNombre() != null && sinTildes(c.getNombre().toLowerCase()).contains(busq))
+					|| TextNormalizer.normalizeForComparison(c.getNombre()).contains(busq)
 					|| (c.getCedula() != null && c.getCedula().contains(busq)))
 				.limit(12)
 				.forEach(c -> {
@@ -297,22 +286,8 @@ public class InventarioControlador {
 	}
 
 	private static String mensajeErrorDirectorio(RestClientResponseException ex) {
-		try {
-			com.fasterxml.jackson.databind.JsonNode cuerpo = new com.fasterxml.jackson.databind.ObjectMapper()
-					.readTree(ex.getResponseBodyAsString());
-			if (cuerpo.hasNonNull("error")) {
-				return cuerpo.get("error").asText();
-			}
-		} catch (Exception ignorada) {
-			// cuerpo no era JSON
-		}
-		return "No se pudo resolver la persona del directorio (" + ex.getStatusCode().value() + ")";
-	}
-
-	private static String sinTildes(String s) {
-		if (s == null) return "";
-		return Normalizer.normalize(s, Normalizer.Form.NFD)
-			.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+		return WebClientHelper.extraerMensajeError(ex,
+				"No se pudo resolver la persona del directorio (" + ex.getStatusCode().value() + ")");
 	}
 
 	@PostMapping("/asignaciones/lote")

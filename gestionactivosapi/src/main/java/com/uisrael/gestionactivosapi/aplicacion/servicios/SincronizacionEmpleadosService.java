@@ -6,11 +6,9 @@ import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -32,6 +30,7 @@ import org.springframework.web.client.RestClient;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uisrael.gestionactivosapi.dominio.validacion.TextNormalizer;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CargosJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiasJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CustodiosJpa;
@@ -253,11 +252,11 @@ public class SincronizacionEmpleadosService {
      */
     public List<CandidatoDirectorioDTO> buscarEnDirectorio(String q) {
         List<EmpleadoSyncDTO> empleados = parsearEmpleados(leerFuenteConfigurada()[1]);
-        String busqueda = normalizar(q);
+        String busqueda = TextNormalizer.normalizeForComparison(q);
         return empleados.stream()
                 .filter(e -> e.getCedula() != null && !e.getCedula().isBlank())
                 .filter(e -> busqueda.isBlank()
-                        || normalizar(e.getNombre()).contains(busqueda)
+                        || TextNormalizer.normalizeForComparison(e.getNombre()).contains(busqueda)
                         || e.getCedula().contains(busqueda))
                 .limit(12)
                 .map(SincronizacionEmpleadosService::aCandidato)
@@ -521,7 +520,8 @@ public class SincronizacionEmpleadosService {
             return Optional.empty();
         }
         return cargosRepo.findAll().stream()
-                .filter(c -> normalizar(c.getNombre()).equals(normalizar(nombreCargo)))
+                .filter(c -> TextNormalizer.normalizeForComparison(c.getNombre())
+                    .equals(TextNormalizer.normalizeForComparison(nombreCargo)))
                 .findFirst();
     }
 
@@ -588,14 +588,4 @@ public class SincronizacionEmpleadosService {
         return valor == null || valor.isBlank() ? null : valor.trim();
     }
 
-    /** Comparacion robusta: ignora mayusculas/minusculas y tildes. */
-    static String normalizar(String valor) {
-        if (valor == null) {
-            return "";
-        }
-        return Normalizer.normalize(valor, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .toLowerCase(Locale.ROOT)
-                .trim();
-    }
 }

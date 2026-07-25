@@ -79,12 +79,22 @@ public class MantenimientoInformeService {
                         .filter(Objects::nonNull)
                         .toList();
 
-        byte[] pdfBytes = pdfMantenimientoService.generarInforme(
-                mantenimiento,
-                equipo,
-                custodio,
-                tecnico,
-                rutasImagenes);
+        byte[] pdfBytes;
+        try {
+            pdfBytes = pdfMantenimientoService.generarInforme(
+                    mantenimiento,
+                    equipo,
+                    custodio,
+                    tecnico,
+                    rutasImagenes);
+        } catch (RuntimeException e) {
+            // Si la regeneracion falla (ej. al cerrar la OT) no debe quedar
+            // serviendose el PDF cacheado anterior, que ya no refleja el estado
+            // real del mantenimiento: se invalida para forzar una regeneracion
+            // real en la proxima consulta en vez de contenido obsoleto silencioso.
+            archivoService.eliminarPdfSiExiste(mantenimiento.getIdMantenimiento());
+            throw e;
+        }
         archivoService.guardarPdf(mantenimiento.getIdMantenimiento(), pdfBytes);
         return pdfBytes;
     }

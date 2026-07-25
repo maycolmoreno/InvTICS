@@ -13,11 +13,25 @@ public final class WebClientHelper {
 	private WebClientHelper() {
 	}
 
+	public static String extraerMensajeError(Exception ex) {
+		if (ex instanceof RestClientResponseException restClientException) {
+			return extraerMensajeError(restClientException);
+		}
+		String mensaje = ex.getMessage();
+		return mensaje == null || mensaje.isBlank() ? "Error al procesar la solicitud" : mensaje;
+	}
+
 	public static String extraerMensajeError(RestClientResponseException ex) {
+		return extraerMensajeError(ex, null);
+	}
+
+	public static String extraerMensajeError(RestClientResponseException ex, String fallbackMessage) {
 		try {
 			String errorBody = ex.getResponseBodyAsString();
 			if (errorBody == null || errorBody.isBlank()) {
-				return "Error HTTP " + ex.getStatusCode().value() + ": " + ex.getStatusText();
+				return fallbackMessage == null || fallbackMessage.isBlank()
+						? "Error HTTP " + ex.getStatusCode().value() + ": " + ex.getStatusText()
+						: fallbackMessage;
 			}
 
 			JsonNode root = OBJECT_MAPPER.readTree(errorBody);
@@ -40,6 +54,9 @@ public final class WebClientHelper {
 			}
 			return errorBody;
 		} catch (Exception e) {
+			if (fallbackMessage != null && !fallbackMessage.isBlank()) {
+				return fallbackMessage;
+			}
 			if (ex.getStatusText() != null && !ex.getStatusText().isBlank()) {
 				return "Error HTTP " + ex.getStatusCode().value() + ": " + ex.getStatusText();
 			}

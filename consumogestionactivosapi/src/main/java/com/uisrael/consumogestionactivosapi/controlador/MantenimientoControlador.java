@@ -50,6 +50,7 @@ import com.uisrael.consumogestionactivosapi.service.IMantenimientoManualServicio
 import com.uisrael.consumogestionactivosapi.service.IMantenimientoProgramadoServicio;
 import com.uisrael.consumogestionactivosapi.service.IUbicacionesServicio;
 import com.uisrael.consumogestionactivosapi.service.IUsuariosServicio;
+import com.uisrael.consumogestionactivosapi.util.WebClientHelper;
 import com.uisrael.consumogestionactivosapi.exception.BackendException;
 import com.uisrael.consumogestionactivosapi.security.SesionUsuario;
 
@@ -525,8 +526,7 @@ public class MantenimientoControlador {
     }
 
     private static String mensajeError(Exception ex) {
-        String mensaje = ex.getMessage();
-        return (mensaje != null && !mensaje.isBlank()) ? mensaje : "Error inesperado.";
+        return WebClientHelper.extraerMensajeError(ex);
     }
 
     private static <T> List<T> sinNulos(List<T> lista) {

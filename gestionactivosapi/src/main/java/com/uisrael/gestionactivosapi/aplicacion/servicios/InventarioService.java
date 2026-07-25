@@ -1,6 +1,5 @@
 package com.uisrael.gestionactivosapi.aplicacion.servicios;
 
-import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +21,7 @@ import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoInventar
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.EstadoOrdenCompra;
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.TipoItemInventario;
 import com.uisrael.gestionactivosapi.dominio.entidades.inventario.TipoMovimientoInventario;
+import com.uisrael.gestionactivosapi.dominio.validacion.TextNormalizer;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.BodegaJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.CategoriaEquiposJpa;
 import com.uisrael.gestionactivosapi.infraestructura.persistencia.jpa.ConsumibleJpa;
@@ -674,7 +674,7 @@ public class InventarioService {
         return toActivoResponse(guardado);
     }
 
-    private static final String DEPARTAMENTO_TIC_NORMALIZADO = normalizarTexto("TECNOLOGÍAS E INNOVACIÓN");
+    private static final String DEPARTAMENTO_TIC_NORMALIZADO = TextNormalizer.normalizeForComparison("TECNOLOGÍAS E INNOVACIÓN");
 
     private void aplicarBodega(BodegaRequestDTO request, BodegaJpa bodega) {
         bodega.setNombre(request.getNombre());
@@ -705,23 +705,12 @@ public class InventarioService {
                 ? custodio.getFkCargo().getFkDepartamento().getNombre()
                 : null;
         String deptoDirectorio = custodio.getDepartamentoDirectorio();
-        boolean perteneceTic = DEPARTAMENTO_TIC_NORMALIZADO.equals(normalizarTexto(deptoCatalogo))
-                || DEPARTAMENTO_TIC_NORMALIZADO.equals(normalizarTexto(deptoDirectorio));
+        boolean perteneceTic = DEPARTAMENTO_TIC_NORMALIZADO.equals(TextNormalizer.normalizeForComparison(deptoCatalogo))
+            || DEPARTAMENTO_TIC_NORMALIZADO.equals(TextNormalizer.normalizeForComparison(deptoDirectorio));
         if (!perteneceTic) {
             throw new IllegalArgumentException(
                     "El custodio responsable debe pertenecer al departamento TECNOLOGÍAS E INNOVACIÓN");
         }
-    }
-
-    /** Comparacion robusta: ignora mayusculas/minusculas y tildes. */
-    private static String normalizarTexto(String valor) {
-        if (valor == null) {
-            return "";
-        }
-        return Normalizer.normalize(valor, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .toLowerCase(Locale.ROOT)
-                .trim();
     }
 
     private void aplicarConsumible(ConsumibleRequestDTO request, ConsumibleJpa consumible) {

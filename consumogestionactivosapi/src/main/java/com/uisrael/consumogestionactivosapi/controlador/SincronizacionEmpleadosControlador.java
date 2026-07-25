@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.sync.EstadoSincronizacionDTO;
 import com.uisrael.consumogestionactivosapi.modelo.dto.response.sync.SincronizacionResultadoDTO;
 import com.uisrael.consumogestionactivosapi.service.ISyncEmpleadosServicio;
+import com.uisrael.consumogestionactivosapi.util.WebClientHelper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,16 +82,9 @@ public class SincronizacionEmpleadosControlador {
     /** Extrae el mensaje {"error": ...} que devuelve el backend, si existe. */
     private String mensajeError(Exception ex) {
         if (ex instanceof RestClientResponseException rex) {
-            try {
-                JsonNode cuerpo = objectMapper.readTree(rex.getResponseBodyAsString());
-                if (cuerpo.hasNonNull("error")) {
-                    return cuerpo.get("error").asText();
-                }
-            } catch (Exception ignorada) {
-                // cuerpo no era JSON: usar mensaje generico
-            }
-            return "el backend respondió " + rex.getStatusCode().value();
+            return WebClientHelper.extraerMensajeError(rex,
+                    "el backend respondió " + rex.getStatusCode().value());
         }
-        return ex.getMessage() != null ? ex.getMessage() : "error inesperado";
+        return WebClientHelper.extraerMensajeError(ex);
     }
 }

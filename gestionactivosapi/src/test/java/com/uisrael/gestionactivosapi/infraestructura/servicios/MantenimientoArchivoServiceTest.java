@@ -83,6 +83,25 @@ class MantenimientoArchivoServiceTest {
         assertThat(MantenimientoArchivoService.sanearNombreArchivo("a b%c.png")).isEqualTo("a_b_c.png");
     }
 
+    @Test
+    void eliminarPdfSiExisteBorraElArchivoCacheado() throws IOException {
+        service.guardarPdf(7, new byte[] {1, 2, 3});
+        assertThat(service.existePdf(7)).isTrue();
+
+        service.eliminarPdfSiExiste(7);
+
+        assertThat(service.existePdf(7)).isFalse();
+    }
+
+    @Test
+    void eliminarPdfSiExisteNoFallaCuandoNoHayArchivo() {
+        assertThat(service.existePdf(999)).isFalse();
+
+        service.eliminarPdfSiExiste(999);
+
+        assertThat(service.existePdf(999)).isFalse();
+    }
+
     private MockMultipartFile imagen(String nombreOriginal) {
         return new MockMultipartFile("files", nombreOriginal, "image/jpeg", new byte[] {1, 2, 3});
     }
