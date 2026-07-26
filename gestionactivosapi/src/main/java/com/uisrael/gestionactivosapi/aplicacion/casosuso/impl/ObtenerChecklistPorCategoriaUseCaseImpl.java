@@ -21,6 +21,15 @@ public class ObtenerChecklistPorCategoriaUseCaseImpl implements IObtenerChecklis
     }
 
     @Override
+    public List<ActividadChecklist> listarActivasPorTipo(String tipoMantenimiento) {
+        if (!"PREVENTIVO".equalsIgnoreCase(tipoMantenimiento)
+                && !"CORRECTIVO".equalsIgnoreCase(tipoMantenimiento)) {
+            throw new IllegalArgumentException("Tipo de mantenimiento invalido");
+        }
+        return actividadChecklistRepository.listarActivasPorTipo(tipoMantenimiento);
+    }
+
+    @Override
     public ActividadChecklist obtenerPorId(Integer id) {
         return actividadChecklistRepository.obtenerPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Actividad checklist no encontrada con id: " + id));

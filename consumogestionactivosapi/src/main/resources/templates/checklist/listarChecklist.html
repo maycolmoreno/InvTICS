@@ -54,7 +54,9 @@
                          data-id-actividad=${act.idActividad},
                          data-nombre=${act.nombre ?: ''},
                          data-orden=${act.orden ?: ''},
-                         data-estado-activo=${act.estado}">
+                         data-estado-activo=${act.estado},
+                         data-aplica-preventivo=${act.aplicaPreventivo},
+                         data-aplica-correctivo=${act.aplicaCorrectivo}">
               <td><span class="cui-row-title" th:text="${act.orden ?: '-'}">1</span></td>
               <td th:text="${act.nombre}">Actividad</td>
               <td>
@@ -113,6 +115,15 @@
               <option value="false">Inactiva</option>
             </select>
           </div>
+          <div class="col-12">
+            <label class="form-label">Aplica a mantenimiento <span class="cui-required-mark">*</span></label>
+            <div class="d-flex gap-3">
+              <input type="hidden" name="_aplicaPreventivo" value="on">
+              <label class="form-check"><input class="form-check-input" type="checkbox" name="aplicaPreventivo" value="true" checked> Preventivo</label>
+              <input type="hidden" name="_aplicaCorrectivo" value="on">
+              <label class="form-check"><input class="form-check-input" type="checkbox" name="aplicaCorrectivo" value="true" checked> Correctivo</label>
+            </div>
+          </div>
 
           <div class="col-12 d-flex justify-content-end gap-2 pt-2">
             <button type="button" class="cui-btn cui-btn-secondary" data-cui-drawer-close>Cancelar</button>
@@ -145,6 +156,8 @@
       setValue('orden', '1');
       drawerTitulo.textContent = 'Nueva actividad';
       estadoWrap.hidden = true;
+      form.querySelector('[name="aplicaPreventivo"]').checked = true;
+      form.querySelector('[name="aplicaCorrectivo"]').checked = true;
     }
 
     function abrirDrawerEditar(row) {
@@ -156,6 +169,8 @@
       setValue('orden', d.orden);
       estadoWrap.hidden = false;
       document.getElementById('actividadEstadoSelect').value = d.estadoActivo === 'true' ? 'true' : 'false';
+      form.querySelector('[name="aplicaPreventivo"]').checked = d.aplicaPreventivo === 'true';
+      form.querySelector('[name="aplicaCorrectivo"]').checked = d.aplicaCorrectivo === 'true';
     }
 
     document.addEventListener('click', function (e) {

@@ -262,7 +262,8 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Tipo de mantenimiento <span class="cui-required-mark">*</span></label>
-                        <select name="tipoMantenimiento" class="form-select" required>
+                        <select id="tipoMantenimiento" name="tipoMantenimiento" class="form-select" required
+                                data-select2-selector="tipo-mantenimiento">
                             <option value="">Seleccione tipo</option>
                             <option value="PREVENTIVO" th:selected="${idProgramadoPreseleccionado != null}">Preventivo</option>
                             <option value="CORRECTIVO">Correctivo</option>
@@ -329,13 +330,15 @@
                              style="width:0%; background:var(--cui-primary);"
                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                    <div class="row g-2 mb-3">
+                    <p id="checklistTipoHint" class="text-muted small mb-3">Selecciona el tipo de mantenimiento para ver sus actividades.</p>
+                    <div class="row g-2 mb-3" id="checklistItems">
                         <div class="col-md-4" th:each="actividad : ${actividades}">
                             <div class="form-check">
                                 <input class="form-check-input checklist-item" type="checkbox"
                                        name="actividadIds"
                                        th:value="${actividad.idActividad}"
-                                       th:id="${'act-' + actividad.idActividad}">
+                                       th:id="${'act-' + actividad.idActividad}"
+                                       th:attr="data-preventivo=${actividad.aplicaPreventivo}, data-correctivo=${actividad.aplicaCorrectivo}">
                                 <label class="form-check-label"
                                        th:for="${'act-' + actividad.idActividad}"
                                        th:text="${actividad.nombreActividad}"></label>
@@ -411,8 +414,11 @@
         <script>
             (function() {
                 const form = document.getElementById('formMantenimiento');
-                const checklist = Array.from(document.querySelectorAll('.checklist-item'));
-                const totalChecklist = checklist.length;
+                const allChecklist = Array.from(document.querySelectorAll('.checklist-item'));
+                let checklist = [];
+                let totalChecklist = 0;
+                const tipoMantenimientoSelect = document.getElementById('tipoMantenimiento');
+                const checklistTipoHint = document.getElementById('checklistTipoHint');
                 const checkBar = document.getElementById('checkBar');
                 const checkProgress = document.getElementById('checkProgress');
                 const equipoSelect = document.getElementById('equipoIds');
@@ -804,6 +810,26 @@
                     updateSubmitState();
                 }
 
+                function actualizarChecklistPorTipo() {
+                    const tipo = tipoMantenimientoSelect.value;
+                    checklist = allChecklist.filter(function(item) {
+                        const aplica = tipo === 'PREVENTIVO'
+                            ? item.dataset.preventivo === 'true'
+                            : tipo === 'CORRECTIVO' && item.dataset.correctivo === 'true';
+                        const contenedor = item.closest('.col-md-4');
+                        contenedor.hidden = !aplica;
+                        item.disabled = !aplica;
+                        if (!aplica) item.checked = false;
+                        return aplica;
+                    });
+                    totalChecklist = checklist.length;
+                    checklistTipoHint.textContent = tipo
+                        ? (totalChecklist ? 'Checklist obligatorio para mantenimiento ' + tipo.toLowerCase() + '.'
+                            : 'No hay actividades configuradas para este tipo de mantenimiento.')
+                        : 'Selecciona el tipo de mantenimiento para ver sus actividades.';
+                    updateProgress();
+                }
+
                 function selectedEquiposCount() {
                     return Array.from(equipoSelect.options).filter(opt => opt.selected && !opt.disabled).length;
                 }
@@ -821,7 +847,7 @@
 
                 /* ============ SUBMIT STATE ============ */
                 function updateSubmitState() {
-                    const checklistCompleto = checklist.filter(c => c.checked).length === totalChecklist;
+                    const checklistCompleto = totalChecklist > 0 && checklist.filter(c => c.checked).length === totalChecklist;
                     const firmaOk = !!firmaTecnicoInput.value && !!firmaCustodioInput.value;
                     let seleccionOk;
                     if (modoActual === 'ADMINISTRATIVO') {
@@ -829,7 +855,7 @@
                     } else {
                         seleccionOk = !!ubicacionSelect.value && !!custodioSelect.value && selectedEquiposCount() > 0;
                     }
-                    const ready = checklistCompleto && firmaOk && seleccionOk;
+                    const ready = !!tipoMantenimientoSelect.value && checklistCompleto && firmaOk && seleccionOk;
                     submitButton.disabled = !ready;
                     formReadyBadge.className = 'status-pill ' + (ready ? 'is-completed' : 'is-pending') + ' ms-auto';
                     formReadyBadge.textContent = ready ? 'Listo' : 'Pendiente';
@@ -896,8 +922,9 @@
                 }
 
                 /* ============ INIT ============ */
-                checklist.forEach(c => c.addEventListener('change', updateProgress));
-                updateProgress();
+                allChecklist.forEach(c => c.addEventListener('change', updateProgress));
+                tipoMantenimientoSelect.addEventListener('change', actualizarChecklistPorTipo);
+                actualizarChecklistPorTipo();
                 bindCanvas('canvasTecnico');
                 bindCanvas('canvasCustodio');
 
@@ -966,6 +993,7 @@
                 });
 
                 form.addEventListener('submit', function(e) {
+                    if (!tipoMantenimientoSelect.value) { e.preventDefault(); alert('Debes seleccionar el tipo de mantenimiento'); return; }
                     if (checklist.filter(c => c.checked).length < totalChecklist) { e.preventDefault(); alert('Debes completar todo el checklist'); return; }
                     if (!firmaTecnicoInput.value || !firmaCustodioInput.value) { e.preventDefault(); alert('Debes confirmar ambas firmas antes de guardar.'); return; }
                     if (!custodioSelect.value) { e.preventDefault(); alert('Debes seleccionar un custodio.'); return; }

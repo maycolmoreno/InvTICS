@@ -75,6 +75,8 @@ class MantenimientoControladorFarmaciaTest {
         actividad.setNombre("Limpieza");
         actividad.setOrden(1);
         lenient().when(actividadChecklistServicio.listarActivas()).thenReturn(List.of(actividad));
+        lenient().when(actividadChecklistServicio.listarActivasPorTipo("PREVENTIVO"))
+                .thenReturn(List.of(actividad));
 
         // Custodio de la sucursal B, con un equipo cuya custodia activa le pertenece.
         CustodiosResponseDTO custodioFarmacia = new CustodiosResponseDTO();
@@ -165,5 +167,19 @@ class MantenimientoControladorFarmaciaTest {
         assertThat(vista).isEqualTo("redirect:/mantenimiento");
         assertThat(redirect.getFlashAttributes()).containsKey("exito");
         verify(mantenimientoManualServicio).crear(any());
+    }
+
+    @Test
+    void rechazaChecklistQueNoCorrespondeAlTipoDeMantenimiento() {
+        RedirectAttributesModelMap redirect = new RedirectAttributesModelMap();
+
+        String vista = controlador.guardar(
+                List.of(EQUIPO_FARMACIA), CUSTODIO_FARMACIA, "FARMACIA", UBICACION_SUCURSAL_B,
+                "PREVENTIVO", LocalDate.now(), null, "BUENO", "Detalle de prueba",
+                "firmaTecnicoBase64", "firmaCustodioBase64", List.of(999), null, null, Map.of(), redirect);
+
+        assertThat(vista).startsWith("redirect:/mantenimiento/nuevo");
+        assertThat(redirect.getFlashAttributes().get("error")).isEqualTo("Debes completar todo el checklist");
+        verify(mantenimientoManualServicio, never()).crear(any());
     }
 }

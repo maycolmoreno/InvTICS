@@ -8,4 +8,6 @@ public class ActividadChecklistResponseDTO {
     private String nombre;
     private Integer orden;
     private Boolean estado;
+    private Boolean aplicaPreventivo;
+    private Boolean aplicaCorrectivo;
 }

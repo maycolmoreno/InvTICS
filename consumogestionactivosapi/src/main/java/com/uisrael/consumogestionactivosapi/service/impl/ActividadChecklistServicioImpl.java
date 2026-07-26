@@ -29,6 +29,14 @@ public class ActividadChecklistServicioImpl implements IActividadChecklistServic
     }
 
     @Override
+    public List<ActividadChecklistResponseDTO> listarActivasPorTipo(String tipoMantenimiento) {
+        return clienteWeb.get()
+                .uri("/actividades-checklist/tipo/{tipoMantenimiento}", tipoMantenimiento)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<ActividadChecklistResponseDTO>>() {});
+    }
+
+    @Override
     public ActividadChecklistResponseDTO obtenerPorId(Integer id) {
         try {
             return clienteWeb.get()

@@ -12,6 +12,8 @@ public interface ActividadChecklistRepositorioPuerto {
 
     List<ActividadChecklist> listarActivas();
 
+    List<ActividadChecklist> listarActivasPorTipo(String tipoMantenimiento);
+
     List<ActividadChecklist> listarActivasPorCategoria(Integer idCategoria);
 
     void eliminar(Integer id);

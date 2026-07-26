@@ -1,5 +1,7 @@
 package com.uisrael.consumogestionactivosapi.security;
 
+import java.security.SecureRandom;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,10 +26,14 @@ public class SecurityUtil {
     
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
     
-    private static final String UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final String LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
-    private static final String DIGITS = "0123456789";
+    private static final SecureRandom secureRandom = new SecureRandom();
+    private static final int TEMP_PASSWORD_LENGTH = 12;
+
+    private static final String UPPERCASE = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    private static final String LOWERCASE = "abcdefghijkmnopqrstuvwxyz";
+    private static final String DIGITS = "23456789";
     private static final String SPECIAL = "!@#$%^&*()-_=+";
+    private static final String ALL_PASSWORD_CHARS = UPPERCASE + LOWERCASE + DIGITS + SPECIAL;
 
     /**
      * Hashea una contraseña usando BCrypt.
@@ -91,24 +97,22 @@ public class SecurityUtil {
      */
     public static String generateTemporaryPassword() {
         StringBuilder password = new StringBuilder();
-        java.util.Random random = new java.util.Random(System.currentTimeMillis());
         
         // Garantizar al menos 1 de cada tipo
-        password.append(UPPERCASE.charAt(random.nextInt(UPPERCASE.length())));
-        password.append(LOWERCASE.charAt(random.nextInt(LOWERCASE.length())));
-        password.append(DIGITS.charAt(random.nextInt(DIGITS.length())));
-        password.append(SPECIAL.charAt(random.nextInt(SPECIAL.length())));
+        password.append(randomChar(UPPERCASE));
+        password.append(randomChar(LOWERCASE));
+        password.append(randomChar(DIGITS));
+        password.append(randomChar(SPECIAL));
         
         // Llenar el resto aleatoriamente
-        String all = UPPERCASE + LOWERCASE + DIGITS + SPECIAL;
-        for (int i = 4; i < 12; i++) {
-            password.append(all.charAt(random.nextInt(all.length())));
+        for (int i = 4; i < TEMP_PASSWORD_LENGTH; i++) {
+            password.append(randomChar(ALL_PASSWORD_CHARS));
         }
         
         // Barajar (Fisher-Yates)
         char[] chars = password.toString().toCharArray();
         for (int i = chars.length - 1; i > 0; i--) {
-            int randomIdx = random.nextInt(i + 1);
+            int randomIdx = secureRandom.nextInt(i + 1);
             char temp = chars[i];
             chars[i] = chars[randomIdx];
             chars[randomIdx] = temp;
@@ -116,6 +120,10 @@ public class SecurityUtil {
         
         logger.debug("Contraseña temporal generada");
         return new String(chars);
+    }
+
+    private static char randomChar(String source) {
+        return source.charAt(secureRandom.nextInt(source.length()));
     }
 
     /**

@@ -35,6 +35,14 @@ public class ActividadChecklistRepositorioImpl implements ActividadChecklistRepo
 	}
 
 	@Override
+	public List<ActividadChecklist> listarActivasPorTipo(String tipoMantenimiento) {
+		List<ActividadChecklistJpa> actividades = "PREVENTIVO".equalsIgnoreCase(tipoMantenimiento)
+				? jpaRepositorio.findAllByEstadoTrueAndAplicaPreventivoTrueOrderByOrdenAsc()
+				: jpaRepositorio.findAllByEstadoTrueAndAplicaCorrectivoTrueOrderByOrdenAsc();
+		return actividades.stream().map(this::toDomain).collect(Collectors.toList());
+	}
+
+	@Override
 	public List<ActividadChecklist> listarActivasPorCategoria(Integer idCategoria) {
 		return jpaRepositorio.findActivasPorCategoria(idCategoria).stream().map(this::toDomain)
 				.collect(Collectors.toList());
@@ -51,6 +59,8 @@ public class ActividadChecklistRepositorioImpl implements ActividadChecklistRepo
 		actividad.setNombre(entity.getNombre());
 		actividad.setOrden(entity.getOrden());
 		actividad.setEstado(Boolean.TRUE.equals(entity.getEstado()));
+		actividad.setAplicaPreventivo(Boolean.TRUE.equals(entity.getAplicaPreventivo()));
+		actividad.setAplicaCorrectivo(Boolean.TRUE.equals(entity.getAplicaCorrectivo()));
 		return actividad;
 	}
 
@@ -60,6 +70,8 @@ public class ActividadChecklistRepositorioImpl implements ActividadChecklistRepo
 		entity.setNombre(actividad.getNombre());
 		entity.setOrden(actividad.getOrden());
 		entity.setEstado(actividad.isEstado());
+		entity.setAplicaPreventivo(actividad.isAplicaPreventivo());
+		entity.setAplicaCorrectivo(actividad.isAplicaCorrectivo());
 		return entity;
 	}
 }

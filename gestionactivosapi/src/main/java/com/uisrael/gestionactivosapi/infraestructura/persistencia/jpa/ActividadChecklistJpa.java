@@ -35,6 +35,12 @@ public class ActividadChecklistJpa implements Serializable {
     @Column(name = "estado")
     private Boolean estado;
 
+    @Column(name = "aplica_preventivo", nullable = false)
+    private Boolean aplicaPreventivo;
+
+    @Column(name = "aplica_correctivo", nullable = false)
+    private Boolean aplicaCorrectivo;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "checklist_categoria",
@@ -73,6 +79,22 @@ public class ActividadChecklistJpa implements Serializable {
 
     public void setEstado(Boolean estado) {
         this.estado = estado;
+    }
+
+    public Boolean getAplicaPreventivo() {
+        return aplicaPreventivo;
+    }
+
+    public void setAplicaPreventivo(Boolean aplicaPreventivo) {
+        this.aplicaPreventivo = aplicaPreventivo;
+    }
+
+    public Boolean getAplicaCorrectivo() {
+        return aplicaCorrectivo;
+    }
+
+    public void setAplicaCorrectivo(Boolean aplicaCorrectivo) {
+        this.aplicaCorrectivo = aplicaCorrectivo;
     }
 
     public Set<CategoriaEquiposJpa> getCategorias() {

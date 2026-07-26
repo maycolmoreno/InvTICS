@@ -1,5 +1,6 @@
 package com.uisrael.gestionactivosapi.aplicacion.servicios;
 
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

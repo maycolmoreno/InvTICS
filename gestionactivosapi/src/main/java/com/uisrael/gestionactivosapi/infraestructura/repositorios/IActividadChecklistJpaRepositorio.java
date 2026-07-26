@@ -12,6 +12,10 @@ public interface IActividadChecklistJpaRepositorio extends JpaRepository<Activid
 
     List<ActividadChecklistJpa> findAllByEstadoTrueOrderByOrdenAsc();
 
+    List<ActividadChecklistJpa> findAllByEstadoTrueAndAplicaPreventivoTrueOrderByOrdenAsc();
+
+    List<ActividadChecklistJpa> findAllByEstadoTrueAndAplicaCorrectivoTrueOrderByOrdenAsc();
+
     @Query("""
             SELECT DISTINCT a
             FROM ActividadChecklistJpa a

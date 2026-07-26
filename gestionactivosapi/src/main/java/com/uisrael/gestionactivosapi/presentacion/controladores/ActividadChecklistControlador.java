@@ -34,6 +34,13 @@ public class ActividadChecklistControlador {
                 .toList();
     }
 
+    @GetMapping("/tipo/{tipoMantenimiento}")
+    public List<ActividadChecklistResponseDTO> listarPorTipo(@PathVariable String tipoMantenimiento) {
+        return checklistUseCase.listarActivasPorTipo(tipoMantenimiento).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     @GetMapping("/{id}")
     public ActividadChecklistResponseDTO obtenerPorId(@PathVariable Integer id) {
         return toResponse(checklistUseCase.obtenerPorId(id));
@@ -72,6 +79,8 @@ public class ActividadChecklistControlador {
                 .nombre(act.getNombre())
                 .orden(act.getOrden())
                 .estado(act.isEstado())
+                .aplicaPreventivo(act.isAplicaPreventivo())
+                .aplicaCorrectivo(act.isAplicaCorrectivo())
                 .build();
     }
 
@@ -80,6 +89,8 @@ public class ActividadChecklistControlador {
         act.setNombre(dto.nombre());
         act.setOrden(dto.orden());
         act.setEstado(dto.estado() != null ? dto.estado() : true);
+        act.setAplicaPreventivo(dto.aplicaPreventivo() != null ? dto.aplicaPreventivo() : true);
+        act.setAplicaCorrectivo(dto.aplicaCorrectivo() != null ? dto.aplicaCorrectivo() : true);
         return act;
     }
 }

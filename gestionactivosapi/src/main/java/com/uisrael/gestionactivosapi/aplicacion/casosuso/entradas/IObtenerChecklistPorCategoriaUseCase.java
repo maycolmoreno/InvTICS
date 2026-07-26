@@ -8,6 +8,8 @@ public interface IObtenerChecklistPorCategoriaUseCase {
 
     List<ActividadChecklist> listarActivas();
 
+    List<ActividadChecklist> listarActivasPorTipo(String tipoMantenimiento);
+
     ActividadChecklist obtenerPorId(Integer id);
 
     List<ActividadChecklist> ejecutar(Integer idCategoria);

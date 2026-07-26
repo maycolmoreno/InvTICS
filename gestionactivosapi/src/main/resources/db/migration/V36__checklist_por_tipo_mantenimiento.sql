@@ -1,0 +1,3 @@
+ALTER TABLE actividades_checklist
+    ADD COLUMN IF NOT EXISTS aplica_preventivo BOOLEAN NOT NULL DEFAULT TRUE,
+    ADD COLUMN IF NOT EXISTS aplica_correctivo BOOLEAN NOT NULL DEFAULT TRUE;

@@ -7,6 +7,7 @@ import com.uisrael.consumogestionactivosapi.modelo.dto.response.ActividadCheckli
 
 public interface IActividadChecklistServicio {
     List<ActividadChecklistResponseDTO> listarActivas();
+    List<ActividadChecklistResponseDTO> listarActivasPorTipo(String tipoMantenimiento);
     ActividadChecklistResponseDTO obtenerPorId(Integer id);
     void crear(ActividadChecklistRequestDTO dto);
     void actualizar(Integer id, ActividadChecklistRequestDTO dto);

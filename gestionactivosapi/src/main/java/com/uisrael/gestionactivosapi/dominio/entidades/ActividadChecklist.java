@@ -6,6 +6,8 @@ public class ActividadChecklist {
     private String nombre;
     private Integer orden;
     private boolean estado;
+    private boolean aplicaPreventivo;
+    private boolean aplicaCorrectivo;
 
     public Integer getIdActividad() {
         return idActividad;
@@ -37,5 +39,21 @@ public class ActividadChecklist {
 
     public void setEstado(boolean estado) {
         this.estado = estado;
+    }
+
+    public boolean isAplicaPreventivo() {
+        return aplicaPreventivo;
+    }
+
+    public void setAplicaPreventivo(boolean aplicaPreventivo) {
+        this.aplicaPreventivo = aplicaPreventivo;
+    }
+
+    public boolean isAplicaCorrectivo() {
+        return aplicaCorrectivo;
+    }
+
+    public void setAplicaCorrectivo(boolean aplicaCorrectivo) {
+        this.aplicaCorrectivo = aplicaCorrectivo;
     }
 }

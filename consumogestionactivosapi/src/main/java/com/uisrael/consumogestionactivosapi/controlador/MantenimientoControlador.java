@@ -356,15 +356,24 @@ public class MantenimientoControlador {
             @RequestParam String detalle,
             @RequestParam(required = false) String firmaTecnico,
             @RequestParam(required = false) String firmaCustodio,
-            @RequestParam(name = "actividadIds") List<Integer> actividadIds,
+            @RequestParam(name = "actividadIds", required = false) List<Integer> actividadIds,
 
             @RequestParam(name = "imagenes", required = false) List<MultipartFile> imagenes,
             @RequestParam(required = false) Integer idProgramado,
             @RequestParam Map<String, String> requestParams,
             RedirectAttributes redirectAttributes) {
 
-        int totalActividades = actividadChecklistServicio.listarActivas().size();
-        if (actividadIds == null || actividadIds.size() < totalActividades) {
+        List<ActividadChecklistResponseDTO> actividadesTipo = actividadChecklistServicio
+                .listarActivasPorTipo(tipoMantenimiento);
+        if (actividadesTipo.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "No hay checklist configurado para este tipo de mantenimiento.");
+            return redirectNuevoConContexto(equipoIds, idProgramado);
+        }
+        Set<Integer> idsEsperados = actividadesTipo.stream()
+                .map(ActividadChecklistResponseDTO::getIdActividad)
+                .collect(Collectors.toSet());
+        Set<Integer> idsRecibidos = actividadIds == null ? Set.of() : new java.util.HashSet<>(actividadIds);
+        if (!idsRecibidos.equals(idsEsperados)) {
             redirectAttributes.addFlashAttribute("error", "Debes completar todo el checklist");
             return redirectNuevoConContexto(equipoIds, idProgramado);
         }
@@ -396,7 +405,7 @@ public class MantenimientoControlador {
         request.setFirmaTecnico(firmaTecnico);
         request.setFirmaCustodio(firmaCustodio);
         request.setIdProgramado(idProgramado);
-        request.setActividades(construirActividadesSeleccionadas(actividadIds));
+        request.setActividades(construirActividadesSeleccionadas(actividadesTipo));
 
         MantenimientoManualResponseDTO creado;
         try {
@@ -562,18 +571,21 @@ public class MantenimientoControlador {
                     dto.setNombreActividad(act.getNombre());
                     dto.setCategoriaActividad(null);
                     dto.setRealizada(Boolean.FALSE);
+                    dto.setAplicaPreventivo(Boolean.TRUE.equals(act.getAplicaPreventivo()));
+                    dto.setAplicaCorrectivo(Boolean.TRUE.equals(act.getAplicaCorrectivo()));
                     return dto;
                 })
                 .toList();
     }
 
-    private List<ActividadManualRequestDTO> construirActividadesSeleccionadas(List<Integer> actividadIds) {
-        return actividadChecklistServicio.listarActivas().stream().map(act -> {
+    private List<ActividadManualRequestDTO> construirActividadesSeleccionadas(
+            List<ActividadChecklistResponseDTO> actividades) {
+        return actividades.stream().map(act -> {
             ActividadManualRequestDTO dto = new ActividadManualRequestDTO();
             dto.setIdActividad(act.getIdActividad());
             dto.setNombreActividad(act.getNombre());
             dto.setCategoriaActividad(null);
-            dto.setRealizada(actividadIds.contains(act.getIdActividad()));
+            dto.setRealizada(Boolean.TRUE);
             return dto;
         }).toList();
     }
